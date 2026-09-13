@@ -1,15 +1,15 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=8';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=8';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=8';
-import { BRAND_BY_CC } from './config.js?v=8';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=8';
-import { renderHome } from './home.js?v=8';
-import { renderSales } from './sales.js?v=8';
-import { renderMarketing } from './marketing.js?v=8';
-import { renderOffice } from './office.js?v=8';
-import { renderProduction } from './production.js?v=8';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=8';
+import * as api from './api.js?v=10';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=10';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=10';
+import { BRAND_BY_CC } from './config.js?v=10';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=10';
+import { renderHome } from './home.js?v=10';
+import { renderSales } from './sales.js?v=10';
+import { renderMarketing } from './marketing.js?v=10';
+import { renderOffice } from './office.js?v=10';
+import { renderProduction } from './production.js?v=10';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=10';
 
 let view = 'home';
 let loading = false;
@@ -106,6 +106,8 @@ function newJob() {
   const brands = Object.entries(BRAND_BY_CC);
   const sellers = state.sellers || [];
   const canPickRep = me.role !== 'sales';
+  const srcFor = (cc) => (state.leadSources || []).filter((s) => s.cc_company_id === cc);
+  const srcOpts = (cc) => '<option value="">— how they found us —</option>' + srcFor(cc).map((s) => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
   openModal({ title: 'New job', submitLabel: 'Open the file', wide: true, body: `
     <div class="two">
       <div class="field"><label>Brand</label><select name="cc">${brands.map(([cc, b]) => `<option value="${cc}" ${cc === (me.manages_company_id || '1461') ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></div>
@@ -120,6 +122,10 @@ function newJob() {
       <div class="field"><label>Job</label><input name="title" placeholder="6' vinyl privacy, 210 ft"/></div>
     </div>
     <div class="two">
+      <div class="field"><label>Lead source · the same list as Contractors Cloud</label><select name="src">${srcOpts(me.manages_company_id || '1461')}</select></div>
+      <div class="field"></div>
+    </div>
+    <div class="two">
       <div class="field"><label>Street</label><input name="street"/></div>
       <div class="field"><label>City · zip</label><div style="display:flex;gap:6px"><input name="city" placeholder="Cocoa"/><input name="zip" placeholder="32922" style="width:110px"/></div></div>
     </div>
@@ -129,13 +135,14 @@ function newJob() {
     </div>
     <div class="field"><label>Note to the team (optional)</label><input name="note" placeholder="gate code 2021 · HOA approval needed · call before 8"/></div>
     <div class="note">Same phone number = same customer: their file keeps its history. A signed amount opens the paperwork checklist for the office. An appointment sends the confirmation text if that switch is on.</div>`,
+    onOpen: (f) => { f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); }; },
     onSubmit: async (f) => {
       const amount = f.amount.value ? Number(f.amount.value) : null;
       const r = await createJob({ p_cc_company: f.cc.value, p_name: f.name.value.trim(), p_phone: f.phone.value.trim() || null, p_email: f.email.value.trim() || null,
         p_street: f.street.value.trim() || null, p_city: f.city.value.trim() || null, p_zip: f.zip.value.trim() || null,
         p_rep: canPickRep ? (f.rep.value || null) : null, p_title: f.title.value.trim() || null,
         p_appt_at: f.appt.value ? new Date(f.appt.value).toISOString() : null,
-        p_amount: amount, p_signed_at: amount ? new Date().toISOString() : null, p_lead_source: null, p_note: f.note.value.trim() || null });
+        p_amount: amount, p_signed_at: amount ? new Date().toISOString() : null, p_lead_source: f.src.value || null, p_note: f.note.value.trim() || null });
       toast('The file is open' + (amount ? ' · paperwork checklist opened for the office' : ''));
       await reload(true);
       window.__peek(r.customer_id);

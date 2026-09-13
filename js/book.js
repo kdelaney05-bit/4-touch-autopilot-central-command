@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=8';
-import { DEMO } from './demo.js?v=8';
+import * as api from './api.js?v=10';
+import { DEMO } from './demo.js?v=10';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -15,6 +15,7 @@ export const state = {
   lines: [],           // brand_sms_lines
   mentions: [],        // v_my_mentions — tagged for me
   sellers: [],         // v_sellers — who a job can be sold by
+  leadSources: [],     // lead_sources — CC's own list, per brand
   warnings: [],
   loadedAt: null,
 };
@@ -25,7 +26,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
   const s = api.getSession();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers] = await Promise.all([
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -36,8 +37,9 @@ export async function loadAll() {
     api.page('brand_sms_lines?select=*'),
     api.page('v_my_mentions?select=*&order=created_at.desc', 200).catch(() => []),
     api.page('v_sellers?select=*&order=name.asc').catch(() => []),
+    api.page('lead_sources?select=cc_lead_id,name,cc_company_id,cc_total_used&is_active=eq.true&order=cc_total_used.desc.nullslast').catch(() => []),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
@@ -126,6 +128,12 @@ export async function uploadDoc(job, lane, file) {
   const path = `${job.cc_company_id || '0'}/${job.cc_project_id}/${lane}/DOC/${Date.now()}-${safe}`;
   await api.uploadPublic('job-docs', path, file, file.type || 'application/octet-stream');
   return { storage_path: path, label: file.name };
+}
+/* A document on the file with no ask behind it: the permit that arrived, the HOA letter, a photo. */
+export async function addDoc(job, threadId, lane, file, label) {
+  guard();
+  const up = await uploadDoc(job, lane, file);
+  return api.insert('thread_attachments', { thread_id: threadId, lane, source: 'storage', storage_path: up.storage_path, label: label || file.name, added_by: api.getSession().repId });
 }
 export async function searchCustomers(q) {
   if (isDemo()) return DEMO.search(q);

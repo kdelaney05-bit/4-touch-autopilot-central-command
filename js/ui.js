@@ -27,7 +27,7 @@ export function toast(msg, kind = '') {
 
 /* A modal with a form. `render()` returns inner HTML; `onSubmit(form)` runs
    on submit and may throw — the message lands in .err and the modal stays. */
-export function openModal({ title, body, submitLabel = 'Save', onSubmit, wide = false }) {
+export function openModal({ title, body, submitLabel = 'Save', onSubmit, onOpen, wide = false }) {
   const root = $('#modal-root');
   root.innerHTML = html`
     <div class="modal-bg" id="modal-bg">
@@ -57,6 +57,7 @@ export function openModal({ title, body, submitLabel = 'Save', onSubmit, wide = 
   };
   const first = form.querySelector('input,textarea,select');
   if (first) first.focus();
+  if (onOpen) onOpen(form);
   return close;
 }
 

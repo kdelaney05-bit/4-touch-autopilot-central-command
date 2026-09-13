@@ -48,6 +48,7 @@ const CLOCK = BOARD.filter((b) => b.waiting_min).map((b) => ({ text_id: 'tx' + b
 
 function book() {
   return { me: { ...me, manages_company_id: null }, seats: SEATS, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
+    leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
     switches: [{ key: 'appt_confirm', is_on: false }, { key: 'text_clock', is_on: false }],

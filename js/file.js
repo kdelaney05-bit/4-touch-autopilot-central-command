@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=8';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=8';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=8';
-import { settleDialog } from './office.js?v=8';
-import { reload } from './app.js?v=8';
-import { relTime } from './production.js?v=8';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=10';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=10';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=10';
+import { settleDialog } from './office.js?v=10';
+import { reload } from './app.js?v=10';
+import { relTime } from './production.js?v=10';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -56,6 +56,7 @@ function draw(root, ctx, compact) {
   const st = STAGES[job.stage] || {};
   const isSup = job.supervisor_id && job.supervisor_id === me?.id;
   const canTake = ['manager', 'office', 'admin', 'owner'].includes(me?.role) && job.job_id && job.stage === 'sold_office';
+  const staff = ['manager', 'office', 'admin', 'owner'].includes(me?.role);
   const openAsks = asks.filter((a) => a.state === 'OPEN');
   const doneAsks = asks.filter((a) => a.state !== 'OPEN').slice(-6);
   const paperwork = asks.filter((a) => a.ask_type === 'CONTRACT_DOC');
@@ -97,6 +98,10 @@ function draw(root, ctx, compact) {
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         ${customer?.phone ? raw(`<a class="btn" href="tel:${esc(customer.phone)}">Call</a>`) : ''}
         ${customer?.email ? raw(`<a class="btn" href="mailto:${esc(customer.email)}">Email</a>`) : ''}
+        <button class="btn" id="file-text" title="Text the customer from the main line">Text</button>
+        <button class="btn" id="file-tag" title="Note to the team · tag the next person">Tag</button>
+        ${job.job_id ? raw('<button class="btn" id="file-doc" title="Put a document on the file">+ Document</button>') : ''}
+        ${staff && job.job_id ? raw('<button class="btn" id="file-send" title="Hand this file to a seat">Send to…</button>') : ''}
         ${canTake ? raw('<button class="btn fill" id="file-take">Take the job</button>') : ''}
         ${isSup && job.stage === 'production' ? raw('<button class="btn" id="file-back-job">Hand it back</button>') : ''}
       </div>
@@ -166,6 +171,28 @@ function draw(root, ctx, compact) {
   if (q('#file-take')) q('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } catch (e) { toast(e.message, 'err'); } };
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
+  const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
+  if (q('#file-text')) q('#file-text').onclick = () => { const c = q('#compose'); if (c) { c.scrollIntoView({ block: 'center', behavior: 'smooth' }); c.focus(); } };
+  if (q('#file-tag')) q('#file-tag').onclick = () => { const n = q('#note'); if (n) { n.scrollIntoView({ block: 'center', behavior: 'smooth' }); n.focus(); } };
+  if (q('#file-send')) q('#file-send').onclick = () => {
+    const seats = (state.seats || []).filter((s) => s.id !== me?.id);
+    openModal({ title: `Send ${name}'s file to…`, submitLabel: 'Send it', body: `
+      <div class="field"><label>Who</label><select name="to" required><option value="">— pick the seat —</option>${seats.map((s) => `<option value="${esc(s.id)}">${esc(s.name)} · ${esc(s.role)}</option>`).join('')}</select></div>
+      <div class="field"><label>What they need to do</label><textarea name="note" placeholder="permit's in — schedule it · customer wants a call before 8"></textarea></div>
+      <div class="note">They get a push and the file lands on their board. The stage moves with the seat.</div>`,
+      onSubmit: async (fm) => { await assignJob(job.job_id, fm.to.value, fm.note.value.trim() || null); toast('Sent · they get a push'); await reload(true); again(); } });
+  };
+  if (q('#file-doc')) q('#file-doc').onclick = () => openModal({ title: 'Put a document on the file', submitLabel: 'Add it', body: `
+      <div class="field"><label>File</label><input name="file" type="file" required/></div>
+      <div class="field"><label>What it is</label><input name="label" placeholder="Permit · HOA approval · NOC · signed contract · photo"/></div>
+      <div class="field"><label>Who sees it</label><select name="lane"><option value="OFFICE">Office and managers</option><option value="SUPER">Production</option></select></div>
+      <div class="note">Goes on the file for everyone who can read it. If an open ask is waiting on this exact piece, settle the ask instead so its clock stops.</div>`,
+    onSubmit: async (fm) => {
+      const file = fm.file.files[0]; if (!file) throw new Error('Pick a file');
+      let tid = thread?.id; if (!tid) tid = await threadForJob(job.job_id);
+      await addDoc(job, tid, fm.lane.value, file, fm.label.value.trim() || file.name);
+      toast('On the file'); again();
+    } });
   q('#note-send').onclick = async () => {
     const to = q('#note-to').value, what = q('#note-what').value;
     let body = q('#note').value.trim(); if (!body && !what) return;
