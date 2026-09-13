@@ -68,7 +68,9 @@ customer and every dollar, and the noise stops mattering.
 ## The two things
 
 Sales is a survival skill, and the most important one in the world. Kevin
-has said these two things to every person who ever sold for him or reported
+teaches survival, and happens to know how the target eats, sleeps, drinks,
+lives and thinks. Know the customer better than the trade; the trade you can
+learn. Kevin has said these two things to every person who ever sold for him or reported
 to him: 89 people so far. 80 of them sold, and all 80 crushed it. A
 new rep reading this on the first morning is the 90th.
 
