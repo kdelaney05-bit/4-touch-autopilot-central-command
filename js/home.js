@@ -1,8 +1,8 @@
 // The Business — the one place. Four doors, the funnel, what needs you now,
 // the line right now. Every number is a count of live rows the seat can read.
-import { state, isDemo, personName, firstName } from './book.js?v=5';
-import { html, raw, esc } from './ui.js?v=5';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=5';
+import { state, isDemo, personName, firstName } from './book.js?v=6';
+import { html, raw, esc } from './ui.js?v=6';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=6';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -85,6 +85,7 @@ export function renderHome(root) {
       </div>
     </div>
 
+    ${(state.mentions || []).filter((m) => !m.seen_at).length ? raw('<div class="card" style="border-color:var(--goldbtn)"><div class="kicker" style="color:var(--gold)">Tagged for you · ' + state.mentions.filter((m) => !m.seen_at).length + '</div>' + state.mentions.filter((m) => !m.seen_at).slice(0, 8).map((m) => `<div class="inv" style="grid-template-columns:auto 1fr auto"><span class="mono dimmer">${esc(new Date(m.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</span><span><b>${esc(firstName(m.author_name || ''))}</b> on <b>${esc(personName(m.customer_name))}</b>: "${esc(String(m.body).slice(0, 110))}"</span><button class="btn sm fill" onclick="__go('file','${esc(m.customer_id)}')">Open file</button></div>`).join('') + '</div>') : ''}
     <div class="two">
       <div class="card">
         <div class="kicker">Needs you now · customers waiting for an answer${sw('text_clock') ? '' : ' · the clock is off'}</div>

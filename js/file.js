@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview } from './book.js?v=5';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=5';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=5';
-import { settleDialog } from './office.js?v=5';
-import { reload } from './app.js?v=5';
-import { relTime } from './production.js?v=5';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=6';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=6';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=6';
+import { settleDialog } from './office.js?v=6';
+import { reload } from './app.js?v=6';
+import { relTime } from './production.js?v=6';
 
 let current = null;    // { customerId, data }
 const money = (n) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString();
@@ -62,7 +62,7 @@ function draw(root) {
   texts.forEach((t) => items.push({ at: t.occurred_at, kind: t.direction === 'inbound' ? 'in' : (t.feed_source === 'machine' || /Reply STOP/.test(t.body || '')) ? 'machine' : 'out', who: t.direction === 'inbound' ? name : senderOf(t), body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url }));
   outbox.filter((o) => o.status !== 'cancelled' && !texts.some((t) => t.direction === 'outbound' && t.body === o.body)).forEach((o) => items.push({ at: o.sent_at || o.queued_at, kind: 'out', who: (seatName(o.rep_id) || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), body: o.body }));
   emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : 'the rep'} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', who: m.author_name || '', body: (m.is_system ? '' : `[${m.lane}] `) + m.body, lane: m.lane }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', who: (m.author_name || '') + (m.is_system ? '' : ' · team note'), body: m.body, lane: m.lane }));
   items.sort((a, b) => new Date(a.at) - new Date(b.at));
 
   root.innerHTML = html`
@@ -73,7 +73,7 @@ function draw(root) {
     <div class="card" style="flex-direction:row;align-items:center;gap:18px;flex-wrap:wrap">
       <div style="flex-grow:1;min-width:0">
         <div class="kicker">The customer file · one file, every room writes on it</div>
-        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${esc(job.title || '')}${job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
+        <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
@@ -97,6 +97,16 @@ function draw(root) {
           <button class="btn fill" id="send" ${optOut || !customer?.phone ? 'disabled' : ''}>Send</button>
         </div>
         <div class="small">Sent from the file on the brand's main line, credited to you. Six seconds to undo. A line fills in with this customer's name and brand; edit it before you send.</div>
+        <div class="kicker" style="margin-top:14px">Note to the team · the customer never sees this · tag the next person</div>
+        <div class="subs" style="margin:4px 0 6px">
+          <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option>${raw(state.seats.map((s) => `<option value="@${esc(firstName(s.name))}">@${esc(firstName(s.name))} · ${esc(s.name)}</option>`).join(''))}</select>
+          <select id="note-what" style="width:auto;padding:5px 8px;font-size:12px"><option value="">What: a note</option>${raw(Object.keys(ASK_LABEL).map((t) => `<option value="${t}">Task: ${esc(ASK_LABEL[t])}</option>`).join(''))}</select>
+        </div>
+        <div class="composer" style="background:var(--officesoft)">
+          <textarea id="note" placeholder="permit is in, ready to schedule · take this one · customer asked for you"></textarea>
+          <button class="btn" id="note-send">Post</button>
+        </div>
+        <div class="small">They get a push, and it sits in their Tagged list until they open this file. A task also opens an ask on them with the clock running.</div>
       </div>
 
       <div style="display:flex;flex-direction:column;gap:12px">
@@ -137,6 +147,30 @@ function draw(root) {
   if ($('#file-take')) $('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); openFile(current.customerId); } catch (e) { toast(e.message, 'err'); } };
   if ($('#file-back-job')) $('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); openFile(current.customerId); } });
   if ($('#new-ask')) $('#new-ask').onclick = () => newAsk(thread, job);
+  $('#note-send').onclick = async () => {
+    const to = $('#note-to').value, what = $('#note-what').value;
+    let body = $('#note').value.trim(); if (!body && !what) return;
+    if (to && !body.includes(to)) body = to + ' ' + body;
+    $('#note-send').disabled = true;
+    try {
+      let tid = thread?.id;
+      if (!tid) { if (!job.job_id) throw new Error('No job on this file yet'); tid = await threadForJob(job.job_id); }
+      const lane = ['manager'].includes(me?.role) ? 'SUPER' : 'OFFICE';
+      if (body) await postMessage(tid, lane, body);
+      if (what) {
+        const roleWords = ['@office', '@schedule', '@production', '@rep', '@invoice'];
+        const seat = to.startsWith('@') && !roleWords.includes(to) ? state.seats.find((s) => firstName(s.name).toLowerCase() === to.slice(1).toLowerCase()) : null;
+        const toId = seat?.id || (to === '@production' && job.supervisor_id) || (to === '@rep' && job.rep_id) || job.owner_id || me.id;
+        const laneFor = ['COMPLETION_SIGNOFF', 'MATERIAL_REQUEST', 'SITE_ISSUE', 'SUPERVISOR_PING', 'SAFETY_JHA'].includes(what) ? 'SUPER' : ['CUSTOMER_REQUEST', 'SCHEDULE_QUESTION'].includes(what) ? 'CHAT' : 'OFFICE';
+        await openAsk(tid, laneFor, what, body || null, toId);
+      }
+      toast(what ? 'Posted · task opened with the clock running' : to ? 'Posted · they get a push' : 'Posted');
+      $('#note').value = '';
+      openFile(current.customerId);
+    } catch (e) { toast(e.message, 'err'); }
+    finally { $('#note-send').disabled = false; }
+  };
+  if (thread?.id) mentionSeen(thread.id).then((n) => { if (n) state.mentions = state.mentions.map((m) => m.thread_id === thread.id ? { ...m, seen_at: new Date().toISOString() } : m); });
 }
 
 function senderOf(t) {

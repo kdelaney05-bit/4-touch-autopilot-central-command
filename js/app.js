@@ -1,14 +1,14 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=5';
-import { state, loadAll, isDemo, searchCustomers } from './book.js?v=5';
-import { $, $$, html, raw, toast } from './ui.js?v=5';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=5';
-import { renderHome } from './home.js?v=5';
-import { renderSales } from './sales.js?v=5';
-import { renderMarketing } from './marketing.js?v=5';
-import { renderOffice } from './office.js?v=5';
-import { renderProduction } from './production.js?v=5';
-import { renderFiles, openFile } from './file.js?v=5';
+import * as api from './api.js?v=6';
+import { state, loadAll, isDemo, searchCustomers } from './book.js?v=6';
+import { $, $$, html, raw, toast } from './ui.js?v=6';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=6';
+import { renderHome } from './home.js?v=6';
+import { renderSales } from './sales.js?v=6';
+import { renderMarketing } from './marketing.js?v=6';
+import { renderOffice } from './office.js?v=6';
+import { renderProduction } from './production.js?v=6';
+import { renderFiles, openFile } from './file.js?v=6';
 
 let view = 'home';
 let loading = false;
@@ -33,7 +33,8 @@ export function render() {
   if (!r.includes(view) && view !== 'file') view = r[0] || 'files';
   $('#nav-who').textContent = me ? `${me.name.split(' ')[0]} · ${me.role}` : '';
   $('#who-sub').textContent = isDemo() ? 'DEMO — nothing is saved' : (state.loadedAt ? 'loaded ' + state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '');
-  const counts = { office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length };
+  const tagged = (state.mentions || []).filter((m) => !m.seen_at).length;
+  const counts = { office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length + tagged };
   $('#tabs').innerHTML = r.map((k) => html`<button class="tab ${k === view || (view === 'file' && k === 'files') ? 'on' : ''}" data-view="${k}">${ROOM_LABEL[k]}${counts[k] ? raw(`<span class="n">${counts[k]}</span>`) : ''}</button>`).join('');
   $$('#tabs button').forEach((b) => (b.onclick = () => go(b.dataset.view)));
   for (const v of VIEWS) $('#view-' + v).classList.toggle('hidden', v !== view);

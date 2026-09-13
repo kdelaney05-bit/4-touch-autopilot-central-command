@@ -48,6 +48,7 @@ const CLOCK = BOARD.filter((b) => b.waiting_min).map((b) => ({ text_id: 'tx' + b
 
 function book() {
   return { me: { ...me, manages_company_id: null }, seats: SEATS, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
+    mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
     switches: [{ key: 'appt_confirm', is_on: false }, { key: 'text_clock', is_on: false }],
     lines: [{ line_e164: '+13218061995', cc_company_id: '1461', label: 'Liberty Fencing · 321', campaign_ok: true }, { line_e164: '+13862766898', cc_company_id: '1461', label: 'Liberty Fencing · 386', campaign_ok: true }], warnings: ['DEMO — a fictional book; nothing is saved'] };
 }
