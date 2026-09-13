@@ -5,7 +5,7 @@ took a leap of faith from Chicago and started selling roofs at Total Home
 Roofing. That napkin took Total Home from zero to a hundred million a year in
 ten years, the biggest retail roofing company there has ever been, and then
 to Angi. Greenfield, and Kevin doesn't own a hammer or know the first thing
-about roofing. The napkin was never about roofs. It was about the customer,
+about roofing, fencing or landscaping. The napkin was never about the trade. It was about the customer,
 which is why it runs fences, roofs and landscapes the same. It never needed a
 page more. The app is that napkin with a clock, a scoreboard and a cockpit. Reps
 don't run the system; they play it. This is the day-one page for a new rep and
