@@ -67,6 +67,12 @@ wrong, not the gospel.
     log, remind and confirm; it never books the appointment or answers the
     customer's call. And a human shows up for the appointment: five minutes
     early, in the collared shirt. The geofence only stamps it.
+20. **Take the paper off the humans, never the conversation.** Sam, Jess and
+    Laura are the hard workers who talk to the customers, love on them and
+    get loved on back. Every automation for the office removes retyping,
+    lookups and county runs; none of it removes a conversation. The first
+    thing to build for them is a better first impression: the customer's
+    source, last text and file on the screen before they say hello.
 
 ## Where each one shows up
 
