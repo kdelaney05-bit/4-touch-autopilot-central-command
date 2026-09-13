@@ -46,6 +46,23 @@ safely. That is exactly where we are.
    you want somebody to grab it. The reps' hype thread is untouched.
 10. **The lead door.** A web address that can take leads straight in. It is
     built and live. Nothing points at it yet, on purpose.
+11. **Adopt a job from CC.** Open any sold job that has no asks yet. A gold
+    strip asks one question: where is it in CC right now? Tap the answer.
+    Exactly that ask opens on the right seat, clock starting today. Nothing
+    else opens. No flood. 549 sold jobs are waiting to be adopted this way
+    (443 Fencing, 69 Oasis, 32 Pro-Tech, 5 Liberty Roofing), plus 29 at
+    the invoice step.
+12. **The office's day, side by side.** docs/THE-OFFICE-DAY.md walks every
+    CC step Jess's team does today and the one move it becomes here. Fence
+    jobs go from 10 tasks to 4 inputs. Roofing from 21 tasks to 4 office
+    inputs and 7 supervisor inputs. Both templates were walked signing to
+    close-out on the live database tonight and every ask landed on the
+    right seat.
+13. **The CC files.** Contractors Cloud does expose every project's files
+    over its API, with plain download links. The puller is built. Its dry
+    run and the exact command to run it for real are in
+    Commercial-Desk/docs/CC-FILES-MIGRATION.md. It copies files out of CC
+    onto each customer's file here. It changes nothing in CC.
 
 ## Try it in sixty seconds each
 
@@ -61,8 +78,9 @@ safely. That is exactly where we are.
   down the list.
 - **Production.** Open Production. Look at the days in stage column. Red is
   somebody holding a customer too long.
-- **New job.** Left rail, press New job. Make a fake one. Delete it after, or
-  leave it, it is yours.
+- **New job.** Top bar, press + New job. Make a fake one. It is yours.
+- **Adopt a job.** Find any customer sold this month. If the file shows the
+  gold strip, tap where the job is in CC. Watch the one ask open.
 - **The village.** Open a room, post a line, point it at a customer.
 - **The demo.** Add `?demo=1` to the link and show anybody. It is fake data
   and every button refuses to save.
@@ -96,9 +114,12 @@ person presses Send.
 4. **Which switch flips first.** My suggestion is `appt_confirm` for Liberty
    Fencing only, because that campaign is approved and it is one text per new
    estimate. Oasis and Pro-Tech wait on their registrations.
-5. **The paperwork backfill window.** For jobs already sold, how far back do
-   we open the paperwork asks? My suggestion is the last 45 days. Older than
-   that and we are chasing paper on jobs the office already closed out.
+5. **No bulk backfill.** Instead of opening paperwork asks on hundreds of old
+   jobs at once, the office adopts each job with one tap the first time they
+   open it. Say if you want the last 45 days adopted for them anyway.
+8. **The CC files.** Say go and I run the puller for the live jobs. It reads
+   from CC and writes only to our own storage and files. Numbers are in the
+   files doc.
 6. **The Google review links.** Please click the four links and confirm each
    one lands on the right company's review box. They feed the review ask.
 7. **Robert Govea, in or out.** He is a production supervisor in CC since
