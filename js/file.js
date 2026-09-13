@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest } from './book.js?v=14';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=14';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=14';
-import { settleDialog } from './office.js?v=14';
-import { reload } from './app.js?v=14';
-import { relTime } from './production.js?v=14';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate } from './book.js?v=15';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=15';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=15';
+import { settleDialog } from './office.js?v=15';
+import { reload } from './app.js?v=15';
+import { relTime } from './production.js?v=15';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -66,6 +66,7 @@ function draw(root, ctx, compact) {
   const ADOPT = [['paperwork', 'Paperwork'], ['permit', 'Permit'], ...(roofing ? [] : [['locate', 'Locate']]), ['schedule', 'Schedule'], ['production', 'In production'], ['inspection', 'Final inspection'], ['invoice', 'Invoice'], ['payment', 'Collecting'], ['closeout', 'Close-out']];
   const line = state.lines.find((l) => l.cc_company_id === (job.cc_company_id || '1461')) || state.lines[0];
   const optOut = customer?.sms_opt_out_at || job.sms_opt_out_at;
+  const estimates = ctx.data.estimates || [], estLinks = ctx.data.estLinks || [];   // 322
 
   // the stage bar: what has happened on this file, in order
   const steps = [];
@@ -105,6 +106,7 @@ function draw(root, ctx, compact) {
         ${customer?.email ? raw(`<a class="btn" href="mailto:${esc(customer.email)}">Email</a>`) : ''}
         <button class="btn" id="file-text" title="Text the customer from the main line">Text</button>
         <button class="btn" id="file-tag" title="Note to the team · tag the next person">Tag</button>
+        ${customer ? raw('<button class="btn" id="file-estimate" title="Build the itemized estimate · one link · they tap ACCEPT">Estimate</button>') : ''}
         ${job.job_id ? raw('<button class="btn" id="file-doc" title="Put a document on the file">+ Document</button>') : ''}
         ${staff && job.job_id ? raw('<button class="btn" id="file-send" title="Hand this file to a seat">Send to…</button>') : ''}
         ${staff && job.job_id ? raw('<button class="btn" id="file-invoice" title="Queue this job\'s invoice for QuickBooks">Invoice</button>') : ''}
@@ -144,6 +146,7 @@ function draw(root, ctx, compact) {
           ${openAsks.length ? raw(openAsks.map((a) => askRow(a, me)).join('')) : raw('<div class="small">No open asks.</div>')}
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
+        ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
           <div class="kicker">On the file</div>
@@ -179,6 +182,8 @@ function draw(root, ctx, compact) {
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
+  if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again);
+  root.querySelectorAll('[data-estlink]').forEach((b) => (b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.estlink); toast('Link copied'); } catch { window.prompt('Copy the link', b.dataset.estlink); } }));
   root.querySelectorAll('[data-adopt]').forEach((btn) => (btn.onclick = async () => {
     btn.disabled = true;
     try { const r = await adoptJob(job.job_id, btn.dataset.adopt); const n = (r?.opened || []).length; toast(n ? `Adopted · ${n} ask${n === 1 ? '' : 's'} opened` : 'Adopted · the file is open'); await reload(true); again(); }
@@ -266,6 +271,65 @@ function draw(root, ctx, compact) {
     finally { q('#note-send').disabled = false; }
   };
   if (thread?.id) mentionSeen(thread.id).then((n) => { if (n) state.mentions = state.mentions.map((m) => m.thread_id === thread.id ? { ...m, seen_at: new Date().toISOString() } : m); });
+}
+
+/* ── THE ITEMIZED ESTIMATE (322) — Mike's Billdu flow on our rails ──────────
+   Items with a scope of work, a price, valid 14 days, one link; the customer
+   taps ACCEPT on the page and the rep gets the push. estimate_doc_create
+   mints the document, the amount fact (131) and the tracked link in one
+   call. Accepting is not selling: nothing lands on a board (126/129). */
+const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
+const fmtMoney = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function estimateDialog(ctx, job, customer, name, again) {
+  const cc = job.cc_company_id || state.me?.manages_company_id || '1461';
+  const rowHtml = () => `<div class="est-row" style="display:grid;grid-template-columns:1.5fr 64px 70px 110px 32px;gap:6px;align-items:start;margin-top:6px">
+      <div><input name="label" placeholder="Pavers · 6' privacy fence · shingle roof" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px"></textarea></div>
+      <input name="qty" type="number" step="0.01" min="0" value="1" title="Qty"/>
+      <input name="unit" placeholder="job" title="Unit"/>
+      <input name="price" type="number" step="0.01" min="0" placeholder="0.00" title="Unit price" required/>
+      <button class="btn sm" type="button" data-del title="Remove this item">×</button>
+    </div>`;
+  openModal({ title: `Estimate for ${name}`, submitLabel: 'Create the estimate', wide: true, body: `
+      <div class="field"><label>Title · what the job is</label><input name="title" placeholder="Backyard paver installation"/></div>
+      <div class="kicker" style="margin-top:6px">Items · what it is and the scope · qty · unit · unit price</div>
+      <div id="est-rows">${rowHtml()}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><button class="btn sm" type="button" id="est-add">+ Item</button><div>Total <b class="mono" id="est-total">$0.00</b></div></div>
+      <div class="field" style="margin-top:8px"><label>Note under the items (optional)</label><textarea name="note" placeholder="50% deposit to schedule, balance on completion."></textarea></div>
+      <div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>Valid for</label><select name="valid"><option value="14">14 days</option><option value="7">7 days</option><option value="30">30 days</option></select></div><div class="field" style="flex:1"><label>Brand on it</label><select name="cc">${['1461', '1560', '1563', '1537'].map((c) => `<option value="${c}" ${c === String(cc) ? 'selected' : ''}>${esc(brandName(c))}</option>`).join('')}</select></div></div>
+      <div class="note">Same shape as Mike's Billdu estimate: the items, the scope, the price, valid 14 days. One link goes to the customer; they tap ACCEPT; you get the push. Accepting is not selling — nothing lands on a board.</div>`,
+    onOpen: (fm) => {
+      const rows = fm.querySelector('#est-rows');
+      const retotal = () => { let t = 0; rows.querySelectorAll('.est-row').forEach((r) => { t += Number(r.querySelector('[name=qty]').value || 0) * Number(r.querySelector('[name=price]').value || 0); }); fm.querySelector('#est-total').textContent = fmtMoney(t); };
+      const wire = () => rows.querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => { if (rows.querySelectorAll('.est-row').length > 1) { b.closest('.est-row').remove(); retotal(); } }));
+      fm.querySelector('#est-add').onclick = () => { rows.insertAdjacentHTML('beforeend', rowHtml()); wire(); rows.lastElementChild.querySelector('[name=label]').focus(); };
+      rows.addEventListener('input', retotal); wire();
+    },
+    onSubmit: async (fm) => {
+      const items = Array.from(fm.querySelectorAll('.est-row')).map((r) => ({
+        label: r.querySelector('[name=label]').value.trim(), description: r.querySelector('[name=desc]').value.trim() || null,
+        qty: Number(r.querySelector('[name=qty]').value || 1), unit: r.querySelector('[name=unit]').value.trim() || null, unit_price: Number(r.querySelector('[name=price]').value || 0),
+      })).filter((i) => i.label);
+      if (!items.length) throw new Error('Put at least one item in');
+      if (!items.some((i) => i.unit_price > 0)) throw new Error('Put a price on it');
+      const r = await createEstimate({ customer_id: ctx.customerId, cc_company_id: fm.cc.value, title: fm.title.value.trim() || null, note: fm.note.value.trim() || null, valid_days: Number(fm.valid.value), channel: 'sms', items });
+      toast(`Estimate #${r.serial} · ${fmtMoney(r.total)}`);
+      setTimeout(() => sendEstimateDialog(ctx, r, name, customer, fm.cc.value, again), 0);
+    } });
+}
+function sendEstimateDialog(ctx, r, name, customer, cc, again) {
+  const url = r.url;
+  const tpl = `Hi ${firstName(name)}, ${firstName(state.me?.name || '')} with ${brandName(cc)}. Your estimate #${r.serial} is ready — tap to view and accept: ${url}`;
+  openModal({ title: `Estimate #${r.serial} · ${fmtMoney(r.total)} · send it`, submitLabel: customer?.phone ? `Text it to ${firstName(name)}` : 'Done', body: `
+      <div class="field"><label>The link</label><div style="display:flex;gap:6px"><input name="link" value="${esc(url)}" readonly style="flex:1"/><button class="btn sm" type="button" id="est-copy">Copy</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">Open</a></div></div>
+      <div class="field"><label>The text</label><textarea name="msg" style="min-height:90px">${esc(tpl)}</textarea></div>
+      <div class="note">Goes out on the brand's main line, credited to you. Opening the link yourself counts as a view and pings your own phone.</div>`,
+    onOpen: (fm) => { fm.querySelector('#est-copy').onclick = async () => { try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch { fm.link.select(); } }; },
+    onSubmit: async (fm) => {
+      if (!customer?.phone) { again(); return; }
+      const body = fm.msg.value.trim(); if (!body) throw new Error('Nothing to send');
+      await textCustomer(ctx.customerId, body);
+      toast('Estimate sent from the main line'); again();
+    } });
 }
 
 function senderOf(t) {

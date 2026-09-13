@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=14';
-import { DEMO } from './demo.js?v=14';
+import * as api from './api.js?v=15';
+import { DEMO } from './demo.js?v=15';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -73,12 +73,15 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
     job.job_id ? api.page(`job_handoffs?select=*&job_id=eq.${job.job_id}&order=at.asc`) : [],
     api.page(`sms_outbox?select=id,body,status,queued_at,sent_at,from_number,rep_id,play&customer_id=eq.${customerId}&order=queued_at.asc`, 500).catch(() => []),
+    // 322: the itemized estimates on this file (the rep's own, or all of them for a manager), and their links
+    api.page(`estimate_docs?select=id,serial_number,title,total,status,accepted_at,issue_date,valid_until,link_id,created_at&customer_id=eq.${customerId}&order=created_at.desc`, 100).catch(() => []),
+    api.page(`estimate_links?select=id,token&customer_id=eq.${customerId}&doc_id=not.is.null`, 100).catch(() => []),
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -91,7 +94,7 @@ export async function loadFile(customerId) {
       ]);
     }
   }
-  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox };
+  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks };
 }
 
 // ── writes (all refused in demo) ─────────────────────────────────────────────
@@ -127,6 +130,8 @@ export async function linePreview(customerId) {
 export async function cancelText(id) { guard(); return api.rpc('app_text_cancel', { p_id: id }); }
 export async function ensureThread(ccProjectId) { guard(); return api.rpc('ensure_thread', { p_cc_project_id: ccProjectId }); }
 export async function createJob(args) { guard(); return api.rpc('job_create', args); }
+/* 322: the itemized estimate — one call mints the document, its items, the amount fact and the tracked link. */
+export async function createEstimate(p) { guard(); return api.rpc('estimate_doc_create', { p }); }
 export async function threadForJob(jobId) { guard(); return api.rpc('file_thread_for', { p_job: jobId }); }
 export async function mentionSeen(threadId) { if (isDemo()) return 0; return api.rpc('mention_seen', { p_thread: threadId }).catch(() => 0); }
 export async function setSwitch(key, on) { guard(); return api.rpc('automation_switch_set', { p_key: key, p_on: on }); }
