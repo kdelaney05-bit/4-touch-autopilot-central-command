@@ -1,9 +1,9 @@
 // The Business — the one place. Four doors, the funnel, what needs you now,
 // the line right now. Every number is a count of live rows the seat can read.
-import { state, isDemo, personName, firstName } from './book.js?v=19';
-import { html, raw, esc } from './ui.js?v=19';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=19';
-import { renderRoom } from './village.js?v=19';
+import { state, isDemo, personName, firstName } from './book.js?v=20';
+import { html, raw, esc } from './ui.js?v=20';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=20';
+import { renderRoom } from './village.js?v=20';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -46,6 +46,9 @@ export function renderHome(root) {
         <div class="rows">
           <div class="r"><span>Paperwork</span><span class="mono">${byType('CONTRACT_DOC')}</span></div>
           <div class="r"><span>Permit</span><span class="mono">${byType('PERMIT')}</span></div>
+          <div class="r"><span>Owner of record checked · 30 days</span><span class="mono">${new Set((state.parcels || []).map((p) => p.customer_id)).size}</span></div>
+          <div class="r"><span>Signer is not the owner</span><span class="mono ${(state.parcels || []).some((p) => p.signer_match === 'mismatch') ? 'red' : ''}">${new Set((state.parcels || []).filter((p) => p.signer_match === 'mismatch').map((p) => p.customer_id)).size}</span></div>
+          <div class="r"><span>NOCs made from the file</span><span class="mono verify">${new Set((state.nocs || []).map((n) => n.customer_id)).size}</span></div>
           <div class="r"><span>Ready to invoice</span><span class="mono verify">${byType('INVOICE')}</span></div>
           <div class="r"><span>Oldest</span><span class="mono ${oldestQ && oldestQ.open_min > 4320 ? 'red' : ''}">${oldestQ ? mins(oldestQ.open_min) : '—'}</span></div>
         </div>

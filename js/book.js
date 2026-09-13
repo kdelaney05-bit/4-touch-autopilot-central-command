@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=19';
-import { DEMO } from './demo.js?v=19';
+import * as api from './api.js?v=20';
+import { DEMO } from './demo.js?v=20';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -17,6 +17,8 @@ export const state = {
   sellers: [],         // v_sellers — who a job can be sold by
   leadSources: [],     // lead_sources — CC's own list, per brand
   proofRules: [],      // ask_proof_rules — what closes each ask (the DB's word, not the room's)
+  parcels: [],         // parcel_lookups, last 30 days (324)
+  nocs: [],            // paperwork_filled, last 30 days (325)
   warnings: [],
   loadedAt: null,
 };
@@ -27,7 +29,8 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
   const s = api.getSession();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules] = await Promise.all([
+  const since30 = new Date(Date.now() - 30 * 86400e3).toISOString();
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -40,8 +43,11 @@ export async function loadAll() {
     api.page('v_sellers?select=*&order=name.asc').catch(() => []),
     api.page('lead_sources?select=cc_lead_id,name,cc_company_id,cc_total_used&is_active=eq.true&order=cc_total_used.desc.nullslast').catch(() => []),
     api.page('ask_proof_rules?select=*').catch(() => []),
+    // 324/325: the permit lane's last 30 days — owner checks and NOCs made, for the Office door on the home room
+    api.page(`parcel_lookups?select=customer_id,signer_match,fetched_at&fetched_at=gte.${since30}&order=fetched_at.desc`, 2000).catch(() => []),
+    api.page(`paperwork_filled?select=customer_id,form_key,filled_at&filled_at=gte.${since30}&order=filled_at.desc`, 2000).catch(() => []),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
