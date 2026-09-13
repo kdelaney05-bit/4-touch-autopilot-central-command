@@ -6,6 +6,10 @@ Pro-Tech Roofing and Oasis Landscapes. Named by Kevin, 13 Sep 2026. Rooms:
 customer file under all of them. `README.md` says what each room is and what
 the file's header does.
 
+## Read first, every session
+
+**** is Kevin's rulebook for every screen and every decision here: twenty rules in his words, 13 Sep 2026. **** is where each thread of work stands. Read both before touching anything. If Kevin is not around, they are how he would answer.
+
 ## The rule over everything
 
 **Built beside Contractors Cloud. Nothing is switched over.** Kevin, 13 Sep:

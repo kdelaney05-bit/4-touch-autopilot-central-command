@@ -1,5 +1,7 @@
 # The 4-Touch Autopilot Central Command
 
+> **Start here:** [docs/GOSPELS.md](docs/GOSPELS.md) is the rulebook, in Kevin's words. [docs/LANES.md](docs/LANES.md) is where every thread of work stands.
+
 The one place. Kevin's company platform for Liberty Fencing, Liberty Roofing,
 Pro-Tech Roofing and Oasis Landscapes: one login, six rooms, and one customer
 file under all of them. Named by Kevin, 13 Sep 2026.
