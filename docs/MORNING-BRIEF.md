@@ -121,22 +121,26 @@ person presses Send.
 5. **No bulk backfill.** Instead of opening paperwork asks on hundreds of old
    jobs at once, the office adopts each job with one tap the first time they
    open it. Say if you want the last 45 days adopted for them anyway.
+6. **The Google review links.** Please click the four links and confirm each
+   one lands on the right company's review box. They feed the review ask.
+7. **Robert Govea, in or out.** He is a production supervisor in CC since
+   February. You did not name him with Luis, Obed and Gerardo. If he is in,
+   he gets a seat and a number. If not, we leave him alone.
 8. **The CC files.** Two commands, in a terminal in the Commercial-Desk
    folder, with the env file set the usual way. First the eight-file trial on
    one job, then the live scope. Both read from CC and write only to our own
    storage and each customer's file. CC is untouched. About an hour or two of
    downloading, no CC rate limit involved.
 
-   
+   ```bash
+   node backend/scripts/pull-cc-files.mjs --project 2094311 --apply
+   ```
 
-   
+   ```bash
+   node backend/scripts/pull-cc-files.mjs --scope live --apply
+   ```
 
    Or tell me to run them and I will, once you allow it.
-6. **The Google review links.** Please click the four links and confirm each
-   one lands on the right company's review box. They feed the review ask.
-7. **Robert Govea, in or out.** He is a production supervisor in CC since
-   February. You did not name him with Luis, Obed and Gerardo. If he is in,
-   he gets a seat and a number. If not, we leave him alone.
 
 ## The safe order to migrate
 
