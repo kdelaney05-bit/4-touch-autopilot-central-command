@@ -72,6 +72,8 @@ safely. That is exactly where we are.
 
 Every thread of work now carries one label — **SIGN · PAPERWORK · PERMIT · FILES · OFFICE DAY** — see [LANES.md](LANES.md) for what each is, where it stands and what it needs from you.
 
+**PERMIT, today:** every customer file has a Property card. When a customer taps ACCEPT the county lookup runs by itself and the card shows the owner of record, parcel, legal, the owner's mailing address and whether the signer is the owner. **Fill the NOC** on that card makes the Notice of Commencement from the file (the county's own form for Volusia and Flagler, the statutory form for Brevard, Indian River and Seminole); it lands on the file with an Open link and the short list of blanks the office still types. Five counties answer from our server; Indian River waits on its weekly file. Regrid was rejected (trial excludes our counties, 75 a month after). Test customer for this: "Permit test, Autopilot".
+
 **SIGN, today:** open any customer file → **Estimate** → items with the scope, price, valid days → Create → the link (copy, open, or text it). The customer sees Billdu's page order (number, amount, status, download, client, dates, ACCEPT) and taps ACCEPT; the file lists every estimate with its status; you get the push. Test customer: Delaney test, Kev.
 
 ## Try it in sixty seconds each
