@@ -59,10 +59,14 @@ safely. That is exactly where we are.
     close-out on the live database tonight and every ask landed on the
     right seat.
 13. **The CC files.** Contractors Cloud does expose every project's files
-    over its API, with plain download links. The puller is built. Its dry
-    run and the exact command to run it for real are in
-    Commercial-Desk/docs/CC-FILES-MIGRATION.md. It copies files out of CC
-    onto each customer's file here. It changes nothing in CC.
+    over its API, with plain download links. The puller is built and its
+    dry run finished at 3 AM: of the 995 live jobs, 975 carry files. That
+    is 5,207 files and 5.44 GB, almost all PDFs, and they are the office's
+    real paperwork: contracts, NOCs, surveys, locates, warranties. Fencing
+    has 4,414 of them. Nothing was copied yet. My permission rules stop me
+    from running the copy on my own, even for one job, so it waits for you.
+    The doc with the numbers and the two commands is
+    Commercial-Desk/docs/CC-FILES-MIGRATION.md.
 
 ## Try it in sixty seconds each
 
@@ -117,9 +121,17 @@ person presses Send.
 5. **No bulk backfill.** Instead of opening paperwork asks on hundreds of old
    jobs at once, the office adopts each job with one tap the first time they
    open it. Say if you want the last 45 days adopted for them anyway.
-8. **The CC files.** Say go and I run the puller for the live jobs. It reads
-   from CC and writes only to our own storage and files. Numbers are in the
-   files doc.
+8. **The CC files.** Two commands, in a terminal in the Commercial-Desk
+   folder, with the env file set the usual way. First the eight-file trial on
+   one job, then the live scope. Both read from CC and write only to our own
+   storage and each customer's file. CC is untouched. About an hour or two of
+   downloading, no CC rate limit involved.
+
+   
+
+   
+
+   Or tell me to run them and I will, once you allow it.
 6. **The Google review links.** Please click the four links and confirm each
    one lands on the right company's review box. They feed the review ask.
 7. **Robert Govea, in or out.** He is a production supervisor in CC since
