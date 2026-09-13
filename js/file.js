@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=17';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=17';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=17';
-import { settleDialog } from './office.js?v=17';
-import { reload } from './app.js?v=17';
-import { relTime } from './production.js?v=17';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=18';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=18';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=18';
+import { settleDialog } from './office.js?v=18';
+import { reload } from './app.js?v=18';
+import { relTime } from './production.js?v=18';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -186,17 +186,20 @@ function draw(root, ctx, compact) {
   if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again);
   if (q('#noc-fill')) q('#noc-fill').onclick = async () => {
     const b = q('#noc-fill'); b.disabled = true; b.textContent = 'Filling…';
+    // iPhone Safari blocks a popup opened after an await — open the tab now, point it at the PDF when it lands
+    const tab = window.open('', '_blank');
     try {
       const r = await fillPaperwork(ctx.customerId, null);
       toast(`${FORM_LABEL[r.form_key] || r.form_key} filled · ${(r.blanks || []).length} blanks left for the office`);
-      if (r.url) window.open(r.url, '_blank', 'noopener');
+      if (r.url) { if (tab) tab.location = r.url; else window.location.assign(r.url); } else if (tab) tab.close();
       again();
-    } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = 'Fill the NOC'; }
+    } catch (e) { if (tab) tab.close(); toast(e.message, 'err'); b.disabled = false; b.textContent = 'Fill the NOC'; }
   };
   root.querySelectorAll('[data-open-doc]').forEach((b) => (b.onclick = async () => {
     b.disabled = true;
-    try { const r = await openPaperwork(b.dataset.openDoc); if (r.url) window.open(r.url, '_blank', 'noopener'); }
-    catch (e) { toast(e.message, 'err'); }
+    const tab = window.open('', '_blank');
+    try { const r = await openPaperwork(b.dataset.openDoc); if (r.url) { if (tab) tab.location = r.url; else window.location.assign(r.url); } else if (tab) tab.close(); }
+    catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
     b.disabled = false;
   }));
   if (q('#parcel-look')) q('#parcel-look').onclick = async () => {
