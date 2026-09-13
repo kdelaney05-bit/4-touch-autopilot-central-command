@@ -1,12 +1,12 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=13';
-import * as api from './api.js?v=13';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=13';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=13';
-import { DEMO_STEPS } from './demo-office.js?v=13';
-import { reload } from './app.js?v=13';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=14';
+import * as api from './api.js?v=14';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=14';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=14';
+import { DEMO_STEPS } from './demo-office.js?v=14';
+import { reload } from './app.js?v=14';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -47,6 +47,7 @@ export function renderOffice(root) {
       <div class="switch"><span><b>The answer clock</b> — 15 minutes, then the watcher is pinged; 60 minutes, the owners. Counts only texts that arrive after you flip it.</span><button class="btn sm ${sw('text_clock')?.is_on ? 'ok' : ''}" data-switch="text_clock">${sw('text_clock')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
       <div class="switch"><span><b>The chain's texts</b> — permit approved, you're on the schedule, invoice sent, the past-due reminder at 30 days, the review prompt on payment, and the five-star link when a customer texts back a 9 or 10. Jess's wording, from the brand's main line.</span><button class="btn sm ${sw('office_machine_texts')?.is_on ? 'ok' : ''}" data-switch="office_machine_texts">${sw('office_machine_texts')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
       <div class="switch"><span><b>After hours</b> — 6 PM to 7 AM, a customer text gets "Got it, {first} — {owner} will text you first thing in the morning," once per night.</span><button class="btn sm ${sw('after_hours_reply')?.is_on ? 'ok' : ''}" data-switch="after_hours_reply">${sw('after_hours_reply')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div></div>`) : ''}
+      <div class="switch"><span><b>The packet on the estimate page</b> — the disclosures and the county or city forms for the address appear under the customer's signature, one tap each, the same signature covers them; NOC and the wet-ink forms stay in person. Off = the estimate page is exactly as it was.</span><button class="btn sm ${sw('esign_packet')?.is_on ? 'ok' : ''}" data-switch="esign_packet">${sw('esign_packet')?.is_on ? 'ON' : 'off'}</button></div>
     <div class="card" id="cc-workflow"></div>`;
 
   workflowCard(root);

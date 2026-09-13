@@ -91,7 +91,7 @@ safely. That is exactly where we are.
 
 ## What is deliberately OFF
 
-Five switches, all off, all in the Office room, owner only.
+Six switches, all off, all in the Office room, owner only.
 
 | Switch | What it would do |
 |---|---|
@@ -100,6 +100,7 @@ Five switches, all off, all in the Office room, owner only.
 | `office_machine_texts` | Let the office lines go out by themselves |
 | `after_hours_reply` | Answer after 6 PM so nobody hears silence |
 | `qb_invoices` | Create the QuickBooks invoice from the file |
+| `esign_packet` | Put the disclosures and county forms under the customer's signature on the estimate page, one tap each |
 
 Also off on purpose. No lead form points at our new lead door yet. Invoices
 are still Billdu and QB by hand. Every text and email is a draft until a
