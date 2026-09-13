@@ -2,11 +2,11 @@
 // dollars over the rep cards, the Hustle room, Moneyball), with the file's
 // own read underneath: who is waiting on a rep right now. The retail board
 // and Jermey's desk open from the header.
-import { state, isDemo, personName, firstName } from './book.js?v=12';
-import { html, raw, esc } from './ui.js?v=12';
-import { brandName, CONSOLE_URL, CONSOLE_SECTION } from './config.js?v=12';
-import { relTime } from './production.js?v=12';
-import { renderRoom } from './village.js?v=12';
+import { state, isDemo, personName, firstName } from './book.js?v=13';
+import { html, raw, esc } from './ui.js?v=13';
+import { brandName, CONSOLE_URL, CONSOLE_SECTION } from './config.js?v=13';
+import { relTime } from './production.js?v=13';
+import { renderRoom } from './village.js?v=13';
 
 export function renderSales(root) {
   const waiting = state.clock.filter((c) => (c.stage === 'selling' || c.stage === 'booked') && c.waiting_min >= 15);

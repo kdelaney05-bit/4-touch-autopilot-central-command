@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest } from './book.js?v=12';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=12';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=12';
-import { settleDialog } from './office.js?v=12';
-import { reload } from './app.js?v=12';
-import { relTime } from './production.js?v=12';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest } from './book.js?v=13';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=13';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=13';
+import { settleDialog } from './office.js?v=13';
+import { reload } from './app.js?v=13';
+import { relTime } from './production.js?v=13';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -224,7 +224,9 @@ function draw(root, ctx, compact) {
     let lines = [];
     try { lines = await linePreview(ctx.customerId); } catch {}
     const pay = (lines || []).find((l) => l.key === 'pay_link');
-    const tpl = pay?.body || `Hi ${firstName(name)}, you can pay your invoice online here: {{link}} — thank you!`;
+    // line_preview renders every token it knows and drops the ones it does not — {{link}} comes back empty. Put it back where it belongs.
+    const withToken = (s) => /{{link}}/.test(s) ? s : (/online here:s*/i.test(s) ? s.replace(/online here:s*/i, 'online here: {{link}} ').replace(/s{2,}/g, ' ') : s.replace(/s*$/, ' {{link}}'));
+    const tpl = pay?.body ? withToken(pay.body) : `Hi ${firstName(name)}, you can pay your invoice online here: {{link}} — thank you!`;
     const fill = (link) => String(tpl).replace(/\{\{link\}\}/g, link);
     openModal({ title: `Send ${firstName(name)} the payment link`, submitLabel: 'Send it', body: `
       <div class="field"><label>Payment link</label><input name="link" type="url" placeholder="https://…"/></div>
