@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=7';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=7';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=7';
-import { settleDialog } from './office.js?v=7';
-import { reload } from './app.js?v=7';
-import { relTime } from './production.js?v=7';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=8';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=8';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=8';
+import { settleDialog } from './office.js?v=8';
+import { reload } from './app.js?v=8';
+import { relTime } from './production.js?v=8';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }

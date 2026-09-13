@@ -1,14 +1,15 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=7';
-import { state, loadAll, isDemo, searchCustomers } from './book.js?v=7';
-import { $, $$, html, raw, toast } from './ui.js?v=7';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=7';
-import { renderHome } from './home.js?v=7';
-import { renderSales } from './sales.js?v=7';
-import { renderMarketing } from './marketing.js?v=7';
-import { renderOffice } from './office.js?v=7';
-import { renderProduction } from './production.js?v=7';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=7';
+import * as api from './api.js?v=8';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=8';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=8';
+import { BRAND_BY_CC } from './config.js?v=8';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=8';
+import { renderHome } from './home.js?v=8';
+import { renderSales } from './sales.js?v=8';
+import { renderMarketing } from './marketing.js?v=8';
+import { renderOffice } from './office.js?v=8';
+import { renderProduction } from './production.js?v=8';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=8';
 
 let view = 'home';
 let loading = false;
@@ -97,7 +98,52 @@ function wireFind() {
   document.addEventListener('click', (e) => { if (pop && !pop.contains(e.target) && e.target !== box) close(); });
 }
 
+/* The New Job door — customer + job (+ appointment, + signing) in one call.
+   Built beside Contractors Cloud: a job made here lives here; nothing in CC
+   changes. The office keeps its CC habit until Kevin moves them. */
+function newJob() {
+  const me = state.me || {};
+  const brands = Object.entries(BRAND_BY_CC);
+  const sellers = state.sellers || [];
+  const canPickRep = me.role !== 'sales';
+  openModal({ title: 'New job', submitLabel: 'Open the file', wide: true, body: `
+    <div class="two">
+      <div class="field"><label>Brand</label><select name="cc">${brands.map(([cc, b]) => `<option value="${cc}" ${cc === (me.manages_company_id || '1461') ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>Sold by</label>${canPickRep ? `<select name="rep"><option value="">— pick the rep —</option>${sellers.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('')}</select>` : `<input value="${esc(me.name || '')}" disabled/>`}</div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Customer name</label><input name="name" required placeholder="Last, First — or the household"/></div>
+      <div class="field"><label>Mobile</label><input name="phone" placeholder="(321) 555-0100"/></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Email</label><input name="email" type="email"/></div>
+      <div class="field"><label>Job</label><input name="title" placeholder="6' vinyl privacy, 210 ft"/></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Street</label><input name="street"/></div>
+      <div class="field"><label>City · zip</label><div style="display:flex;gap:6px"><input name="city" placeholder="Cocoa"/><input name="zip" placeholder="32922" style="width:110px"/></div></div>
+    </div>
+    <div class="two">
+      <div class="field"><label>Estimate appointment (optional)</label><input name="appt" type="datetime-local"/></div>
+      <div class="field"><label>Signed today for (optional)</label><input name="amount" type="number" step="0.01" min="0" placeholder="leave blank if not signed yet"/></div>
+    </div>
+    <div class="field"><label>Note to the team (optional)</label><input name="note" placeholder="gate code 2021 · HOA approval needed · call before 8"/></div>
+    <div class="note">Same phone number = same customer: their file keeps its history. A signed amount opens the paperwork checklist for the office. An appointment sends the confirmation text if that switch is on.</div>`,
+    onSubmit: async (f) => {
+      const amount = f.amount.value ? Number(f.amount.value) : null;
+      const r = await createJob({ p_cc_company: f.cc.value, p_name: f.name.value.trim(), p_phone: f.phone.value.trim() || null, p_email: f.email.value.trim() || null,
+        p_street: f.street.value.trim() || null, p_city: f.city.value.trim() || null, p_zip: f.zip.value.trim() || null,
+        p_rep: canPickRep ? (f.rep.value || null) : null, p_title: f.title.value.trim() || null,
+        p_appt_at: f.appt.value ? new Date(f.appt.value).toISOString() : null,
+        p_amount: amount, p_signed_at: amount ? new Date().toISOString() : null, p_lead_source: null, p_note: f.note.value.trim() || null });
+      toast('The file is open' + (amount ? ' · paperwork checklist opened for the office' : ''));
+      await reload(true);
+      window.__peek(r.customer_id);
+    } });
+}
+
 async function boot() {
+  $('#btn-newjob').onclick = newJob;
   $('#btn-refresh').onclick = () => reload();
   $('#btn-signout').onclick = async () => { await api.signOut(); state.me = null; showSignIn(); };
   $('#si-form').onsubmit = async (e) => {

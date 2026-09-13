@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=7';
-import { DEMO } from './demo.js?v=7';
+import * as api from './api.js?v=8';
+import { DEMO } from './demo.js?v=8';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -14,6 +14,7 @@ export const state = {
   switches: [],        // automation_switches
   lines: [],           // brand_sms_lines
   mentions: [],        // v_my_mentions — tagged for me
+  sellers: [],         // v_sellers — who a job can be sold by
   warnings: [],
   loadedAt: null,
 };
@@ -24,7 +25,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
   const s = api.getSession();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions] = await Promise.all([
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -34,8 +35,9 @@ export async function loadAll() {
     api.page('automation_switches?select=*'),
     api.page('brand_sms_lines?select=*'),
     api.page('v_my_mentions?select=*&order=created_at.desc', 200).catch(() => []),
+    api.page('v_sellers?select=*&order=name.asc').catch(() => []),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
@@ -114,6 +116,7 @@ export async function linePreview(customerId) {
 }
 export async function cancelText(id) { guard(); return api.rpc('app_text_cancel', { p_id: id }); }
 export async function ensureThread(ccProjectId) { guard(); return api.rpc('ensure_thread', { p_cc_project_id: ccProjectId }); }
+export async function createJob(args) { guard(); return api.rpc('job_create', args); }
 export async function threadForJob(jobId) { guard(); return api.rpc('file_thread_for', { p_job: jobId }); }
 export async function mentionSeen(threadId) { if (isDemo()) return 0; return api.rpc('mention_seen', { p_thread: threadId }).catch(() => 0); }
 export async function setSwitch(key, on) { guard(); return api.rpc('automation_switch_set', { p_key: key, p_on: on }); }
