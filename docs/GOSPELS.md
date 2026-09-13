@@ -17,7 +17,8 @@ wrong, not the gospel.
    detail view.
 3. **The next step shouts.** A card doesn't hint at what happens next to
    someone who might know. It says NEXT, in one line, with the button beside
-   it. Every file, every ask, every room.
+   it. Every file, every ask, every room. The next step is never nuance or
+   intuition: it is automatic, or it is screaming at a human.
 4. **The file is the hub.** Text, tag, document, send to, invoice, collect,
    estimate, property, paperwork: one customer file, every seat writes on it.
    Nothing lives in a second place.
