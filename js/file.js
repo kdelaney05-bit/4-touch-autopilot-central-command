@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup } from './book.js?v=16';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=16';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=16';
-import { settleDialog } from './office.js?v=16';
-import { reload } from './app.js?v=16';
-import { relTime } from './production.js?v=16';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=17';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=17';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=17';
+import { settleDialog } from './office.js?v=17';
+import { reload } from './app.js?v=17';
+import { relTime } from './production.js?v=17';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -146,7 +146,7 @@ function draw(root, ctx, compact) {
           ${openAsks.length ? raw(openAsks.map((a) => askRow(a, me)).join('')) : raw('<div class="small">No open asks.</div>')}
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
-        ${customer ? raw(propertyCard(ctx.data.parcel, customer)) : ''}
+        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [])) : ''}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -184,6 +184,21 @@ function draw(root, ctx, compact) {
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
   if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again);
+  if (q('#noc-fill')) q('#noc-fill').onclick = async () => {
+    const b = q('#noc-fill'); b.disabled = true; b.textContent = 'Filling…';
+    try {
+      const r = await fillPaperwork(ctx.customerId, null);
+      toast(`${FORM_LABEL[r.form_key] || r.form_key} filled · ${(r.blanks || []).length} blanks left for the office`);
+      if (r.url) window.open(r.url, '_blank', 'noopener');
+      again();
+    } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = 'Fill the NOC'; }
+  };
+  root.querySelectorAll('[data-open-doc]').forEach((b) => (b.onclick = async () => {
+    b.disabled = true;
+    try { const r = await openPaperwork(b.dataset.openDoc); if (r.url) window.open(r.url, '_blank', 'noopener'); }
+    catch (e) { toast(e.message, 'err'); }
+    b.disabled = false;
+  }));
   if (q('#parcel-look')) q('#parcel-look').onclick = async () => {
     const b = q('#parcel-look'); b.disabled = true; b.textContent = 'Asking the county…';
     try {
@@ -347,7 +362,7 @@ function sendEstimateDialog(ctx, r, name, customer, cc, again) {
    What the county appraiser holds for this address: who owns it, where they
    get mail, the parcel id and legal description the NOC needs. The chip says
    whether the person who signed the estimate is that owner. */
-function propertyCard(p, customer) {
+function propertyCard(p, customer, filled = []) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
   if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><button class="btn sm" id="parcel-look">Ask the county</button></div><div class="small dimmer" style="margin-top:6px">${esc(addr || 'No street address on the file yet.')} · nobody has looked this address up yet. One tap pulls the owner, parcel and legal from the county appraiser.</div></div>`;
   const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
@@ -367,10 +382,12 @@ function propertyCard(p, customer) {
       ${p.legal_description ? `<div class="r"><span class="small">${esc(p.legal_description)}</span></div>` : ''}
       ${p.deed_book ? `<div class="r"><span class="small dimmer">Last deed OR ${esc(p.deed_book)} / ${esc(p.deed_page || '')}${p.sale_date ? ' · ' + esc(new Date(p.sale_date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</span></div>` : ''}
       ${p.confidential ? '<div class="r"><span class="red">Protected address — the county withholds the owner. Nothing from this record prints.</span></div>' : ''}
-      <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><button class="btn sm" id="parcel-look">Look again</button></div>
+      <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><span style="display:flex;gap:4px"><button class="btn sm" id="parcel-look">Look again</button><button class="btn sm fill" id="noc-fill" title="The Notice of Commencement, filled from this record and the contractor block">Fill the NOC</button></span></div>
+      ${filled.length ? `<div class="kicker" style="margin-top:8px">Filled from the file</div>` + filled.map((f) => `<div class="r"><span>${esc(FORM_LABEL[f.form_key] || f.form_key)} · ${esc(f.method === 'acroform' ? 'county form' : 'statutory form')}${f.county ? ' · ' + esc(f.county) : ''} · ${esc(new Date(f.filled_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}${f.filled_by ? ' · ' + esc(firstName(f.filled_by)) : ''}${(f.blanks || []).length ? ' · <span class="dimmer">' + esc(String((f.blanks || []).length)) + ' blanks for the office</span>' : ''}</span><button class="btn sm" data-open-doc="${esc(f.id)}">Open</button></div>`).join('') : ''}
     </div>
   </div>`;
 }
+const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
 
 function senderOf(t) {
   const ext = t.uvoice_ext;

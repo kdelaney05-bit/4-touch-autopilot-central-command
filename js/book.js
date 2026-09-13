@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=16';
-import { DEMO } from './demo.js?v=16';
+import * as api from './api.js?v=17';
+import { DEMO } from './demo.js?v=17';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -73,7 +73,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
@@ -84,6 +84,8 @@ export async function loadFile(customerId) {
     api.page(`estimate_links?select=id,token&customer_id=eq.${customerId}&doc_id=not.is.null`, 100).catch(() => []),
     // 324: the owner of record the county holds for this address, if anyone has looked
     api.rpc('parcel_lookup_latest', { p_customer: customerId }).catch(() => null),
+    // 325: the county forms already filled from this file
+    api.rpc('paperwork_filled_for', { p_customer: customerId }).catch(() => []),
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -96,7 +98,7 @@ export async function loadFile(customerId) {
       ]);
     }
   }
-  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel };
+  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [] };
 }
 
 // ── writes (all refused in demo) ─────────────────────────────────────────────
@@ -136,6 +138,9 @@ export async function createJob(args) { guard(); return api.rpc('job_create', ar
 export async function createEstimate(p) { guard(); return api.rpc('estimate_doc_create', { p }); }
 /* 324: ask the county who owns the address on this file; the row lands on the file with the signer check. */
 export async function parcelLookup(customerId, signerName) { guard(); return api.fn('parcel-lookup', { customer_id: customerId, signer_name: signerName ?? null }); }
+/* 325: fill the NOC (or a named county form) from the file; open a filled one with a fresh signed link. */
+export async function fillPaperwork(customerId, formKey) { guard(); return api.fn('paperwork-fill', { customer_id: customerId, form_key: formKey ?? null }); }
+export async function openPaperwork(id) { guard(); return api.fn('paperwork-fill', { open: id }); }
 export async function threadForJob(jobId) { guard(); return api.rpc('file_thread_for', { p_job: jobId }); }
 export async function mentionSeen(threadId) { if (isDemo()) return 0; return api.rpc('mention_seen', { p_thread: threadId }).catch(() => 0); }
 export async function setSwitch(key, on) { guard(); return api.rpc('automation_switch_set', { p_key: key, p_on: on }); }
