@@ -1,7 +1,7 @@
 // Liberty Command — Supabase over plain fetch, the desk's rails verbatim (desk/js/api.js). Every call
 // carries the publishable key plus the rep's own JWT, so RLS decides what
 // comes back. Nothing here knows about the desk's screens.
-import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=15';
+import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=16';
 
 // ── session ───────────────────────────────────────────────────────────────────
 let session = null;               // { token, refresh, repId, email, expiresAt }
@@ -118,6 +118,19 @@ export async function page(path, cap = 5000) {
 export async function one(path) {
   const rows = await page(path, 1000);
   return rows[0] ?? null;
+}
+
+/* An edge function, called as the seat: the rep's own JWT goes along, the
+   function checks it with GoTrue. Used for the county lookup (parcel-lookup, 324). */
+export async function fn(name, body) {
+  const token = await freshToken();
+  const r = await fetch(`${SUPA_URL}/functions/v1/${name}`, {
+    method: 'POST', headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new ApiError(r.status, j?.message || j?.error || (r.status + ' ' + name), name);
+  return j;
 }
 
 export async function insert(table, row, representation = true) {
