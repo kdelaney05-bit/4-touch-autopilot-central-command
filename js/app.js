@@ -1,16 +1,16 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=18';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=18';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=18';
-import { BRAND_BY_CC } from './config.js?v=18';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=18';
-import { renderHome } from './home.js?v=18';
-import { renderSales } from './sales.js?v=18';
-import { renderMarketing } from './marketing.js?v=18';
-import { renderOffice } from './office.js?v=18';
-import { renderProduction } from './production.js?v=18';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=18';
-import { stopRoomPoll } from './village.js?v=18';
+import * as api from './api.js?v=19';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=19';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=19';
+import { BRAND_BY_CC } from './config.js?v=19';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=19';
+import { renderHome } from './home.js?v=19';
+import { renderSales } from './sales.js?v=19';
+import { renderMarketing } from './marketing.js?v=19';
+import { renderOffice } from './office.js?v=19';
+import { renderProduction } from './production.js?v=19';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=19';
+import { stopRoomPoll } from './village.js?v=19';
 
 let view = 'home';
 let loading = false;
@@ -91,12 +91,15 @@ function wireFind() {
       pop = document.createElement('div');
       pop.className = 'card';
       pop.style.cssText = 'position:absolute;right:40px;top:58px;width:360px;z-index:9;padding:8px;gap:2px;box-shadow:0 20px 50px rgba(0,0,0,.15)';
-      pop.innerHTML = rows.length ? rows.map((c) => html`<button class="inv" style="text-align:left;grid-template-columns:1fr auto" data-id="${c.id}"><span><b>${c.name}</b></span><span class="mono dimmer">${c.phone || ''}</span></button>`).join('') : '<div class="empty">Nobody by that name or number</div>';
+      pop.innerHTML = rows.length ? rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('') : '<div class="empty">Nobody by that name or number</div>';
       pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__peek(b.dataset.id); }));
       $('nav.side').appendChild(pop);
     }, 220);
   });
-  box.addEventListener('keydown', (e) => { if (e.key === 'Escape') { close(); box.blur(); } });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { close(); box.blur(); }
+    if (e.key === 'Enter') { const first = pop?.querySelector('button[data-id]'); if (first) first.click(); }   // Enter opens the top match
+  });
   document.addEventListener('click', (e) => { if (pop && !pop.contains(e.target) && e.target !== box) close(); });
 }
 

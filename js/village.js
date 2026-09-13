@@ -5,10 +5,10 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=18';
-import { state, isDemo, personName, firstName, searchCustomers } from './book.js?v=18';
-import { DEMO } from './demo.js?v=18';
-import { html, raw, esc, toast } from './ui.js?v=18';
+import * as api from './api.js?v=19';
+import { state, isDemo, personName, firstName, searchCustomers } from './book.js?v=19';
+import { DEMO } from './demo.js?v=19';
+import { html, raw, esc, toast } from './ui.js?v=19';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",

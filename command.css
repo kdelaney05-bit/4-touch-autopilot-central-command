@@ -184,3 +184,7 @@ main.dimmed { filter: none; }
 .room .room-pop { position: absolute; left: 0; bottom: calc(100% + 6px); width: 340px; z-index: 9; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 6px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 20px 50px rgba(28,26,21,.15); }
 .room .room-pop[hidden], .room .room-pick[hidden] { display: none; }
 .room .composer { margin-top: 0; }
+
+/* the Find dropdown: rows read as buttons (Kevin, 13 Sep: "shows one, nothing to click on") */
+nav.side .card button.findrow { padding: 8px 10px; border-radius: 8px; }
+nav.side .card button.findrow:hover { background: var(--goldsoft); }
