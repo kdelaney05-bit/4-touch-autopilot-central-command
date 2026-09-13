@@ -58,6 +58,8 @@ wrong, not the gospel.
     costs anyone else.** A referral costs a text.
 17. **Manage expectations from day one.** A new rep's first morning covers
     everything besides selling (the Tim lesson).
+18. **Iterate forever.** Nothing is finished. Every screen, every touch,
+    every form: make it better, faster, easier, then do it again.
 
 ## Where each one shows up
 
