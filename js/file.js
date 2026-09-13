@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest } from './book.js?v=11';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=11';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=11';
-import { settleDialog } from './office.js?v=11';
-import { reload } from './app.js?v=11';
-import { relTime } from './production.js?v=11';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest } from './book.js?v=12';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=12';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=12';
+import { settleDialog } from './office.js?v=12';
+import { reload } from './app.js?v=12';
+import { relTime } from './production.js?v=12';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -60,6 +60,10 @@ function draw(root, ctx, compact) {
   const openAsks = asks.filter((a) => a.state === 'OPEN');
   const doneAsks = asks.filter((a) => a.state !== 'OPEN').slice(-6);
   const paperwork = asks.filter((a) => a.ask_type === 'CONTRACT_DOC');
+  // a signed job with no asks on it is still being run in Contractors Cloud: one question adopts it (317)
+  const unfiled = !!job.job_id && !!job.contract_signed_at && openAsks.length === 0 && !['paid'].includes(job.stage) && ['manager', 'office', 'admin', 'owner'].includes(me?.role);
+  const roofing = ['1537', '1563'].includes(String(job.cc_company_id));
+  const ADOPT = [['paperwork', 'Paperwork'], ['permit', 'Permit'], ...(roofing ? [] : [['locate', 'Locate']]), ['schedule', 'Schedule'], ['production', 'In production'], ['inspection', 'Final inspection'], ['invoice', 'Invoice'], ['payment', 'Collecting'], ['closeout', 'Close-out']];
   const line = state.lines.find((l) => l.cc_company_id === (job.cc_company_id || '1461')) || state.lines[0];
   const optOut = customer?.sms_opt_out_at || job.sms_opt_out_at;
 
@@ -93,6 +97,7 @@ function draw(root, ctx, compact) {
         <div class="kicker">The customer file · one file, every room writes on it</div>
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
+        ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
@@ -174,6 +179,11 @@ function draw(root, ctx, compact) {
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
+  root.querySelectorAll('[data-adopt]').forEach((btn) => (btn.onclick = async () => {
+    btn.disabled = true;
+    try { const r = await adoptJob(job.job_id, btn.dataset.adopt); const n = (r?.opened || []).length; toast(n ? `Adopted · ${n} ask${n === 1 ? '' : 's'} opened` : 'Adopted · the file is open'); await reload(true); again(); }
+    catch (e) { toast(e.message, 'err'); btn.disabled = false; }
+  }));
   if (q('#file-text')) q('#file-text').onclick = () => { const c = q('#compose'); if (c) { c.scrollIntoView({ block: 'center', behavior: 'smooth' }); c.focus(); } };
   if (q('#file-tag')) q('#file-tag').onclick = () => { const n = q('#note'); if (n) { n.scrollIntoView({ block: 'center', behavior: 'smooth' }); n.focus(); } };
   if (q('#file-send')) q('#file-send').onclick = () => {

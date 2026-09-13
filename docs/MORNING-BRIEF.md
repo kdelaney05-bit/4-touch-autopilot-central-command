@@ -1,0 +1,122 @@
+# Morning brief, Monday 14 September
+
+Kevin, this is the whole picture in one page. Plain words. Nothing here needs
+a build. The things that need you are at the bottom.
+
+**The app:** https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/
+**The demo (fake customers, nothing saves):** add `?demo=1` to that link.
+
+Sign in with the same email and password as the phone app. The database
+decides what you see, not the page.
+
+## The rule we built under
+
+Everything below sits **beside Contractors Cloud**. Nothing moved. The office
+still types into CC. No lead form was repointed. No invoice goes out by
+itself. Your words on Friday: get it built and set, then migrate slowly and
+safely. That is exactly where we are.
+
+## What works right now
+
+1. **One customer file.** Texts, emails, notes, asks, documents, and who
+   touched it. All in one place, from the first text to the last invoice.
+2. **The file's buttons.** Call, Text, Tag, add a Document, Send this file to
+   somebody, Invoice, and Collect. Invoice puts the job in the QuickBooks
+   queue. Collect texts the customer the payment link. Neither one goes
+   anywhere until you turn the QuickBooks switch on or press Send.
+3. **Text from the file.** The text is a draft until you press Send. You get
+   six seconds to undo. It goes out on the brand's approved line.
+4. **Tag the next person.** Type a note, tag Jess or the office or
+   production, they get a push and it sits in their Tagged list until they
+   open the file.
+5. **The Office room.** Every ask the field is waiting on, oldest first. An
+   ask only closes when the input is there. The permit number. The photos.
+   The date. The input lands on the file, so nobody has to ask twice.
+6. **The workflow map.** Every step of both Contractors Cloud templates, for
+   each brand, and what it became on our side. Sixty two steps. Jess can read
+   it. You and Jess can edit the notes.
+7. **The Production room.** Every sold customer, who holds them, and how many
+   days they have held them. Take the job, assign it, hand it back.
+8. **The New Job door.** One form. It opens the customer, the job, the
+   appointment and the signing checklist together. Same phone number means
+   the same customer, so history stays in one file. The lead source list is
+   your own CC list, per brand, so your reports keep counting.
+9. **The village.** Team rooms for the office, for production, and one for
+   everybody. Post, react, reply, and point a post at a customer's file when
+   you want somebody to grab it. The reps' hype thread is untouched.
+10. **The lead door.** A web address that can take leads straight in. It is
+    built and live. Nothing points at it yet, on purpose.
+
+## Try it in sixty seconds each
+
+- **The file.** Type a name in Find a customer, top left. Open it. You are
+  looking at everything we know.
+- **A text.** On a file, press Text. Type a line. It shows as a draft. Press
+  Send and watch the undo bar.
+- **A tag.** On the same file, press Tag, pick a person, write one line. They
+  get the push.
+- **The Office room.** Open Office. The oldest ask is at the top. Try to
+  close one without the input. The database says no.
+- **The workflow map.** Same room, scroll to the map. Pick roofing and read
+  down the list.
+- **Production.** Open Production. Look at the days in stage column. Red is
+  somebody holding a customer too long.
+- **New job.** Left rail, press New job. Make a fake one. Delete it after, or
+  leave it, it is yours.
+- **The village.** Open a room, post a line, point it at a customer.
+- **The demo.** Add `?demo=1` to the link and show anybody. It is fake data
+  and every button refuses to save.
+
+## What is deliberately OFF
+
+Five switches, all off, all in the Office room, owner only.
+
+| Switch | What it would do |
+|---|---|
+| `appt_confirm` | Text a customer when their estimate is booked |
+| `text_clock` | Chase a seat when a customer has waited too long |
+| `office_machine_texts` | Let the office lines go out by themselves |
+| `after_hours_reply` | Answer after 6 PM so nobody hears silence |
+| `qb_invoices` | Create the QuickBooks invoice from the file |
+
+Also off on purpose. No lead form points at our new lead door yet. Invoices
+are still Billdu and QB by hand. Every text and email is a draft until a
+person presses Send.
+
+## What needs your decision today
+
+1. **Send the Uvoice ticket.** It is written and sitting in your Gmail
+   drafts. It asks for three supervisor users, extensions, a number each, and
+   no texting on those numbers. Nothing about supervisors can start until
+   those numbers exist.
+2. **Ask Jeff to port (321) 252-5270** from Heymarket to Uvoice. That is the
+   number customers already know.
+3. **Export the Heymarket contacts before we cancel.** Once it is cancelled
+   the list is gone. Do the export first, then cancel.
+4. **Which switch flips first.** My suggestion is `appt_confirm` for Liberty
+   Fencing only, because that campaign is approved and it is one text per new
+   estimate. Oasis and Pro-Tech wait on their registrations.
+5. **The paperwork backfill window.** For jobs already sold, how far back do
+   we open the paperwork asks? My suggestion is the last 45 days. Older than
+   that and we are chasing paper on jobs the office already closed out.
+6. **The Google review links.** Please click the four links and confirm each
+   one lands on the right company's review box. They feed the review ask.
+7. **Robert Govea, in or out.** He is a production supervisor in CC since
+   February. You did not name him with Luis, Obed and Gerardo. If he is in,
+   he gets a seat and a number. If not, we leave him alone.
+
+## The safe order to migrate
+
+One step at a time. Each one can stop and nothing breaks.
+
+1. **Office first.** Jess and the office work the asks and the file here for
+   a week, while still entering in CC. If the week is clean, the file becomes
+   where they live.
+2. **Supervisors next**, once the Uvoice numbers exist. Seats, the stage
+   board, take the job, sign off with photos.
+3. **Then repoint the lead forms** to our own lead door, one source at a
+   time. Watch the first day of each.
+4. **Then stop costing jobs in CC.** That is the last one, and only after the
+   three above have run clean.
+
+Nothing in step 3 or 4 happens without you saying so.

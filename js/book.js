@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=11';
-import { DEMO } from './demo.js?v=11';
+import * as api from './api.js?v=12';
+import { DEMO } from './demo.js?v=12';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -112,6 +112,7 @@ export async function textCustomer(customerId, body) { guard(); return api.rpc('
 /* The invoice, queued for QuickBooks. The qb_invoices switch decides whether
    it ever leaves the building; this only writes the row, and settles the
    INVOICE ask behind it when one is picked. */
+export async function adoptJob(jobId, step) { guard(); return api.rpc('job_adopt', { p_job: jobId, p_step: step }); }
 export async function invoiceRequest(jobId, amount, memo, askId) { guard(); return api.rpc('invoice_request', { p_job: jobId, p_amount: amount, p_memo: memo ?? null, p_ask: askId ?? null }); }
 export async function linePreview(customerId) {
   if (isDemo()) return [
