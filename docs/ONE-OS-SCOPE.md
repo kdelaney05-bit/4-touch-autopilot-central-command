@@ -17,6 +17,66 @@ next free on the live registry was 303 on 12 Sep; re-check before writing one.
 
 ---
 
+## Status 13 Sep — what is built, what remains
+
+Written the night of 13 Sep 2026. It supersedes "nothing here is built yet"
+above: steps 1, 2, 4 and most of 5b of this scope shipped on 12–13 Sep, and
+the app that holds them is **The 4-Touch Autopilot Central Command**
+(`kdelaney05-bit/4-touch-autopilot-central-command`, GitHub Pages,
+https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/ ,
+`?demo=1` for the fictional book). **Kevin's rule over all of it: built
+BESIDE Contractors Cloud, nothing switched over — "get it built and set and
+then slowly migrate safely."**
+
+### Built
+
+| Piece | Where | Migration |
+|---|---|---|
+| Stage on the file, hand-off rows, the proof chain (`ask_settle`), the answer clock | database + every room | **306** |
+| An ask never assigns to a seat that has left | database | **307** |
+| The office's texts on the file (Jess's Heymarket lines become `office_lines`) | Office room + the file | **308** |
+| The stage board computed once (Chrome would not load it) | Production room | **309** |
+| Stale jobs off the board + every old STOP recorded | boards | **310** |
+| A seat texts only from a campaign-approved line | the file | **311** |
+| Tag the next person — team notes, @First/@office/@production, push + Tagged list | the file + The Business | **312** |
+| **Our own doors:** `job_create` (+ New job), `lead_create` + the `lead-intake` edge function (deployed, no Zap on it), `v_sellers`, `qb_invoice_queue` behind `qb_invoices` (OFF), `invoice_request` | app + database | **313** |
+| Door-made jobs carry CC's `cc_lead_source_id`, so the console reports keep counting | database | **314** |
+| Ask types for the rest of CC's templates: SOLD_CHECK · INTRO_CALL · MILESTONE · INSPECTION · CLOSEOUT | database | **315** |
+| **The whole CC workflow** — brand-scoped `ask_chain`, proof rules for every new ask, the roofing chain end to end (1537 · 1563), INSPECTION and CLOSEOUT for fence/Oasis, and `cc_workflow_steps` (62 rows: every CC step and what it became) | Office room's workflow map | **316** |
+| **The village** — `team_messages` · `team_reactions` · `v_team_room`, the office · production · village rooms beside the reps' hype thread; a post can point at a customer's file; pushes go to the room's seats | Home / Office / Production / Sales | **316** |
+| Collect from the file — the `pay_link` office line | the file | **316** |
+| The rooms themselves: The Business · Sales · Marketing · Office · Production · Files, and the customer file under all of them, with Call · Text · Tag · + Document · Send to… in its header | the app | 306–316 |
+
+Next free migration number: **317**.
+
+### Remaining
+
+1. **Crew app — the Spanish tab** (step 3b): *Mi obra*, the SUPER lane, the
+   punch list as checkboxes that settle asks with photos.
+2. **Phone-app parity** — the rep app and the supervisor app do not yet know
+   the new ask types or the stage; they show the old lanes.
+3. **Office extensions 101 / 102** — which seat is which in
+   `rep_channel_map`, so office calls and texts credit a person.
+4. **CC task sync** — restart it, so CC's own tasks keep flowing while both
+   systems run side by side.
+5. **Retire the ghost names in CC's templates** — steps still assigned to
+   people who have left (307 protects our side; CC's own templates do not).
+6. **Seats without the app** — an alert when an ask lands on somebody who has
+   never signed in, so nothing waits on a person who cannot see it.
+7. **Import CC's files** — the documents already in Contractors Cloud onto
+   our files.
+8. **Repoint the lead Zaps** to `lead-intake` (built and deployed, nothing
+   points at it yet).
+9. **Turn the QuickBooks invoice worker ON** (`qb_invoices` is OFF; Billdu
+   and QB stay by hand until Kevin says).
+10. **Heymarket** — port the number (321) 252-5270 to Uvoice, export the
+    contacts, then cancel.
+
+The rulings in §6 below are still Kevin's to make, and the decisions waiting
+on him tonight are listed in the app repo's `docs/MORNING-BRIEF.md`.
+
+---
+
 ## 1. Where every surface lives today
 
 | Surface | Who | Where the code is | How it ships | State |
