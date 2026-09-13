@@ -68,6 +68,12 @@ safely. That is exactly where we are.
     The doc with the numbers and the two commands is
     Commercial-Desk/docs/CC-FILES-MIGRATION.md.
 
+## The lanes
+
+Every thread of work now carries one label — **SIGN · PAPERWORK · PERMIT · FILES · OFFICE DAY** — see [LANES.md](LANES.md) for what each is, where it stands and what it needs from you.
+
+**SIGN, today:** open any customer file → **Estimate** → items with the scope, price, valid days → Create → the link (copy, open, or text it). The customer sees Billdu's page order (number, amount, status, download, client, dates, ACCEPT) and taps ACCEPT; the file lists every estimate with its status; you get the push. Test customer: Delaney test, Kev.
+
 ## Try it in sixty seconds each
 
 - **The file.** Type a name in Find a customer, top left. Open it. You are
