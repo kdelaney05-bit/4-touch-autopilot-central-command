@@ -1,19 +1,21 @@
 // Production — the stage board (every sold customer, by who holds them), My
 // board (the supervisor's jobs), and Take the job.
-import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=4';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=4';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=4';
-import { reload } from './app.js?v=4';
+import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=5';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=5';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=5';
+import { reload } from './app.js?v=5';
 
 let sub = 'stage';      // stage | mine
 let brand = 'all';
+let showStale = false;   // jobs signed > 180 days ago with no activity — CC hygiene, hidden by default
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const overLine = (b) => b.days_in_stage != null && b.days_in_stage > (STAGE_LINE_DAYS[b.stage] ?? 99);
 
 export function renderProduction(root) {
   const me = state.me;
-  const B = state.board.filter((b) => brand === 'all' || b.cc_company_id === brand);
+  const staleN = state.board.filter((b) => b.stale).length;
+  const B = state.board.filter((b) => (brand === 'all' || b.cc_company_id === brand) && (showStale || !b.stale));
   const open = B.filter((b) => ['sold_office', 'production', 'field_complete', 'invoiced'].includes(b.stage));
   const waiting = open.filter((b) => b.stage === 'sold_office');
   const mine = state.board.filter((b) => b.supervisor_id === me?.id && ['production', 'field_complete'].includes(b.stage));
@@ -41,13 +43,15 @@ export function renderProduction(root) {
       <div class="subs" style="margin-bottom:6px">
         <button class="sub ${brand === 'all' ? 'on' : ''}" data-brand="all">All · ${open.length}</button>
         ${raw(brands.map((cc) => `<button class="sub ${brand === cc ? 'on' : ''}" data-brand="${esc(cc)}">${esc(brandName(cc))}</button>`).join(''))}
-        <span class="small" style="margin-left:auto">sorted by days in stage · red past the line</span>
+        <button class="sub ${showStale ? 'on' : ''}" data-stale="1">Stale · ${staleN}</button>
+        <span class="small" style="margin-left:auto">sorted by days in stage · red past the line · stale = signed 6+ months ago, nothing since</span>
       </div>
       <div class="wrap">${raw(table(sub === 'mine' ? mine : open, me))}</div>
     </div>`;
 
   root.querySelectorAll('[data-sub]').forEach((b) => (b.onclick = () => { sub = b.dataset.sub; renderProduction(root); }));
   root.querySelectorAll('[data-brand]').forEach((b) => (b.onclick = () => { brand = b.dataset.brand; renderProduction(root); }));
+  root.querySelectorAll('[data-stale]').forEach((b) => (b.onclick = () => { showStale = !showStale; renderProduction(root); }));
   root.querySelectorAll('[data-take]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); take(b.dataset.take, b.dataset.name); }));
   root.querySelectorAll('[data-assign]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); assign(b.dataset.assign, b.dataset.name); }));
   root.querySelectorAll('[data-back]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); back(b.dataset.back, b.dataset.name); }));

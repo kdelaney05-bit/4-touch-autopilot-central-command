@@ -1,14 +1,14 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=4';
-import { state, loadAll, isDemo, searchCustomers } from './book.js?v=4';
-import { $, $$, html, raw, toast } from './ui.js?v=4';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=4';
-import { renderHome } from './home.js?v=4';
-import { renderSales } from './sales.js?v=4';
-import { renderMarketing } from './marketing.js?v=4';
-import { renderOffice } from './office.js?v=4';
-import { renderProduction } from './production.js?v=4';
-import { renderFiles, openFile } from './file.js?v=4';
+import * as api from './api.js?v=5';
+import { state, loadAll, isDemo, searchCustomers } from './book.js?v=5';
+import { $, $$, html, raw, toast } from './ui.js?v=5';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=5';
+import { renderHome } from './home.js?v=5';
+import { renderSales } from './sales.js?v=5';
+import { renderMarketing } from './marketing.js?v=5';
+import { renderOffice } from './office.js?v=5';
+import { renderProduction } from './production.js?v=5';
+import { renderFiles, openFile } from './file.js?v=5';
 
 let view = 'home';
 let loading = false;

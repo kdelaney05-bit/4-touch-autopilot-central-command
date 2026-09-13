@@ -1,10 +1,10 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=4';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=4';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=4';
-import { reload } from './app.js?v=4';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=5';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=5';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=5';
+import { reload } from './app.js?v=5';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';

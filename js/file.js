@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview } from './book.js?v=4';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=4';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=4';
-import { settleDialog } from './office.js?v=4';
-import { reload } from './app.js?v=4';
-import { relTime } from './production.js?v=4';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview } from './book.js?v=5';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=5';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=5';
+import { settleDialog } from './office.js?v=5';
+import { reload } from './app.js?v=5';
+import { relTime } from './production.js?v=5';
 
 let current = null;    // { customerId, data }
 const money = (n) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString();
@@ -16,7 +16,7 @@ const when = (iso) => { const d = new Date(iso); const today = new Date().toDate
 const chev = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>';
 
 export function renderFiles(root) {
-  const B = state.board.slice().sort((a, b) => new Date(b.last_inbound_at || 0) - new Date(a.last_inbound_at || 0)).slice(0, 40);
+  const B = state.board.filter((b) => !b.stale).sort((a, b) => new Date(b.last_inbound_at || 0) - new Date(a.last_inbound_at || 0)).slice(0, 40);
   root.innerHTML = html`
     <div class="head"><div><div class="kicker">Files · every customer the seat can read</div><h1 class="serif">Find a customer above, or pick one who texted last.</h1></div></div>
     <div class="card"><div class="wrap"><table><thead><tr><th>Customer</th><th>Brand</th><th>Stage</th><th>Who holds it</th><th>Last customer text</th></tr></thead><tbody>
