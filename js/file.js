@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=20';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=20';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=20';
-import { settleDialog } from './office.js?v=20';
-import { reload } from './app.js?v=20';
-import { relTime } from './production.js?v=20';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=21';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=21';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=21';
+import { settleDialog } from './office.js?v=21';
+import { reload } from './app.js?v=21';
+import { relTime } from './production.js?v=21';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -367,7 +367,7 @@ function sendEstimateDialog(ctx, r, name, customer, cc, again) {
    whether the person who signed the estimate is that owner. */
 function propertyCard(p, customer, filled = []) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
-  if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><button class="btn sm" id="parcel-look">Ask the county</button></div><div class="small dimmer" style="margin-top:6px">${esc(addr || 'No street address on the file yet.')} · nobody has looked this address up yet. One tap pulls the owner, parcel and legal from the county appraiser.</div></div>`;
+  if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><button class="btn sm fill" id="parcel-look">Ask the county</button></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; tap the button if they signed on paper.</div></div>`;
   const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
     : p.signer_match === 'mismatch' ? '<span class="chip red">SIGNER IS NOT THE OWNER</span>'
     : p.signer_match === 'entity' ? '<span class="chip gold">OWNED BY AN ENTITY · AUTHORIZED SIGNER NEEDED</span>'
@@ -376,8 +376,15 @@ function propertyCard(p, customer, filled = []) {
   const site = p.site_address || addr;
   const sameMail = mail && site && mail.toUpperCase().replace(/[^A-Z0-9]/g, '').startsWith(String(p.mail_addr1 || '').toUpperCase().replace(/[^A-Z0-9]/g, '')) && String(site).toUpperCase().replace(/[^A-Z0-9]/g, '').startsWith(String(p.mail_addr1 || '').toUpperCase().replace(/[^A-Z0-9]/g, ''));
   const when = new Date(p.fetched_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const hasNoc = filled.some((f) => f.kind === 'noc');
+  const next = p.confidential ? 'Protected address: the county withholds the owner. Get the deed from the customer before anything prints.'
+    : p.signer_match === 'mismatch' ? 'The person who signed is not the owner of record. Get the owner of record to sign before the NOC or the permit goes anywhere.'
+    : p.signer_match === 'entity' ? 'The owner is a company or trust. Get the name and title of the officer who can sign, then fill the NOC with it.'
+    : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online).'
+    : 'NOC is on the file. Office: type the permit number and the blanks, notarize, record at the Clerk, upload to the permit portal.';
   return `<div class="card">
     <div class="head" style="margin-bottom:4px"><div class="kicker">Property · owner of record · ${esc(p.county)} County</div>${chip}</div>
+    <div class="next ${p.signer_match === 'mismatch' || p.confidential ? 'bad' : hasNoc && p.signer_match === 'match' ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
     <div class="rows">
       <div class="r"><span><b>${esc((p.owner_names || []).join(' & ') || '—')}</b>${p.signer_name ? ' · signed by ' + esc(p.signer_name) : ''}</span></div>
       <div class="r"><span>Owner's mail: ${esc(mail || '—')}${mail && !sameMail ? ' <span class="red">· not the job address</span>' : ''}</span></div>

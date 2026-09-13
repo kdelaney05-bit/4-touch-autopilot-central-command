@@ -188,3 +188,9 @@ main.dimmed { filter: none; }
 /* the Find dropdown: rows read as buttons (Kevin, 13 Sep: "shows one, nothing to click on") */
 nav.side .card button.findrow { padding: 8px 10px; border-radius: 8px; }
 nav.side .card button.findrow:hover { background: var(--goldsoft); }
+
+/* THE NEXT LINE (gospel 3, 13 Sep): every card says what happens next, loud, with the button beside it */
+.next { margin: 6px 0 8px; padding: 9px 12px; border-radius: 10px; background: var(--goldsoft); color: var(--ink); font-size: 13.5px; line-height: 1.4; border-left: 4px solid var(--gold); }
+.next b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--gold); margin-right: 8px; }
+.next.bad { background: #fbe9e4; border-left-color: #b8442a; } .next.bad b { color: #b8442a; }
+.next.good { background: #e6f4ea; border-left-color: #1d6b3a; } .next.good b { color: #1d6b3a; }
