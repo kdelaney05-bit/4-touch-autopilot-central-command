@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>4-Touch Autopilot Central Command</title>
+<!--
+  LIBERTY COMMAND — the one place (Kevin, 12 Sep 2026: "one place to go to
+  work and see all"). Plain HTML/JS on the desk's pattern (desk/README.md):
+  no build step, the same Supabase rails as the phone app, RLS decides every
+  row. Rooms: The Business (home) · Sales · Office · Production · Files —
+  the customer file is the spine under all of them. Data: migration 306's
+  views and RPCs (v_stage_board, v_office_queue, v_my_board,
+  v_customer_text_clock, job_take, ask_settle, file_text_queue).
+  ?demo=1 renders a fictional book with every write refused.
+  Deploy: gh-pages /command/ (same recipe as /desk/).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"/>
+<link rel="stylesheet" href="command.css?v=4"/>
+</head>
+<body>
+
+<section id="signin" class="hidden">
+  <form class="signin-card" id="si-form">
+    <div class="kicker">The 4-Touch Autopilot</div>
+    <h1>One login. Every room you're allowed in.</h1>
+    <div class="sub">Same email and password as the phone app. The database decides what you see, not the page.</div>
+    <div class="field"><label for="si-email">Email</label>
+      <input id="si-email" type="email" autocomplete="username" required/></div>
+    <div class="field"><label for="si-pass">Password</label>
+      <input id="si-pass" type="password" autocomplete="current-password" required/></div>
+    <button class="btn fill wide" id="si-go" type="submit">Sign in</button>
+    <div class="err" id="si-err"></div>
+  </form>
+  <div class="rooms-note">
+    <div class="kicker">What each login opens</div>
+    <div class="row"><span><b>Kevin, Gio</b> · owner</span><span class="chip">EVERY ROOM</span></div>
+    <div class="row"><span><b>Jessica, Sam, Laura, Jonathan</b> · office</span><span class="chip">OFFICE · FILES · PRODUCTION</span></div>
+    <div class="row"><span><b>Luis, Obed, Gerardo</b> · production</span><span class="chip">PRODUCTION · FILES</span></div>
+    <div class="row"><span><b>Jermey</b> · commercial</span><span class="chip">THE DESK</span></div>
+    <div class="note" style="margin-top:8px">Reps keep the phone app. The file underneath is the same one the phone writes on. <a href="?demo=1">See the demo</a>.</div>
+  </div>
+</section>
+
+<section id="app" class="hidden">
+  <nav class="side">
+    <div class="brand">Central Command<small id="nav-who">…</small></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="spacer"></div>
+    <div class="find"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg><input id="find" placeholder="Find a customer…" autocomplete="off"/></div>
+    <div class="who"><span id="who-sub"></span><button class="btn sm" id="btn-refresh">Refresh</button><button class="btn sm" id="btn-signout">Sign out</button></div>
+  </nav>
+  <main>
+    <div id="view-home"></div>
+    <div id="view-sales" class="hidden"></div>
+    <div id="view-marketing" class="hidden"></div>
+    <div id="view-office" class="hidden"></div>
+    <div id="view-production" class="hidden"></div>
+    <div id="view-files" class="hidden"></div>
+    <div id="view-file" class="hidden"></div>
+  </main>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<script type="module" src="js/app.js?v=4"></script>
+</body>
+</html>
