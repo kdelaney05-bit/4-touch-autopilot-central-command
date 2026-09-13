@@ -1,15 +1,16 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=10';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=10';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=10';
-import { BRAND_BY_CC } from './config.js?v=10';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=10';
-import { renderHome } from './home.js?v=10';
-import { renderSales } from './sales.js?v=10';
-import { renderMarketing } from './marketing.js?v=10';
-import { renderOffice } from './office.js?v=10';
-import { renderProduction } from './production.js?v=10';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=10';
+import * as api from './api.js?v=11';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=11';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=11';
+import { BRAND_BY_CC } from './config.js?v=11';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=11';
+import { renderHome } from './home.js?v=11';
+import { renderSales } from './sales.js?v=11';
+import { renderMarketing } from './marketing.js?v=11';
+import { renderOffice } from './office.js?v=11';
+import { renderProduction } from './production.js?v=11';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=11';
+import { stopRoomPoll } from './village.js?v=11';
 
 let view = 'home';
 let loading = false;
@@ -22,6 +23,7 @@ export function rooms() {
 
 export function go(v, arg) {
   view = v;
+  stopRoomPoll();                 // the room you are leaving stops talking to the database
   if (v !== 'file') closeDrawer();
   if (v === 'file' && arg) { openFile(arg).catch((e) => toast(e.message || 'Could not open the file', 'err')); }
   render();

@@ -1,10 +1,12 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=10';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=10';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=10';
-import { reload } from './app.js?v=10';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=11';
+import * as api from './api.js?v=11';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=11';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=11';
+import { DEMO_STEPS } from './demo-office.js?v=11';
+import { reload } from './app.js?v=11';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -44,8 +46,10 @@ export function renderOffice(root) {
       <div class="switch"><span><b>Estimate-booked confirmation text</b> — the first text, from the brand's main line, the moment a new appointment lands. Fencing lines only until the other campaigns approve.</span><button class="btn sm ${sw('appt_confirm')?.is_on ? 'ok' : ''}" data-switch="appt_confirm">${sw('appt_confirm')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
       <div class="switch"><span><b>The answer clock</b> — 15 minutes, then the watcher is pinged; 60 minutes, the owners. Counts only texts that arrive after you flip it.</span><button class="btn sm ${sw('text_clock')?.is_on ? 'ok' : ''}" data-switch="text_clock">${sw('text_clock')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
       <div class="switch"><span><b>The chain's texts</b> — permit approved, you're on the schedule, invoice sent, the past-due reminder at 30 days, the review prompt on payment, and the five-star link when a customer texts back a 9 or 10. Jess's wording, from the brand's main line.</span><button class="btn sm ${sw('office_machine_texts')?.is_on ? 'ok' : ''}" data-switch="office_machine_texts">${sw('office_machine_texts')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
-      <div class="switch"><span><b>After hours</b> — 6 PM to 7 AM, a customer text gets "Got it, {first} — {owner} will text you first thing in the morning," once per night.</span><button class="btn sm ${sw('after_hours_reply')?.is_on ? 'ok' : ''}" data-switch="after_hours_reply">${sw('after_hours_reply')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div></div>`) : ''}`;
+      <div class="switch"><span><b>After hours</b> — 6 PM to 7 AM, a customer text gets "Got it, {first} — {owner} will text you first thing in the morning," once per night.</span><button class="btn sm ${sw('after_hours_reply')?.is_on ? 'ok' : ''}" data-switch="after_hours_reply">${sw('after_hours_reply')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div></div>`) : ''}
+    <div class="card" id="cc-workflow"></div>`;
 
+  workflowCard(root);
   root.querySelectorAll('[data-f]').forEach((b) => (b.onclick = () => { filter = b.dataset.f; renderOffice(root); }));
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.settle); if (a) settleDialog(a, () => reload(true)); }));
   root.querySelectorAll('[data-switch]').forEach((b) => (b.onclick = async () => {
@@ -103,4 +107,98 @@ export function settleDialog(a, after) {
       toast(`Done${opened ? ` · ${opened} next step${opened > 1 ? 's' : ''} opened` : ''}${texted ? ' · the customer was texted' : ''}`);
       after?.();
     } });
+}
+
+/* ── the workflow map ────────────────────────────────────────────────────────
+   Contractors Cloud's own step list, brand by brand, beside what each step
+   became here: an ask with a clock, a piece of the paperwork checklist, a
+   hand-off, a clock the machine keeps, something the app already did, or a
+   step that simply went away. The rows are `cc_workflow_steps` — Kevin and
+   Jess edit the note column in place; nothing here is code. Read once per
+   page load and kept in the module, so the filter buttons never re-fetch. */
+let STEPS = null, stepsLoading = false, stepsErr = null, stepsCc = '1461';
+const BECOMES = {
+  ask:       ['st-gold',   'ask'],
+  checklist: ['st-blue',   'checklist'],
+  handoff:   ['st-green',  'hand-off'],
+  clock:     ['st-orange', 'the clock'],
+  exists:    ['st-ink',    'already here'],
+  dropped:   ['st-ink',    'dropped'],
+};
+
+async function loadSteps() {
+  if (isDemo()) return DEMO_STEPS.slice();
+  return api.page('cc_workflow_steps?select=*&order=cc_company_id.asc,ord.asc');
+}
+
+function workflowCard(root) {
+  const box = root.querySelector('#cc-workflow');
+  if (!box) return;
+  const head = '<div class="kicker">The workflow · every Contractors Cloud step and what it became here</div>'
+    + '<div class="small">CC\'s checklist, step for step. Gold is an ask with a clock on it; blue is a piece of the paperwork checklist; green is a hand-off; orange is a follow-up the machine keeps; grey was already here, or went away.</div>';
+  if (STEPS == null) {
+    box.innerHTML = head + '<div class="empty">Reading the map…</div>';
+    if (!stepsLoading) {
+      stepsLoading = true;
+      loadSteps()
+        .then((rows) => { STEPS = rows; stepsErr = null; })
+        .catch((e) => { STEPS = []; stepsErr = e?.message || 'Could not read cc_workflow_steps'; })
+        .finally(() => { stepsLoading = false; workflowCard(root); });
+    }
+    return;
+  }
+  const brands = Object.keys(BRAND_BY_CC);
+  if (!brands.includes(stepsCc)) stepsCc = brands[0];
+  const forCc = (cc) => STEPS.filter((s) => String(s.cc_company_id) === cc);
+  const rows = forCc(stepsCc).slice().sort((a, b) => (Number(a.ord) || 0) - (Number(b.ord) || 0));
+  const canEdit = ['owner', 'admin'].includes(state.me?.role);
+
+  box.innerHTML = head
+    + '<div class="subs" style="margin:2px 0 4px">'
+    + brands.map((cc) => `<button class="sub ${cc === stepsCc ? 'on' : ''}" data-cc="${esc(cc)}">${esc(BRAND_BY_CC[cc].short)} · ${forCc(cc).length}</button>`).join('')
+    + (canEdit ? '<span class="small" style="margin-left:auto">Click a note to rewrite it — it saves when you click away.</span>' : '')
+    + '</div>'
+    + (rows.length
+      ? '<div class="wrap"><table><thead><tr><th>#</th><th>CC step</th><th>Becomes</th><th>The ask</th><th>Lane</th><th>Who</th><th>What changed</th></tr></thead><tbody>'
+        + rows.map((s) => stepRow(s, canEdit)).join('') + '</tbody></table></div>'
+      : `<div class="empty">${esc(stepsErr || 'No steps mapped for ' + BRAND_BY_CC[stepsCc].short + ' yet.')}</div>`);
+
+  box.querySelectorAll('[data-cc]').forEach((b) => (b.onclick = () => { stepsCc = b.dataset.cc; workflowCard(root); }));
+  box.querySelectorAll('[data-note-ord]').forEach((cell) => {
+    cell.dataset.was = cell.textContent;
+    cell.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); cell.blur(); } if (e.key === 'Escape') { cell.textContent = cell.dataset.was; cell.blur(); } });
+    cell.onblur = async () => {
+      const note = cell.textContent.trim();
+      if (note === (cell.dataset.was || '').trim()) return;
+      const cc = cell.dataset.noteCc, ord = cell.dataset.noteOrd;
+      if (isDemo()) { cell.textContent = cell.dataset.was; toast('Demo — nothing is saved', 'err'); return; }
+      try {
+        await api.patch(`cc_workflow_steps?cc_company_id=eq.${encodeURIComponent(cc)}&ord=eq.${encodeURIComponent(ord)}`, { note });
+        const hit = STEPS.find((s) => String(s.cc_company_id) === cc && String(s.ord) === ord);
+        if (hit) hit.note = note;
+        cell.dataset.was = note;
+        toast('Saved');
+      } catch (e) { cell.textContent = cell.dataset.was; toast(e.message, 'err'); }
+    };
+  });
+}
+
+function stepRow(s, canEdit) {
+  const b = BECOMES[s.becomes] || ['st-ink', s.becomes || '—'];
+  const gone = s.becomes === 'dropped';
+  const stepCell = `<b${gone ? ' style="text-decoration:line-through;color:var(--dimmer)"' : ''}>${esc(s.cc_subject || '')}</b>`
+    + (s.cc_count != null ? ` <span class="mono dimmer">${esc(s.cc_count)}</span>` : '');
+  const ask = s.ask_type || s.doc_kind ? esc(askLabel({ ask_type: s.ask_type, doc_kind: s.doc_kind })) : '<span class="dimmer">—</span>';
+  const note = canEdit
+    ? `<div class="note" contenteditable="true" data-note-cc="${esc(s.cc_company_id)}" data-note-ord="${esc(s.ord)}" style="min-height:17px;outline:none;border-bottom:1px dashed var(--line)">${esc(s.note || '')}</div>`
+    : `<span class="note">${esc(s.note || '')}</span>`;
+  return `<tr>
+    <td class="mono dimmer">${esc(s.ord)}</td>
+    <td>${stepCell}</td>
+    <td><span class="chip ${b[0]}"${gone ? ' style="text-decoration:line-through"' : ''}>${esc(b[1].toUpperCase())}</span></td>
+    <td>${ask}</td>
+    <td>${s.lane ? '<span class="chip">' + esc(s.lane) + '</span>' : '<span class="dimmer">—</span>'}</td>
+    <td class="small">${esc(s.owner_rule || '—')}</td>
+    <td style="min-width:220px">${note}</td>
+  </tr>`;
 }

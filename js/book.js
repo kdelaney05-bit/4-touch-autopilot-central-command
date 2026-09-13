@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=10';
-import { DEMO } from './demo.js?v=10';
+import * as api from './api.js?v=11';
+import { DEMO } from './demo.js?v=11';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -16,6 +16,7 @@ export const state = {
   mentions: [],        // v_my_mentions — tagged for me
   sellers: [],         // v_sellers — who a job can be sold by
   leadSources: [],     // lead_sources — CC's own list, per brand
+  proofRules: [],      // ask_proof_rules — what closes each ask (the DB's word, not the room's)
   warnings: [],
   loadedAt: null,
 };
@@ -26,7 +27,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
   const s = api.getSession();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources] = await Promise.all([
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -38,8 +39,9 @@ export async function loadAll() {
     api.page('v_my_mentions?select=*&order=created_at.desc', 200).catch(() => []),
     api.page('v_sellers?select=*&order=name.asc').catch(() => []),
     api.page('lead_sources?select=cc_lead_id,name,cc_company_id,cc_total_used&is_active=eq.true&order=cc_total_used.desc.nullslast').catch(() => []),
+    api.page('ask_proof_rules?select=*').catch(() => []),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
@@ -107,10 +109,15 @@ export async function postMessage(threadId, lane, body) {
   return api.insert('thread_messages', { thread_id: threadId, lane, author_id: api.getSession().repId, body });
 }
 export async function textCustomer(customerId, body) { guard(); return api.rpc('file_text_queue', { p_customer: customerId, p_body: body }); }
+/* The invoice, queued for QuickBooks. The qb_invoices switch decides whether
+   it ever leaves the building; this only writes the row, and settles the
+   INVOICE ask behind it when one is picked. */
+export async function invoiceRequest(jobId, amount, memo, askId) { guard(); return api.rpc('invoice_request', { p_job: jobId, p_amount: amount, p_memo: memo ?? null, p_ask: askId ?? null }); }
 export async function linePreview(customerId) {
   if (isDemo()) return [
     { key: 'review_prompt', label: 'Review prompt · rate us 1–10', body: 'Hey Dana, This is Kevin with Liberty Fencing and I wanted to follow up on the project and ask how would you rate the staff and workmanship on a scale from 1-10 ( 10 being the BEST) ?' },
     { key: 'permit_in', label: 'Permit approved', body: 'Hi Dana, Kevin at Liberty Fencing. Your permit is approved. Next up is scheduling — we\'ll text you the day here.' },
+    { key: 'pay_link', label: 'Payment link', body: 'Hi Dana, Liberty Fencing here. Your invoice is ready and you can pay it online here: {{link}} — thank you!' },
     { key: 'lead_reply', label: 'Estimate request · call us back', body: 'Good morning, Liberty Fencing here. I am reaching out because we received a request that you were looking for a Free Fencing Estimate for an upcoming project and I\'d love to get that scheduled for you today! Please call us back at 321-215-4437 at your earliest convenience. We look forward to hearing from you. Thank you' },
   ];
   const r = await api.rpc('line_preview', { p_customer: customerId });

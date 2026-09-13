@@ -46,6 +46,60 @@ const QUEUE = [
 
 const CLOCK = BOARD.filter((b) => b.waiting_min).map((b) => ({ text_id: 'tx' + b.job_id, customer_id: b.customer_id, customer_name: b.customer_name, phone: b.customer_phone, occurred_at: b.last_inbound_at, body: b.last_inbound_body, waiting_min: b.waiting_min, job_id: b.job_id, cc_company_id: b.cc_company_id, stage: b.stage, owner_id: b.owner_id, owner_name: b.owner_name, watcher_id: 'jc' }));
 
+/* The village — the team's rooms (v_team_room's shape) and the reps' hype
+   thread (hype_messages'). Fictional people saying fictional things about the
+   fictional book above; nothing here is saved. */
+const inits = (name) => name.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+let tmN = 0;
+const tm = (room, seatId, body, h, customer, reactions) => {
+  const s = SEATS.find((x) => x.id === seatId) || SEATS[0];
+  const c = customer ? BOARD.find((b) => b.customer_id === customer) : null;
+  return { id: 'tm' + (++tmN), room, author_id: s.id, author_name: s.name, author_initials: inits(s.name), body,
+    customer_id: c ? c.customer_id : null, customer_name: c ? c.customer_name : null, reply_to: null,
+    created_at: ago(h), reactions: reactions || {} };
+};
+
+const ROOMS = {
+  office: [
+    tm('office', 'sam', 'Permit 26-04812 came back on Reed. It is on the file and the locate is called in for Wednesday.', 30, 'cj3', { '✅': 2 }),
+    tm('office', 'laura', 'Nguyen is day 12 at the county. I called — they are backed up, nothing is stuck on us. Posting it here so nobody has to go digging.', 26, 'cj2', { '👍': 3 }),
+    tm('office', 'jon', 'Kowalski asked for Thursday instead of Wednesday. Moved it and told Obed. Nothing else changes.', 9, 'cj7'),
+    tm('office', 'sam', 'If anybody gets a survey they cannot find, ask me. I have the county portal up and it takes two minutes.', 6, null, { '🔥': 2, '👍': 4 }),
+    tm('office', 'jc', 'Reyes paid the balance this morning. Laura, that one is closed.', 3, 'cj11', { '✅': 3 }),
+    tm('office', 'k', 'Love seeing this. Every one of these is a customer who does not have to wonder.', 1.5, null, { '🔥': 4 }),
+  ],
+  production: [
+    tm('production', 'obed', 'Crew Ortiz finished Reed a day early. Six photos on the file, gate swings clean.', 20, 'cj3', { '🔥': 5, '👍': 2 }),
+    tm('production', 'luis', 'Anybody near Palm Bay with a spare gate kit? Alvarez needs one more and I would rather not lose the day.', 8, 'cj4'),
+    tm('production', 'ger', 'I have two in the truck. Dropping them at your yard by 3.', 7.6, 'cj4', { '👍': 4 }),
+    tm('production', 'luis', 'That is the village right there. Thank you Gerardo.', 7.4, null, { '🔥': 3 }),
+    tm('production', 'obed', 'Pestana hit rock at post 14. We are coring instead of digging — half a day, no change order, customer already knows.', 4, 'cj8', { '👍': 2 }),
+    tm('production', 'k', 'This is exactly the problem solving I want to see. Post the fix, not the complaint.', 2, null, { '🔥': 6 }),
+  ],
+  village: [
+    tm('village', 'k', 'The village is open. Every room, every customer, everybody. If you see something you can help with, jump in — you do not need permission.', 48, null, { '🔥': 8, '👍': 5 }),
+    tm('village', 'jc', 'The office is covered until 6 today. If a customer texts after that, post it here and somebody will catch it.', 22, null, { '👍': 3 }),
+    tm('village', 'sam', 'Okafor\'s roof photos are gorgeous. Whoever shot those — that is marketing material.', 12, 'cj5', { '🔥': 4 }),
+    tm('village', 'g', 'Marchetti sent a thank-you about the patio lighting. Passing it along: Luis, that is your crew.', 9, 'cj6', { '👍': 6, '🔥': 2 }),
+    tm('village', 'laura', 'Can we invoice Brooks before the final walk, or do I wait? Asking so I do not jump the gun.', 5, 'cj9'),
+    tm('village', 'obed', 'Walk is Friday morning. Hold it until I sign off and I will post here the second it is done.', 4.9, 'cj9', { '✅': 3 }),
+    tm('village', 'k', 'Question asked, answered in four minutes, nobody had to go find anybody. That is the whole idea.', 4.5, null, { '🔥': 5 }),
+  ],
+};
+
+let hyN = 0;
+const hy = (name, body, h, img) => ({ id: 'hy' + (++hyN), author_name: name, author_initials: inits(name), author_avatar: null,
+  body, image_url: img || null, reply_to: null, reply_name: null, reply_snippet: null, created_at: ago(h) });
+
+const HYPE = [
+  hy('Ron Seidel', '210 ft of vinyl signed at the table. She said three companies came out and only one called her back the same day.', 26),
+  hy('Travis Janke', 'Let\'s gooo Ron. That is two this week off the same-day callback.', 25),
+  hy('Eric Payne', 'Okafor signed the re-roof. Referral off the Brooks job — the follow-up text did it.', 20),
+  hy('Haakon Endreson', 'Two today, both in the same neighborhood, both said they saw our yard sign.', 14),
+  hy('Mike LeRoy', 'Paver patio and lighting, $31,400. Landscapes is on the map.', 7),
+  hy('Kevin Delaney', 'This is the board I want to look at every morning. Nobody here is selling alone.', 3),
+];
+
 function book() {
   return { me: { ...me, manages_company_id: null }, seats: SEATS, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
@@ -93,4 +147,4 @@ function search(q) {
   return BOARD.filter((b) => b.customer_name.toLowerCase().includes(s)).map((b) => ({ id: b.customer_id, name: b.customer_name, phone: b.customer_phone })).slice(0, 8);
 }
 
-export const DEMO = { book, file, search };
+export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE };

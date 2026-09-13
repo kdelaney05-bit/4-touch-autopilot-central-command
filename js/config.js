@@ -33,9 +33,24 @@ export const ASK_LABEL = {
   INVOICE: 'Invoice', PAYMENT: 'Payment', CHANGE_ORDER: 'Change order', COMPLETION_SIGNOFF: 'Sign-off',
   MATERIAL_REQUEST: 'Material run', SITE_ISSUE: 'Site issue', SUPERVISOR_PING: 'Supervisor', SAFETY_JHA: 'Safety',
   CUSTOMER_REQUEST: 'Customer request', SCHEDULE_QUESTION: 'Schedule question',
+  /* Contractors Cloud's own steps, become asks here (cc_workflow_steps). */
+  SOLD_CHECK: 'Sold check', INTRO_CALL: 'Intro call · colors & payment', MILESTONE: 'Milestone',
+  INSPECTION: 'Final inspection', CLOSEOUT: 'Close-out',
 };
-export const DOC_LABEL = { contract: 'Signed contract', noc: 'Notice of Commencement', hoa: 'HOA approval', survey: 'Property survey', permit_sig: 'Permit application, signed' };
-export const askLabel = (a) => (a.doc_kind && DOC_LABEL[a.doc_kind]) || ASK_LABEL[a.ask_type] || a.ask_type;
+export const DOC_LABEL = {
+  contract: 'Signed contract', noc: 'Notice of Commencement', hoa: 'HOA approval', survey: 'Property survey', permit_sig: 'Permit application, signed',
+  /* The roofing milestones — the doc_kind is which milestone it is. */
+  tearoff: 'Tear-off started', dryin_ordered: 'Dry-in ordered', sheathing_inspection: 'Sheathing inspection',
+  dryin_passed: 'Dry-in passed', shingling: 'Shingling', walkthrough: 'Walkthrough',
+};
+/* Type first, then the piece: a MILESTONE with doc_kind 'tearoff' reads
+   "Milestone · Tear-off started". Either half alone when there is only one. */
+export const askLabel = (a) => {
+  const t = ASK_LABEL[a?.ask_type] || a?.ask_type || '';
+  const d = a?.doc_kind ? (DOC_LABEL[a.doc_kind] || a.doc_kind) : '';
+  if (a?.ask_type === 'CONTRACT_DOC' && d) return d;   // the paperwork checklist reads by item, not 'Paperwork · item'
+  return d ? (t ? t + ' · ' + d : d) : t;
+};
 
 /* Which rooms a role opens. RLS decides the rows either way. */
 export const ROOMS_BY_ROLE = {

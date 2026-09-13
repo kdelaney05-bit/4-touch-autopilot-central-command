@@ -1,8 +1,9 @@
 // The Business — the one place. Four doors, the funnel, what needs you now,
 // the line right now. Every number is a count of live rows the seat can read.
-import { state, isDemo, personName, firstName } from './book.js?v=10';
-import { html, raw, esc } from './ui.js?v=10';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=10';
+import { state, isDemo, personName, firstName } from './book.js?v=11';
+import { html, raw, esc } from './ui.js?v=11';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=11';
+import { renderRoom } from './village.js?v=11';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -96,5 +97,10 @@ export function renderHome(root) {
         <div class="kicker">The line right now · last customer texts, any room</div>
         ${lately.length ? raw(lately.map((c) => `<div class="inv"><span class="mono dimmer">${esc(new Date(c.occurred_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</span><span><b>${esc(personName(c.customer_name))}</b> to ${esc(c.owner_name ? firstName(c.owner_name) : 'the line')} · "${esc((c.body || '(photo)').slice(0, 80))}"</span><span class="chip">${esc(brandName(c.cc_company_id))}</span><button class="btn sm" onclick="__peek('${esc(c.customer_id)}')">Reply</button></div>`).join('')) : raw('<div class="empty">No customer texts in the last two weeks.</div>')}
       </div>
-    </div>`;
+    </div>
+
+    <div id="home-village"></div>`;
+
+  // the village — the whole company in one room, under everything else
+  renderRoom(root.querySelector('#home-village'), 'village');
 }

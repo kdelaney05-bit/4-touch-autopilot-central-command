@@ -1,9 +1,10 @@
 // Production — the stage board (every sold customer, by who holds them), My
 // board (the supervisor's jobs), and Take the job.
-import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=10';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=10';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=10';
-import { reload } from './app.js?v=10';
+import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=11';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=11';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=11';
+import { reload } from './app.js?v=11';
+import { renderRoom } from './village.js?v=11';
 
 let sub = 'stage';      // stage | mine
 let brand = 'all';
@@ -33,6 +34,8 @@ export function renderProduction(root) {
       </div>
     </div>
 
+    <div id="prod-village"></div>
+
     <div class="tiles" style="grid-template-columns:repeat(4,minmax(0,1fr))">
       ${raw([['sold_office', 'Sold · waiting for a supervisor', 'var(--office)'], ['production', 'In production', 'var(--prod)'], ['field_complete', 'Field complete · invoice pending', 'var(--verify)'], ['invoiced', 'Invoiced · collecting', 'var(--dim)']].map(([s, label, color]) => `
         <div class="tile"><div class="kicker">${esc(label)}</div><div class="fnum" style="color:${color}">${counts[s]}</div>
@@ -49,6 +52,7 @@ export function renderProduction(root) {
       <div class="wrap">${raw(table(sub === 'mine' ? mine : open, me))}</div>
     </div>`;
 
+  renderRoom(root.querySelector('#prod-village'), 'production');
   root.querySelectorAll('[data-sub]').forEach((b) => (b.onclick = () => { sub = b.dataset.sub; renderProduction(root); }));
   root.querySelectorAll('[data-brand]').forEach((b) => (b.onclick = () => { brand = b.dataset.brand; renderProduction(root); }));
   root.querySelectorAll('[data-stale]').forEach((b) => (b.onclick = () => { showStale = !showStale; renderProduction(root); }));

@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=10';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=10';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=10';
-import { settleDialog } from './office.js?v=10';
-import { reload } from './app.js?v=10';
-import { relTime } from './production.js?v=10';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest } from './book.js?v=11';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=11';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=11';
+import { settleDialog } from './office.js?v=11';
+import { reload } from './app.js?v=11';
+import { relTime } from './production.js?v=11';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -102,6 +102,8 @@ function draw(root, ctx, compact) {
         <button class="btn" id="file-tag" title="Note to the team · tag the next person">Tag</button>
         ${job.job_id ? raw('<button class="btn" id="file-doc" title="Put a document on the file">+ Document</button>') : ''}
         ${staff && job.job_id ? raw('<button class="btn" id="file-send" title="Hand this file to a seat">Send to…</button>') : ''}
+        ${staff && job.job_id ? raw('<button class="btn" id="file-invoice" title="Queue this job\'s invoice for QuickBooks">Invoice</button>') : ''}
+        ${staff && customer && !optOut ? raw('<button class="btn" id="file-collect" title="Text the customer the payment link">Collect</button>') : ''}
         ${canTake ? raw('<button class="btn fill" id="file-take">Take the job</button>') : ''}
         ${isSup && job.stage === 'production' ? raw('<button class="btn" id="file-back-job">Hand it back</button>') : ''}
       </div>
@@ -193,6 +195,41 @@ function draw(root, ctx, compact) {
       await addDoc(job, tid, fm.lane.value, file, fm.label.value.trim() || file.name);
       toast('On the file'); again();
     } });
+  if (q('#file-invoice')) q('#file-invoice').onclick = () => {
+    const waiting = asks.filter((a) => a.ask_type === 'INVOICE' && a.state === 'OPEN');
+    openModal({ title: `Invoice ${name}`, submitLabel: 'Queue it', body: `
+      <div class="field"><label>Amount</label><input name="amount" type="number" step="0.01" min="0" value="${esc(job.fin_sold_amount ?? '')}" required/></div>
+      <div class="field"><label>Memo · what the customer reads on it</label><input name="memo" placeholder="Final invoice · balance after deposit"/></div>
+      ${waiting.length ? `<div class="field"><label>The ask this answers (optional)</label><select name="ask"><option value="">— none, just the invoice —</option>${waiting.map((a) => `<option value="${esc(a.id)}">${esc(askLabel(a))}${a.note ? ' · ' + esc(a.note) : ''} · ${esc(a.assignee_name || 'unassigned')} holds it</option>`).join('')}</select></div>` : ''}
+      <div class="note">The row is written and the job's invoice line goes on the file. The qb_invoices switch is off, so nothing reaches QuickBooks until Kevin turns it on.</div>`,
+      onSubmit: async (fm) => {
+        const amount = Number(fm.amount.value);
+        if (!Number.isFinite(amount) || amount <= 0) throw new Error('Put the amount in');
+        await invoiceRequest(job.job_id, amount, fm.memo.value.trim() || null, fm.ask?.value || null);
+        toast('Queued for QuickBooks — the qb_invoices switch is off, nothing leaves yet');
+        again();
+      } });
+  };
+  if (q('#file-collect')) q('#file-collect').onclick = async () => {
+    let lines = [];
+    try { lines = await linePreview(ctx.customerId); } catch {}
+    const pay = (lines || []).find((l) => l.key === 'pay_link');
+    const tpl = pay?.body || `Hi ${firstName(name)}, you can pay your invoice online here: {{link}} — thank you!`;
+    const fill = (link) => String(tpl).replace(/\{\{link\}\}/g, link);
+    openModal({ title: `Send ${firstName(name)} the payment link`, submitLabel: 'Send it', body: `
+      <div class="field"><label>Payment link</label><input name="link" type="url" placeholder="https://…"/></div>
+      <div class="field"><label>What goes out${pay ? ' · ' + esc(pay.label || 'the pay-link line') : ''}</label><textarea name="msg" style="min-height:110px">${esc(tpl)}</textarea></div>
+      <div class="note">${pay ? 'Jess\'s pay-link line, filled in for this customer. Paste the link and it drops in; edit the wording before you send.' : 'No pay-link line on file yet, so this is the plain wording. Paste the link and it drops in.'} It goes out on the brand\'s main line, credited to you.</div>`,
+      onOpen: (fm) => { fm.link.oninput = () => { fm.msg.value = fill(fm.link.value.trim() || '{{link}}'); }; },
+      onSubmit: async (fm) => {
+        const body = fm.msg.value.trim();
+        if (!body) throw new Error('Nothing to send');
+        if (/\{\{link\}\}/.test(body)) throw new Error('Paste the payment link first');
+        await textCustomer(ctx.customerId, body);
+        toast('Payment link sent from the main line');
+        again();
+      } });
+  };
   q('#note-send').onclick = async () => {
     const to = q('#note-to').value, what = q('#note-what').value;
     let body = q('#note').value.trim(); if (!body && !what) return;
@@ -244,6 +281,8 @@ function askRow(a, me) {
 
 function withQueueShape(a, job) {
   const rule = { PERMIT: ['number', 'Permit number (attach the permit if you have it)', 1, false], SURVEY: ['text', 'Locate ticket number, or why none is needed', 1, true], SCHEDULE: ['date', 'Start date — and the crew, in the note', 1, false], MATERIAL: ['text', 'PO / order confirmation number', 1, false], COMPLETION_SIGNOFF: ['photos', 'Finished-work photos (3 or more)', 3, false], INVOICE: ['number', 'Billdu / QuickBooks invoice number', 1, false], PAYMENT: ['text', 'How it was paid (QuickBooks record)', 1, false], CHANGE_ORDER: ['file', 'The signed change order', 1, false], SAFETY_JHA: ['photos', 'The JHA photo', 1, false], CONTRACT_DOC: ['file', 'The document', 1, true] }[a.ask_type] || ['tap', 'Tap to close', 1, false];
+  const db = (state.proofRules || []).find((r) => r.ask_type === a.ask_type && r.doc_kind === (a.doc_kind || '')) || (state.proofRules || []).find((r) => r.ask_type === a.ask_type && r.doc_kind === '');
+  if (db) return { ...a, ask_id: a.id, customer_name: job.customer_name, cc_company_id: job.cc_company_id, cc_project_id: job.cc_project_id, proof_kind: db.proof_kind, proof_label: db.label, proof_min: db.min_count ?? 1, waivable: !!db.waivable };
   return { ...a, ask_id: a.id, customer_name: job.customer_name, cc_company_id: job.cc_company_id, cc_project_id: job.cc_project_id, proof_kind: rule[0], proof_label: rule[1], proof_min: rule[2], waivable: rule[3] };
 }
 
