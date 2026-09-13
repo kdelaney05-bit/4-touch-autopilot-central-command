@@ -47,12 +47,30 @@ touch is due, hands you the line, shows the hit, keeps score, rings the bell.
 **Still you:** five minutes early, read the room, thank them like you mean it,
 ask before they decide, take the swing.
 
+## The three questions under every touch
+
+Kevin's whole way of thinking fits in three questions. Ask them about every
+customer and every dollar, and the noise stops mattering.
+
+- **Where it came from.** Every file carries its lead source (CC's own list,
+  migration 314). The console counts leads, sits and signed dollars by source
+  and the return on every dollar spent. A referral, a review, a Best of
+  Brevard vote and a paid click are never lumped together.
+- **How to get it.** The napkin: four touches in 72 hours, every appointment.
+  The app keeps the clock, hands you the line, shows what landed and keeps the
+  file alive until yes or no. You are the product; the system makes sure the
+  product shows up.
+- **Where to get more.** The reference sheet and the "oh, by the way" ask turn
+  a happy customer into the next lead. The review prompt after the job feeds
+  the reviews that feed the phone. What closes gets more spend; what doesn't
+  gets cut. The board says which is which.
+
 ## The rule under all of it (Kevin, 13 Sep 2026)
 
 "If you pay attention to the only thing that really matters, revenue, most of
 the time, especially the most important person in the company, things work
-out. Everything else is noise, and the noise is always louder." The app exists
-so the noise never wins.
+out. Everything else is noise, and the noise is always louder." Where it came from, how to get it, where to get
+more. The app exists so the noise never wins.
 
 ## Onboarding use
 
