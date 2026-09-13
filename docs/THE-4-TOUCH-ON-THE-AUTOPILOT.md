@@ -68,8 +68,8 @@ customer and every dollar, and the noise stops mattering.
 ## The two things
 
 Kevin has said these two things to every person who ever sold for him or
-reported to him: 89 people so far, 80 of them in sales. A new rep reading this
-on the first morning is the 90th.
+reported to him: 89 people so far. 80 of them sold, and all 80 crushed it. A
+new rep reading this on the first morning is the 90th.
 
 1. **Revenue is the only thing that really matters.** Sales and marketing are
    the same thing and they are the job. Everything else is noise: omnipresent,
