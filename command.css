@@ -144,3 +144,17 @@ tr.link { cursor: pointer; } tr.link:hover td { background: var(--card-hi); }
 /* the owner console, embedded — its own dark ground, so the frame gets a dark seat */
 .embed { border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #0f1e17; box-shadow: 0 10px 40px rgba(28,26,21,.08); }
 .embed iframe { display: block; width: 100%; height: calc(100vh - 210px); min-height: 640px; border: 0; }
+
+/* ── the customer's thread, beside every room (Kevin, 13 Sep: "we always keep our eyes on the prize, the customer") ── */
+#drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(640px, 92vw); background: var(--bg); border-left: 1px solid var(--line); box-shadow: -20px 0 60px rgba(28,26,21,.14); z-index: 12; overflow-y: auto; }
+#drawer[hidden] { display: none; }
+#drawer-body { padding: 18px 20px 40px; }
+#drawer .grid-file { grid-template-columns: 1fr; }
+#drawer .thread { max-height: 48vh; }
+#drawer h1.serif { font-size: 24px; }
+#drawer .drawer-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+main.dimmed { filter: none; }
+.thread { max-height: 66vh; }
+.msg { font-size: 15px; max-width: 80%; }
+.msg.in { border-left: 3px solid var(--goldbtn); }
+.grid-file { grid-template-columns: minmax(0, 1.6fr) 360px; }

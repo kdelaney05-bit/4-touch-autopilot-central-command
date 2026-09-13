@@ -2,10 +2,10 @@
 // dollars over the rep cards, the Hustle room, Moneyball), with the file's
 // own read underneath: who is waiting on a rep right now. The retail board
 // and Jermey's desk open from the header.
-import { state, isDemo, personName, firstName } from './book.js?v=6';
-import { html, raw, esc } from './ui.js?v=6';
-import { brandName, CONSOLE_URL, CONSOLE_SECTION } from './config.js?v=6';
-import { relTime } from './production.js?v=6';
+import { state, isDemo, personName, firstName } from './book.js?v=7';
+import { html, raw, esc } from './ui.js?v=7';
+import { brandName, CONSOLE_URL, CONSOLE_SECTION } from './config.js?v=7';
+import { relTime } from './production.js?v=7';
 
 export function renderSales(root) {
   const waiting = state.clock.filter((c) => (c.stage === 'selling' || c.stage === 'booked') && c.waiting_min >= 15);
@@ -22,6 +22,6 @@ export function renderSales(root) {
     <div class="embed"><iframe title="The owner console · Sales" src="${CONSOLE_URL}#${CONSOLE_SECTION.sales}" loading="lazy" allow="clipboard-write"></iframe></div>
     <div class="card" style="margin-top:12px">
       <div class="kicker" style="color:var(--clock)">Customers waiting on a rep · ${waiting.length} · from the file</div>
-      ${waiting.length ? raw(waiting.slice(0, 12).map((c) => `<div class="inv red"><span class="mono dimmer">${esc(relTime(c.occurred_at))}</span><span><b>${esc(personName(c.customer_name))}</b> · "${esc((c.body || '(photo)').slice(0, 70))}" · ${esc(c.owner_name ? firstName(c.owner_name) : 'no rep')}</span><span class="chip">${esc(brandName(c.cc_company_id))}</span><button class="btn sm" onclick="__go('file','${esc(c.customer_id)}')">Open file</button></div>`).join('')) : raw('<div class="empty">Every selling customer has been answered.</div>')}
+      ${waiting.length ? raw(waiting.slice(0, 12).map((c) => `<div class="inv red"><span class="mono dimmer">${esc(relTime(c.occurred_at))}</span><span><b>${esc(personName(c.customer_name))}</b> · "${esc((c.body || '(photo)').slice(0, 70))}" · ${esc(c.owner_name ? firstName(c.owner_name) : 'no rep')}</span><span class="chip">${esc(brandName(c.cc_company_id))}</span><button class="btn sm" onclick="__peek('${esc(c.customer_id)}')">Open file</button></div>`).join('')) : raw('<div class="empty">Every selling customer has been answered.</div>')}
     </div>`;
 }

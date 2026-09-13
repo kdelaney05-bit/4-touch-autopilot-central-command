@@ -2,14 +2,15 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=6';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=6';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=6';
-import { settleDialog } from './office.js?v=6';
-import { reload } from './app.js?v=6';
-import { relTime } from './production.js?v=6';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen } from './book.js?v=7';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=7';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=7';
+import { settleDialog } from './office.js?v=7';
+import { reload } from './app.js?v=7';
+import { relTime } from './production.js?v=7';
 
 let current = null;    // { customerId, data }
+let peek = null;       // the drawer's own { customerId, data }
 const money = (n) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString();
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
 const when = (iso) => { const d = new Date(iso); const today = new Date().toDateString() === d.toDateString(); return (today ? 'today' : d.toLocaleDateString([], { month: 'short', day: 'numeric' })) + ' · ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
@@ -20,7 +21,7 @@ export function renderFiles(root) {
   root.innerHTML = html`
     <div class="head"><div><div class="kicker">Files · every customer the seat can read</div><h1 class="serif">Find a customer above, or pick one who texted last.</h1></div></div>
     <div class="card"><div class="wrap"><table><thead><tr><th>Customer</th><th>Brand</th><th>Stage</th><th>Who holds it</th><th>Last customer text</th></tr></thead><tbody>
-      ${raw(B.map((b) => `<tr class="link" onclick="__go('file','${esc(b.customer_id)}')"><td><b>${esc(personName(b.customer_name))}</b> · ${esc(b.title || '')}</td><td><span class="chip">${esc(brandName(b.cc_company_id))}</span></td><td><span class="chip ${STAGES[b.stage]?.cls || 'st-ink'}">${esc(stageLabel(b.stage))}</span></td><td>${esc(b.owner_name || 'nobody')}</td><td>${b.last_inbound_body ? '"' + esc(String(b.last_inbound_body).slice(0, 70)) + '" · ' + esc(relTime(b.last_inbound_at)) : '<span class="dimmer">—</span>'}</td></tr>`).join(''))}
+      ${raw(B.map((b) => `<tr class="link" onclick="__peek('${esc(b.customer_id)}')"><td><b>${esc(personName(b.customer_name))}</b> · ${esc(b.title || '')}</td><td><span class="chip">${esc(brandName(b.cc_company_id))}</span></td><td><span class="chip ${STAGES[b.stage]?.cls || 'st-ink'}">${esc(stageLabel(b.stage))}</span></td><td>${esc(b.owner_name || 'nobody')}</td><td>${b.last_inbound_body ? '"' + esc(String(b.last_inbound_body).slice(0, 70)) + '" · ' + esc(relTime(b.last_inbound_at)) : '<span class="dimmer">—</span>'}</td></tr>`).join(''))}
     </tbody></table></div></div>`;
 }
 
@@ -29,11 +30,27 @@ export async function openFile(customerId) {
   root.innerHTML = '<div class="empty">Opening the file…</div>';
   const data = await loadFile(customerId);
   current = { customerId, data };
-  draw(root);
+  draw(root, current, false);
 }
 
-function draw(root) {
-  const { job, customer, texts, emails, thread, messages, asks, attachments, handoffs, outbox } = current.data;
+/* The thread beside any room: same file, same composers, in the side panel. */
+export async function openFileDrawer(customerId) {
+  const aside = $('#drawer'), root = $('#drawer-body');
+  aside.hidden = false;
+  root.innerHTML = '<div class="empty">Opening the file…</div>';
+  try {
+    const data = await loadFile(customerId);
+    peek = { customerId, data };
+    draw(root, peek, true);
+  } catch (e) { root.innerHTML = '<div class="empty">' + esc(e.message || 'Could not open the file') + '</div>'; }
+}
+export function closeDrawer() { $('#drawer').hidden = true; $('#drawer-body').innerHTML = ''; peek = null; }
+window.__peek = openFileDrawer;
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#drawer').hidden) closeDrawer(); });
+
+function draw(root, ctx, compact) {
+  const q = (s) => root.querySelector(s);
+  const { job, customer, texts, emails, thread, messages, asks, attachments, handoffs, outbox } = ctx.data;
   const me = state.me;
   const name = personName(customer?.name || job.customer_name);
   const st = STAGES[job.stage] || {};
@@ -62,12 +79,12 @@ function draw(root) {
   texts.forEach((t) => items.push({ at: t.occurred_at, kind: t.direction === 'inbound' ? 'in' : (t.feed_source === 'machine' || /Reply STOP/.test(t.body || '')) ? 'machine' : 'out', who: t.direction === 'inbound' ? name : senderOf(t), body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url }));
   outbox.filter((o) => o.status !== 'cancelled' && !texts.some((t) => t.direction === 'outbound' && t.body === o.body)).forEach((o) => items.push({ at: o.sent_at || o.queued_at, kind: 'out', who: (seatName(o.rep_id) || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), body: o.body }));
   emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : 'the rep'} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', who: (m.author_name || '') + (m.is_system ? '' : ' · team note'), body: m.body, lane: m.lane }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.body, lane: m.lane }));
   items.sort((a, b) => new Date(a.at) - new Date(b.at));
 
   root.innerHTML = html`
-    <div class="head" style="margin-bottom:10px">
-      <div class="small"><a href="#" id="file-back">← back</a></div>
+    <div class="head drawer-top" style="margin-bottom:10px">
+      <div class="small">${compact ? raw('<button class="btn sm" id="drawer-close">Close</button> <button class="btn sm fill" id="drawer-full">Open the full file</button>') : raw('<a href="#" id="file-back">← back</a>')}</div>
       <div class="right">${isDemo() ? raw('<span class="chip demo">DEMO</span>') : ''}</div>
     </div>
     <div class="card" style="flex-direction:row;align-items:center;gap:18px;flex-wrap:wrap">
@@ -87,7 +104,7 @@ function draw(root) {
 
     <div class="grid-file">
       <div class="card">
-        <div class="head" style="margin-bottom:4px"><div class="kicker">The line · ${line ? esc(line.label + ' ' + line.line_e164) : 'no main line yet'} to ${esc(customer?.phone || 'no phone on file')}</div><span class="chip">TEXTS · EMAILS · THE FILE</span></div>
+        <div class="head" style="margin-bottom:4px"><div class="kicker" style="font-size:11px;color:var(--gold)">The customer's line · ${line ? esc(line.label + ' ' + line.line_e164) : 'no main line yet'} to ${esc(customer?.phone || 'no phone on file')}</div><span class="chip">TEXTS · EMAILS · THE FILE</span></div>
         <div class="thread" id="thread">
           ${items.length ? raw(items.map(bubble).join('')) : raw('<div class="empty">Nothing on the line yet. The first text from here starts the thread.</div>')}
         </div>
@@ -134,24 +151,26 @@ function draw(root) {
       </div>
     </div>`;
 
-  $('#file-back').onclick = (e) => { e.preventDefault(); history.back(); window.__go(['manager'].includes(me?.role) ? 'production' : ['office'].includes(me?.role) ? 'office' : 'home'); };
-  const th = $('#thread'); th.scrollTop = th.scrollHeight;
-  $('#send').onclick = send;
-  $('#compose').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });
-  linePreview(current.customerId).then((lines) => {
-    const sel = $('#lines'); if (!sel) return;
+  if (q('#file-back')) q('#file-back').onclick = (e) => { e.preventDefault(); window.__go(['manager'].includes(me?.role) ? 'production' : ['office'].includes(me?.role) ? 'office' : 'home'); };
+  if (q('#drawer-close')) q('#drawer-close').onclick = closeDrawer;
+  if (q('#drawer-full')) q('#drawer-full').onclick = () => { closeDrawer(); window.__go('file', ctx.customerId); };
+  const th = q('#thread'); th.scrollTop = th.scrollHeight;
+  q('#send').onclick = () => send(ctx, q, compact);
+  q('#compose').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(ctx, q, compact); });
+  linePreview(ctx.customerId).then((lines) => {
+    const sel = q('#lines'); if (!sel) return;
     lines.forEach((l) => { const o = document.createElement('option'); o.value = l.key; o.textContent = l.label; o.dataset.body = l.body; sel.appendChild(o); });
-    sel.onchange = () => { const o = sel.selectedOptions[0]; if (o?.dataset.body) { $('#compose').value = o.dataset.body; $('#compose').focus(); } };
+    sel.onchange = () => { const o = sel.selectedOptions[0]; if (o?.dataset.body) { q('#compose').value = o.dataset.body; q('#compose').focus(); } };
   }).catch(() => {});
-  root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), () => openFile(current.customerId)); }));
-  if ($('#file-take')) $('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); openFile(current.customerId); } catch (e) { toast(e.message, 'err'); } };
-  if ($('#file-back-job')) $('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); openFile(current.customerId); } });
-  if ($('#new-ask')) $('#new-ask').onclick = () => newAsk(thread, job);
-  $('#note-send').onclick = async () => {
-    const to = $('#note-to').value, what = $('#note-what').value;
-    let body = $('#note').value.trim(); if (!body && !what) return;
+  root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId))); }));
+  if (q('#file-take')) q('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } catch (e) { toast(e.message, 'err'); } };
+  if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
+  if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
+  q('#note-send').onclick = async () => {
+    const to = q('#note-to').value, what = q('#note-what').value;
+    let body = q('#note').value.trim(); if (!body && !what) return;
     if (to && !body.includes(to)) body = to + ' ' + body;
-    $('#note-send').disabled = true;
+    q('#note-send').disabled = true;
     try {
       let tid = thread?.id;
       if (!tid) { if (!job.job_id) throw new Error('No job on this file yet'); tid = await threadForJob(job.job_id); }
@@ -165,10 +184,10 @@ function draw(root) {
         await openAsk(tid, laneFor, what, body || null, toId);
       }
       toast(what ? 'Posted · task opened with the clock running' : to ? 'Posted · they get a push' : 'Posted');
-      $('#note').value = '';
-      openFile(current.customerId);
+      q('#note').value = '';
+      (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
     } catch (e) { toast(e.message, 'err'); }
-    finally { $('#note-send').disabled = false; }
+    finally { q('#note-send').disabled = false; }
   };
   if (thread?.id) mentionSeen(thread.id).then((n) => { if (n) state.mentions = state.mentions.map((m) => m.thread_id === thread.id ? { ...m, seen_at: new Date().toISOString() } : m); });
 }
@@ -201,23 +220,23 @@ function withQueueShape(a, job) {
   return { ...a, ask_id: a.id, customer_name: job.customer_name, cc_company_id: job.cc_company_id, cc_project_id: job.cc_project_id, proof_kind: rule[0], proof_label: rule[1], proof_min: rule[2], waivable: rule[3] };
 }
 
-async function send() {
-  const box = $('#compose'); const body = box.value.trim();
+async function send(ctx, q, compact) {
+  const box = q('#compose'); const body = box.value.trim();
   if (!body) return;
-  $('#send').disabled = true;
+  q('#send').disabled = true;
   try {
-    const r = await textCustomer(current.customerId, body);
+    const r = await textCustomer(ctx.customerId, body);
     box.value = '';
     const root = $('#toast-root');
     root.innerHTML = `<div class="toast">Sent from ${esc(r.from || 'the main line')} · <button id="undo">Undo</button></div>`;
     let undone = false;
     $('#undo').onclick = async () => { undone = true; try { await cancelText(r.id); root.innerHTML = '<div class="toast">Not sent</div>'; setTimeout(() => (root.innerHTML = ''), 2000); } catch (e) { toast(e.message, 'err'); } };
-    setTimeout(async () => { if (!undone) { root.innerHTML = ''; openFile(current.customerId); } }, 6500);
+    setTimeout(async () => { if (!undone) { root.innerHTML = ''; compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId); } }, 6500);
   } catch (e) { toast(e.message, 'err'); }
-  finally { $('#send').disabled = false; }
+  finally { q('#send').disabled = false; }
 }
 
-function newAsk(thread, job) {
+function newAsk(thread, job, ctx, compact) {
   const lanes = ['OFFICE', 'SUPER', 'CHAT'];
   const types = Object.keys(ASK_LABEL);
   const seats = state.seats;
@@ -226,5 +245,5 @@ function newAsk(thread, job) {
     <div class="field"><label>What</label><select name="type">${types.map((t) => `<option value="${t}">${esc(ASK_LABEL[t])}</option>`).join('')}</select></div>
     <div class="field"><label>Who</label><select name="to">${seats.map((s) => `<option value="${esc(s.id)}" ${s.id === state.me?.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>
     <div class="field"><label>Note</label><input name="note" placeholder="what they need to do"/></div>`,
-    onSubmit: async (f) => { await openAsk(thread.id, f.lane.value, f.type.value, f.note.value.trim() || null, f.to.value); toast('Opened'); await reload(true); openFile(current.customerId); } });
+    onSubmit: async (f) => { await openAsk(thread.id, f.lane.value, f.type.value, f.note.value.trim() || null, f.to.value); toast('Opened'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
 }

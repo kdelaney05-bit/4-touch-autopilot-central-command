@@ -1,14 +1,14 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=6';
-import { state, loadAll, isDemo, searchCustomers } from './book.js?v=6';
-import { $, $$, html, raw, toast } from './ui.js?v=6';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=6';
-import { renderHome } from './home.js?v=6';
-import { renderSales } from './sales.js?v=6';
-import { renderMarketing } from './marketing.js?v=6';
-import { renderOffice } from './office.js?v=6';
-import { renderProduction } from './production.js?v=6';
-import { renderFiles, openFile } from './file.js?v=6';
+import * as api from './api.js?v=7';
+import { state, loadAll, isDemo, searchCustomers } from './book.js?v=7';
+import { $, $$, html, raw, toast } from './ui.js?v=7';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=7';
+import { renderHome } from './home.js?v=7';
+import { renderSales } from './sales.js?v=7';
+import { renderMarketing } from './marketing.js?v=7';
+import { renderOffice } from './office.js?v=7';
+import { renderProduction } from './production.js?v=7';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=7';
 
 let view = 'home';
 let loading = false;
@@ -21,6 +21,7 @@ export function rooms() {
 
 export function go(v, arg) {
   view = v;
+  if (v !== 'file') closeDrawer();
   if (v === 'file' && arg) { openFile(arg).catch((e) => toast(e.message || 'Could not open the file', 'err')); }
   render();
   window.scrollTo({ top: 0 });
@@ -88,7 +89,7 @@ function wireFind() {
       pop.className = 'card';
       pop.style.cssText = 'position:absolute;right:40px;top:58px;width:360px;z-index:9;padding:8px;gap:2px;box-shadow:0 20px 50px rgba(0,0,0,.15)';
       pop.innerHTML = rows.length ? rows.map((c) => html`<button class="inv" style="text-align:left;grid-template-columns:1fr auto" data-id="${c.id}"><span><b>${c.name}</b></span><span class="mono dimmer">${c.phone || ''}</span></button>`).join('') : '<div class="empty">Nobody by that name or number</div>';
-      pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; go('file', b.dataset.id); }));
+      pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__peek(b.dataset.id); }));
       $('nav.side').appendChild(pop);
     }, 220);
   });

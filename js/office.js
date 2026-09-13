@@ -1,10 +1,10 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=6';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=6';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=6';
-import { reload } from './app.js?v=6';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=7';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=7';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=7';
+import { reload } from './app.js?v=7';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -60,12 +60,12 @@ export function renderOffice(root) {
 function row(q) {
   const red = q.open_min > (LINE_MIN[q.ask_type] || 1e9);
   const green = q.ask_type === 'INVOICE';
-  return `<div class="ask ${green ? 'green' : ''}" style="cursor:pointer" onclick="__go('file','${esc(q.customer_id)}')">
+  return `<div class="ask ${green ? 'green' : ''}" style="cursor:pointer" onclick="__peek('${esc(q.customer_id)}')">
     <span class="chip ${green ? 'st-green' : 'st-blue'}">${esc(askLabel(q))}</span>
     <div><b>${esc(personName(q.customer_name))}</b> · ${esc(brandName(q.cc_company_id))} · ${esc(money(q.job_value))}<div class="who">${esc(q.note || '')} · opened by ${esc(q.opened_by_name || 'the file')} · ${esc(q.assignee_name || 'unassigned')} holds it</div></div>
     <span class="mono ${red ? 'red' : ''}">${esc(mins(q.open_min))}</span>
     <span class="chip ${STAGES[q.stage]?.cls || 'st-ink'}">${esc(stageLabel(q.stage))}</span>
-    <div style="display:flex;gap:6px" onclick="event.stopPropagation()"><button class="btn sm" onclick="__go('file','${esc(q.customer_id)}')">Open file</button><button class="btn sm ok" data-settle="${esc(q.ask_id)}">${green ? 'Invoiced' : 'Done'}</button></div>
+    <div style="display:flex;gap:6px" onclick="event.stopPropagation()"><button class="btn sm" onclick="__peek('${esc(q.customer_id)}')">Open file</button><button class="btn sm ok" data-settle="${esc(q.ask_id)}">${green ? 'Invoiced' : 'Done'}</button></div>
   </div>`;
 }
 

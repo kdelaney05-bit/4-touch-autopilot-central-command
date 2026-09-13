@@ -1,9 +1,9 @@
 // Production — the stage board (every sold customer, by who holds them), My
 // board (the supervisor's jobs), and Take the job.
-import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=6';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=6';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=6';
-import { reload } from './app.js?v=6';
+import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=7';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=7';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=7';
+import { reload } from './app.js?v=7';
 
 let sub = 'stage';      // stage | mine
 let brand = 'all';
@@ -70,7 +70,7 @@ function table(rows, me) {
       ? `<button class="btn sm fill" data-take="${esc(b.job_id)}" data-name="${esc(personName(b.customer_name))}">Take the job</button>${canAssign ? ` <button class="btn sm" data-assign="${esc(b.job_id)}" data-name="${esc(personName(b.customer_name))}">Assign</button>` : ''}`
       : b.stage === 'production' && b.supervisor_id === me?.id ? `<button class="btn sm" data-back="${esc(b.job_id)}" data-name="${esc(personName(b.customer_name))}">Hand back</button>`
       : '';
-    return `<tr class="link" onclick="__go('file','${esc(b.customer_id)}')"><td><b>${esc(personName(b.customer_name))}</b> · ${esc(b.title || '')} <span class="mono dimmer">${esc(money(b.fin_sold_amount))}</span></td><td><span class="chip">${esc(brandName(b.cc_company_id))}</span></td><td><span class="chip ${st.cls || 'st-ink'}">${esc(stageLabel(b.stage))}</span></td><td>${holder}</td><td class="mono ${overLine(b) ? 'red' : ''}">${b.days_in_stage ?? '—'}</td><td>${last}</td><td class="mono">${b.open_asks ?? 0}</td><td onclick="event.stopPropagation()">${act} <button class="btn sm" onclick="__go('file','${esc(b.customer_id)}')">Open file</button></td></tr>`;
+    return `<tr class="link" onclick="__peek('${esc(b.customer_id)}')"><td><b>${esc(personName(b.customer_name))}</b> · ${esc(b.title || '')} <span class="mono dimmer">${esc(money(b.fin_sold_amount))}</span></td><td><span class="chip">${esc(brandName(b.cc_company_id))}</span></td><td><span class="chip ${st.cls || 'st-ink'}">${esc(stageLabel(b.stage))}</span></td><td>${holder}</td><td class="mono ${overLine(b) ? 'red' : ''}">${b.days_in_stage ?? '—'}</td><td>${last}</td><td class="mono">${b.open_asks ?? 0}</td><td onclick="event.stopPropagation()">${act} <button class="btn sm" onclick="__peek('${esc(b.customer_id)}')">Open file</button></td></tr>`;
   }).join('')}</tbody></table>`;
 }
 
