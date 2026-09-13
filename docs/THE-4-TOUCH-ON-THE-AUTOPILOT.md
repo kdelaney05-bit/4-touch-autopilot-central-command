@@ -1,7 +1,8 @@
 # The 4-Touch, on the Autopilot
 
-Kevin wrote the 4-Touch on a napkin the day before his brother-in-law took a
-leap of faith from Chicago and started selling fences. It never needed a page
+Kevin wrote the 4-Touch on a napkin the day before his brother-in-law Jake
+took a leap of faith from Chicago and started selling roofs at Total Home
+Roofing, the company Kevin built and sold to Angi. It never needed a page
 more. The app is that napkin with a clock, a scoreboard and a cockpit. Reps
 don't run the system; they play it. This is the day-one page for a new rep and
 the source for the visual at
