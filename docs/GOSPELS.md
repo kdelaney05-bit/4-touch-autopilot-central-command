@@ -60,6 +60,11 @@ wrong, not the gospel.
     everything besides selling (the Tim lesson).
 18. **Iterate forever.** Nothing is finished. Every screen, every touch,
     every form: make it better, faster, easier, then do it again.
+19. **The phone is human. Always.** Sam, Jess and Laura answer the calls and
+    set the appointments. That is nuance, not a task: thoughtful, pretty-
+    sounding humans who are really good at engagement. The machine may dial,
+    log, remind and confirm; it never books the appointment or answers the
+    customer's call.
 
 ## Where each one shows up
 
