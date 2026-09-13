@@ -65,6 +65,21 @@ customer and every dollar, and the noise stops mattering.
   the reviews that feed the phone. What closes gets more spend; what doesn't
   gets cut. The board says which is which.
 
+## The two things
+
+Kevin has said these two things to every person who ever sold for him or
+reported to him: 89 people so far, 80 of them in sales. A new rep reading this
+on the first morning is the 90th.
+
+1. **Revenue is the only thing that really matters.** Sales and marketing are
+   the same thing and they are the job. Everything else is noise: omnipresent,
+   stressful, immediate, and a trap. Look for more of the most important thing
+   most of the time, and things work out.
+2. **Where it came from, how to get it, where to get more.** Ask it about every
+   customer and every dollar. The file says where it came from; the napkin is
+   how you get it; the reference sheet, the reviews and the board say where to
+   get more.
+
 ## The rule under all of it (Kevin, 13 Sep 2026)
 
 "If you pay attention to the only thing that really matters, revenue, most of
