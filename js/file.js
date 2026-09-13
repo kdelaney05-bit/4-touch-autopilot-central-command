@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=21';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=21';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=21';
-import { settleDialog } from './office.js?v=21';
-import { reload } from './app.js?v=21';
-import { relTime } from './production.js?v=21';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=22';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=22';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=22';
+import { settleDialog } from './office.js?v=22';
+import { reload } from './app.js?v=22';
+import { relTime } from './production.js?v=22';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -98,6 +98,7 @@ function draw(root, ctx, compact) {
         <div class="kicker">The customer file · one file, every room writes on it</div>
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
+        ${raw((() => { const n = fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
         ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
@@ -398,6 +399,32 @@ function propertyCard(p, customer, filled = []) {
   </div>`;
 }
 const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
+
+/* ── THE FILE'S NEXT LINE (gospel 3, 13 Sep) ─────────────────────────────────
+   One line, the loudest thing on the file, for whoever is looking. Never a
+   hint: either the machine is doing it, or a named human has to. First match
+   wins, worst news first. */
+function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
+  const ageMin = (iso) => iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000) : null;
+  if (parcel?.signer_match === 'mismatch') return { tone: 'bad', text: 'The person who signed is not the owner of record. Get the owner of record to sign before any paperwork moves.' };
+  if (parcel?.confidential) return { tone: 'bad', text: 'Protected address: the county withholds the owner. Get the deed from the customer before the NOC prints.' };
+  if (openAsks.length) {
+    const a = openAsks.slice().sort((x, y) => new Date(x.opened_at) - new Date(y.opened_at))[0];
+    const m = ageMin(a.opened_at);
+    return { tone: m != null && m > 4320 ? 'bad' : '', text: `${askLabel(a)} · ${a.assignee_name || 'nobody'} holds it · open ${m != null ? mins(m) : ''}${openAsks.length > 1 ? ` · ${openAsks.length - 1} more below` : ''}. Settle it in the Asks card.` };
+  }
+  const est = (estimates || [])[0];
+  if (est && est.status === 'sent') return { tone: '', text: `Estimate #${est.serial_number} is out, waiting on the customer since ${new Date(est.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}. Text a nudge from the Cockpit.` };
+  if (est && est.status === 'accepted' && !job.contract_signed_at) return { tone: 'good', text: `Estimate #${est.serial_number} accepted. Office: the contract and the permit run. The owner of record is ${parcel ? 'on the file' : 'being looked up'}.` };
+  if (!job.job_id) return { tone: '', text: 'No job on this file yet. + New job puts it on the board with a clock.' };
+  if (job.stage === 'sold_office' && canTake) return { tone: 'bad', text: 'Sold and nobody holds it. Take the job.' };
+  if (job.stage === 'sold_office') return { tone: '', text: 'Sold. The office runs paperwork, permit and schedule; asks open here as each one is due.' };
+  if (job.stage === 'production') return { tone: '', text: `In production${job.supervisor_id ? ' with ' + (seatName(job.supervisor_id) || 'the supervisor') : ''}. Field complete ends this stage.` };
+  if (job.stage === 'field_complete') return { tone: 'bad', text: 'Field complete, not invoiced. Invoice it from the button above.' };
+  if (job.stage === 'invoiced') return { tone: '', text: 'Invoiced, not paid. Collect: text the payment link.' };
+  if (job.stage === 'paid') return { tone: 'good', text: 'Paid. Ask for the review and the referral; the lines are ready.' };
+  return { tone: '', text: 'Nothing due on this file. The thread is the record.' };
+}
 
 function senderOf(t) {
   const ext = t.uvoice_ext;
