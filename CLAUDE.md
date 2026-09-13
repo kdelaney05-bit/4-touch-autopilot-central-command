@@ -8,7 +8,7 @@ the file's header does.
 
 ## Read first, every session
 
-**** is Kevin's rulebook for every screen and every decision here: twenty rules in his words, 13 Sep 2026. **** is where each thread of work stands. Read both before touching anything. If Kevin is not around, they are how he would answer.
+**`docs/GOSPELS.md`** is Kevin's rulebook for every screen and every decision here: twenty rules in his words, 13 Sep 2026. **`docs/LANES.md`** is where each thread of work stands. Read both before touching anything. If Kevin is not around, they are how he would answer.
 
 ## The rule over everything
 
