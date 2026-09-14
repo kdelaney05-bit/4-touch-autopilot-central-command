@@ -73,6 +73,10 @@ wrong, not the gospel.
     lookups and county runs; none of it removes a conversation. The first
     thing to build for them is a better first impression: the customer's
     source, last text and file on the screen before they say hello.
+21. **We are in the people-happy business.** Customers, and employees. The
+    rest gets automated. Employees who are great at their jobs love their
+    jobs, and all our employees will be amazing, because the app makes the job
+    doable: hit this button, pick this up.
 
 ## Where each one shows up
 
