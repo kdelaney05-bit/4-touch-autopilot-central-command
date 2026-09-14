@@ -1,16 +1,16 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=22';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=22';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=22';
-import { BRAND_BY_CC } from './config.js?v=22';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=22';
-import { renderHome } from './home.js?v=22';
-import { renderSales } from './sales.js?v=22';
-import { renderMarketing } from './marketing.js?v=22';
-import { renderOffice } from './office.js?v=22';
-import { renderProduction } from './production.js?v=22';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=22';
-import { stopRoomPoll } from './village.js?v=22';
+import * as api from './api.js?v=23';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=23';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=23';
+import { BRAND_BY_CC } from './config.js?v=23';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=23';
+import { renderHome } from './home.js?v=23';
+import { renderSales } from './sales.js?v=23';
+import { renderMarketing } from './marketing.js?v=23';
+import { renderOffice } from './office.js?v=23';
+import { renderProduction } from './production.js?v=23';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=23';
+import { stopRoomPoll } from './village.js?v=23';
 
 let view = 'home';
 let loading = false;

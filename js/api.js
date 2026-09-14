@@ -1,7 +1,7 @@
 // Liberty Command — Supabase over plain fetch, the desk's rails verbatim (desk/js/api.js). Every call
 // carries the publishable key plus the rep's own JWT, so RLS decides what
 // comes back. Nothing here knows about the desk's screens.
-import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=22';
+import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=23';
 
 // ── session ───────────────────────────────────────────────────────────────────
 let session = null;               // { token, refresh, repId, email, expiresAt }
@@ -162,6 +162,23 @@ export async function del(pathWithFilter) {
   if (!r.ok) await fail(r, pathWithFilter);
   const rows = await r.json().catch(() => []);
   return Array.isArray(rows) ? rows.length : 0;
+}
+
+/* ── A SIGNED LINK INTO A PRIVATE BUCKET (328, the fence packet) ─────────────
+   The calculator's material order, signed proposal, county packet and drawing
+   sit in the private `estimates` bucket under the customer's id. The seat's
+   own JWT asks storage to sign a ten-minute URL; the bucket's read policy
+   (291: the book, or a manager) is what says yes or no. Never a public URL. */
+export async function signUrl(bucket, path, expiresIn = 600) {
+  const token = await freshToken();
+  const p = String(path).split('/').map(encodeURIComponent).join('/');
+  const r = await fetch(`${SUPA_URL}/storage/v1/object/sign/${bucket}/${p}`, {
+    method: 'POST', headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ expiresIn }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.signedURL) throw new ApiError(r.status, j?.message || j?.error || 'This file could not be opened', 'sign/' + bucket);
+  return SUPA_URL + '/storage/v1' + j.signedURL;
 }
 
 /* ── STORAGE (222's rep-uploads bucket) ───────────────────────────────────────

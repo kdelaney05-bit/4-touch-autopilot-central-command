@@ -139,7 +139,17 @@ function file(customerId) {
     ...[1, 2, 3, 4, 5, 6].map((i) => ({ id: 'ph' + i, label: 'Finished work ' + i, storage_path: '1461/Pj3/SUPER/DOC/photo' + i + '.jpg', created_at: ago(0.3), ask_id: 'd5' })),
   ] : [];
   const handoffs = b.supervisor_id ? [{ id: 'h1', kind: 'take', to_seat: b.supervisor_id, by_id: b.supervisor_id, at: ago(3 * 24), note: null }] : [];
-  return { job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [] };
+  // 328/331: the calculator's job on one fictional fence (j8 — PVC privacy + 2 gates), the shape fence_takeoff_for returns
+  const fence = b.job_id === 'j8' ? { found: true, created_at: ago(36), quote: 9900, styles: [{ prod: "White PVC 6'", material: 'vinyl', height_ft: 6, linear_ft: 142 }], style: "White PVC 6'", material: 'vinyl', height_ft: 6, linear_ft: 142,
+    gates: [{ width_ft: 4, kind: 'single', source: 'drawn' }, { width_ft: 4, kind: 'single', source: 'drawn' }], gate_count: 2, tear_out_ft: 60, reinstall_ft: 0, core_drill_holes: 0, follow_grade: true, proposal_signed: true,
+    description_of_work: "INSTALL 6' TALL VINYL FENCING (142 LF) WITH (2) 4' GATES",
+    material_order: [{ group: "Style 1: White PVC 6' — 142 ft fence" }, { item: 'Sections (8 ft)', qty: '17' }, { item: '5x5 Posts', qty: '20' }, { item: 'Concrete 60lb bags', qty: '40' }, { group: 'Gates & Hardware' }, { item: 'Hinge pairs', qty: '2' }, { item: 'Latch', qty: '2' }, { item: 'Aluminum gate stiffener', qty: '2' }] } : null;
+  const packet = b.job_id === 'j8' ? [
+    { id: 'pk1', kind: 'proposal', label: 'Liberty_Proposal_Pestana_Luis_2026-09-13.pdf', signed: true, storage_path: 'cj8/1-proposal.pdf', mime: 'application/pdf', uploaded_at: ago(35) },
+    { id: 'pk2', kind: 'material_order', label: 'Liberty_MaterialOrder_Pestana_Luis_2026-09-13.pdf', signed: false, storage_path: 'cj8/2-order.pdf', mime: 'application/pdf', uploaded_at: ago(35.5) },
+    { id: 'pk3', kind: 'drawing', label: 'drawing.svg', signed: false, storage_path: 'cj8/3-drawing.svg', mime: 'image/svg+xml', uploaded_at: ago(36) },
+  ] : [];
+  return { job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {

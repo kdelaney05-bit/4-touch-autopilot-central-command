@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=22';
-import { DEMO } from './demo.js?v=22';
+import * as api from './api.js?v=23';
+import { DEMO } from './demo.js?v=23';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -79,7 +79,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
@@ -92,6 +92,10 @@ export async function loadFile(customerId) {
     api.rpc('parcel_lookup_latest', { p_customer: customerId }).catch(() => null),
     // 325: the county forms already filled from this file
     api.rpc('paperwork_filled_for', { p_customer: customerId }).catch(() => []),
+    // 328/331: what the rep had in Gio's calculator at Complete Quote — the six numbers, the county's description of work
+    api.rpc('fence_takeoff_for', { p_customer: customerId }).catch(() => null),
+    // 328: the packet the calculator filed — material order, signed proposal, county packet, the drawing (private estimates bucket)
+    api.page(`proofs?select=id,kind,label,signed,storage_path,mime,uploaded_at&customer_id=eq.${customerId}&kind=in.(material_order,proposal,permit_packet,drawing)&order=uploaded_at.desc`, 60).catch(() => []),
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -104,8 +108,11 @@ export async function loadFile(customerId) {
       ]);
     }
   }
-  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [] };
+  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [] };
 }
+/* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
+export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
 
 // ── writes (all refused in demo) ─────────────────────────────────────────────
 const guard = () => { if (isDemo()) throw new Error('Demo — nothing is saved'); };

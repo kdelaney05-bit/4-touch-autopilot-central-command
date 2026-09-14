@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=22';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=22';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=22';
-import { settleDialog } from './office.js?v=22';
-import { reload } from './app.js?v=22';
-import { relTime } from './production.js?v=22';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=23';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=23';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=23';
+import { settleDialog } from './office.js?v=23';
+import { reload } from './app.js?v=23';
+import { relTime } from './production.js?v=23';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -148,6 +148,7 @@ function draw(root, ctx, compact) {
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
         ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [])) : ''}
+        ${raw(fenceCard(ctx.data.fence, ctx.data.packet || []))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -196,6 +197,13 @@ function draw(root, ctx, compact) {
       again();
     } catch (e) { if (tab) tab.close(); toast(e.message, 'err'); b.disabled = false; b.textContent = 'Fill the NOC'; }
   };
+  root.querySelectorAll('[data-open-proof]').forEach((b) => (b.onclick = async () => {
+    b.disabled = true;
+    const tab = window.open('', '_blank');
+    try { const url = await openPacketFile(b.dataset.openProof); if (tab) tab.location = url; else window.location.assign(url); }
+    catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
+    b.disabled = false;
+  }));
   root.querySelectorAll('[data-open-doc]').forEach((b) => (b.onclick = async () => {
     b.disabled = true;
     const tab = window.open('', '_blank');
@@ -399,6 +407,43 @@ function propertyCard(p, customer, filled = []) {
   </div>`;
 }
 const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
+
+/* ── THE FENCE JOB (328/331, FENCE PACKET lane) ──────────────────────────────
+   What the rep had in Gio's calculator when he tapped Complete Quote: the six
+   numbers, the county's own description of work, the material order, and the
+   files the calculator put on the customer (private estimates bucket, opened
+   by a ten-minute signed link). Kevin, 14 Sep: "the salesman is the one who
+   does it… nobody in the office ever needs to ask a question." Sam and Laura
+   read the order off this card instead of decoding a sketch. The card only
+   exists once the calculator has written something; nothing else on the file
+   moves. Signing is not selling: the quote here is the calculator's number. */
+const PROOF_LABEL = { material_order: 'Material order', proposal: 'Proposal', permit_packet: 'County forms packet', drawing: 'The drawing' };
+function fenceCard(f, packet) {
+  if (!f && !packet.length) return '';
+  const day = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const signed = !!f?.proposal_signed || packet.some((p) => p.kind === 'proposal' && p.signed);
+  const next = !f ? 'The rep filed documents from the calculator but never tapped Complete Quote. The numbers are in the files below; ask the rep to tap Complete Quote so they land here.'
+    : signed ? 'Sold. The packet went to Sam and Laura by email. Order the material off the list below; the permit runs off the Property card.'
+    : 'Priced, not signed. Nothing goes to the office until the customer signs the proposal and the rep files it.';
+  const styles = (f?.styles || []).map((s) => `<div class="r"><span><b>${esc(String(s.linear_ft))} ft</b> of ${esc(s.prod)}</span></div>`).join('');
+  const gates = (f?.gates || []).map((g) => (g.width_ft ? g.width_ft + "'" : g.type || 'gate') + (g.kind === 'double' ? ' double' : ''));
+  const mat = Array.isArray(f?.material_order) ? f.material_order : [];
+  const matRows = mat.map((m) => m.group != null ? `<div class="r" style="border-top:0;padding-top:8px"><span class="kicker">${esc(m.group)}</span></div>` : `<div class="r"><span>${esc(m.item || '')}</span><span class="mono">${esc(m.qty || '')}</span></div>`).join('');
+  const files = packet.map((p) => `<div class="r"><span>${esc(PROOF_LABEL[p.kind] || p.kind)}${p.signed ? ' · <span class="verify">signed</span>' : ''} · <span class="small dimmer">${esc(p.label || '')}</span></span><span style="display:flex;gap:6px;align-items:center"><span class="mono dimmer">${esc(day(p.uploaded_at))}</span><button class="btn sm" data-open-proof="${esc(p.storage_path)}">Open</button></span></div>`).join('');
+  return `<div class="card">
+    <div class="head" style="margin-bottom:4px"><div class="kicker">The fence job · from the calculator${f ? ' · ' + esc(day(f.created_at)) : ''}</div>${signed ? '<span class="chip st-green">SIGNED · PACKET SENT</span>' : f ? '<span class="chip st-gold">PRICED</span>' : ''}</div>
+    <div class="next ${signed ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
+    ${f ? `<div class="rows">
+      ${styles || '<div class="r"><span class="dimmer">No footage on the snapshot — open the drawing.</span></div>'}
+      <div class="r"><span>Gates: <b>${esc(String(f.gate_count ?? 0))}</b>${gates.length ? ' · ' + esc(gates.join(', ')) : ''}</span></div>
+      <div class="r"><span>Tear-out: ${esc(String(f.tear_out_ft ?? 0))} ft removal · ${esc(String(f.reinstall_ft ?? 0))} ft reinstall · core drill ${esc(String(f.core_drill_holes ?? 0))}${f.follow_grade == null ? '' : ' · ' + (f.follow_grade ? 'follow grade' : 'flat on top')}</span></div>
+      <div class="r"><span>Quote <span class="mono">${esc(fmtMoney(f.quote))}</span> · calculator's number, not the sale</span></div>
+      ${f.description_of_work ? `<div class="r"><span class="mono" style="font-size:12px">${esc(f.description_of_work)}</span></div>` : ''}
+    </div>` : ''}
+    ${files ? `<div class="kicker" style="margin-top:8px">On the file · from the calculator</div><div class="rows">${files}</div>` : ''}
+    ${matRows ? `<details style="margin-top:8px"><summary class="kicker" style="cursor:pointer">Material order · ${esc(String(mat.filter((m) => m.item).length))} lines · what Jonathan orders</summary><div class="rows">${matRows}</div></details>` : ''}
+  </div>`;
+}
 
 /* ── THE FILE'S NEXT LINE (gospel 3, 13 Sep) ─────────────────────────────────
    One line, the loudest thing on the file, for whoever is looking. Never a
