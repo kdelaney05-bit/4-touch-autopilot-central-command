@@ -206,3 +206,22 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .next b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--gold); margin-right: 8px; }
 .next.bad { background: #fbe9e4; border-left-color: #b8442a; } .next.bad b { color: #b8442a; }
 .next.good { background: #e6f4ea; border-left-color: #1d6b3a; } .next.good b { color: #1d6b3a; }
+
+/* ── the conversation, horizontal (Kevin, 14 Sep: "you can't read any of the chat because it's too small… go horizontal") ──
+   Left: the whole thread, big, and the box you type in. Right: every pre-written line, readable, one tap to fill the box.
+   Nothing here sends; Send is still the one button. */
+.convo { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(340px, 1fr); gap: 18px; align-items: start; padding: 18px 20px; }
+.convo-main, .convo-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.convo .thread, #drawer .convo .thread { max-height: none; height: clamp(420px, 62vh, 900px); }
+.convo .msg { font-size: 16px; line-height: 1.45; max-width: 84%; padding: 12px 16px; }
+.convo .composer textarea { min-height: 72px; font-size: 15px; }
+.convo-side .lines { display: flex; flex-direction: column; gap: 8px; max-height: clamp(360px, 52vh, 760px); overflow-y: auto; padding-right: 4px; }
+.line { display: flex; flex-direction: column; gap: 4px; text-align: left; width: 100%; border: 1px solid var(--line); border-left: 4px solid var(--goldbtn); border-radius: 12px; background: var(--card-hi); padding: 10px 12px; cursor: pointer; font: inherit; color: var(--ink); }
+.line b { font-size: 14px; }
+.line span { font-size: 14px; line-height: 1.4; color: var(--dim); white-space: pre-wrap; }
+.line:hover, .line.on { border-color: var(--gold); background: var(--goldsoft); }
+.line:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.grid-file.cards { grid-template-columns: 1fr 1fr; }
+#drawer { width: min(1240px, 95vw); }
+#drawer .convo .thread { height: clamp(380px, 56vh, 820px); }
+@media (max-width: 1000px) { .convo { grid-template-columns: 1fr; } .convo .thread, #drawer .convo .thread { height: 52vh; } .grid-file.cards { grid-template-columns: 1fr; } }
