@@ -76,7 +76,11 @@ may see. The key in `js/config.js` is publishable and authorises nothing.
 
 - **The customer file** (`js/file.js`) — the header (Call · Text · Tag ·
   + Document · Send to…), the thread, the asks with their clocks, the
-  documents, the side drawer that opens the file from any room.
+  documents, the side drawer that opens the file from any room. The Property
+  card is here too: the county's owner of record, and the **warranty deed**
+  when the signer is not that owner (`docs/WARRANTY-DEED.md`). The deed is a
+  `CONTRACT_DOC` ask with `doc_kind` `deed`, so `ask_chain` holds the permit
+  while it is open — never gate the permit in code.
 - **The Office room** (`js/office.js`) — the ask queue oldest first, the
   switches, and the **workflow map**: `cc_workflow_steps`, 62 rows, every step
   of both CC templates per brand and what it became (ask · checklist ·

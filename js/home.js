@@ -1,9 +1,9 @@
 // The Business — the one place. Four doors, the funnel, what needs you now,
 // the line right now. Every number is a count of live rows the seat can read.
-import { state, isDemo, personName, firstName } from './book.js?v=22';
-import { html, raw, esc } from './ui.js?v=22';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=22';
-import { renderRoom } from './village.js?v=22';
+import { state, isDemo, personName, firstName } from './book.js?v=23';
+import { html, raw, esc } from './ui.js?v=23';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=23';
+import { renderRoom } from './village.js?v=23';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -23,6 +23,11 @@ export function renderHome(root) {
   const lately = C.slice().sort((a, b) => new Date(b.occurred_at) - new Date(a.occurred_at)).slice(0, 6);
   const today = new Date().toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
   const sw = (k) => state.switches.find((s) => s.key === k)?.is_on;
+  // 324: one row per customer — the latest county answer, not every attempt
+  const lastParcel = new Map();
+  (state.parcels || []).forEach((p) => { if (!lastParcel.has(p.customer_id)) lastParcel.set(p.customer_id, p); });
+  const parcels = [...lastParcel.values()];
+  const deedNeeded = parcels.filter((p) => p.confidential || p.signer_match === 'mismatch' || p.signer_match === 'entity').length;
 
   root.innerHTML = html`
     <div class="head">
@@ -46,8 +51,9 @@ export function renderHome(root) {
         <div class="rows">
           <div class="r"><span>Paperwork</span><span class="mono">${byType('CONTRACT_DOC')}</span></div>
           <div class="r"><span>Permit</span><span class="mono">${byType('PERMIT')}</span></div>
-          <div class="r"><span>Owner of record checked · 30 days</span><span class="mono">${new Set((state.parcels || []).map((p) => p.customer_id)).size}</span></div>
-          <div class="r"><span>Signer is not the owner</span><span class="mono ${(state.parcels || []).some((p) => p.signer_match === 'mismatch') ? 'red' : ''}">${new Set((state.parcels || []).filter((p) => p.signer_match === 'mismatch').map((p) => p.customer_id)).size}</span></div>
+          <div class="r"><span>Owner of record checked · 30 days</span><span class="mono">${parcels.length}</span></div>
+          <div class="r"><span>Signer is not the owner</span><span class="mono ${parcels.some((p) => p.signer_match === 'mismatch') ? 'red' : ''}">${parcels.filter((p) => p.signer_match === 'mismatch').length}</span></div>
+          <div class="r"><span>Warranty deed needed</span><span class="mono ${deedNeeded ? 'red' : ''}">${deedNeeded}</span></div>
           <div class="r"><span>NOCs made from the file</span><span class="mono verify">${new Set((state.nocs || []).map((n) => n.customer_id)).size}</span></div>
           <div class="r"><span>Ready to invoice</span><span class="mono verify">${byType('INVOICE')}</span></div>
           <div class="r"><span>Oldest</span><span class="mono ${oldestQ && oldestQ.open_min > 4320 ? 'red' : ''}">${oldestQ ? mins(oldestQ.open_min) : '—'}</span></div>

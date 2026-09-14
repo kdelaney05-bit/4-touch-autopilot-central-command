@@ -36,12 +36,20 @@ for the NOC legal (`S_LEGAL` is capped at 30 characters) or for owner of record
 (2–14 months stale).
 
 **Rules the lookup enforces at signing**
-1. Signer name vs owner names: no match → the file goes red, the packet does not
-   print, the rep is asked for the authorized signer (LLC, trust, estate, recent buyer).
+1. Signer name vs owner names: no match → the file goes red and **the file needs
+   the warranty deed from the customer** — a signer who is not on the roll has
+   almost always just bought the house and the roll has not caught up. The deed
+   ask opens by itself (a `CONTRACT_DOC` piece of the paperwork checklist, so the
+   chain holds `PERMIT` until it is settled), the NOC does not print, and the rep
+   is told on the estimate screen before the signature. Same for an entity (LLC,
+   trust, estate), where the office also needs the officer who can sign.
+   `docs/WARRANTY-DEED.md` is the whole rule.
 2. Owner mailing address ≠ job address → NOC uses the mailing address; the file notes it.
 3. Jurisdiction from the taxing district / city → picks that jurisdiction's form set.
 4. Palm Coast → no permit; the permit run is skipped and the file says why.
-5. `confidential` / protected-address flags are honored: nothing printed from the record.
+5. `confidential` / protected-address flags are honored: nothing printed from the
+   record — the deed the customer holds is the only proof of ownership, so the
+   deed ask opens there too.
 6. Every record carries `source` and `as_of`; the office sees both on the file.
 
 Samples and raw layer JSON from the verification run live in the session

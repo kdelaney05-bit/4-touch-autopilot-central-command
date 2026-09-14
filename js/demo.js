@@ -3,6 +3,7 @@
 // a real person. Every write is refused by book.js.
 const now = Date.now();
 const ago = (h) => new Date(now - h * 3600e3).toISOString();
+const day = (d) => new Date(now - d * 864e5).toISOString().slice(0, 10);
 const rep = (id, name, role = 'sales') => ({ id, name, role });
 const SEATS = [rep('k', 'Kevin Delaney', 'owner'), rep('g', 'Gio Calderin', 'owner'), rep('jc', 'Jessica Coley', 'manager'), rep('sam', 'Samantha White', 'office'),
   rep('laura', 'Laura Schepp', 'office'), rep('jon', 'Jonathan Garcia', 'office'), rep('luis', 'Luis Gonzalez', 'manager'), rep('obed', 'Obed Santiago', 'manager'), rep('ger', 'Gerardo Costas', 'manager')];
@@ -35,7 +36,7 @@ const ask = (id, jobId, lane, type, note, assignee, state, openedH, doc, closedH
 
 const QUEUE = [
   ask('a1', 'j2', 'OFFICE', 'PERMIT', 'Paperwork complete — pull the permit', 'sam', 'OPEN', 76),
-  ask('a2', 'j10', 'OFFICE', 'PERMIT', 'Paperwork complete — pull the permit', 'sam', 'OPEN', 57),
+  ask('a2', 'j10', 'OFFICE', 'CONTRACT_DOC', 'Warranty deed — the county still shows a different owner of record', 'sam', 'OPEN', 57, 'deed'),
   ask('a3', 'j3', 'OFFICE', 'INVOICE', 'Field complete, photos on the file — invoice it', 'laura', 'OPEN', 0.3),
   ask('a4', 'j7', 'OFFICE', 'CONTRACT_DOC', 'Property survey', 'sam', 'OPEN', 2.8, 'survey'),
   ask('a5', 'j11', 'OFFICE', 'PAYMENT', 'Invoice sent — collect', 'laura', 'OPEN', 5.2),
@@ -43,6 +44,21 @@ const QUEUE = [
   ask('a7', 'j5', 'OFFICE', 'INVOICE', 'Field complete, photos on the file — invoice it', 'laura', 'OPEN', 25),
   ask('a8', 'j1', 'OFFICE', 'SCHEDULE', 'Locate done — call the customer and set the day', 'jon', 'OPEN', 96),
 ];
+
+/* The county's answer on two files (324): Reed checks out and her NOC is
+   made; Sandoval bought the house five weeks ago and the roll still has the
+   people he bought it from, so the file is waiting on his warranty deed. */
+const PARCELS = {
+  cj3: { county: 'Brevard', source: 'brevard_gis', as_of: day(22), fetched_at: ago(21 * 24), signer_name: 'Dana Reed', signer_match: 'match',
+    owner_names: ['REED, DANA M'], owner_kind: 'person', site_address: '1418 Bridgeport Ave, Palm Bay', mail_addr1: '1418 Bridgeport Ave', mail_city: 'Palm Bay', mail_state: 'FL', mail_zip: '32907',
+    parcel_id: '28-37-02-51-00018.0-0007.00', jurisdiction: 'Palm Bay', subdivision: 'Port Malabar Unit 18', legal_description: 'PORT MALABAR UNIT 18 LOT 7 BLK 18', confidential: false },
+  cj10: { county: 'Brevard', source: 'brevard_gis', as_of: day(3), fetched_at: ago(56), signer_name: 'Rick Sandoval', signer_match: 'mismatch',
+    owner_names: ['PORTER, JAMES E', 'PORTER, MARY L'], owner_kind: 'person', site_address: '3120 Kingsmill Run, Melbourne', mail_addr1: '3120 Kingsmill Run', mail_city: 'Melbourne', mail_state: 'FL', mail_zip: '32934',
+    parcel_id: '26-36-19-25-00004.0-0012.00', jurisdiction: 'Melbourne', subdivision: 'Kingsmill', legal_description: 'KINGSMILL LOT 12 BLK 4', deed_book: '7318', deed_page: '2044', sale_date: day(1490), confidential: false },
+};
+const FILLED = {
+  cj3: [{ id: 'nf1', form_key: 'noc-brevard', kind: 'noc', method: 'statutory', county: 'Brevard', filled_at: ago(20 * 24), filled_by: 'Samantha White', blanks: ['permit number', 'surety', 'lender', 'expiration', 'signature', 'notary'] }],
+};
 
 const CLOCK = BOARD.filter((b) => b.waiting_min).map((b) => ({ text_id: 'tx' + b.job_id, customer_id: b.customer_id, customer_name: b.customer_name, phone: b.customer_phone, occurred_at: b.last_inbound_at, body: b.last_inbound_body, waiting_min: b.waiting_min, job_id: b.job_id, cc_company_id: b.cc_company_id, stage: b.stage, owner_id: b.owner_id, owner_name: b.owner_name, watcher_id: 'jc' }));
 
@@ -106,6 +122,8 @@ function book() {
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
     switches: [{ key: 'appt_confirm', is_on: false }, { key: 'text_clock', is_on: false }],
+    parcels: Object.entries(PARCELS).map(([customer_id, p]) => ({ customer_id, signer_match: p.signer_match, confidential: p.confidential, fetched_at: p.fetched_at })),
+    nocs: Object.entries(FILLED).flatMap(([customer_id, rows]) => rows.map((f) => ({ customer_id, form_key: f.form_key, filled_at: f.filled_at }))),
     lines: [{ line_e164: '+13218061995', cc_company_id: '1461', label: 'Liberty Fencing · 321', campaign_ok: true }, { line_e164: '+13862766898', cc_company_id: '1461', label: 'Liberty Fencing · 386', campaign_ok: true }], warnings: ['DEMO — a fictional book; nothing is saved'] };
 }
 
@@ -139,7 +157,8 @@ function file(customerId) {
     ...[1, 2, 3, 4, 5, 6].map((i) => ({ id: 'ph' + i, label: 'Finished work ' + i, storage_path: '1461/Pj3/SUPER/DOC/photo' + i + '.jpg', created_at: ago(0.3), ask_id: 'd5' })),
   ] : [];
   const handoffs = b.supervisor_id ? [{ id: 'h1', kind: 'take', to_seat: b.supervisor_id, by_id: b.supervisor_id, at: ago(3 * 24), note: null }] : [];
-  return { job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [] };
+  return { job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null },
+    parcel: PARCELS[b.customer_id] ? { ...PARCELS[b.customer_id] } : null, filled: FILLED[b.customer_id] || [], texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [] };
 }
 
 function search(q) {

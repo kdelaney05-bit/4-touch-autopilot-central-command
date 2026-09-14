@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=22';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=22';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=22';
-import { settleDialog } from './office.js?v=22';
-import { reload } from './app.js?v=22';
-import { relTime } from './production.js?v=22';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=23';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=23';
+import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=23';
+import { settleDialog } from './office.js?v=23';
+import { reload } from './app.js?v=23';
+import { relTime } from './production.js?v=23';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -60,6 +60,8 @@ function draw(root, ctx, compact) {
   const openAsks = asks.filter((a) => a.state === 'OPEN');
   const doneAsks = asks.filter((a) => a.state !== 'OPEN').slice(-6);
   const paperwork = asks.filter((a) => a.ask_type === 'CONTRACT_DOC');
+  // the deed rule (14 Sep): does this file need the warranty deed, and does it have it
+  const deed = deedState(ctx.data.parcel, asks, attachments);
   // a signed job with no asks on it is still being run in Contractors Cloud: one question adopts it (317)
   const unfiled = !!job.job_id && !!job.contract_signed_at && openAsks.length === 0 && !['paid'].includes(job.stage) && ['manager', 'office', 'admin', 'owner'].includes(me?.role);
   const roofing = ['1537', '1563'].includes(String(job.cc_company_id));
@@ -98,7 +100,7 @@ function draw(root, ctx, compact) {
         <div class="kicker">The customer file · one file, every room writes on it</div>
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
-        ${raw((() => { const n = fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
+        ${raw((() => { const n = fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake, deed); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
         ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
@@ -147,7 +149,7 @@ function draw(root, ctx, compact) {
           ${openAsks.length ? raw(openAsks.map((a) => askRow(a, me)).join('')) : raw('<div class="small">No open asks.</div>')}
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
-        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [])) : ''}
+        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], deed, staff && !!(thread?.id || job.job_id))) : ''}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -203,13 +205,50 @@ function draw(root, ctx, compact) {
     catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
     b.disabled = false;
   }));
+  /* The deed door. The ask is a CONTRACT_DOC piece of the paperwork
+     checklist — while it is open, ask_chain refuses to open PERMIT, so the
+     deed holds the permit without a line of code saying so. The text is a
+     draft like every other outbound word: it leaves when a seat presses Send. */
+  const deedAsk = async (why) => {
+    let tid = thread?.id;
+    if (!tid) { if (!job.job_id) throw new Error('No job on this file yet — open one first'); tid = await threadForJob(job.job_id); }
+    return openAsk(tid, 'OFFICE', 'CONTRACT_DOC', DEED_NOTE[why || deed.why] || DEED_NOTE.mismatch, job.owner_id || me?.id, 'deed');
+  };
+  if (q('#deed-ask')) q('#deed-ask').onclick = async () => {
+    const b = q('#deed-ask'); b.disabled = true;
+    try { await deedAsk(); toast('Deed ask open · the permit waits on it'); await reload(true); again(); }
+    catch (e) { toast(e.message, 'err'); b.disabled = false; }
+  };
+  if (q('#deed-text')) q('#deed-text').onclick = () => {
+    if (optOut || !customer?.phone) { toast(optOut ? 'This customer said STOP — ask for the deed on the phone' : 'No phone on this file', 'err'); return; }
+    const tpl = `Hi ${firstName(name)}, ${firstName(me?.name || '')} with ${brandFullName(job.cc_company_id)}. To pull your permit the county needs proof of ownership, and their records still show the previous owner — they run behind. Can you text a photo of your warranty deed here? It is in your closing paperwork. That is the only thing holding the permit. Thank you!`;
+    openModal({ title: `Ask ${firstName(name)} for the warranty deed`, submitLabel: 'Send it', body: `
+      <div class="field"><label>What goes out</label><textarea name="msg" style="min-height:120px">${esc(tpl)}</textarea></div>
+      <div class="note">Goes out on the brand's main line, credited to you — nothing leaves until you press Send.${deed.ask ? '' : ' The deed ask opens with it, so the permit waits on the deed instead of on somebody remembering.'}</div>`,
+      onSubmit: async (fm) => {
+        const body = fm.msg.value.trim(); if (!body) throw new Error('Nothing to send');
+        let opened = false;
+        if (!deed.ask) { try { await deedAsk(); opened = true; } catch { /* a rep may not open asks — the text still goes */ } }
+        await textCustomer(ctx.customerId, body);
+        toast(opened ? 'Asked · the deed ask is open and the permit waits on it' : 'Asked · from the main line');
+        await reload(true); again();
+      } });
+  };
   if (q('#parcel-look')) q('#parcel-look').onclick = async () => {
     const b = q('#parcel-look'); b.disabled = true; b.textContent = 'Asking the county…';
     try {
       const r = await parcelLookup(ctx.customerId, null);
       if (!r.found) { toast(r.message || 'No parcel matched this address', 'err'); b.disabled = false; b.textContent = 'Try again'; return; }
       const m = r.saved?.signer_match;
-      toast(m === 'match' ? 'Owner of record matches the signer' : m === 'mismatch' ? 'Signer is NOT the owner of record' : m === 'entity' ? 'Owned by a company or trust — authorized signer needed' : 'Owner of record is on the file', m === 'mismatch' ? 'err' : '');
+      // The deed rule: a name that does not match is not a note to read later. The ask
+      // opens itself, and the chain then holds the permit until the deed lands.
+      const why = r.saved?.confidential ? 'confidential' : m === 'mismatch' ? 'mismatch' : m === 'entity' ? 'entity' : null;
+      let opened = false;
+      if (why && !deed.ask) { try { await deedAsk(why); opened = true; } catch (e) { toast(e.message, 'err'); } }
+      toast(m === 'match' ? 'Owner of record matches the signer'
+        : why ? (m === 'mismatch' ? 'Signer is NOT the owner of record' : m === 'entity' ? 'Owned by a company or trust' : 'Protected address') + ' · warranty deed needed' + (opened ? ' · the ask is open' : '')
+        : 'Owner of record is on the file', why ? 'err' : '');
+      await reload(true);
       again();
     } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = 'Try again'; }
   };
@@ -307,7 +346,10 @@ function draw(root, ctx, compact) {
    Items with a scope of work, a price, valid 14 days, one link; the customer
    taps ACCEPT on the page and the rep gets the push. estimate_doc_create
    mints the document, the amount fact (131) and the tracked link in one
-   call. Accepting is not selling: nothing lands on a board (126/129). */
+   call. Accepting is not selling: nothing lands on a board (126/129).
+   The county's owner of record rides on top of both screens, so the rep
+   knows he needs the warranty deed while the customer is still in front of
+   him — not a week later when the permit will not go in. */
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmtMoney = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 function estimateDialog(ctx, job, customer, name, again) {
@@ -320,6 +362,7 @@ function estimateDialog(ctx, job, customer, name, again) {
       <button class="btn sm" type="button" data-del title="Remove this item">×</button>
     </div>`;
   openModal({ title: `Estimate for ${name}`, submitLabel: 'Create the estimate', wide: true, body: `
+      ${signerBand(ctx.data?.parcel, customer)}
       <div class="field"><label>Title · what the job is</label><input name="title" placeholder="Backyard paver installation"/></div>
       <div class="kicker" style="margin-top:6px">Items · what it is and the scope · qty · unit · unit price</div>
       <div id="est-rows">${rowHtml()}</div>
@@ -348,8 +391,9 @@ function estimateDialog(ctx, job, customer, name, again) {
 }
 function sendEstimateDialog(ctx, r, name, customer, cc, again) {
   const url = r.url;
-  const tpl = `Hi ${firstName(name)}, ${firstName(state.me?.name || '')} with ${brandName(cc)}. Your estimate #${r.serial} is ready — tap to view and accept: ${url}`;
+  const tpl = `Hi ${firstName(name)}, ${firstName(state.me?.name || '')} with ${brandFullName(cc)}. Your estimate #${r.serial} is ready — tap to view and accept: ${url}`;
   openModal({ title: `Estimate #${r.serial} · ${fmtMoney(r.total)} · send it`, submitLabel: customer?.phone ? `Text it to ${firstName(name)}` : 'Done', body: `
+      ${signerBand(ctx.data?.parcel, customer)}
       <div class="field"><label>The link</label><div style="display:flex;gap:6px"><input name="link" value="${esc(url)}" readonly style="flex:1"/><button class="btn sm" type="button" id="est-copy">Copy</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">Open</a></div></div>
       <div class="field"><label>The text</label><textarea name="msg" style="min-height:90px">${esc(tpl)}</textarea></div>
       <div class="note">Goes out on the brand's main line, credited to you. Opening the link yourself counts as a view and pings your own phone.</div>`,
@@ -362,30 +406,98 @@ function sendEstimateDialog(ctx, r, name, customer, cc, again) {
     } });
 }
 
+/* ── THE WARRANTY DEED (PERMIT lane, 14 Sep) ────────────────────────────────
+   Kevin, 14 Sep: "if the customer's name that we sign is not on the county
+   information we need to get a warranty deed from the customer — they
+   probably just bought the house. The sales guy needs to know that he has to
+   get the warranty deed."
+
+   Every county roll we read is behind: nightly at best (Brevard, Orange,
+   Flagler), weekly (Volusia, Seminole, Indian River), and the statewide
+   fallback is months. So a buyer who closed last month IS the owner and the
+   county does not know it yet. The deed is the proof, and the NOC is sworn by
+   the owner, so nothing prints until the deed is on the file.
+
+   The deed is a CONTRACT_DOC ask with doc_kind 'deed' — a piece of the
+   paperwork checklist, not a new ask type. That matters: `ask_chain` row 1
+   opens PERMIT only when no CONTRACT_DOC ask is still open
+   (`requires_none_open`), so the open deed ask holds the permit by itself.
+   No code decides it; the chain already does. */
+const DEED_WHY = {
+  mismatch: 'The county still has someone else on this address. A signer who is not on the roll has almost always just bought the house — the roll has not caught up, and the deed is the proof.',
+  entity: 'The owner of record is a company, a trust or an estate. The deed names it, and the office needs the officer or trustee who can sign for it.',
+  confidential: 'Protected address — the county withholds the owner, so the deed the customer holds is the only proof of who owns it.',
+};
+/* The tail of the rep's line — the reason in one breath, said to the man in
+   the driveway, not to the office. */
+const DEED_REP = {
+  mismatch: 'A buyer whose name is not on the roll has almost always just bought the house, and the deed is the proof.',
+  entity: 'It is a company, trust or estate: bring the deed and the name and title of whoever signs for it.',
+  confidential: 'The address is protected, so the deed they hold is the only proof of ownership.',
+};
+const DEED_NOTE = {
+  mismatch: 'Warranty deed — the county still shows a different owner of record',
+  entity: 'Warranty deed — the owner of record is a company, trust or estate',
+  confidential: 'Warranty deed — protected address, the county withholds the owner',
+};
+const DEED_NEXT = {
+  mismatch: 'Get the warranty deed from the customer — they just bought the house and the county has not caught up. The NOC and the permit wait on it.',
+  entity: 'Get the deed and the name and title of whoever can sign for the company or trust. The NOC and the permit wait on it.',
+  confidential: 'Get the warranty deed from the customer. Nothing prints off the county record for a protected address.',
+};
+/* What the file needs and whether it has it. The deed is "on the file" when the
+   deed ask is settled, or when a document on the file says deed. */
+function deedState(parcel, asks = [], attachments = []) {
+  const why = !parcel ? null
+    : parcel.confidential ? 'confidential'
+    : parcel.signer_match === 'mismatch' ? 'mismatch'
+    : parcel.signer_match === 'entity' ? 'entity' : null;
+  const ask = (asks || []).filter((a) => a.doc_kind === 'deed').sort((a, b) => new Date(b.opened_at) - new Date(a.opened_at))[0] || null;
+  const settled = !!ask && ask.state === 'DONE';   // ask_state is OPEN | DONE | VOID — a voided ask proves nothing
+  const doc = (attachments || []).some((f) => /deed/i.test(f.label || ''));
+  const onFile = settled || doc;
+  return { needed: !!why, why, why_text: why ? DEED_WHY[why] : null, next: why ? DEED_NEXT[why] : null,
+           ask, open: !!ask && ask.state === 'OPEN', onFile, holds: !!why && !onFile };
+}
+/* The line the rep reads before the customer signs — gospel 3, on the estimate
+   builder and on the send screen, while the customer is still in front of him.
+   Loud when the county's owner is not who is about to sign. */
+function signerBand(parcel, customer) {
+  const addr = [customer?.street, customer?.city].filter(Boolean).join(', ');
+  const asOf = (d) => new Date(d + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' });
+  if (!parcel) return `<div class="next" style="margin:0 0 10px"><b>BEFORE THEY SIGN</b> Nobody has asked the county who owns ${esc(addr || 'this address')} yet — the check runs by itself the second they accept. If it comes back a different name, you need a photo of their warranty deed before the permit can be pulled, and that is easiest while you are still standing there.</div>`;
+  const owner = (parcel.owner_names || []).join(' & ') || 'nobody on record';
+  const d = deedState(parcel);
+  if (!d.needed) return `<div class="next good" style="margin:0 0 10px"><b>COUNTY CHECK</b> ${esc(owner)} owns it on the ${esc(parcel.county || '')} County roll${parcel.as_of ? ', as of ' + esc(asOf(parcel.as_of)) : ''}. If that is who signs, the paperwork runs clean.</div>`;
+  return `<div class="next bad" style="margin:0 0 10px"><b>GET THE WARRANTY DEED</b> The county has ${esc(owner)} on this address${parcel.county ? ' (' + esc(parcel.county) + ' County' + (parcel.as_of ? ', as of ' + esc(asOf(parcel.as_of)) : '') + ')' : ''}. If that is not who signs, photograph their warranty deed before you leave — the NOC is sworn by the owner, so the permit cannot go in without it. ${esc(DEED_REP[d.why])}</div>`;
+}
+
 /* ── THE OWNER OF RECORD (324, PERMIT lane) ─────────────────────────────────
    What the county appraiser holds for this address: who owns it, where they
    get mail, the parcel id and legal description the NOC needs. The chip says
-   whether the person who signed the estimate is that owner. */
-function propertyCard(p, customer, filled = []) {
+   whether the person who signed the estimate is that owner — and when he is
+   not, the deed door opens right here. */
+function propertyCard(p, customer, filled = [], deed = { needed: false }, canAsk = false) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
   if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><button class="btn sm fill" id="parcel-look">Ask the county</button></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; tap the button if they signed on paper.</div></div>`;
-  const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
+  const chip = (p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
     : p.signer_match === 'mismatch' ? '<span class="chip red">SIGNER IS NOT THE OWNER</span>'
     : p.signer_match === 'entity' ? '<span class="chip gold">OWNED BY AN ENTITY · AUTHORIZED SIGNER NEEDED</span>'
-    : '<span class="chip">NOT SIGNED YET</span>';
+    : '<span class="chip">NOT SIGNED YET</span>')
+    + (deed.onFile ? ' <span class="chip st-green">WARRANTY DEED ON FILE</span>' : deed.needed ? ' <span class="chip warn">WARRANTY DEED NEEDED</span>' : '');
   const mail = [p.mail_addr1, p.mail_addr2, [p.mail_city, p.mail_state, p.mail_zip].filter(Boolean).join(' ')].filter(Boolean).join(', ');
   const site = p.site_address || addr;
   const sameMail = mail && site && mail.toUpperCase().replace(/[^A-Z0-9]/g, '').startsWith(String(p.mail_addr1 || '').toUpperCase().replace(/[^A-Z0-9]/g, '')) && String(site).toUpperCase().replace(/[^A-Z0-9]/g, '').startsWith(String(p.mail_addr1 || '').toUpperCase().replace(/[^A-Z0-9]/g, ''));
   const when = new Date(p.fetched_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
   const hasNoc = filled.some((f) => f.kind === 'noc');
-  const next = p.confidential ? 'Protected address: the county withholds the owner. Get the deed from the customer before anything prints.'
-    : p.signer_match === 'mismatch' ? 'The person who signed is not the owner of record. Get the owner of record to sign before the NOC or the permit goes anywhere.'
-    : p.signer_match === 'entity' ? 'The owner is a company or trust. Get the name and title of the officer who can sign, then fill the NOC with it.'
+  const next = deed.holds ? (deed.open ? deed.next + ' The deed ask is open on the file — upload it there and the permit opens by itself.' : deed.next)
+    : deed.needed ? 'Warranty deed is on the file. Fill the NOC off the deed — the owner on it, not the old name the county still carries.'
     : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online).'
     : 'NOC is on the file. Office: type the permit number and the blanks, notarize, record at the Clerk, upload to the permit portal.';
   return `<div class="card">
     <div class="head" style="margin-bottom:4px"><div class="kicker">Property · owner of record · ${esc(p.county)} County</div>${chip}</div>
-    <div class="next ${p.signer_match === 'mismatch' || p.confidential ? 'bad' : hasNoc && p.signer_match === 'match' ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
+    <div class="next ${deed.holds ? 'bad' : hasNoc && p.signer_match === 'match' ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
+    ${deed.needed ? deedRows(deed, canAsk) : ''}
     <div class="rows">
       <div class="r"><span><b>${esc((p.owner_names || []).join(' & ') || '—')}</b>${p.signer_name ? ' · signed by ' + esc(p.signer_name) : ''}</span></div>
       <div class="r"><span>Owner's mail: ${esc(mail || '—')}${mail && !sameMail ? ' <span class="red">· not the job address</span>' : ''}</span></div>
@@ -393,9 +505,21 @@ function propertyCard(p, customer, filled = []) {
       ${p.legal_description ? `<div class="r"><span class="small">${esc(p.legal_description)}</span></div>` : ''}
       ${p.deed_book ? `<div class="r"><span class="small dimmer">Last deed OR ${esc(p.deed_book)} / ${esc(p.deed_page || '')}${p.sale_date ? ' · ' + esc(new Date(p.sale_date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</span></div>` : ''}
       ${p.confidential ? '<div class="r"><span class="red">Protected address — the county withholds the owner. Nothing from this record prints.</span></div>' : ''}
-      <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><span style="display:flex;gap:4px"><button class="btn sm" id="parcel-look">Look again</button><button class="btn sm fill" id="noc-fill" title="The Notice of Commencement, filled from this record and the contractor block">Fill the NOC</button></span></div>
+      <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><span style="display:flex;gap:4px"><button class="btn sm" id="parcel-look">Look again</button><button class="btn sm ${deed.holds ? '' : 'fill'}" id="noc-fill" ${deed.holds ? 'disabled ' : ''}title="${deed.holds ? 'The warranty deed has to be on the file first — the NOC is sworn by the owner' : 'The Notice of Commencement, filled from this record and the contractor block'}">Fill the NOC</button></span></div>
       ${filled.length ? `<div class="kicker" style="margin-top:8px">Filled from the file</div>` + filled.map((f) => `<div class="r"><span>${esc(FORM_LABEL[f.form_key] || f.form_key)} · ${esc(f.method === 'acroform' ? 'county form' : 'statutory form')}${f.county ? ' · ' + esc(f.county) : ''} · ${esc(new Date(f.filled_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}${f.filled_by ? ' · ' + esc(firstName(f.filled_by)) : ''}${(f.blanks || []).length ? ' · <span class="dimmer">' + esc(String((f.blanks || []).length)) + ' blanks for the office</span>' : ''}</span><button class="btn sm" data-open-doc="${esc(f.id)}">Open</button></div>`).join('') : ''}
     </div>
+  </div>`;
+}
+/* The deed door — why it is needed, who is holding it, and the two buttons
+   that move it: open the ask (a piece of the paperwork checklist, so the
+   chain holds the permit) and ask the customer for it in a text. */
+function deedRows(deed, canAsk) {
+  const done = deed.onFile;
+  return `<div class="rows" style="margin:2px 0 6px;padding:8px 10px;border:1px dashed ${done ? 'var(--verify)' : 'var(--red)'};border-radius:10px">
+    <div class="r"><span><b>${done ? 'Warranty deed · on the file' : 'Warranty deed · needed from the customer'}</b></span></div>
+    <div class="r"><span class="small ${done ? 'dimmer' : ''}">${esc(deed.why_text)}</span></div>
+    ${deed.ask ? `<div class="r"><span class="small dimmer">The deed ask ${deed.open ? 'is open on ' + esc(deed.ask.assignee_name || 'nobody') + ' · asked ' + esc(new Date(deed.ask.opened_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : 'was settled ' + esc(new Date(deed.ask.closed_at || deed.ask.opened_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span>${deed.open ? `<button class="btn sm ok" data-settle="${esc(deed.ask.id)}">Upload the deed</button>` : ''}</div>` : ''}
+    ${done ? '' : `<div class="r"><span class="small">A photo of the recorded deed, or the PDF out of their closing package, closes it.</span><span style="display:flex;gap:4px">${!deed.ask && canAsk ? '<button class="btn sm fill" id="deed-ask">Open the deed ask</button>' : ''}<button class="btn sm" id="deed-text">Ask the customer for it</button></span></div>`}
   </div>`;
 }
 const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
@@ -404,10 +528,9 @@ const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': '
    One line, the loudest thing on the file, for whoever is looking. Never a
    hint: either the machine is doing it, or a named human has to. First match
    wins, worst news first. */
-function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
+function fileNext(job, openAsks, estimates, parcel, customer, canTake, deed = { holds: false }) {
   const ageMin = (iso) => iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000) : null;
-  if (parcel?.signer_match === 'mismatch') return { tone: 'bad', text: 'The person who signed is not the owner of record. Get the owner of record to sign before any paperwork moves.' };
-  if (parcel?.confidential) return { tone: 'bad', text: 'Protected address: the county withholds the owner. Get the deed from the customer before the NOC prints.' };
+  if (deed.holds) return { tone: 'bad', text: deed.next };
   if (openAsks.length) {
     const a = openAsks.slice().sort((x, y) => new Date(x.opened_at) - new Date(y.opened_at))[0];
     const m = ageMin(a.opened_at);
