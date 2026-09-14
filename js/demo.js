@@ -101,7 +101,9 @@ const HYPE = [
 ];
 
 function book() {
-  return { me: { ...me, manages_company_id: null }, seats: SEATS, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
+  const people = [...SEATS.map((s) => ({ ...s, initials: null, sms_from: null })),
+    ...[...new Map(BOARD.map((b) => [b.rep_id, b.rep_name])).entries()].map(([id, name]) => ({ id, name, role: 'sales', initials: null, sms_from: id === 'r1' ? '+13863023131' : null }))];
+  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
@@ -111,7 +113,8 @@ function book() {
 
 function file(customerId) {
   const b = BOARD.find((x) => x.customer_id === customerId) || BOARD[2];
-  const t = (h, dir, body, ext, feed) => ({ id: 'm' + h + body.length, direction: dir, body, occurred_at: ago(h), uvoice_ext: ext ?? null, feed_source: feed || 'cloudmessage', has_media: false });
+  const t = (h, dir, body, ext, feed) => ({ id: 'm' + h + body.length, direction: dir, body, occurred_at: ago(h), uvoice_ext: ext ?? null, feed_source: feed || 'cloudmessage', has_media: false,
+    resolved_rep_id: dir === 'outbound' ? ({ 152: 'r1', 102: 'sam', 158: 'obed' })[ext] ?? null : null, from_number: ext === 152 ? '+13863023131' : '+13218061995' });
   const texts = b.job_id === 'j3' ? [
     t(24 * 24, 'outbound', 'Hi Dana, this is Liberty Fencing. Your estimate is booked for Thu, Aug 21 at 2:00 PM with Ron. Reply here anytime.\nReply STOP to stop, HELP for more information.', null, 'machine'),
     t(22 * 24, 'outbound', 'Thank you for having me out today, Dana. The estimate is on its way to your email. Text me here with anything. — Ron', 152),

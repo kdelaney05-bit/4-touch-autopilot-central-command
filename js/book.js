@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=23';
-import { DEMO } from './demo.js?v=23';
+import * as api from './api.js?v=24';
+import { DEMO } from './demo.js?v=24';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -19,6 +19,7 @@ export const state = {
   proofRules: [],      // ask_proof_rules — what closes each ask (the DB's word, not the room's)
   parcels: [],         // parcel_lookups, last 30 days (324)
   nocs: [],            // paperwork_filled, last 30 days (325)
+  people: [],          // every active rep/seat: id, name, initials, role, sms_from — who a bubble can be
   warnings: [],
   loadedAt: null,
 };
@@ -30,7 +31,7 @@ export async function loadAll() {
   if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
   const s = api.getSession();
   const since30 = new Date(Date.now() - 30 * 86400e3).toISOString();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs] = await Promise.all([
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -46,8 +47,10 @@ export async function loadAll() {
     // 324/325: the permit lane's last 30 days — owner checks and NOCs made, for the Office door on the home room
     api.page(`parcel_lookups?select=customer_id,signer_match,fetched_at&fetched_at=gte.${since30}&order=fetched_at.desc`, 2000).catch(() => []),
     api.page(`paperwork_filled?select=customer_id,form_key,filled_at&filled_at=gte.${since30}&order=filled_at.desc`, 2000).catch(() => []),
+    // everyone who can appear on a file's thread — reps, office, production, owners — with the line they text from (Kevin, 14 Sep: a color per person)
+    api.page('reps?select=id,name,initials,role,sms_from&active=eq.true&order=name.asc', 500).catch(() => []),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
@@ -80,7 +83,7 @@ export async function loadFile(customerId) {
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
   const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet] = await Promise.all([
-    api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
+    api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
     job.job_id ? api.page(`job_handoffs?select=*&job_id=eq.${job.job_id}&order=at.asc`) : [],
@@ -95,7 +98,7 @@ export async function loadFile(customerId) {
     // 328/331: what the rep had in Gio's calculator at Complete Quote — the six numbers, the county's description of work
     api.rpc('fence_takeoff_for', { p_customer: customerId }).catch(() => null),
     // 328: the packet the calculator filed — material order, signed proposal, county packet, the drawing (private estimates bucket)
-    api.page(`proofs?select=id,kind,label,signed,storage_path,mime,uploaded_at&customer_id=eq.${customerId}&kind=in.(material_order,proposal,permit_packet,drawing)&order=uploaded_at.desc`, 60).catch(() => []),
+    api.page(`proofs?select=id,kind,label,signed,storage_path,mime,uploaded_at,uploaded_by&customer_id=eq.${customerId}&kind=in.(material_order,proposal,permit_packet,drawing)&order=uploaded_at.desc`, 60).catch(() => []),
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -104,7 +107,7 @@ export async function loadFile(customerId) {
       [messages, asks, attachments] = await Promise.all([
         api.page(`thread_messages?select=id,lane,author_id,author_name,body,is_system,created_at&thread_id=eq.${thread.id}&order=created_at.asc`, 2000),
         api.page(`thread_asks?select=id,lane,ask_type,doc_kind,note,state,assignee_id,assignee_name,opened_by_name,opened_at,closed_at,minutes_to_close,proof&thread_id=eq.${thread.id}&order=opened_at.asc`, 500),
-        api.page(`thread_attachments?select=id,ask_id,message_id,lane,label,storage_path,source,source_id,created_at&thread_id=eq.${thread.id}&order=created_at.asc`, 500),
+        api.page(`thread_attachments?select=id,ask_id,message_id,lane,label,storage_path,source,source_id,created_at,added_by&thread_id=eq.${thread.id}&order=created_at.asc`, 500),
       ]);
     }
   }
