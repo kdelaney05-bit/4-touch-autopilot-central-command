@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork } from './book.js?v=23';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=23';
-import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=23';
-import { settleDialog } from './office.js?v=23';
-import { reload } from './app.js?v=23';
-import { relTime } from './production.js?v=23';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=26';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=26';
+import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=26';
+import { settleDialog } from './office.js?v=26';
+import { reload } from './app.js?v=26';
+import { relTime } from './production.js?v=26';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -82,13 +82,39 @@ function draw(root, ctx, compact) {
     });
   }
 
-  // the thread: texts + emails + system lines, in time order
+  // the thread: texts + emails + notes + every document and step, in time
+  // order — each one saying WHO and from WHERE (Kevin, 14 Sep: "every rep is
+  // color coded, every employee a different color… everyone can go in there
+  // and know what's going on"). A person is a color; the line is a label.
   const items = [];
-  texts.forEach((t) => items.push({ at: t.occurred_at, kind: t.direction === 'inbound' ? 'in' : (t.feed_source === 'machine' || /Reply STOP/.test(t.body || '')) ? 'machine' : 'out', who: t.direction === 'inbound' ? name : senderOf(t), body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url }));
-  outbox.filter((o) => o.status !== 'cancelled' && !texts.some((t) => t.direction === 'outbound' && t.body === o.body)).forEach((o) => items.push({ at: o.sent_at || o.queued_at, kind: 'out', who: (seatName(o.rep_id) || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), body: o.body }));
-  emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : 'the rep'} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.body, lane: m.lane }));
+  texts.forEach((t) => {
+    if (t.direction === 'inbound') { items.push({ at: t.occurred_at, kind: 'in', who: name, body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url }); return; }
+    const machine = t.feed_source === 'machine' || /Reply STOP/.test(t.body || '');
+    const s = machine ? { id: 'machine', name: 'The machine', line: lineLabel(t.from_number, job) } : senderOf(t, job);
+    items.push({ at: t.occurred_at, kind: machine ? 'machine' : 'out', pid: s.id, who: s.name, line: s.line, body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url });
+  });
+  outbox.filter((o) => o.status !== 'cancelled' && !texts.some((t) => t.direction === 'outbound' && t.body === o.body)).forEach((o) => {
+    const p = personOf(o.rep_id);
+    items.push({ at: o.sent_at || o.queued_at, kind: 'out', pid: o.rep_id, who: (p?.name || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), line: lineLabel(o.from_number, job, p), body: o.body });
+  });
+  emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', pid: e.source === 'machine' ? 'machine' : job.rep_id, body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : (personOf(job.rep_id)?.name || 'the rep')} · ${e.status}${e.opened ? ' · opened' : ''}` }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.body, lane: m.lane }));
+  // the steps and the paper, as one line each, where they happened
+  const ev = (at, cls, pid, body) => { if (at) items.push({ at, kind: 'ev', cls, pid, body }); };
+  attachments.forEach((f) => ev(f.created_at, 'file', f.added_by, `${f.label || f.storage_path || f.source} · on the file`));
+  (ctx.data.packet || []).forEach((p) => ev(p.uploaded_at, 'file', p.uploaded_by, `${PROOF_LABEL[p.kind] || p.kind}${p.signed ? ' · signed' : ''} · filed from the calculator`));
+  (ctx.data.filled || []).forEach((f) => ev(f.filled_at, 'file', personByName(f.filled_by)?.id, `${FORM_LABEL[f.form_key] || f.form_key} · filled from the file${(f.blanks || []).length ? ' · ' + f.blanks.length + ' blanks for the office' : ''}`));
+  estimates.forEach((d) => { ev(d.created_at, 'file', job.rep_id, `Estimate #${d.serial_number} · ${fmtMoney(d.total)} · one link`); ev(d.accepted_at, 'money', null, `ACCEPTED · estimate #${d.serial_number} · the customer tapped yes`); });
+  if (ctx.data.fence) ev(ctx.data.fence.created_at, 'file', ctx.data.fence.rep_id, `The fence job · ${ctx.data.fence.linear_ft} ft · ${fmtMoney(ctx.data.fence.quote)} · Complete Quote in the calculator`);
+  if (ctx.data.parcel) ev(ctx.data.parcel.fetched_at, ctx.data.parcel.signer_match === 'mismatch' ? 'bad' : 'file', null, `Owner of record · ${(ctx.data.parcel.owner_names || []).join(' & ') || '—'} · ${ctx.data.parcel.signer_match === 'match' ? 'matches the signer' : ctx.data.parcel.signer_match === 'mismatch' ? 'NOT the signer' : 'from the county'}`);
+  handoffs.forEach((h) => ev(h.at, 'step', h.to_seat, `${seatName(h.to_seat) || 'nobody'} ${h.kind === 'handback' ? 'handed it back' : h.kind === 'assign' ? 'was assigned by ' + (seatName(h.by_id) || '') : 'took the job'}${h.note ? ' · ' + h.note : ''}`));
+  asks.filter((a) => a.state !== 'OPEN' && a.closed_at).forEach((a) => ev(a.closed_at, 'step', a.assignee_id, `${askLabel(a)} · settled by ${a.assignee_name || ''}${a.proof?.value ? ' · ' + a.proof.value : ''}${a.minutes_to_close != null ? ' · ' + mins(a.minutes_to_close) : ''}`));
+  if (job.contract_signed_at) ev(job.contract_signed_at, 'money', job.rep_id, `SOLD · ${money(job.fin_sold_amount)} · ${job.rep_name || ''}`);
+  if (job.completed_at) ev(job.completed_at, 'step', job.supervisor_id, 'Field complete');
   items.sort((a, b) => new Date(a.at) - new Date(b.at));
+  // who moved through this file, in order: one colored segment per run of the same person
+  const journey = [];
+  items.forEach((i) => { if (!i.pid || i.kind === 'sys') return; const last = journey[journey.length - 1]; if (last && last.pid === i.pid) { last.n++; last.to = i.at; } else journey.push({ pid: i.pid, n: 1, from: i.at, to: i.at }); });
 
   root.innerHTML = html`
     <div class="head drawer-top" style="margin-bottom:10px">
@@ -100,6 +126,7 @@ function draw(root, ctx, compact) {
         <div class="kicker">The customer file · one file, every room writes on it</div>
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
+        ${journey.length ? raw(`<div class="journey" title="Who moved through this file, in order">${journey.map((j) => { const p = j.pid === 'machine' ? { name: 'The machine' } : personOf(j.pid); const c = colorFor(j.pid); return `<span style="--c:${c.c};flex-grow:${j.n}" title="${esc((p?.name || 'someone') + ' · ' + new Date(j.from).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (j.n > 1 ? ' · ' + j.n : ''))}"></span>`; }).join('')}</div><div class="journey-who">${[...new Set(journey.map((j) => j.pid))].map((pid) => { const p = pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(pid); const c = colorFor(pid); return `<span class="pill" style="--c:${c.c};--cs:${c.cs}"><i class="av">${esc(initialsOf(p))}</i>${esc(pid === 'machine' ? 'The machine' : firstName(p?.name || 'someone'))}</span>`; }).join('')}</div>`) : ''}
         ${raw((() => { const n = fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake, deed); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
         ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
@@ -150,6 +177,7 @@ function draw(root, ctx, compact) {
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
         ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], deed, staff && !!(thread?.id || job.job_id))) : ''}
+        ${raw(fenceCard(ctx.data.fence, ctx.data.packet || []))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -198,6 +226,13 @@ function draw(root, ctx, compact) {
       again();
     } catch (e) { if (tab) tab.close(); toast(e.message, 'err'); b.disabled = false; b.textContent = 'Fill the NOC'; }
   };
+  root.querySelectorAll('[data-open-proof]').forEach((b) => (b.onclick = async () => {
+    b.disabled = true;
+    const tab = window.open('', '_blank');
+    try { const url = await openPacketFile(b.dataset.openProof); if (tab) tab.location = url; else window.location.assign(url); }
+    catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
+    b.disabled = false;
+  }));
   root.querySelectorAll('[data-open-doc]').forEach((b) => (b.onclick = async () => {
     b.disabled = true;
     const tab = window.open('', '_blank');
@@ -524,6 +559,43 @@ function deedRows(deed, canAsk) {
 }
 const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
 
+/* ── THE FENCE JOB (328/331, FENCE PACKET lane) ──────────────────────────────
+   What the rep had in Gio's calculator when he tapped Complete Quote: the six
+   numbers, the county's own description of work, the material order, and the
+   files the calculator put on the customer (private estimates bucket, opened
+   by a ten-minute signed link). Kevin, 14 Sep: "the salesman is the one who
+   does it… nobody in the office ever needs to ask a question." Sam and Laura
+   read the order off this card instead of decoding a sketch. The card only
+   exists once the calculator has written something; nothing else on the file
+   moves. Signing is not selling: the quote here is the calculator's number. */
+const PROOF_LABEL = { material_order: 'Material order', proposal: 'Proposal', permit_packet: 'County forms packet', drawing: 'The drawing' };
+function fenceCard(f, packet) {
+  if (!f && !packet.length) return '';
+  const day = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const signed = !!f?.proposal_signed || packet.some((p) => p.kind === 'proposal' && p.signed);
+  const next = !f ? 'The rep filed documents from the calculator but never tapped Complete Quote. The numbers are in the files below; ask the rep to tap Complete Quote so they land here.'
+    : signed ? 'Sold. The packet went to Sam and Laura by email. Order the material off the list below; the permit runs off the Property card.'
+    : 'Priced, not signed. Nothing goes to the office until the customer signs the proposal and the rep files it.';
+  const styles = (f?.styles || []).map((s) => `<div class="r"><span><b>${esc(String(s.linear_ft))} ft</b> of ${esc(s.prod)}</span></div>`).join('');
+  const gates = (f?.gates || []).map((g) => (g.width_ft ? g.width_ft + "'" : g.type || 'gate') + (g.kind === 'double' ? ' double' : ''));
+  const mat = Array.isArray(f?.material_order) ? f.material_order : [];
+  const matRows = mat.map((m) => m.group != null ? `<div class="r" style="border-top:0;padding-top:8px"><span class="kicker">${esc(m.group)}</span></div>` : `<div class="r"><span>${esc(m.item || '')}</span><span class="mono">${esc(m.qty || '')}</span></div>`).join('');
+  const files = packet.map((p) => `<div class="r"><span>${esc(PROOF_LABEL[p.kind] || p.kind)}${p.signed ? ' · <span class="verify">signed</span>' : ''} · <span class="small dimmer">${esc(p.label || '')}</span></span><span style="display:flex;gap:6px;align-items:center"><span class="mono dimmer">${esc(day(p.uploaded_at))}</span><button class="btn sm" data-open-proof="${esc(p.storage_path)}">Open</button></span></div>`).join('');
+  return `<div class="card">
+    <div class="head" style="margin-bottom:4px"><div class="kicker">The fence job · from the calculator${f ? ' · ' + esc(day(f.created_at)) : ''}</div>${signed ? '<span class="chip st-green">SIGNED · PACKET SENT</span>' : f ? '<span class="chip st-gold">PRICED</span>' : ''}</div>
+    <div class="next ${signed ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
+    ${f ? `<div class="rows">
+      ${styles || '<div class="r"><span class="dimmer">No footage on the snapshot — open the drawing.</span></div>'}
+      <div class="r"><span>Gates: <b>${esc(String(f.gate_count ?? 0))}</b>${gates.length ? ' · ' + esc(gates.join(', ')) : ''}</span></div>
+      <div class="r"><span>Tear-out: ${esc(String(f.tear_out_ft ?? 0))} ft removal · ${esc(String(f.reinstall_ft ?? 0))} ft reinstall · core drill ${esc(String(f.core_drill_holes ?? 0))}${f.follow_grade == null ? '' : ' · ' + (f.follow_grade ? 'follow grade' : 'flat on top')}</span></div>
+      <div class="r"><span>Quote <span class="mono">${esc(fmtMoney(f.quote))}</span> · calculator's number, not the sale</span></div>
+      ${f.description_of_work ? `<div class="r"><span class="mono" style="font-size:12px">${esc(f.description_of_work)}</span></div>` : ''}
+    </div>` : ''}
+    ${files ? `<div class="kicker" style="margin-top:8px">On the file · from the calculator</div><div class="rows">${files}</div>` : ''}
+    ${matRows ? `<details style="margin-top:8px"><summary class="kicker" style="cursor:pointer">Material order · ${esc(String(mat.filter((m) => m.item).length))} lines · what Jonathan orders</summary><div class="rows">${matRows}</div></details>` : ''}
+  </div>`;
+}
+
 /* ── THE FILE'S NEXT LINE (gospel 3, 13 Sep) ─────────────────────────────────
    One line, the loudest thing on the file, for whoever is looking. Never a
    hint: either the machine is doing it, or a named human has to. First match
@@ -549,20 +621,58 @@ function fileNext(job, openAsks, estimates, parcel, customer, canTake, deed = { 
   return { tone: '', text: 'Nothing due on this file. The thread is the record.' };
 }
 
-function senderOf(t) {
+/* ── A COLOR PER PERSON (Kevin, 14 Sep) ──────────────────────────────────────
+   Ten colors that read apart from each other and from the gold the machine
+   owns. A person's color is derived from their id, so it is the same on
+   every file and every board without a column anyone has to maintain; when
+   two people collide it is the same collision everywhere, and a `color`
+   column on reps can override this later. The machine is always gold. */
+const PALETTE = [
+  ['#1f6f4a', '#dff0e6'], ['#1d5fa8', '#e1e8f3'], ['#b45309', '#f6e3d6'], ['#0e7c86', '#dcf1f3'], ['#5b3a8f', '#ece5f6'],
+  ['#a8323e', '#f8e2e4'], ['#6b6d0e', '#eef0d2'], ['#8a4b1f', '#f3e4d7'], ['#245e8f', '#dde9f2'], ['#7a2e6d', '#f2e0ee'],
+];
+const colorFor = (id) => {
+  if (!id || id === 'machine') return { c: 'var(--gold)', cs: 'var(--goldsoft)' };
+  let h = 0; for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const [c, cs] = PALETTE[h % PALETTE.length]; return { c, cs };
+};
+const personOf = (id) => id ? (state.people.find((p) => p.id === id) || state.seats.find((s) => s.id === id) || null) : null;
+const personByName = (n) => n ? (state.people.find((p) => p.name === n) || state.seats.find((s) => s.name === n) || null) : null;
+const initialsOf = (p) => p?.initials || String(p?.name || '?').split(/[\s,]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const digits = (s) => String(s || '').replace(/\D/g, '').slice(-10);
+/* The line a text went out on: a brand main line by its label, a rep's own
+   number as "own line", else the extension the phone system stamped. */
+function lineLabel(from, job, p) {
+  const d = digits(from);
+  const bl = d && state.lines.find((l) => digits(l.line_e164) === d);
+  if (bl) return bl.label || 'main line';
+  if (p?.sms_from && digits(p.sms_from) === d) return 'own line';
+  const owner = d && state.people.find((x) => x.sms_from && digits(x.sms_from) === d);
+  if (owner) return owner === p ? 'own line' : firstName(owner.name) + "'s line";
+  return d ? '…' + d.slice(-4) : '';
+}
+/* Who sent an outbound text: the rep the file resolved it to, else the rep
+   whose own number it left from, else the extension. Never a bare "Liberty". */
+function senderOf(t, job) {
+  let p = personOf(t.resolved_rep_id);
+  const d = digits(t.from_number);
+  if (!p && d) p = state.people.find((x) => x.sms_from && digits(x.sms_from) === d) || null;
   const ext = t.uvoice_ext;
-  const m = state.seats.find((s) => false); // seats have no ext here; the name comes from the channel map on the phone
-  if (t.feed_source === 'cloudmessage') return 'the file';
-  if (ext >= 150 && ext <= 157) return 'the rep · ext ' + ext;
-  if (ext >= 100 && ext <= 102) return 'the office · ext ' + ext;
-  return 'Liberty';
+  if (!p && ext >= 100 && ext <= 102) return { id: 'office-' + ext, name: 'The office', line: lineLabel(t.from_number, job) + ' · ext ' + ext };
+  if (!p) return { id: ext ? 'ext-' + ext : 'liberty', name: ext ? 'A rep' : 'Liberty', line: lineLabel(t.from_number, job) + (ext ? ' · ext ' + ext : '') };
+  return { id: p.id, name: p.name, line: lineLabel(t.from_number, job, p) };
 }
 
 function bubble(i) {
-  if (i.kind === 'env') return `<div class="env">✉ ${esc(i.body)} · ${esc(when(i.at))}</div>`;
+  const c = colorFor(i.pid);
+  const sty = `style="--c:${c.c};--cs:${c.cs}"`;
+  if (i.kind === 'env') return `<div class="env" ${sty}>✉ ${esc(i.body)} · ${esc(when(i.at))}</div>`;
   if (i.kind === 'sys') return `<div class="msg sys">${esc(i.who)} ${esc(i.body)} · ${esc(when(i.at))}</div>`;
-  const cls = i.kind === 'in' ? 'in' : i.kind === 'machine' ? 'machine' : i.kind === 'chat' ? 'chat' : 'out';
-  return `<div class="msg ${cls}"><div class="who">${esc(i.who)} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><a href="${esc(i.media)}" target="_blank" rel="noopener">photo</a></div>` : ''}</div>`;
+  if (i.kind === 'ev') return `<div class="ev ${esc(i.cls || '')}" ${sty}>${esc(i.body)} · ${esc(when(i.at))}</div>`;
+  if (i.kind === 'in') return `<div class="msg in"><div class="who">${esc(i.who)} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><a href="${esc(i.media)}" target="_blank" rel="noopener">photo</a></div>` : ''}</div>`;
+  const p = i.pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(i.pid);
+  const cls = i.kind === 'machine' ? 'machine' : i.kind === 'chat' ? 'chat' : 'out';
+  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><a href="${esc(i.media)}" target="_blank" rel="noopener">photo</a></div>` : ''}</div>`;
 }
 
 function askRow(a, me) {

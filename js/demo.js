@@ -117,7 +117,9 @@ const HYPE = [
 ];
 
 function book() {
-  return { me: { ...me, manages_company_id: null }, seats: SEATS, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
+  const people = [...SEATS.map((s) => ({ ...s, initials: null, sms_from: null })),
+    ...[...new Map(BOARD.map((b) => [b.rep_id, b.rep_name])).entries()].map(([id, name]) => ({ id, name, role: 'sales', initials: null, sms_from: id === 'r1' ? '+13863023131' : null }))];
+  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
@@ -129,7 +131,8 @@ function book() {
 
 function file(customerId) {
   const b = BOARD.find((x) => x.customer_id === customerId) || BOARD[2];
-  const t = (h, dir, body, ext, feed) => ({ id: 'm' + h + body.length, direction: dir, body, occurred_at: ago(h), uvoice_ext: ext ?? null, feed_source: feed || 'cloudmessage', has_media: false });
+  const t = (h, dir, body, ext, feed) => ({ id: 'm' + h + body.length, direction: dir, body, occurred_at: ago(h), uvoice_ext: ext ?? null, feed_source: feed || 'cloudmessage', has_media: false,
+    resolved_rep_id: dir === 'outbound' ? ({ 152: 'r1', 102: 'sam', 158: 'obed' })[ext] ?? null : null, from_number: ext === 152 ? '+13863023131' : '+13218061995' });
   const texts = b.job_id === 'j3' ? [
     t(24 * 24, 'outbound', 'Hi Dana, this is Liberty Fencing. Your estimate is booked for Thu, Aug 21 at 2:00 PM with Ron. Reply here anytime.\nReply STOP to stop, HELP for more information.', null, 'machine'),
     t(22 * 24, 'outbound', 'Thank you for having me out today, Dana. The estimate is on its way to your email. Text me here with anything. — Ron', 152),
@@ -157,8 +160,18 @@ function file(customerId) {
     ...[1, 2, 3, 4, 5, 6].map((i) => ({ id: 'ph' + i, label: 'Finished work ' + i, storage_path: '1461/Pj3/SUPER/DOC/photo' + i + '.jpg', created_at: ago(0.3), ask_id: 'd5' })),
   ] : [];
   const handoffs = b.supervisor_id ? [{ id: 'h1', kind: 'take', to_seat: b.supervisor_id, by_id: b.supervisor_id, at: ago(3 * 24), note: null }] : [];
+  // 328/331: the calculator's job on one fictional fence (j8 — PVC privacy + 2 gates), the shape fence_takeoff_for returns
+  const fence = b.job_id === 'j8' ? { found: true, created_at: ago(36), quote: 9900, styles: [{ prod: "White PVC 6'", material: 'vinyl', height_ft: 6, linear_ft: 142 }], style: "White PVC 6'", material: 'vinyl', height_ft: 6, linear_ft: 142,
+    gates: [{ width_ft: 4, kind: 'single', source: 'drawn' }, { width_ft: 4, kind: 'single', source: 'drawn' }], gate_count: 2, tear_out_ft: 60, reinstall_ft: 0, core_drill_holes: 0, follow_grade: true, proposal_signed: true,
+    description_of_work: "INSTALL 6' TALL VINYL FENCING (142 LF) WITH (2) 4' GATES",
+    material_order: [{ group: "Style 1: White PVC 6' — 142 ft fence" }, { item: 'Sections (8 ft)', qty: '17' }, { item: '5x5 Posts', qty: '20' }, { item: 'Concrete 60lb bags', qty: '40' }, { group: 'Gates & Hardware' }, { item: 'Hinge pairs', qty: '2' }, { item: 'Latch', qty: '2' }, { item: 'Aluminum gate stiffener', qty: '2' }] } : null;
+  const packet = b.job_id === 'j8' ? [
+    { id: 'pk1', kind: 'proposal', label: 'Liberty_Proposal_Pestana_Luis_2026-09-13.pdf', signed: true, storage_path: 'cj8/1-proposal.pdf', mime: 'application/pdf', uploaded_at: ago(35) },
+    { id: 'pk2', kind: 'material_order', label: 'Liberty_MaterialOrder_Pestana_Luis_2026-09-13.pdf', signed: false, storage_path: 'cj8/2-order.pdf', mime: 'application/pdf', uploaded_at: ago(35.5) },
+    { id: 'pk3', kind: 'drawing', label: 'drawing.svg', signed: false, storage_path: 'cj8/3-drawing.svg', mime: 'image/svg+xml', uploaded_at: ago(36) },
+  ] : [];
   return { job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null },
-    parcel: PARCELS[b.customer_id] ? { ...PARCELS[b.customer_id] } : null, filled: FILLED[b.customer_id] || [], texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [] };
+    parcel: PARCELS[b.customer_id] ? { ...PARCELS[b.customer_id] } : null, filled: FILLED[b.customer_id] || [], texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {

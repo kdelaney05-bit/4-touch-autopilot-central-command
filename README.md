@@ -124,8 +124,9 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | Door-made jobs carry CC's lead-source id | **314** |
 | The new ask types: SOLD_CHECK · INTRO_CALL · MILESTONE · INSPECTION · CLOSEOUT | **315** |
 | The whole CC workflow (brand-scoped chain, proof rules, the roofing chain, `cc_workflow_steps`), the village rooms, the pay link | **316** |
+| The fence job on the file: `fence_jobs`, the packet proofs, the office packet email (`fence_packet_queue`), and the read the card and the NOC fill share (`fence_takeoff_for`) | **328 · 331–334** |
 
-Next free migration number: **317**.
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (335 as of 14 Sep).
 
 ## What Kevin and Jess change without a build
 
