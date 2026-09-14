@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=25';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=25';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=25';
-import { settleDialog } from './office.js?v=25';
-import { reload } from './app.js?v=25';
-import { relTime } from './production.js?v=25';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=26';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=26';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=26';
+import { settleDialog } from './office.js?v=26';
+import { reload } from './app.js?v=26';
+import { relTime } from './production.js?v=26';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -175,7 +175,7 @@ function draw(root, ctx, compact) {
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
         ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [])) : ''}
-        ${raw(fenceCard(ctx.data.fence, ctx.data.packet || []))}
+        ${raw(fenceCard(ctx.data.fence, ctx.data.packet || [], estimates))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -212,7 +212,10 @@ function draw(root, ctx, compact) {
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
-  if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again);
+  // the Estimate button opens pre-typed from the calculator when the rep drew one; the fence card's own button does the same
+  const seed = estimateSeedFromTakeoff(ctx.data.fence);
+  if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
+  if (q('#fence-estimate')) q('#fence-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
   if (q('#noc-fill')) q('#noc-fill').onclick = async () => {
     const b = q('#noc-fill'); b.disabled = true; b.textContent = 'Filling…';
     // iPhone Safari blocks a popup opened after an await — open the tab now, point it at the PDF when it lands
@@ -345,21 +348,49 @@ function draw(root, ctx, compact) {
    call. Accepting is not selling: nothing lands on a board (126/129). */
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmtMoney = (n) => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-function estimateDialog(ctx, job, customer, name, again) {
+/* ── THE ESTIMATE, PRE-TYPED FROM THE CALCULATOR (14 Sep) ───────────────────
+   Kevin: "we have a fence calculator we built into the app, can we just use
+   that and have it autopopulate." The takeoff (331) already carries what the
+   rep drew: the styles with their feet, the gates, the site work and the
+   calculator's quote. So the builder opens with those typed in: one line per
+   style, the first one carrying the quote as a job price (exact — the
+   calculator prices the whole yard, not a foot), gates and site work in the
+   scope, the other styles marked included. The rep still reads it and taps
+   Create: a rep vouches for every number on a file. Nothing here is
+   invented; a takeoff with no feet seeds nothing. */
+function estimateSeedFromTakeoff(f) {
+  if (!f) return null;
+  const styles = (f.styles || []).filter((s) => Number(s.linear_ft) > 0);
+  if (!styles.length) return null;
+  const quote = Number(f.quote || 0);
+  const gates = f.gates || [];
+  const gateText = gates.length ? `${gates.length} gate${gates.length > 1 ? 's' : ''}: ${gates.map((g) => (g.width_ft ? g.width_ft + "'" : (g.type || 'gate')) + (g.kind === 'double' ? ' double' : '')).join(', ')}` : '';
+  const site = [f.tear_out_ft > 0 ? `${f.tear_out_ft} ft removal and disposal` : '', f.reinstall_ft > 0 ? `${f.reinstall_ft} ft removal and reinstall` : '', f.core_drill_holes > 0 ? `${f.core_drill_holes} core-drilled holes` : '', f.follow_grade == null ? '' : (f.follow_grade ? 'follows the grade' : 'flat on top')].filter(Boolean).join(' · ');
+  const items = styles.map((s, i) => ({
+    label: `${s.prod} · ${s.linear_ft} ft`,
+    desc: i === 0 ? [`${s.linear_ft} linear ft, as drawn in the fence calculator.`, gateText, site].filter(Boolean).join('\n') : `${s.linear_ft} linear ft · included in the price above`,
+    qty: 1, unit: 'job', price: i === 0 ? quote : 0,
+  }));
+  const mat = f.material ? f.material[0].toUpperCase() + f.material.slice(1) : 'Fence';
+  return { title: `${mat} fence · ${f.linear_ft} ft${gates.length ? ' · ' + gates.length + ' gate' + (gates.length > 1 ? 's' : '') : ''}`, items,
+           note: `Priced in the fence calculator${quote ? ' at ' + fmtMoney(quote) : ''}. Gates, hardware and site work are in the price.` };
+}
+function estimateDialog(ctx, job, customer, name, again, seed) {
   const cc = job.cc_company_id || state.me?.manages_company_id || '1461';
-  const rowHtml = () => `<div class="est-row" style="display:grid;grid-template-columns:1.5fr 64px 70px 110px 32px;gap:6px;align-items:start;margin-top:6px">
-      <div><input name="label" placeholder="Pavers · 6' privacy fence · shingle roof" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px"></textarea></div>
-      <input name="qty" type="number" step="0.01" min="0" value="1" title="Qty"/>
-      <input name="unit" placeholder="job" title="Unit"/>
-      <input name="price" type="number" step="0.01" min="0" placeholder="0.00" title="Unit price" required/>
+  const rowHtml = (it) => `<div class="est-row" style="display:grid;grid-template-columns:1.5fr 64px 70px 110px 32px;gap:6px;align-items:start;margin-top:6px">
+      <div><input name="label" placeholder="Pavers · 6' privacy fence · shingle roof" value="${esc(it?.label || '')}" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px">${esc(it?.desc || '')}</textarea></div>
+      <input name="qty" type="number" step="0.01" min="0" value="${esc(String(it?.qty ?? 1))}" title="Qty"/>
+      <input name="unit" placeholder="job" value="${esc(it?.unit || '')}" title="Unit"/>
+      <input name="price" type="number" step="0.01" min="0" placeholder="0.00" value="${it && it.price != null ? esc(String(it.price)) : ''}" title="Unit price" required/>
       <button class="btn sm" type="button" data-del title="Remove this item">×</button>
     </div>`;
   openModal({ title: `Estimate for ${name}`, submitLabel: 'Create the estimate', wide: true, body: `
-      <div class="field"><label>Title · what the job is</label><input name="title" placeholder="Backyard paver installation"/></div>
+      <div class="field"><label>Title · what the job is</label><input name="title" placeholder="Backyard paver installation" value="${esc(seed?.title || '')}"/></div>
+      ${seed ? '<div class="next good" style="margin-bottom:6px"><b>FROM THE CALCULATOR</b> The items below are what the rep drew and priced. Read them, change what you want, then Create.</div>' : ''}
       <div class="kicker" style="margin-top:6px">Items · what it is and the scope · qty · unit · unit price</div>
-      <div id="est-rows">${rowHtml()}</div>
+      <div id="est-rows">${seed ? seed.items.map(rowHtml).join('') : rowHtml()}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><button class="btn sm" type="button" id="est-add">+ Item</button><div>Total <b class="mono" id="est-total">$0.00</b></div></div>
-      <div class="field" style="margin-top:8px"><label>Note under the items (optional)</label><textarea name="note" placeholder="50% deposit to schedule, balance on completion."></textarea></div>
+      <div class="field" style="margin-top:8px"><label>Note under the items (optional)</label><textarea name="note" placeholder="50% deposit to schedule, balance on completion.">${esc(seed?.note || '')}</textarea></div>
       <div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>Valid for</label><select name="valid"><option value="14">14 days</option><option value="7">7 days</option><option value="30">30 days</option></select></div><div class="field" style="flex:1"><label>Brand on it</label><select name="cc">${['1461', '1560', '1563', '1537'].map((c) => `<option value="${c}" ${c === String(cc) ? 'selected' : ''}>${esc(brandName(c))}</option>`).join('')}</select></div></div>
       <div class="note">Same shape as Mike's Billdu estimate: the items, the scope, the price, valid 14 days. One link goes to the customer; they tap ACCEPT; you get the push. Accepting is not selling — nothing lands on a board.</div>`,
     onOpen: (fm) => {
@@ -367,7 +398,7 @@ function estimateDialog(ctx, job, customer, name, again) {
       const retotal = () => { let t = 0; rows.querySelectorAll('.est-row').forEach((r) => { t += Number(r.querySelector('[name=qty]').value || 0) * Number(r.querySelector('[name=price]').value || 0); }); fm.querySelector('#est-total').textContent = fmtMoney(t); };
       const wire = () => rows.querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => { if (rows.querySelectorAll('.est-row').length > 1) { b.closest('.est-row').remove(); retotal(); } }));
       fm.querySelector('#est-add').onclick = () => { rows.insertAdjacentHTML('beforeend', rowHtml()); wire(); rows.lastElementChild.querySelector('[name=label]').focus(); };
-      rows.addEventListener('input', retotal); wire();
+      rows.addEventListener('input', retotal); wire(); retotal();
     },
     onSubmit: async (fm) => {
       const items = Array.from(fm.querySelectorAll('.est-row')).map((r) => ({
@@ -445,12 +476,17 @@ const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': '
    exists once the calculator has written something; nothing else on the file
    moves. Signing is not selling: the quote here is the calculator's number. */
 const PROOF_LABEL = { material_order: 'Material order', proposal: 'Proposal', permit_packet: 'County forms packet', drawing: 'The drawing' };
-function fenceCard(f, packet) {
+function fenceCard(f, packet, estimates) {
   if (!f && !packet.length) return '';
   const day = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
   const signed = !!f?.proposal_signed || packet.some((p) => p.kind === 'proposal' && p.signed);
+  // an estimate made after the takeoff means the calculator's numbers already became the customer's link
+  const estimated = (estimates || []).some((e) => f && new Date(e.created_at) >= new Date(f.created_at));
+  const canSeed = !!estimateSeedFromTakeoff(f);
   const next = !f ? 'The rep filed documents from the calculator but never tapped Complete Quote. The numbers are in the files below; ask the rep to tap Complete Quote so they land here.'
     : signed ? 'Sold. The packet went to Sam and Laura by email. Order the material off the list below; the permit runs off the Property card.'
+    : estimated ? 'Priced and the estimate is out. Nothing goes to the office until the customer taps ACCEPT or signs the proposal.'
+    : canSeed ? 'Priced in the calculator. Build the estimate from it: the items are already typed, the customer taps ACCEPT on their phone.'
     : 'Priced, not signed. Nothing goes to the office until the customer signs the proposal and the rep files it.';
   const styles = (f?.styles || []).map((s) => `<div class="r"><span><b>${esc(String(s.linear_ft))} ft</b> of ${esc(s.prod)}</span></div>`).join('');
   const gates = (f?.gates || []).map((g) => (g.width_ft ? g.width_ft + "'" : g.type || 'gate') + (g.kind === 'double' ? ' double' : ''));
@@ -458,8 +494,8 @@ function fenceCard(f, packet) {
   const matRows = mat.map((m) => m.group != null ? `<div class="r" style="border-top:0;padding-top:8px"><span class="kicker">${esc(m.group)}</span></div>` : `<div class="r"><span>${esc(m.item || '')}</span><span class="mono">${esc(m.qty || '')}</span></div>`).join('');
   const files = packet.map((p) => `<div class="r"><span>${esc(PROOF_LABEL[p.kind] || p.kind)}${p.signed ? ' · <span class="verify">signed</span>' : ''} · <span class="small dimmer">${esc(p.label || '')}</span></span><span style="display:flex;gap:6px;align-items:center"><span class="mono dimmer">${esc(day(p.uploaded_at))}</span><button class="btn sm" data-open-proof="${esc(p.storage_path)}">Open</button></span></div>`).join('');
   return `<div class="card">
-    <div class="head" style="margin-bottom:4px"><div class="kicker">The fence job · from the calculator${f ? ' · ' + esc(day(f.created_at)) : ''}</div>${signed ? '<span class="chip st-green">SIGNED · PACKET SENT</span>' : f ? '<span class="chip st-gold">PRICED</span>' : ''}</div>
-    <div class="next ${signed ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
+    <div class="head" style="margin-bottom:4px"><div class="kicker">The fence job · from the calculator${f ? ' · ' + esc(day(f.created_at)) : ''}</div><span style="display:flex;gap:6px;align-items:center">${canSeed && !signed && !estimated ? '<button class="btn sm fill" id="fence-estimate" title="The estimate, pre-typed from what the rep drew">Estimate from this</button>' : ''}${signed ? '<span class="chip st-green">SIGNED · PACKET SENT</span>' : f ? '<span class="chip st-gold">PRICED</span>' : ''}</span></div>
+    <div class="next ${signed || (canSeed && !estimated) ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
     ${f ? `<div class="rows">
       ${styles || '<div class="r"><span class="dimmer">No footage on the snapshot — open the drawing.</span></div>'}
       <div class="r"><span>Gates: <b>${esc(String(f.gate_count ?? 0))}</b>${gates.length ? ' · ' + esc(gates.join(', ')) : ''}</span></div>
