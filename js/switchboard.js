@@ -13,11 +13,11 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=49';
-import { toast } from './ui.js?v=49';
-import { html, raw, esc } from './ui.js?v=49';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=49';
-import { renderRoom } from './village.js?v=49';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=50';
+import { toast } from './ui.js?v=50';
+import { html, raw, esc } from './ui.js?v=50';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=50';
+import { renderRoom } from './village.js?v=50';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -411,7 +411,7 @@ function wireSayIt(root) {
         let rows = []; try { rows = await searchCustomers(q); } catch (e) { toast(e.message, 'err'); return; }
         pop.innerHTML = rows.length ? rows.map((r) => `<button class="line-item" data-say-pick="${esc(r.id)}" data-name="${esc(r.name)}" data-street="${esc(r.street || '')}" data-city="${esc(r.city || '')}">`
           + `<span class="line-av">${esc((firstName(r.name) || '?').slice(0, 2).toUpperCase())}</span>`
-          + `<span><span class="nm">${esc(personName(r.name))}</span><span class="pv">${esc(r.street || r.phone || '')}${r.city ? ' · ' + esc(r.city) : ''}</span></span></button>`).join('')
+          + `<span><span class="nm">${esc(personName(r.name))}</span><span class="pv">${esc(r.street || r.phone || '')}${r.city ? ' · ' + esc(r.city) : ''}${r.updated_at ? ' · ' + esc(new Date(r.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : ''}</span></span></button>`).join('')
           : '<div class="small" style="padding:6px 10px">Nobody by that name, address or number</div>';
         pop.hidden = false;
         pop.querySelectorAll('[data-say-pick]').forEach((b) => (b.onclick = async () => {

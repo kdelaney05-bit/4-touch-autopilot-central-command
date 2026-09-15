@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=49';
-import { DEMO } from './demo.js?v=49';
+import * as api from './api.js?v=50';
+import { DEMO } from './demo.js?v=50';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -218,7 +218,12 @@ export async function searchCustomers(q) {
   const digits = term.replace(/\D/g, '');
   // Kevin, 15 Sep: "a drop down box either by their address or last name… a thousand ways to quickly get this out."
   // A number is a phone; anything else matches the name OR the street, and the row says which so a "Cox" is not a surprise.
-  const q_ = encodeURIComponent(term);
-  const filter = digits.length >= 4 ? `phone.ilike.*${digits}*` : `name.ilike.*${q_}*,street.ilike.*${q_}*`;
-  return api.page(`customers?select=id,name,phone,street,city&or=(${filter})&limit=12`, 12);
+  // Kevin, 15 Sep, eleven Delaneys deep: "Delaney beta" must find "Delaney, Kev beta" — so every word matches on its
+  // own (name OR street), the newest file comes first, and the row carries the street and the date to tell twins apart.
+  const words = term.split(/\s+/).filter(Boolean).slice(0, 4).map((w) => encodeURIComponent(w.replace(/[,()]/g, '')));
+  const filter = digits.length >= 4
+    ? `phone.ilike.*${digits}*`
+    : words.length === 1 ? `name.ilike.*${words[0]}*,street.ilike.*${words[0]}*` : null;
+  const where = filter ? `or=(${filter})` : `and=(${words.map((w) => `or(name.ilike.*${w}*,street.ilike.*${w}*)`).join(',')})`;
+  return api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=20`, 20);
 }

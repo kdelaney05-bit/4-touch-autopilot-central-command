@@ -409,3 +409,7 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .composer .at-pop { left: 0; right: auto; top: 100%; width: min(460px, 100%); max-height: 320px; overflow-y: auto; }
 .at-lanes { margin: 6px 0 4px; }
 .at-lanes .small { margin-left: 4px; }
+/* the pick lists scroll instead of clipping (Kevin, 15 Sep: "I can't roll down in the side") */
+.card.say, .card.room { overflow: visible; }
+.line-find-pop, .say-who .line-find-pop, .composer .at-pop { max-height: min(60vh, 440px); overflow-y: auto; z-index: 12; }
+nav.side .card { max-height: 70vh; overflow-y: auto; }

@@ -168,8 +168,8 @@ function file(customerId) {
 }
 
 function search(q) {
-  const s = q.toLowerCase();
-  return BOARD.filter((b) => b.customer_name.toLowerCase().includes(s)).map((b) => ({ id: b.customer_id, name: b.customer_name, phone: b.customer_phone })).slice(0, 8);
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  return BOARD.filter((b) => words.every((w) => b.customer_name.toLowerCase().includes(w))).map((b) => ({ id: b.customer_id, name: b.customer_name, phone: b.customer_phone, updated_at: b.stage_since })).slice(0, 8);
 }
 
 /* 346: direct lines — two fictional ones for the demo, and their threads. */
