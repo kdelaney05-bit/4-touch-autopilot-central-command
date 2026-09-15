@@ -120,8 +120,11 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The signature sets the visit: a customer signing on the estimate link pushes Gio and emails the rep, Gio and Kevin what the visit has to collect (no office ask, no office list: Kevin, 15 Sep) | **338** |
 | The chain marches: a signature opens the office checklist and settles what the machine can; the checklist finishing IS paperwork official; no-permit addresses settle PERMIT themselves; material release opens MATERIAL for Jonathan; the date hands the job to Luis ("no humans does any thinking") | **340** |
 | The locate: the Sunshine 811 ticket written from the file into the locate ask (Diana pastes it), the Exactix confirmation closes the step, every utility response lands on the file, ALL CLEAR when they have all answered | **341** |
+| The crew work order: written from the file when the install date is set, emailed to Luis and the crew in Spanish and English with the drawing, one tap RECIBIDO on w.html lands on the file | **342** |
+| Contractors Cloud production copied here hourly at :20 (work orders, material orders, contract costs, crews, suppliers) from the nested project routes | **343** |
+| The Special Order Guide from Gio as rows: supplier, stock or special, deposit, lead time per product; gates over 5 ft are special; the material step names who to call and pushes Gio when he must approve; the day-before survey text (switch OFF until the voice pass) | **344** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (341 as of 15 Sep).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (344 as of 15 Sep).
 
 ## What Kevin and Jess change without a build
 
