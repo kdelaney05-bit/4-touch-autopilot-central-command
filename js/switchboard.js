@@ -13,11 +13,11 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview } from './book.js?v=48';
-import { toast } from './ui.js?v=48';
-import { html, raw, esc } from './ui.js?v=48';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=48';
-import { renderRoom } from './village.js?v=48';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=49';
+import { toast } from './ui.js?v=49';
+import { html, raw, esc } from './ui.js?v=49';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=49';
+import { renderRoom } from './village.js?v=49';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -374,7 +374,7 @@ function sayItHTML() {
   const who = c ? `<span class="chip cust">on ${esc(personName(c.name))}${c.street ? ' · ' + esc(c.street) : ''}${c.city ? ', ' + esc(c.city) : ''}</span><button class="btn sm" data-say-clear>Change</button>`
                 : `<input data-say-find placeholder="Who is it about — last name, address, or phone" autocomplete="off"/><div class="line-find-pop" data-say-pop hidden></div>`;
   const toOpts = `<option value="">— pick who —</option>` + roles.map(([v, l]) => `<option value="${v}" ${say.to === v ? 'selected' : ''}>${esc(l)}</option>`).join('')
-    + people.map((p) => `<option value="@${esc(firstName(p.name))}" ${say.to === '@' + firstName(p.name) ? 'selected' : ''}>@${esc(firstName(p.name))} · ${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</option>`).join('');
+    + people.map((p) => `<option value="id:${esc(p.id)}" ${say.to === 'id:' + p.id ? 'selected' : ''}>${esc(mentionHandle(p))} · ${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</option>`).join('');
   const presets = say.lane === 'customer' && c
     ? `<div class="say-presets">${(say.lines || []).map((l) => `<button class="sub" data-say-line="${esc(l.key)}" title="${esc(l.body)}">${esc(l.label)}</button>`).join('') || '<span class="small">Reading the office lines…</span>'}</div>` : '';
   const law = say.lane === 'customer'
@@ -446,9 +446,12 @@ function wireSayIt(root) {
         const f = await loadFile(c.id);
         let tid = f.thread?.id;
         if (!tid) { if (!f.job?.job_id) throw new Error('No job on this file yet — open the file and start it there'); tid = await threadForJob(f.job.job_id); }
-        const note = say.to && !body.includes(say.to) ? say.to + ' ' + body : body;
+        // a person is picked by id; the handle written into the note is the one 312 resolves without ambiguity
+        const person = say.to.startsWith('id:') ? (state.people || []).find((p) => p.id === say.to.slice(3)) : null;
+        const handle = person ? mentionHandle(person) : say.to;
+        const note = handle && !body.includes(handle) ? handle + ' ' + body : body;
         await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', note);
-        toast(say.to ? `Posted on ${personName(c.name)} · ${say.to} gets a push` : `Posted on ${personName(c.name)}`);
+        toast(handle ? `Posted on ${personName(c.name)} · ${handle} gets a push` : `Posted on ${personName(c.name)}`);
       }
       say.text = ''; text.value = '';
       window.__peek(c.id);                    // the file opens beside you: the text with its undo, or the note where it landed

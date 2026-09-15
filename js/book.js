@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=48';
-import { DEMO } from './demo.js?v=48';
+import * as api from './api.js?v=49';
+import { DEMO } from './demo.js?v=49';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -194,6 +194,17 @@ export async function directThread(otherId) {
 }
 export async function sendDirect(toId, body) { guard(); return api.insert('direct_messages', { from_id: api.getSession().repId, to_id: toId, body }, false); }
 export async function directSeen(fromId) { if (isDemo()) return 0; return api.rpc('direct_seen', { p_from: fromId }).catch(() => 0); }
+/* THE HANDLE — 312's mention_resolve takes "@First" or "@First Last". Two active
+   Jessicas (Coley · Oasis) made a bare "@Jessica" a coin flip on 15 Sep, so a
+   first name shared by more than one active seat is written with the last
+   name. The server resolves the two-word form exactly. */
+export function mentionHandle(person) {
+  const f = firstName(person?.name || '');
+  if (!f) return '';
+  const dup = (state.people || []).filter((p) => p.id !== person.id && firstName(p.name).toLowerCase() === f.toLowerCase()).length > 0;
+  const last = String(person.name || '').trim().split(/\s+/).slice(1).join(' ');
+  return '@' + (dup && last ? f + ' ' + last : f);
+}
 /* People a line can go to: every active seat but me. Name match, first or last. */
 export function searchPeople(q) {
   const term = q.trim().toLowerCase();

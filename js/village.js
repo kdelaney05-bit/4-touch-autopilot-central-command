@@ -5,10 +5,10 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=48';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer } from './book.js?v=48';
-import { DEMO } from './demo.js?v=48';
-import { html, raw, esc, toast } from './ui.js?v=48';
+import * as api from './api.js?v=49';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=49';
+import { DEMO } from './demo.js?v=49';
+import { html, raw, esc, toast } from './ui.js?v=49';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -316,7 +316,7 @@ function wireAt(root, ctx) {
       let custs = [];
       try { custs = await searchCustomers(f.text); } catch { custs = []; }
       if (!people.length && !custs.length && !others.length) { close(); return; }
-      const personRow = (p) => `<button class="line-item" data-at-person="${esc(firstName(p.name))}"><span class="line-av blue">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">@${esc(firstName(p.name))}</span><span class="pv">${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</span></span></button>`;
+      const personRow = (p) => `<button class="line-item" data-at-person="${esc(mentionHandle(p).slice(1))}"><span class="line-av blue">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(mentionHandle(p))}</span><span class="pv">${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</span></span></button>`;
       pop.innerHTML = (people.length ? '<div class="kicker" style="padding:6px 10px 2px">People</div>' + people.map(personRow).join('') : '')
         + (custs.length ? '<div class="kicker" style="padding:6px 10px 2px">Customers</div>' + custs.slice(0, 6).map((c) => `<button class="line-item" data-at-cust="${esc(c.id)}" data-name="${esc(c.name)}"><span class="line-av">${esc((firstName(c.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(personName(c.name))}</span><span class="pv">${esc(c.street || c.phone || '')}${c.city ? ' · ' + esc(c.city) : ''}</span></span></button>`).join('') : '')
         + (others.length ? '<div class="kicker" style="padding:6px 10px 2px">Also</div>' + others.map(personRow).join('') : '');

@@ -5,7 +5,7 @@ const now = Date.now();
 const ago = (h) => new Date(now - h * 3600e3).toISOString();
 const rep = (id, name, role = 'sales') => ({ id, name, role });
 const SEATS = [rep('k', 'Kevin Delaney', 'owner'), rep('g', 'Gio Calderin', 'owner'), rep('jc', 'Jessica Coley', 'manager'), rep('sam', 'Samantha White', 'office'),
-  rep('laura', 'Laura Schepp', 'office'), rep('jon', 'Jonathan Garcia', 'office'), rep('luis', 'Luis Gonzalez', 'manager'), rep('obed', 'Obed Santiago', 'manager'), rep('ger', 'Gerardo Costas', 'manager')];
+  rep('laura', 'Laura Schepp', 'office'), rep('jo', 'Jessica Oasis', 'manager'), rep('jon', 'Jonathan Garcia', 'office'), rep('luis', 'Luis Gonzalez', 'manager'), rep('obed', 'Obed Santiago', 'manager'), rep('ger', 'Gerardo Costas', 'manager')];
 const me = SEATS[0];
 
 const job = (o) => ({ job_id: o.id, cc_project_id: 'P' + o.id, cc_company_id: o.cc || '1461', customer_id: 'c' + o.id, customer_name: o.name, customer_phone: '(321) 555-0' + String(100 + Number(o.id.replace(/\D/g, ''))).slice(-3),
