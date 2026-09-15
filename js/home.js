@@ -4,53 +4,69 @@
 // built and collected… how many have we sold, how many can we build, how many
 // are waiting to be built, how many have we built, how many can we invoice,
 // how many invoices have we collected… full clarity on page one… if I didn't
-// say it, I wouldn't want to know it." So: three ledgers, in his order, and a
-// strip for the four companies under them. Bars where the number is an amount
-// (the tops of mountains); a figure beside its denominator where it is not.
-// Every ledger names its source — CC PULL · LIVE DB · QB PULL · NO FEED YET —
-// and a figure with no live source reads honestly absent. Sources are never
-// blended; nothing is projected into an actual.
-import * as api from './api.js?v=40';
-import { state, isDemo, personName } from './book.js?v=40';
-import { html, raw, esc } from './ui.js?v=40';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=40';
-import { renderRoom } from './village.js?v=40';
+// say it, I wouldn't want to know it." Then, an hour later: "I love it… break
+// down what we have to build… the health of each company, for the month, the
+// quarter, the year, how it's trending — we try to do 1.2 a month, this last
+// 30 days we've only invoiced 1 million, we're down 20%, I wouldn't have seen
+// that… do it by company, separated, not consolidated. Don't muddy it up."
+//
+// So: three ledgers in his order (SALES · JOBS TO BUILD · COLLECTED), then one
+// band per company — health against its OWN recent pace (the rhythm law: the
+// last 1–4 months, never last year), the backlog broken into what it waits on,
+// and the owed money aged. Bars where the number is an amount (the tops of
+// mountains); a figure beside its denominator where it is not. Every ledger
+// names its source — CC PULL · LIVE DB · QB PULL · NO FEED YET — and a figure
+// with no live source reads honestly absent. Sources are never blended;
+// nothing is projected into an actual. Costs and profit have no feed yet and
+// say so.
+import * as api from './api.js?v=41';
+import { state, isDemo, personName } from './book.js?v=41';
+import { html, raw, esc } from './ui.js?v=41';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=41';
+import { renderRoom } from './village.js?v=41';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
+const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
 const overLine = (b) => b.days_in_stage != null && b.days_in_stage > (STAGE_LINE_DAYS[b.stage] ?? 99);
 const sum = (rows, f) => rows.reduce((a, r) => a + Number(f(r) || 0), 0);
 const day = (n) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + n); return d; };
 const iso = (d) => d.toISOString();
 const ymd = (d) => { const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
+const daysBetween = (a, b) => Math.round((new Date(a) - new Date(b)) / 864e5);
 const BRANDS = Object.keys(BRAND_BY_CC);
 const src = (kind, note) => `<span class="src ${kind === 'NO FEED YET' || kind === 'NO READ' ? 'none' : ''}" title="${esc(note || '')}">${esc(kind)}</span>`;
 const fig = (n, l, cls = '') => `<div class="fig"><div class="n ${cls}">${n}</div><div class="l">${esc(l)}</div></div>`;
 const nOf = (v, small) => v == null ? '<span class="dimmer">—</span>' : `${v}${small ? ` <small>${esc(small)}</small>` : ''}`;
+const rowline = (label, n, cls = '') => `<div class="r"><span>${label}</span><span class="mono ${cls}">${n}</span></div>`;
 
 // Bars on a shared zero baseline, the number on the bar (Kevin, 16 Aug: "we
 // see the top of the bar which is all that matters"). Only for amounts.
-function bars(rows, { isMoney = true, color = 'var(--goldsoft)' } = {}) {
-  rows = rows.filter((r) => r.v > 0).sort((a, b) => b.v - a.v);
+function bars(rows, { isMoney = true, color = 'var(--goldsoft)', keepOrder = false, compact = false } = {}) {
+  rows = keepOrder ? rows.filter((r) => r.v != null) : rows.filter((r) => r.v > 0).sort((a, b) => b.v - a.v);
   if (!rows.length) return '<div class="note">Nothing in this window.</div>';
   const max = Math.max(1, ...rows.map((r) => r.v));
-  const med = rows.map((r) => r.v).sort((a, b) => a - b)[Math.floor(rows.length / 2)];
-  const lump = rows.length >= 3 && max > 4.5 * med ? `<div class="note">One ${esc(rows[0].k)} is most of this picture — the rest read small beside it, not because they are.</div>` : '';
-  return `<div class="bars">${rows.map((r) => `<div class="brow"><span class="lbl" title="${esc(r.k)}">${esc(r.k)}</span><div class="bar" style="width:${Math.max(3, Math.round(r.v / max * 100))}%;background:${color}"><b>${isMoney ? money(r.v) : r.v}${r.sub ? ` <span class="dimmer">· ${esc(r.sub)}</span>` : ''}</b></div></div>`).join('')}</div>${lump}`;
+  const vals = rows.map((r) => r.v).filter((v) => v > 0).sort((a, b) => a - b);
+  const med = vals[Math.floor(vals.length / 2)] || 0;
+  const lump = !keepOrder && rows.length >= 3 && max > 4.5 * med ? `<div class="note">One ${esc(rows[0].k)} is most of this picture — the rest read small beside it, not because they are.</div>` : '';
+  const fmt = (v) => isMoney ? (compact ? moneyK(v) : money(v)) : v;
+  return `<div class="bars">${rows.map((r) => `<div class="brow ${compact ? 'compact' : ''}"><span class="lbl" title="${esc(r.k)}">${esc(r.k)}</span><div class="bar ${r.cls || ''}" style="width:${Math.max(3, Math.round(r.v / max * 100))}%;background:${r.color || color}"><b>${fmt(r.v)}${r.sub ? ` <span class="dimmer">· ${esc(r.sub)}</span>` : ''}</b></div></div>`).join('')}</div>${lump}`;
 }
 
 async function loadLedgers() {
   if (isDemo()) return { demo: true };
-  const t0 = day(0), t7 = day(7), m7 = day(-7), m30 = day(-30), m120 = day(-120);
-  const [sold, leads, appts, wos, crews, qb, sigs, accepts] = await Promise.all([
-    api.page(`sale_fact?select=job_id,rep_id,cc_company_id,sold_at,amount&sold_at=gte.${ymd(m30)}&limit=3000`, 3000).catch(() => null),
+  const t0 = day(0), t7 = day(7), m7 = day(-7), m30 = day(-30);
+  const jan1 = new Date(t0.getFullYear(), 0, 1);
+  const [sold, leads, appts, wos, crews, qb, sigs, accepts, mats] = await Promise.all([
+    api.page(`sale_fact?select=job_id,rep_id,cc_company_id,sold_at,amount&sold_at=gte.${ymd(jan1)}&order=sold_at.desc&limit=8000`, 8000).catch(() => null),
     api.page(`jobs?select=id,cc_company_id,created_at&created_at=gte.${iso(m30)}&limit=3000`, 3000).catch(() => null),
     api.page(`appointment_rep_truth?select=cc_company_id,starts_at,is_cancelled,rep_name&starts_at=gte.${iso(m7)}&starts_at=lt.${iso(t7)}&limit=2000`, 2000).catch(() => null),
     api.page('cc_work_orders?select=job_id,cc_company_id,crew_id,is_complete,install_starts_at,number&limit=2000', 2000).catch(() => null),
     api.page('cc_crews?select=cc_crew_id,name,color&is_active=eq.true&order=name', 200).catch(() => null),
-    api.page(`qb_invoices?select=cc_company_id,txn_date,due_date,total_amt,balance,reporting_excluded&txn_date=gte.${ymd(m120)}&limit=5000`, 5000).catch(() => null),
+    api.page(`qb_invoices?select=cc_company_id,txn_date,due_date,total_amt,balance,reporting_excluded&txn_date=gte.${ymd(jan1)}&order=txn_date.desc&limit=8000`, 8000).catch(() => null),
     api.page('customer_signatures?select=customer_id,job_id,signed_at,signer_name&order=signed_at.desc&limit=200', 200).catch(() => null),
     api.page('estimate_docs?select=customer_id,job_id,total,accepted_at&accepted_at=not.is.null&order=accepted_at.desc&limit=200', 200).catch(() => null),
+    api.page('cc_material_orders?select=job_id,delivery_at,submitted_at&limit=2000', 2000).catch(() => null),
   ]);
   // committed = the customer said yes on OUR link (accepted or signed) and CC does not carry the signing yet
   let committed = null;
@@ -61,7 +77,7 @@ async function loadLedgers() {
     const seen = new Set();
     committed = rows.filter((j) => !j.contract_signed_at && !seen.has(j.id) && seen.add(j.id)).map((j) => ({ ...j, yes: yes.filter((y) => y.job_id === j.id).sort((a, b) => new Date(b.at) - new Date(a.at))[0] }));
   }
-  return { sold, leads, appts, wos, crews, qb, committed };
+  return { sold, leads, appts, wos, crews, qb, committed, mats };
 }
 
 export function renderHome(root) {
@@ -104,9 +120,12 @@ function ledgersHtml(L, B) {
   const brandRows = (f) => BRANDS.map((cc) => ({ k: brandName(cc), v: f(cc) }));
   const repName = (id) => (state.people || []).find((p) => p.id === id)?.name || (state.seats || []).find((p) => p.id === id)?.name || 'House';
   const demo = L.demo;
+  const todayY = ymd(t0);
+  const mStart = new Date(t0.getFullYear(), t0.getMonth(), 1), qStart = new Date(t0.getFullYear(), Math.floor(t0.getMonth() / 3) * 3, 1), yStart = new Date(t0.getFullYear(), 0, 1);
 
   // ── SALES ──────────────────────────────────────────────────────────────
-  const sold = L.sold, leads = L.leads, ap = (L.appts || []).filter((a) => !a.is_cancelled);
+  const soldAll = L.sold, leads = L.leads, ap = (L.appts || []).filter((a) => !a.is_cancelled);
+  const sold = soldAll ? soldAll.filter((s) => inWin(s.sold_at, m30, t1)) : null;
   const sold7 = sold ? sold.filter((s) => inWin(s.sold_at, m7, t1)) : null;
   const byRep = {}; (sold || []).forEach((s) => { const k = repName(s.rep_id); byRep[k] = (byRep[k] || 0) + Number(s.amount || 0); });
   const salesFigs = [
@@ -120,23 +139,36 @@ function ledgersHtml(L, B) {
   const salesSrc = demo ? src('DEMO') : (sold ? src('LIVE DB', 'sale_fact: booked CC signings + Billdu invoices; the open bells are on the console') : src('NO READ', 'this login cannot read sale_fact'));
 
   // ── TO BUILD ───────────────────────────────────────────────────────────
-  const wos = L.wos, crews = L.crews || [];
+  const wos = L.wos, crews = L.crews || [], mats = L.mats;
   const crewName = (id) => crews.find((c) => c.cc_crew_id === id)?.name || (id ? 'crew ' + id : 'no crew yet');
   const open = (wos || []).filter((w) => !w.is_complete);
-  const dated = new Set(open.filter((w) => w.install_starts_at).map((w) => w.job_id));
-  const waitingToBuild = B.filter((b) => b.stage === 'sold_office' || b.stage === 'production');
-  const waitingNoDate = waitingToBuild.filter((b) => !dated.has(b.job_id));
+  const woBy = new Map(); (wos || []).forEach((w) => { const cur = woBy.get(w.job_id); if (!cur || (cur.is_complete && !w.is_complete)) woBy.set(w.job_id, w); });
+  const matIn = new Set((mats || []).filter((m) => m.delivery_at || m.submitted_at).map((m) => m.job_id));
+  const backlog = B.filter((b) => b.stage === 'sold_office' || b.stage === 'production' || b.stage === 'field_complete');
+  // what each sold job waits on, read off CC's work order for it
+  const bucketOf = (b) => {
+    if (!wos) return null;
+    const w = woBy.get(b.job_id);
+    if (b.stage === 'field_complete' || (w && w.is_complete)) return 'built';
+    if (!w || !w.install_starts_at) return 'nodate';
+    const d = new Date(w.install_starts_at);
+    if (d < t0) return 'started';
+    if (d < t7) return 'week';
+    return 'later';
+  };
+  const BUCKETS = [['nodate', 'no install date yet', 'var(--prodsoft)'], ['week', 'scheduled this week', 'var(--goldsoft)'], ['later', 'scheduled later', 'var(--card-hi)'], ['started', 'started · not marked done', '#f3dcd8'], ['built', 'built · not invoiced', 'var(--greensoft)']];
+  const waitingToBuild = backlog.filter((b) => b.stage !== 'field_complete');
   const next7 = open.filter((w) => inWin(w.install_starts_at, t0, t7));
   const started = open.filter((w) => w.install_starts_at && new Date(w.install_starts_at) < t0);
-  const built = B.filter((b) => b.stage === 'field_complete');
+  const builtAll = wos ? backlog.filter((b) => bucketOf(b) === 'built') : B.filter((b) => b.stage === 'field_complete');
   const committed = L.committed;
   const buildFigs = [
     fig(nOf(committed ? committed.length : null, committed && committed.length ? money(sum(committed, (c) => c.fin_sold_amount || c.yes?.total)) : ''), 'committed · said yes on our link, not in CC yet', 'gold'),
     fig(nOf(waitingToBuild.length, money(sum(waitingToBuild, (b) => b.fin_sold_amount))), 'sold · not built yet'),
-    fig(nOf(wos ? waitingNoDate.length : null), 'of those, no install date yet'),
+    fig(nOf(wos ? waitingToBuild.filter((b) => bucketOf(b) === 'nodate').length : null), 'of those, no install date yet'),
     fig(nOf(wos ? next7.length : null), 'installs · next 7 days'),
     fig(nOf(wos ? started.length : null), 'started · not marked done', started.length ? 'clock' : ''),
-    fig(nOf(built.length, money(sum(built, (b) => b.fin_sold_amount))), 'built · can invoice', 'verify'),
+    fig(nOf(builtAll.length, money(sum(builtAll, (b) => b.fin_sold_amount))), 'built · can invoice', 'verify'),
   ].join('');
   const week = Array.from({ length: 7 }, (_, i) => {
     const d = day(i), e = day(i + 1);
@@ -145,37 +177,81 @@ function ledgersHtml(L, B) {
     return `<div class="d ${i === 0 ? 'today' : ''}"><div class="k">${esc(d.toLocaleDateString([], { weekday: 'short' }))} ${d.getDate()}</div><div class="n">${wos ? rows.length : '—'}</div><div class="c">${Object.entries(byCrew).map(([k, n]) => `${esc(k)}${n > 1 ? ' ×' + n : ''}`).join('<br>')}</div></div>`;
   }).join('');
   const crewLoad = crews.map((c) => ({ k: c.name, v: open.filter((w) => w.crew_id === c.cc_crew_id).length, sub: `${next7.filter((w) => w.crew_id === c.cc_crew_id).length} this week` })).filter((r) => r.v > 0);
-  const buildSrc = demo ? src('DEMO') : (wos ? src('CC PULL', 'work orders and crews copied from Contractors Cloud hourly at :20') : src('NO READ'));
+  const buildSrc = demo ? src('DEMO') : (wos ? src('CC PULL', 'work orders, material orders and crews copied from Contractors Cloud hourly at :20') : src('NO READ'));
   const committedList = committed && committed.length ? `<div class="rows" style="margin-top:6px">${committed.slice(0, 6).map((c) => `<div class="r"><span><b>${esc(personName(c.customers?.name || ''))}</b> <span class="small">${esc(brandName(c.cc_company_id))} · said yes ${esc(new Date(c.yes?.at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span class="mono">${money(c.fin_sold_amount || c.yes?.total)}</span></div>`).join('')}</div>` : '';
 
   // ── COLLECTED ──────────────────────────────────────────────────────────
-  const qb = L.qb ? L.qb.filter((i) => !i.reporting_excluded) : null;
-  const inv30 = qb ? qb.filter((i) => i.txn_date >= ymd(m30)) : null;
-  const openBal = qb ? qb.filter((i) => Number(i.balance) > 0) : null;
-  const overdue = openBal ? openBal.filter((i) => i.due_date && i.due_date < ymd(t0)) : null;
+  const qbAll = L.qb ? L.qb.filter((i) => !i.reporting_excluded) : null;
+  const inv30 = qbAll ? qbAll.filter((i) => i.txn_date >= ymd(m30)) : null;
+  const openBal = qbAll ? qbAll.filter((i) => Number(i.balance) > 0) : null;
+  const overdue = openBal ? openBal.filter((i) => i.due_date && i.due_date < todayY) : null;
+  const AGES = [['current', 'not due yet'], ['1-30', '1–30 days late'], ['31-60', '31–60 days late'], ['61-90', '61–90 days late'], ['90+', 'over 90 days late']];
+  const ageOf = (i) => { const d = i.due_date ? daysBetween(todayY, i.due_date) : 0; return d <= 0 ? 'current' : d <= 30 ? '1-30' : d <= 60 ? '31-60' : d <= 90 ? '61-90' : '90+'; };
   const cashFigs = [
     fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt)) : null, inv30 ? `${inv30.length} invoices` : ''), 'invoiced · last 30 days'),
     fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt - i.balance)) : null), 'collected on those invoices', 'verify'),
-    fig(nOf(openBal ? money(sum(openBal, (i) => i.balance)) : null, openBal ? `${openBal.length} open` : ''), 'still owed · invoices from the last 120 days'),
+    fig(nOf(openBal ? money(sum(openBal, (i) => i.balance)) : null, openBal ? `${openBal.length} open` : ''), 'still owed · this year\'s invoices'),
     fig(nOf(overdue ? money(sum(overdue, (i) => i.balance)) : null, overdue ? `${overdue.length} past due` : ''), 'of that, past the due date', overdue && overdue.length ? 'red' : ''),
   ].join('');
-  const cashSrc = demo ? src('DEMO') : (qb ? src('QB PULL', 'QuickBooks invoices, synced by the box; Oasis Billdu is not in this ledger') : src('NO READ'));
+  const cashSrc = demo ? src('DEMO') : (qbAll ? src('QB PULL', 'QuickBooks invoices, synced by the box, this calendar year; Oasis Billdu invoices count once they reach QuickBooks') : src('NO READ'));
 
-  // ── THE FOUR COMPANIES ─────────────────────────────────────────────────
-  const cos = BRANDS.map((cc) => {
-    const s = sold ? sold.filter((x) => x.cc_company_id === cc) : null;
-    const w = waitingToBuild.filter((b) => b.cc_company_id === cc);
-    const n7 = wos ? next7.filter((x) => x.cc_company_id === cc).length : null;
-    const ob = openBal ? sum(openBal.filter((i) => i.cc_company_id === cc), (i) => i.balance) : null;
+  // ── THE HEALTH OF EACH COMPANY ─────────────────────────────────────────
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const months = Array.from({ length: 6 }, (_, i) => { const d = new Date(t0.getFullYear(), t0.getMonth() - 5 + i, 1); return { key: monthKey(d), label: d.toLocaleDateString([], { month: 'short' }), full: i < 5 }; });
+  const priorFull = months.slice(2, 5);   // the three full months before this one — the rhythm, never last year
+  const companyBand = (cc) => {
+    const name = BRAND_BY_CC[cc].name;
+    const inv = qbAll ? qbAll.filter((i) => i.cc_company_id === cc) : null;
+    const sf = soldAll ? soldAll.filter((s) => s.cc_company_id === cc) : null;
+    const invIn = (from) => inv ? sum(inv.filter((i) => i.txn_date >= ymd(from)), (i) => i.total_amt) : null;
+    const soldIn = (from) => sf ? sum(sf.filter((s) => s.sold_at >= ymd(from)), (s) => s.amount) : null;
+    const byMonth = months.map((m) => ({ k: m.label, v: inv ? sum(inv.filter((i) => i.txn_date.slice(0, 7) === m.key), (i) => i.total_amt) : null, color: m.full ? 'var(--officesoft)' : 'var(--goldsoft)', sub: m.full ? '' : 'so far' }));
+    const usual = inv ? sum(priorFull, (m) => byMonth[months.indexOf(m)].v) / 3 : null;
+    const last30 = invIn(m30);
+    const trend = usual && last30 != null && usual > 0 ? Math.round((last30 - usual) / usual * 100) : null;
+    const trendLine = trend == null ? '' : `<div class="trend ${trend < -10 ? 'down' : trend > 10 ? 'up' : ''}">Last 30 days <b>${moneyK(last30)}</b> against your usual month of <b>${moneyK(usual)}</b> (the three before this one) — <b>${trend > 0 ? 'up' : trend < 0 ? 'down' : 'level'} ${Math.abs(trend)}%</b>.</div>`;
+    const collectedYtd = inv ? sum(inv, (i) => i.total_amt - i.balance) : null;
+    const owed = openBal ? openBal.filter((i) => i.cc_company_id === cc) : null;
+    const aging = owed ? AGES.map(([k, label]) => ({ k: label, v: sum(owed.filter((i) => ageOf(i) === k), (i) => i.balance), color: k === 'current' ? 'var(--officesoft)' : k === '1-30' ? 'var(--goldsoft)' : '#f3dcd8' })) : null;
+    const bl = backlog.filter((b) => b.cc_company_id === cc);
+    const bk = wos ? BUCKETS.map(([k, label, color]) => { const rows = bl.filter((b) => bucketOf(b) === k); return { k: label, v: sum(rows, (b) => b.fin_sold_amount), sub: `${rows.length} job${rows.length === 1 ? '' : 's'}`, color }; }) : null;
+    const old60 = bl.filter((b) => b.contract_signed_at && daysBetween(todayY, b.contract_signed_at) > 60 && bucketOf(b) !== 'built');
+    const withMat = mats ? bl.filter((b) => matIn.has(b.job_id)).length : null;
     const a7 = L.appts ? ap.filter((a) => a.cc_company_id === cc && inWin(a.starts_at, t0, t7)).length : null;
-    return `<div class="co"><div class="nm">${esc(BRAND_BY_CC[cc].name)}</div><div class="rows">
-      <div class="r"><span>Sold · 30 days</span><span class="mono verify">${s ? money(sum(s, (x) => x.amount)) : '—'}${s ? ` <span class="dimmer">· ${s.length}</span>` : ''}</span></div>
-      <div class="r"><span>To build</span><span class="mono">${w.length} <span class="dimmer">· ${money(sum(w, (b) => b.fin_sold_amount))}</span></span></div>
-      <div class="r"><span>Installs · next 7 days</span><span class="mono">${n7 ?? '—'}</span></div>
-      <div class="r"><span>Appointments · next 7 days</span><span class="mono">${a7 ?? '—'}</span></div>
-      <div class="r"><span>Still owed</span><span class="mono ${ob ? 'clock' : ''}">${ob == null ? '—' : money(ob)}</span></div>
-    </div></div>`;
-  }).join('');
+    const quiet = !bl.length && !(inv && inv.length) && !(sf && sf.length);
+    return `<div class="ledger co ${quiet ? 'quiet' : ''}">
+      <div class="lhead"><h2>${esc(name)}</h2><div class="right">${demo ? src('DEMO') : ''}${!demo && inv ? src('QB PULL') : ''} ${!demo && sf ? src('LIVE DB') : ''} ${src('NO FEED YET', 'costs and profit: QuickBooks expenses are not synced, so this is the revenue side only')}</div></div>
+      ${quiet ? '<div class="note">Nothing moving this year on this line.</div>' : `
+      <div class="cogrid">
+        <div>
+          <div class="kicker">Health · invoiced</div>
+          <div class="figs tight">${fig(nOf(inv ? moneyK(invIn(mStart)) : null), 'this month')}${fig(nOf(inv ? moneyK(invIn(qStart)) : null), 'this quarter')}${fig(nOf(inv ? moneyK(invIn(yStart)) : null), 'this year')}</div>
+          ${inv ? bars(byMonth, { keepOrder: true, compact: true }) : '<div class="note">—</div>'}
+          ${trendLine}
+          <div class="rows" style="margin-top:8px">
+            ${rowline('Sold · this month', sf ? moneyK(soldIn(mStart)) : '—', 'verify')}
+            ${rowline('Sold · this quarter', sf ? moneyK(soldIn(qStart)) : '—', 'verify')}
+            ${rowline('Sold · this year', sf ? moneyK(soldIn(yStart)) : '—', 'verify')}
+            ${rowline('Collected · this year', collectedYtd == null ? '—' : moneyK(collectedYtd))}
+            ${rowline('Costs and profit', 'no feed yet', 'clock')}
+          </div>
+        </div>
+        <div>
+          <div class="kicker">To build · ${bl.length} job${bl.length === 1 ? '' : 's'} · ${moneyK(sum(bl, (b) => b.fin_sold_amount))}</div>
+          ${bk ? bars(bk, { keepOrder: true, compact: true }) : `<div class="note">${demo ? '—' : 'Contractors Cloud work orders are not readable on this login.'}</div>`}
+          <div class="rows" style="margin-top:8px">
+            ${rowline('Waiting more than 60 days since signing', old60.length, old60.length ? 'clock' : '')}
+            ${rowline('Material ordered or delivered', withMat == null ? '—' : `${withMat} of ${bl.length}`)}
+            ${rowline('Appointments · next 7 days', a7 ?? '—')}
+          </div>
+        </div>
+        <div>
+          <div class="kicker">Still owed · ${owed ? moneyK(sum(owed, (i) => i.balance)) : '—'}${owed ? ` · ${owed.length} invoice${owed.length === 1 ? '' : 's'}` : ''}</div>
+          ${aging ? bars(aging, { keepOrder: true, compact: true }) : '<div class="note">—</div>'}
+        </div>
+      </div>`}
+    </div>`;
+  };
 
   return `
     <div class="ledger sales">
@@ -195,7 +271,7 @@ function ledgersHtml(L, B) {
       <div class="kicker" style="margin:10px 0 6px">Installs · the next seven days · from Contractors Cloud's work orders</div>
       <div class="week">${week}</div>
       <div class="three" style="margin-top:12px">
-        <div><div class="kicker">Sold, not built · by company</div>${bars(brandRows((cc) => sum(waitingToBuild.filter((b) => b.cc_company_id === cc), (b) => b.fin_sold_amount)), { color: 'var(--prodsoft)' })}</div>
+        <div><div class="kicker">Sold, not built · by company</div>${bars(brandRows((cc) => sum(waitingToBuild.filter((b) => b.cc_company_id === cc), (b) => b.fin_sold_amount)), { color: 'var(--prodsoft)' })}<div class="note">Each company's backlog is broken down below.</div></div>
         <div><div class="kicker">Crews · open work orders</div>${wos ? bars(crewLoad, { isMoney: false, color: 'var(--prodsoft)' }) : '<div class="note">—</div>'}</div>
         <div><div class="kicker">Inventory · fencing stock ${src('NO FEED YET')}</div><div class="note">The yard carries a lot of fence stock and the database holds none of it. Nothing here will be guessed. What it takes: one count per product — the 25 products in Gio's Special Order Guide are already rows — kept by a weekly count sheet or off the supplier deliveries. Say the word and that sheet exists.</div></div>
       </div>
@@ -210,6 +286,7 @@ function ledgersHtml(L, B) {
       </div>
     </div>
 
-    <div class="card"><div class="lhead"><div class="kicker">The four companies · same three ledgers, one card each</div></div><div class="cos">${cos}</div></div>
+    <div class="head" style="margin:22px 0 10px"><div><div class="kicker">The health of each company · month · quarter · year · against its own last three months</div><h2 class="serif" style="margin:0">One company at a time.</h2></div></div>
+    ${BRANDS.map(companyBand).join('')}
     ${demo ? '<div class="note" style="margin:-6px 0 12px">Demo: the ledgers read live tables, so they show dashes here. Sign in for the real numbers.</div>' : ''}`;
 }
