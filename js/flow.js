@@ -12,10 +12,10 @@
 // system lines, signatures (129/338), the fence job's stamps (336), the
 // signing notes (338) and the 811 tickets (341). Nothing here writes.
 // Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=38';
-import { state, isDemo, firstName } from './book.js?v=38';
-import { $, html, raw, esc } from './ui.js?v=38';
-import { brandName } from './config.js?v=38';
+import * as api from './api.js?v=41';
+import { state, isDemo, firstName } from './book.js?v=41';
+import { $, html, raw, esc } from './ui.js?v=41';
+import { brandName } from './config.js?v=41';
 
 const DAYS = 14;
 let timer = null;
@@ -24,7 +24,7 @@ let q = '';
 let view = 'jobs';      // jobs | map
 let cache = null;
 
-import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=38';
+import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=41';
 
 const PALETTE = [
   ['#1f6f4a', '#dff0e6'], ['#1d5fa8', '#e1e8f3'], ['#b45309', '#f6e3d6'], ['#0e7c86', '#dcf1f3'], ['#5b3a8f', '#ece5f6'],
@@ -125,7 +125,7 @@ async function load() {
     ccByJob.set(cid, w);
     const base = { cid, cust: custName(cid), brand: custBrand(cid) };
     if (w.install_starts_at) push({ ...base, at: w.install_starts_at, pid: 'cc', body: `CC: install ${w.is_complete ? 'done' : 'set'} ${md(w.install_starts_at.slice(0, 10))}${w.crew_name ? ' · crew ' + w.crew_name : ''}${w.number ? ' · ' + w.number : ''}`, cls: w.is_complete ? 'done' : '', step: w.is_complete ? 'crew' : 'schedule' });
-    for (const m of (w.material_orders || [])) if (m.delivery_at) push({ ...base, at: m.delivery_at + 'T12:00:00', pid: 'cc', body: `CC: material ${m.supplier ? 'from ' + m.supplier + ' ' : ''}delivered ${md(m.delivery_at)}${m.actual_cost ? ' · $' + Math.round(Number(m.actual_cost)).toLocaleString() : ''}`, step: 'material' });
+    for (const m of (w.material_orders || [])) if (m.delivery_at) push({ ...base, at: m.delivery_at + 'T12:00:00', pid: 'cc', body: `CC: material ${m.supplier ? 'from ' + m.supplier + ' ' : ''}delivered ${md(m.delivery_at)}${m.actual_cost ? ' · $' + Math.round(Number(m.actual_cost)).toLocaleString() : ''}`, cls: 'done', step: 'material' });
   }
   ev.sort((a, b) => new Date(b.at) - new Date(a.at));
   // where each file is right now: its open asks
@@ -233,8 +233,8 @@ function paint(root) {
     </div>`;
   }
   function line(e) {
-    const col = e.pid === 'cc' ? { c: '#5f6672', cs: '#eeece6' } : colorFor(e.pid === 'customer' ? 'customer' : e.pid);
-    const av = e.pid === 'machine' ? 'AI' : e.pid === 'customer' ? '✍' : e.pid === 'cc' ? 'CC' : initials(nameOf(e.pid) || '?');
+    const col = colorFor(e.pid === 'customer' ? 'customer' : e.pid);
+    const av = e.pid === 'machine' ? 'AI' : e.pid === 'customer' ? '✍' : initials(nameOf(e.pid) || '?');
     const mark = e.pid === 'customer' ? ICON.pen : e.cls === 'money' ? ICON.money : e.cls === 'done' ? ICON.done : e.cls === 'bad' ? ICON.bad : /^Email|^The sold packet/.test(e.body) ? ICON.mail : /handed/.test(e.body) ? ICON.handoff : (e.step && ICON[e.step]) || ICON.handoff;
     return `<div class="fline ${esc(e.cls || '')}" style="--c:${col.c};--cs:${col.cs}"><i class="mk">${mark}</i><i class="av">${esc(av)}</i><span class="b">${esc(e.body)}</span><span class="t">${esc(when(e.at))}</span></div>`;
   }

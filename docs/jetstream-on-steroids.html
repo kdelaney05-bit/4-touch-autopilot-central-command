@@ -720,7 +720,7 @@ function jump(q){
   const d=$('#jumpdrop');q=q.trim().toLowerCase();if(!q){d.hidden=true;return;}
   const a=ACCESS[me];const out=[];
   Object.entries(FILES).forEach(([id,f])=>{if(a.files(f)&&(f.name.toLowerCase().includes(q)||f.job.toLowerCase().includes(q)))out.push({h:`${avatar(f.rep)} ${f.name} <small>customer · ${f.brand}</small>`,cls:P(f.rep).cls,go:()=>{sel={type:'file',id};renderAll();}});
-    if(a.files(f))f.docs.forEach(doc=>{if(doc[0].toLowerCase().includes(q))out.push({h:`${I.doc} ${doc[0]} <small>${f.name} · ${doc[1]}</small>`,cls:'',go:()=>{sel={type:'file',id};renderAll();setTimeout(()=>{const ev=document.getElementById(doc[2]);if(ev){ev.scrollIntoView({block:'center'});ev.classList.add('hi');}},50);}});});
+    if(a.files(f))f.docs.forEach(doc=>{if(doc[0].toLowerCase().includes(q))out.push({h:`${I.doc} ${doc[0]} <small>${f.name} · ${doc[1]}</small>`,cls:'',go:()=>{sel={type:'file',id};renderAll();setTimeout(()=>{const ev=document.getElementById(doc[2]);if(ev){ev.scrollIntoView({block:'center'});ev.classList.add('hi');}},50);}});});});
   Object.keys(PEOPLE).forEach(id=>{if(id===me||id==='machine')return;if(P(id).ext&&!a.crews(id))return;if(P(id).name.toLowerCase().includes(q))out.push({h:`${avatar(id)} ${P(id).name} <small>${P(id).ext?'crew link':'quick message'}</small>`,cls:P(id).cls,go:()=>{if(P(id).ext){sel={type:'crewline',id};renderAll();}else openDM(id);}});});
   Object.entries(ROOMS).forEach(([id,r])=>{if(a.rooms(r)&&r.name.toLowerCase().includes(q))out.push({h:`${I.room} ${r.name} <small>room</small>`,cls:'',go:()=>{sel={type:'room',id};renderAll();}});});
   if(!out.length){d.innerHTML=`<button disabled style="color:var(--dimmer)">Nothing you can see matches "${esc(q)}"</button>`;d.hidden=false;return;}

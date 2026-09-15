@@ -1,22 +1,23 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=38';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=38';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=38';
-import { BRAND_BY_CC } from './config.js?v=38';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=38';
-import { renderHome } from './home.js?v=38';
-import { renderSales } from './sales.js?v=38';
-import { renderPipeline } from './pipeline.js?v=38';
-import { renderMarketing } from './marketing.js?v=38';
-import { renderOffice } from './office.js?v=38';
-import { renderProduction } from './production.js?v=38';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=38';
-import { stopRoomPoll } from './village.js?v=38';
-import { renderFlow, stopFlow } from './flow.js?v=38';
+import * as api from './api.js?v=41';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=41';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=41';
+import { BRAND_BY_CC } from './config.js?v=41';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=41';
+import { renderSwitchboard } from './switchboard.js?v=41';
+import { renderHome } from './home.js?v=41';
+import { renderSales } from './sales.js?v=41';
+import { renderPipeline } from './pipeline.js?v=41';
+import { renderMarketing } from './marketing.js?v=41';
+import { renderOffice } from './office.js?v=41';
+import { renderProduction } from './production.js?v=41';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=41';
+import { stopRoomPoll } from './village.js?v=41';
+import { renderFlow, stopFlow } from './flow.js?v=41';
 
-let view = 'home';
+let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
-const VIEWS = ['home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
+const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
 
 export function rooms() {
   const role = state.me?.role || 'sales';
@@ -41,10 +42,11 @@ export function render() {
   $('#nav-who').textContent = me ? `${me.name.split(' ')[0]} · ${me.role}` : '';
   $('#who-sub').textContent = isDemo() ? 'DEMO — nothing is saved' : (state.loadedAt ? 'loaded ' + state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '');
   const tagged = (state.mentions || []).filter((m) => !m.seen_at).length;
-  const counts = { office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length + tagged };
+  const counts = { line: state.clock.filter((c) => c.waiting_min >= 60).length + tagged, office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length + tagged };
   $('#tabs').innerHTML = r.map((k) => html`<button class="tab ${k === view || (view === 'file' && k === 'files') ? 'on' : ''}" data-view="${k}">${ROOM_LABEL[k]}${counts[k] ? raw(`<span class="n">${counts[k]}</span>`) : ''}</button>`).join('');
   $$('#tabs button').forEach((b) => (b.onclick = () => go(b.dataset.view)));
   for (const v of VIEWS) $('#view-' + v).classList.toggle('hidden', v !== view);
+  if (view === 'line') renderSwitchboard($('#view-line'));
   if (view === 'home') renderHome($('#view-home'));
   if (view === 'sales') renderSales($('#view-sales'));
   if (view === 'pipeline') renderPipeline($('#view-pipeline'));
