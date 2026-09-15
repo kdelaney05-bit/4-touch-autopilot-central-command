@@ -17,7 +17,7 @@
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"/>
-<link rel="stylesheet" href="command.css?v=56"/>
+<link rel="stylesheet" href="command.css?v=57"/>
 </head>
 <body>
 
@@ -32,14 +32,37 @@
       <input id="si-pass" type="password" autocomplete="current-password" required/></div>
     <button class="btn fill wide" id="si-go" type="submit">Sign in</button>
     <div class="err" id="si-err"></div>
+    <div class="sub" style="margin-top:12px"><a href="#" id="si-forgot">First time here, or forgot your password? Set my password</a></div>
+  </form>
+  <form class="signin-card hidden" id="rc-form">
+    <div class="kicker">The 4-Touch Autopilot</div>
+    <h1>Set your password.</h1>
+    <div class="sub">Type the email the company gave you. A link comes to that inbox and you choose your own password. Nobody else ever sees it.</div>
+    <div class="field"><label for="rc-email">Email</label>
+      <input id="rc-email" type="email" autocomplete="username" required/></div>
+    <button class="btn fill wide" id="rc-go" type="submit">Email me the link</button>
+    <div class="err" id="rc-err"></div>
+    <div class="sub" style="margin-top:12px"><a href="#" id="rc-back">Back to sign in</a></div>
+  </form>
+  <form class="signin-card hidden" id="sp-form">
+    <div class="kicker">The 4-Touch Autopilot</div>
+    <h1>Choose your password.</h1>
+    <div class="sub">This is yours. Six characters or more. You will use it here and in the phone app.</div>
+    <div class="field"><label for="sp-pass">New password</label>
+      <input id="sp-pass" type="password" autocomplete="new-password" minlength="6" required/></div>
+    <div class="field"><label for="sp-pass2">Same again</label>
+      <input id="sp-pass2" type="password" autocomplete="new-password" minlength="6" required/></div>
+    <button class="btn fill wide" id="sp-go" type="submit">Save it and go in</button>
+    <div class="err" id="sp-err"></div>
   </form>
   <div class="rooms-note">
     <div class="kicker">What each login opens</div>
-    <div class="row"><span><b>Kevin, Gio</b> · owner</span><span class="chip">EVERY ROOM</span></div>
-    <div class="row"><span><b>Jessica, Sam, Laura, Jonathan</b> · office</span><span class="chip">OFFICE · FILES · PRODUCTION</span></div>
-    <div class="row"><span><b>Luis, Obed, Gerardo</b> · production</span><span class="chip">PRODUCTION · FILES</span></div>
+    <div class="row"><span><b>Kevin</b> · owner</span><span class="chip">EVERY ROOM</span></div>
+    <div class="row"><span><b>Gio</b> · owner</span><span class="chip">EVERY ROOM BUT THE BOOKS</span></div>
+    <div class="row"><span><b>Jessica, Sam, Laura, Jonathan</b> · office</span><span class="chip">THE LINE · FILES</span></div>
+    <div class="row"><span><b>Luis, Obed, Robert, Mike</b> · managers</span><span class="chip">THE LINE · FILES</span></div>
     <div class="row"><span><b>Jermey</b> · commercial</span><span class="chip">THE DESK</span></div>
-    <div class="note" style="margin-top:8px">Reps keep the phone app. The file underneath is the same one the phone writes on. <a href="?demo=1">See the demo</a>.</div>
+    <div class="note" style="margin-top:8px">The playground first: the communication highway and the customer files. The other rooms come one at a time. Reps keep the phone app; the file underneath is the same one the phone writes on. <a href="?demo=1">See the demo</a>.</div>
   </div>
 </section>
 
@@ -69,6 +92,6 @@
 <aside id="drawer" hidden aria-label="The customer's thread"><div id="drawer-body"></div></aside>
 <div id="modal-root"></div>
 <div id="toast-root"></div>
-<script type="module" src="js/app.js?v=56"></script>
+<script type="module" src="js/app.js?v=57"></script>
 </body>
 </html>

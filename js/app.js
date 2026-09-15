@@ -1,19 +1,20 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=56';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=56';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=56';
-import { BRAND_BY_CC } from './config.js?v=56';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=56';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=56';
-import { renderHome } from './home.js?v=56';
-import { renderSales } from './sales.js?v=56';
-import { renderPipeline } from './pipeline.js?v=56';
-import { renderMarketing } from './marketing.js?v=56';
-import { renderOffice } from './office.js?v=56';
-import { renderProduction } from './production.js?v=56';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=56';
-import { stopRoomPoll } from './village.js?v=56';
-import { renderFlow, stopFlow } from './flow.js?v=56';
+import * as api from './api.js?v=57';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=57';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=57';
+import { BRAND_BY_CC } from './config.js?v=57';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=57';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=57';
+import { renderHome } from './home.js?v=57';
+import { renderSales } from './sales.js?v=57';
+import { renderPipeline } from './pipeline.js?v=57';
+import { renderMarketing } from './marketing.js?v=57';
+import { renderOffice } from './office.js?v=57';
+import { renderProduction } from './production.js?v=57';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=57';
+import { stopRoomPoll } from './village.js?v=57';
+import { renderFlow, stopFlow } from './flow.js?v=57';
+import { startTour, tourWanted } from './tour.js?v=57';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -217,8 +218,31 @@ async function boot() {
     catch (err) { $('#si-err').textContent = err.message || 'Sign-in failed'; }
     finally { go.disabled = false; }
   };
+  // the set-password door (Kevin, 15 Sep night): first time here, or forgot it
+  const card = (id) => { for (const k of ['si-form', 'rc-form', 'sp-form']) $('#' + k).classList.toggle('hidden', k !== id); };
+  $('#si-forgot').onclick = (e) => { e.preventDefault(); $('#rc-email').value = $('#si-email').value.trim(); card('rc-form'); $('#rc-err').textContent = ''; };
+  $('#rc-back').onclick = (e) => { e.preventDefault(); card('si-form'); };
+  $('#rc-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const go = $('#rc-go'); go.disabled = true; $('#rc-err').textContent = '';
+    try { await api.recover($('#rc-email').value.trim()); $('#rc-err').style.color = 'var(--verify)'; $('#rc-err').textContent = 'Sent. Open the email on this device and tap the link — it works for 24 hours.'; }
+    catch (err) { $('#rc-err').style.color = ''; $('#rc-err').textContent = err.message || 'Could not send the link'; go.disabled = false; }
+  };
+  $('#sp-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const a = $('#sp-pass').value, b = $('#sp-pass2').value; $('#sp-err').textContent = '';
+    if (a.length < 6) { $('#sp-err').textContent = 'Six characters or more.'; return; }
+    if (a !== b) { $('#sp-err').textContent = 'Those two do not match.'; return; }
+    const go = $('#sp-go'); go.disabled = true;
+    try { await api.setPassword(a); showApp(); await reload(); toast('Password saved. You are in.'); }
+    catch (err) { $('#sp-err').textContent = err.message || 'Could not save it'; go.disabled = false; }
+  };
   wireFind();
-  if (isDemo()) { showApp(); await reload(true); toast('Demo — a fictional book, nothing is saved'); return; }
-  if (api.loadSession()) { showApp(); await reload(true); } else showSignIn();
+  window.__tour = startTour;
+  if (isDemo()) { showApp(); await reload(true); toast('Demo — a fictional book, nothing is saved'); if (tourWanted()) setTimeout(startTour, 600); return; }
+  // arrived from the one-time link in the welcome / reset email → choose a password first
+  const fromLink = api.sessionFromHash();
+  if (fromLink) { showSignIn(); card('sp-form'); $('#sp-pass').focus(); return; }
+  if (api.loadSession()) { showApp(); await reload(true); if (tourWanted()) setTimeout(startTour, 600); } else { showSignIn(); card('si-form'); }
 }
 boot();

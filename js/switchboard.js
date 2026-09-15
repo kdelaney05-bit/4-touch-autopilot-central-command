@@ -13,12 +13,12 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle } from './book.js?v=56';
-import { toast, openModal } from './ui.js?v=56';
-import { html, raw, esc } from './ui.js?v=56';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=56';
-import { renderRoom, wireAtOn } from './village.js?v=56';
-import * as api from './api.js?v=56';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle } from './book.js?v=57';
+import { toast, openModal } from './ui.js?v=57';
+import { html, raw, esc } from './ui.js?v=57';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=57';
+import { renderRoom, wireAtOn } from './village.js?v=57';
+import * as api from './api.js?v=57';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -192,7 +192,7 @@ export function renderSwitchboard(root) {
     <div class="head">
       <div><div class="kicker">The Line · everything with a human waiting on the other end</div>
         <h1 class="serif">Nobody has to hunt, and nothing gets to sit.</h1></div>
-      <div class="right">${isDemo() ? '<span class="chip demo">DEMO · FICTIONAL BOOK</span>' : '<span class="chip">LIVE · DB</span>'}</div>
+      <div class="right"><button class="btn sm" id="tour-go" title="A one-minute walk through the screen">Show me around</button> ${isDemo() ? '<span class="chip demo">DEMO · FICTIONAL BOOK</span>' : '<span class="chip">LIVE · DB</span>'}</div>
     </div>`)}
     ${raw(sayItHTML())}
     ${rep ? '' : raw(stuckCard(C, waiting))}
@@ -206,6 +206,7 @@ export function renderSwitchboard(root) {
   wireSayIt(root);
   wirePeopleFind(root);
   wireAnswers(root, waiting);
+  const tg = root.querySelector('#tour-go'); if (tg) tg.onclick = () => window.__tour && window.__tour();
   paintPane(root, { waiting, tagged, mine, C });
 }
 
@@ -231,7 +232,7 @@ function stuckCard(C, waiting) {
 
   return html`
     <div class="two" style="align-items:start;margin-bottom:18px">
-      <div class="card">
+      <div class="card" data-tour="stuck">
         <div class="head" style="margin-bottom:8px">
           <div class="kicker">Where it is stuck · every open ask, by what it waits on</div>
           <span class="small">${Q.length} open</span>
@@ -245,7 +246,7 @@ function stuckCard(C, waiting) {
           </div>`).join('')) : raw('<div class="empty">No asks open. That is the whole board empty.</div>')}
         <div class="small" style="margin-top:8px">Bar is how many. The number on the right is the <b>oldest one in that lane</b> — that is the one that is actually stuck.</div>
       </div>
-      <div class="card">
+      <div class="card" data-tour="asking">
         <div class="head" style="margin-bottom:8px">
           <div class="kicker">What they are asking · the customers waiting right now</div>
           <span class="small">${waiting.length} waiting</span>
@@ -471,7 +472,7 @@ function sayItHTML() {
   const law = say.lane === 'customer'
     ? (c ? `Goes to ${esc(firstName(c.name) || 'them')} as a text from the brand's approved line. A draft until Send; the file opens after with six seconds to take it back.` : 'Pick the customer first.')
     : (c ? `Lands on ${esc(personName(c.name))}'s file as a note. Everyone you @ gets a push and it sits in their You're up until they open it. The customer never sees this.` : 'No customer yet: this goes to the Village, where every seat reads it. @ a customer in the words and it lands on their file instead.');
-  return `<div class="card say" id="line-say">
+  return `<div data-tour="sayit" class="card say" id="line-say">
     <div class="head" style="margin-bottom:8px"><div class="kicker">Say it · to anyone, about any customer, from here</div><span class="small">${isDemo() ? 'demo — nothing sends' : 'texts from the brand line · notes with a push'}</span></div>
     <div class="say-row"><span class="kicker">About</span><div class="say-who">${who}</div></div>
     <div class="say-row"><span class="kicker">To</span>
