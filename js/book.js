@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=53';
-import { DEMO } from './demo.js?v=53';
+import * as api from './api.js?v=54';
+import { DEMO } from './demo.js?v=54';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -55,7 +55,7 @@ export async function loadAll() {
     api.page('lead_sources?select=cc_lead_id,name,cc_company_id,cc_total_used&is_active=eq.true&order=cc_total_used.desc.nullslast').catch(() => []),
     api.page('ask_proof_rules?select=*').catch(() => []),
     // 324/325: the permit lane's last 30 days — owner checks and NOCs made, for the Office door on the home room
-    api.page(`parcel_lookups?select=customer_id,signer_match,fetched_at&fetched_at=gte.${since30}&order=fetched_at.desc`, 2000).catch(() => []),
+    api.page(`parcel_lookups?select=customer_id,signer_match,confidential,fetched_at&fetched_at=gte.${since30}&order=fetched_at.desc`, 2000).catch(() => []),
     api.page(`paperwork_filled?select=customer_id,form_key,filled_at&filled_at=gte.${since30}&order=filled_at.desc`, 2000).catch(() => []),
     // everyone who can appear on a file's thread — reps, office, production, owners — with the line they text from (Kevin, 14 Sep: a color per person)
     api.page('reps?select=id,name,initials,role,sms_from&active=eq.true&order=name.asc', 500).catch(() => []),

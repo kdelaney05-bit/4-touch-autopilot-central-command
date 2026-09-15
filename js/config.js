@@ -12,6 +12,9 @@ export const BRAND_BY_CC = {
   '1563': { key: 'protech', name: 'Pro-Tech Roofing', short: 'Pro-Tech' },
 };
 export const brandName = (cc) => BRAND_BY_CC[cc]?.short ?? (cc ? 'Brand ' + cc : '—');
+/* What the customer reads in a text — the company's real name, never the
+   office's shorthand ("Liberty Fencing", not "Fencing"). */
+export const brandFullName = (cc) => BRAND_BY_CC[cc]?.name ?? BRAND_BY_CC['1461'].name;
 
 /* The funnel — job_stage() in migration 306. Color = the room that owns it. */
 export const STAGES = {
@@ -39,6 +42,9 @@ export const ASK_LABEL = {
 };
 export const DOC_LABEL = {
   contract: 'Signed contract', noc: 'Notice of Commencement', hoa: 'HOA approval', survey: 'Property survey', permit_sig: 'Permit application, signed',
+  /* The deed the customer brings when the county still has the old owner —
+     they just bought the house and the roll has not caught up (PERMIT lane). */
+  deed: 'Warranty deed',
   /* The roofing milestones — the doc_kind is which milestone it is. */
   tearoff: 'Tear-off started', dryin_ordered: 'Dry-in ordered', sheathing_inspection: 'Sheathing inspection',
   dryin_passed: 'Dry-in passed', shingling: 'Shingling', walkthrough: 'Walkthrough',

@@ -55,6 +55,22 @@ QuickBooks (`invoice_request`, 313).
 behind the `qb_invoices` switch, which is OFF, and the pay link goes out as a
 text a seat presses Send on.
 
+### The property, and the warranty deed
+
+Every file carries what the county appraiser holds for the address: owner of
+record, mailing address, parcel, legal description, and whether the person who
+signed is that owner. The lookup runs by itself when a customer accepts, and
+the NOC is filled off it.
+
+**When the signer is not the owner of record, the file needs the warranty
+deed** — they almost always just bought the house and the county roll (nightly
+at best, months on the statewide fallback) has not caught up. The deed ask
+opens itself off that answer, the rep is told on the estimate screen *before*
+the signature, and the NOC will not print until the deed is on the file. The
+deed is a piece of the paperwork checklist, so the chain already holds the
+permit while it is open. The whole rule, and the two pieces still to ship:
+[docs/WARRANTY-DEED.md](docs/WARRANTY-DEED.md).
+
 From any room, a customer's thread opens in a side drawer — you never lose
 your place on a board to answer somebody.
 
@@ -143,6 +159,8 @@ These are rows, not code. Edit the row, the app follows.
 
 - No build step. Static files. GitHub Pages serves `main`; **push = deploy**.
 - Preview: `npx -y serve -l 8091 -n .` then http://localhost:8091/?demo=1
+- The county rolls, source by source: `docs/PERMIT-SOURCES.md`. The deed rule:
+  `docs/WARRANTY-DEED.md`.
 - The scope and the audit: `docs/ONE-OS-SCOPE.md`,
   `docs/CC-UVOICE-WORKFLOW-AUDIT.md`. What the office's day looks like here
   against Contractors Cloud: `docs/THE-OFFICE-DAY.md`. What works tonight and
