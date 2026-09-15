@@ -19,11 +19,11 @@
 // with no live source reads honestly absent. Sources are never blended;
 // nothing is projected into an actual. Costs and profit have no feed yet and
 // say so.
-import * as api from './api.js?v=41';
-import { state, isDemo, personName } from './book.js?v=41';
-import { html, raw, esc } from './ui.js?v=41';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=41';
-import { renderRoom } from './village.js?v=41';
+import * as api from './api.js?v=42';
+import { state, isDemo, personName } from './book.js?v=42';
+import { html, raw, esc } from './ui.js?v=42';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=42';
+import { renderRoom } from './village.js?v=42';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
@@ -36,7 +36,18 @@ const ymd = (d) => { const p = (n) => String(n).padStart(2, '0'); return `${d.ge
 const daysBetween = (a, b) => Math.round((new Date(a) - new Date(b)) / 864e5);
 const BRANDS = Object.keys(BRAND_BY_CC);
 const src = (kind, note) => `<span class="src ${kind === 'NO FEED YET' || kind === 'NO READ' ? 'none' : ''}" title="${esc(note || '')}">${esc(kind)}</span>`;
-const fig = (n, l, cls = '') => `<div class="fig"><div class="n ${cls}">${n}</div><div class="l">${esc(l)}</div></div>`;
+const fig = (n, l, cls = '', extra = '') => `<div class="fig"><div class="n ${cls}">${n}</div><div class="l">${esc(l)}</div>${extra}</div>`;
+// "Compared to what?" (Kevin, 15 Sep): one quiet line under a figure — its
+// usual over the company's OWN recent rhythm (the last 1–4 months, never last
+// year), and on pace / up / down. Within ten percent is on pace. No usual, no
+// line — a comparison against nothing is noise.
+const cmp = (now, usual, isMoney = false, what = 'usual') => {
+  if (now == null || usual == null || !(usual > 0)) return '';
+  const pct = Math.round((now - usual) / usual * 100);
+  const cls = pct <= -10 ? 'down' : pct >= 10 ? 'up' : '';
+  const f = (v) => isMoney ? moneyK(v) : String(Math.round(v));
+  return `<div class="cmp ${cls}">${esc(what)} ${f(usual)} · ${cls ? (pct > 0 ? 'up ' : 'down ') + Math.abs(pct) + '%' : 'on pace'}</div>`;
+};
 const nOf = (v, small) => v == null ? '<span class="dimmer">—</span>' : `${v}${small ? ` <small>${esc(small)}</small>` : ''}`;
 const rowline = (label, n, cls = '') => `<div class="r"><span>${label}</span><span class="mono ${cls}">${n}</span></div>`;
 
@@ -55,12 +66,13 @@ function bars(rows, { isMoney = true, color = 'var(--goldsoft)', keepOrder = fal
 
 async function loadLedgers() {
   if (isDemo()) return { demo: true };
-  const t0 = day(0), t7 = day(7), m7 = day(-7), m30 = day(-30);
+  const t0 = day(0), t7 = day(7), m120 = day(-120);
   const jan1 = new Date(t0.getFullYear(), 0, 1);
+  // 120 days back on leads and appointments: the last 30 are the figure, the 90 before are its "usual"
   const [sold, leads, appts, wos, crews, qb, sigs, accepts, mats] = await Promise.all([
     api.page(`sale_fact?select=job_id,rep_id,cc_company_id,sold_at,amount&sold_at=gte.${ymd(jan1)}&order=sold_at.desc&limit=8000`, 8000).catch(() => null),
-    api.page(`jobs?select=id,cc_company_id,created_at&created_at=gte.${iso(m30)}&limit=3000`, 3000).catch(() => null),
-    api.page(`appointment_rep_truth?select=cc_company_id,starts_at,is_cancelled,rep_name&starts_at=gte.${iso(m7)}&starts_at=lt.${iso(t7)}&limit=2000`, 2000).catch(() => null),
+    api.page(`jobs?select=id,cc_company_id,created_at&created_at=gte.${iso(m120)}&order=created_at.desc&limit=8000`, 8000).catch(() => null),
+    api.page(`appointment_rep_truth?select=cc_company_id,starts_at,is_cancelled,rep_name&starts_at=gte.${iso(m120)}&starts_at=lt.${iso(t7)}&order=starts_at.desc&limit=8000`, 8000).catch(() => null),
     api.page('cc_work_orders?select=job_id,cc_company_id,crew_id,is_complete,install_starts_at,number&limit=2000', 2000).catch(() => null),
     api.page('cc_crews?select=cc_crew_id,name,color&is_active=eq.true&order=name', 200).catch(() => null),
     api.page(`qb_invoices?select=cc_company_id,txn_date,due_date,total_amt,balance,reporting_excluded&txn_date=gte.${ymd(jan1)}&order=txn_date.desc&limit=8000`, 8000).catch(() => null),
@@ -124,17 +136,28 @@ function ledgersHtml(L, B) {
   const mStart = new Date(t0.getFullYear(), t0.getMonth(), 1), qStart = new Date(t0.getFullYear(), Math.floor(t0.getMonth() / 3) * 3, 1), yStart = new Date(t0.getFullYear(), 0, 1);
 
   // ── SALES ──────────────────────────────────────────────────────────────
-  const soldAll = L.sold, leads = L.leads, ap = (L.appts || []).filter((a) => !a.is_cancelled);
+  const m56 = day(-56), m91 = day(-91), m120 = day(-120);
+  const soldAll = L.sold, leadsAll = L.leads, apAll = L.appts ? L.appts.filter((a) => !a.is_cancelled) : null;
+  const ap = apAll || [];
+  const cnt = (rows, f, a, b) => rows ? rows.filter((r) => inWin(r[f], a, b)).length : null;
+  const amt = (rows, f, a, b, v) => rows ? sum(rows.filter((r) => inWin(r[f], a, b)), v) : null;
+  const leads = leadsAll ? leadsAll.filter((l) => inWin(l.created_at, m30, t1)) : null;
   const sold = soldAll ? soldAll.filter((s) => inWin(s.sold_at, m30, t1)) : null;
   const sold7 = sold ? sold.filter((s) => inWin(s.sold_at, m7, t1)) : null;
   const byRep = {}; (sold || []).forEach((s) => { const k = repName(s.rep_id); byRep[k] = (byRep[k] || 0) + Number(s.amount || 0); });
+  // the usuals: 30-day figures against the three 30-day windows before them; weekly figures against the last 8 weeks; today against the same weekday over 8 weeks
+  const leadsUsual = leadsAll ? cnt(leadsAll, 'created_at', m120, m30) / 3 : null;
+  const apTodayUsual = apAll ? apAll.filter((a) => { const d = new Date(a.starts_at); return d >= m56 && d < t0 && d.getDay() === t0.getDay(); }).length / 8 : null;
+  const apWeekUsual = apAll ? cnt(apAll, 'starts_at', m56, t0) / 8 : null;
+  const sold7Usual = soldAll ? amt(soldAll, 'sold_at', m91, m7, (s) => s.amount) / 12 : null;
+  const sold30Usual = soldAll ? amt(soldAll, 'sold_at', m120, m30, (s) => s.amount) / 3 : null;
   const salesFigs = [
-    fig(nOf(leads ? leads.length : null), 'new leads · last 30 days'),
-    fig(nOf(L.appts ? ap.filter((a) => inWin(a.starts_at, t0, t1)).length : null), 'appointments today'),
-    fig(nOf(L.appts ? ap.filter((a) => inWin(a.starts_at, t0, t7)).length : null), 'appointments · next 7 days'),
-    fig(nOf(L.appts ? ap.filter((a) => inWin(a.starts_at, m7, t0)).length : null), 'appointments ran · last 7 days'),
-    fig(nOf(sold7 ? money(sum(sold7, (s) => s.amount)) : null, sold7 ? `${sold7.length} jobs` : ''), 'sold · last 7 days', 'verify'),
-    fig(nOf(sold ? money(sum(sold, (s) => s.amount)) : null, sold ? `${sold.length} jobs` : ''), 'sold · last 30 days', 'verify'),
+    fig(nOf(leads ? leads.length : null), 'new leads · last 30 days', '', cmp(leads?.length, leadsUsual)),
+    fig(nOf(cnt(apAll, 'starts_at', t0, t1)), 'appointments today', '', cmp(cnt(apAll, 'starts_at', t0, t1), apTodayUsual, false, `usual ${t0.toLocaleDateString([], { weekday: 'long' })}`)),
+    fig(nOf(cnt(apAll, 'starts_at', t0, t7)), 'appointments · next 7 days', '', cmp(cnt(apAll, 'starts_at', t0, t7), apWeekUsual, false, 'usual week')),
+    fig(nOf(cnt(apAll, 'starts_at', m7, t0)), 'appointments ran · last 7 days', '', cmp(cnt(apAll, 'starts_at', m7, t0), apWeekUsual, false, 'usual week')),
+    fig(nOf(sold7 ? money(sum(sold7, (s) => s.amount)) : null, sold7 ? `${sold7.length} jobs` : ''), 'sold · last 7 days', 'verify', cmp(sold7 ? sum(sold7, (s) => s.amount) : null, sold7Usual, true, 'usual week')),
+    fig(nOf(sold ? money(sum(sold, (s) => s.amount)) : null, sold ? `${sold.length} jobs` : ''), 'sold · last 30 days', 'verify', cmp(sold ? sum(sold, (s) => s.amount) : null, sold30Usual, true, 'usual 30 days')),
   ].join('');
   const salesSrc = demo ? src('DEMO') : (sold ? src('LIVE DB', 'sale_fact: booked CC signings + Billdu invoices; the open bells are on the console') : src('NO READ', 'this login cannot read sale_fact'));
 
@@ -166,7 +189,7 @@ function ledgersHtml(L, B) {
     fig(nOf(committed ? committed.length : null, committed && committed.length ? money(sum(committed, (c) => c.fin_sold_amount || c.yes?.total)) : ''), 'committed · said yes on our link, not in CC yet', 'gold'),
     fig(nOf(waitingToBuild.length, money(sum(waitingToBuild, (b) => b.fin_sold_amount))), 'sold · not built yet'),
     fig(nOf(wos ? waitingToBuild.filter((b) => bucketOf(b) === 'nodate').length : null), 'of those, no install date yet'),
-    fig(nOf(wos ? next7.length : null), 'installs · next 7 days'),
+    fig(nOf(wos ? next7.length : null), 'installs · next 7 days', '', cmp(wos ? next7.length : null, wos ? wos.filter((w) => inWin(w.install_starts_at, m56, t0)).length / 8 : null, false, 'usual week')),
     fig(nOf(wos ? started.length : null), 'started · not marked done', started.length ? 'clock' : ''),
     fig(nOf(builtAll.length, money(sum(builtAll, (b) => b.fin_sold_amount))), 'built · can invoice', 'verify'),
   ].join('');
@@ -187,9 +210,11 @@ function ledgersHtml(L, B) {
   const overdue = openBal ? openBal.filter((i) => i.due_date && i.due_date < todayY) : null;
   const AGES = [['current', 'not due yet'], ['1-30', '1–30 days late'], ['31-60', '31–60 days late'], ['61-90', '61–90 days late'], ['90+', 'over 90 days late']];
   const ageOf = (i) => { const d = i.due_date ? daysBetween(todayY, i.due_date) : 0; return d <= 0 ? 'current' : d <= 30 ? '1-30' : d <= 60 ? '31-60' : d <= 90 ? '61-90' : '90+'; };
+  const invUsual = qbAll ? sum(qbAll.filter((i) => i.txn_date >= ymd(m120) && i.txn_date < ymd(m30)), (i) => i.total_amt) / 3 : null;
+  const collUsual = qbAll ? sum(qbAll.filter((i) => i.txn_date >= ymd(m120) && i.txn_date < ymd(m30)), (i) => i.total_amt - i.balance) / 3 : null;
   const cashFigs = [
-    fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt)) : null, inv30 ? `${inv30.length} invoices` : ''), 'invoiced · last 30 days'),
-    fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt - i.balance)) : null), 'collected on those invoices', 'verify'),
+    fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt)) : null, inv30 ? `${inv30.length} invoices` : ''), 'invoiced · last 30 days', '', cmp(inv30 ? sum(inv30, (i) => i.total_amt) : null, invUsual, true, 'usual 30 days')),
+    fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt - i.balance)) : null), 'collected on those invoices', 'verify', cmp(inv30 ? sum(inv30, (i) => i.total_amt - i.balance) : null, collUsual, true, 'usual 30 days')),
     fig(nOf(openBal ? money(sum(openBal, (i) => i.balance)) : null, openBal ? `${openBal.length} open` : ''), 'still owed · this year\'s invoices'),
     fig(nOf(overdue ? money(sum(overdue, (i) => i.balance)) : null, overdue ? `${overdue.length} past due` : ''), 'of that, past the due date', overdue && overdue.length ? 'red' : ''),
   ].join('');
@@ -218,6 +243,11 @@ function ledgersHtml(L, B) {
     const old60 = bl.filter((b) => b.contract_signed_at && daysBetween(todayY, b.contract_signed_at) > 60 && bucketOf(b) !== 'built');
     const withMat = mats ? bl.filter((b) => matIn.has(b.job_id)).length : null;
     const a7 = L.appts ? ap.filter((a) => a.cc_company_id === cc && inWin(a.starts_at, t0, t7)).length : null;
+    const a7Usual = apAll ? apAll.filter((a) => a.cc_company_id === cc && inWin(a.starts_at, m56, t0)).length / 8 : null;
+    const coLeads = leads ? leads.filter((l) => l.cc_company_id === cc).length : null;
+    const coLeadsUsual = leadsAll ? leadsAll.filter((l) => l.cc_company_id === cc && inWin(l.created_at, m120, m30)).length / 3 : null;
+    const coSold30 = sf ? sum(sf.filter((s) => inWin(s.sold_at, m30, t1)), (s) => s.amount) : null;
+    const coSold30Usual = sf ? sum(sf.filter((s) => inWin(s.sold_at, m120, m30)), (s) => s.amount) / 3 : null;
     const quiet = !bl.length && !(inv && inv.length) && !(sf && sf.length);
     return `<div class="ledger co ${quiet ? 'quiet' : ''}">
       <div class="lhead"><h2>${esc(name)}</h2><div class="right">${demo ? src('DEMO') : ''}${!demo && inv ? src('QB PULL') : ''} ${!demo && sf ? src('LIVE DB') : ''} ${src('NO FEED YET', 'costs and profit: QuickBooks expenses are not synced, so this is the revenue side only')}</div></div>
@@ -229,6 +259,8 @@ function ledgersHtml(L, B) {
           ${inv ? bars(byMonth, { keepOrder: true, compact: true }) : '<div class="note">—</div>'}
           ${trendLine}
           <div class="rows" style="margin-top:8px">
+            ${rowline('New leads · last 30 days', coLeads == null ? '—' : `${coLeads}${coLeadsUsual > 0 ? ` <span class="dimmer">· usual ${Math.round(coLeadsUsual)}</span>` : ''}`)}
+            ${rowline('Sold · last 30 days', coSold30 == null ? '—' : `${moneyK(coSold30)}${coSold30Usual > 0 ? ` <span class="dimmer">· usual ${moneyK(coSold30Usual)}</span>` : ''}`, 'verify')}
             ${rowline('Sold · this month', sf ? moneyK(soldIn(mStart)) : '—', 'verify')}
             ${rowline('Sold · this quarter', sf ? moneyK(soldIn(qStart)) : '—', 'verify')}
             ${rowline('Sold · this year', sf ? moneyK(soldIn(yStart)) : '—', 'verify')}
@@ -242,7 +274,7 @@ function ledgersHtml(L, B) {
           <div class="rows" style="margin-top:8px">
             ${rowline('Waiting more than 60 days since signing', old60.length, old60.length ? 'clock' : '')}
             ${rowline('Material ordered or delivered', withMat == null ? '—' : `${withMat} of ${bl.length}`)}
-            ${rowline('Appointments · next 7 days', a7 ?? '—')}
+            ${rowline('Appointments · next 7 days', a7 == null ? '—' : `${a7}${a7Usual > 0 ? ` <span class="dimmer">· usual ${Math.round(a7Usual)}</span>` : ''}`)}
           </div>
         </div>
         <div>

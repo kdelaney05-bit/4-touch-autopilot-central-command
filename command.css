@@ -369,3 +369,7 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .trend.down { border-left-color: var(--red); } .trend.down b:last-child { color: var(--red); }
 .trend.up { border-left-color: var(--verify); } .trend.up b:last-child { color: var(--verify); }
 @media (max-width: 900px) { .cogrid { grid-template-columns: 1fr; } }
+
+/* ── page one: "compared to what" — one quiet line under a figure (15 Sep 2026) ── */
+.fig .cmp { font-family: var(--mono); font-size: 10.5px; letter-spacing: .02em; color: var(--dimmer); margin-top: 5px; }
+.fig .cmp.down { color: var(--red); } .fig .cmp.up { color: var(--verify); }
