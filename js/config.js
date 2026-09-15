@@ -56,8 +56,8 @@ export const askLabel = (a) => {
 export const ROOMS_BY_ROLE = {
   owner:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
   admin:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
-  manager: ['line', 'files'],       // the playground first (Kevin, 15 Sep night): the highway and the files, pieces added later
-  office:  ['line', 'files'],
+  manager: ['line', 'pipeline', 'files'],   // the playground (Kevin, 15 Sep night): the highway, the pipeline ("give them the pipeline and then the line") and the files; the other rooms come one at a time
+  office:  ['line', 'pipeline', 'files'],
   sales:   ['line', 'files'],
   crew:    [],
 };

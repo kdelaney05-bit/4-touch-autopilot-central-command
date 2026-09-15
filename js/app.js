@@ -1,20 +1,20 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=58';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=58';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=58';
-import { BRAND_BY_CC } from './config.js?v=58';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=58';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=58';
-import { renderHome } from './home.js?v=58';
-import { renderSales } from './sales.js?v=58';
-import { renderPipeline } from './pipeline.js?v=58';
-import { renderMarketing } from './marketing.js?v=58';
-import { renderOffice } from './office.js?v=58';
-import { renderProduction } from './production.js?v=58';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=58';
-import { stopRoomPoll } from './village.js?v=58';
-import { renderFlow, stopFlow } from './flow.js?v=58';
-import { startTour, tourWanted } from './tour.js?v=58';
+import * as api from './api.js?v=59';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=59';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=59';
+import { BRAND_BY_CC } from './config.js?v=59';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=59';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=59';
+import { renderHome } from './home.js?v=59';
+import { renderSales } from './sales.js?v=59';
+import { renderPipeline } from './pipeline.js?v=59';
+import { renderMarketing } from './marketing.js?v=59';
+import { renderOffice } from './office.js?v=59';
+import { renderProduction } from './production.js?v=59';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=59';
+import { stopRoomPoll } from './village.js?v=59';
+import { renderFlow, stopFlow } from './flow.js?v=59';
+import { startTour, tourWanted } from './tour.js?v=59';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -60,7 +60,8 @@ const ROLE_ORDER = { owner: 0, admin: 1, manager: 2, office: 3, sales: 4, crew: 
 function renderViewAs() {
   const el = $('#viewas'); if (!el) return;
   const real = state.realMe || state.me;
-  if (!real || !(KEYS.includes(real.id) || real.role === 'admin' || (isDemo() && real.role === 'owner'))) { el.hidden = true; el.innerHTML = ''; return; }
+  const filmOfTheirView = isDemo() && /[?&]as=/.test(location.search);   // ?demo=1&as=office is THEIR view — Kevin's picker stays off it
+  if (filmOfTheirView || !real || !(KEYS.includes(real.id) || real.role === 'admin' || (isDemo() && real.role === 'owner'))) { el.hidden = true; el.innerHTML = ''; return; }
   const people = (state.people || []).filter((p) => p.id !== real.id && p.role !== 'crew').slice().sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || String(a.name).localeCompare(String(b.name)));
   const cur = state.viewAsId || '';
   el.hidden = false;
