@@ -12,18 +12,19 @@
 // system lines, signatures (129/338), the fence job's stamps (336), the
 // signing notes (338) and the 811 tickets (341). Nothing here writes.
 // Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=34';
-import { state, isDemo, firstName } from './book.js?v=34';
-import { $, html, raw, esc } from './ui.js?v=34';
-import { brandName } from './config.js?v=34';
+import * as api from './api.js?v=35';
+import { state, isDemo, firstName } from './book.js?v=35';
+import { $, html, raw, esc } from './ui.js?v=35';
+import { brandName } from './config.js?v=35';
 
 const DAYS = 14;
 let timer = null;
 let brand = 'all';
 let q = '';
+let view = 'jobs';      // jobs | map
 let cache = null;
 
-import { STEPS, STEP_OF, thing, ICON, person, pace } from './words.js?v=34';
+import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=35';
 
 const PALETTE = [
   ['#1f6f4a', '#dff0e6'], ['#1d5fa8', '#e1e8f3'], ['#b45309', '#f6e3d6'], ['#0e7c86', '#dcf1f3'], ['#5b3a8f', '#ece5f6'],
@@ -178,6 +179,8 @@ function paint(root) {
       <div><div class="kicker">The job board · every sold job, where it is, what moved · refreshed ${at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
         <h1 class="serif">${cards.size} jobs moved in the last ${DAYS} days. ${moved} today.</h1></div>
       <div class="right subs">
+        <button class="sub ${view === 'jobs' ? 'on' : ''}" id="flow-jobs">The jobs</button>
+        <button class="sub ${view === 'map' ? 'on' : ''}" id="flow-map">How it works · who does what</button>
         <select id="flow-brand"><option value="all">All brands</option>${raw(brands.map((b) => `<option value="${esc(b)}" ${b === brand ? 'selected' : ''}>${esc(brandName(b))}</option>`).join(''))}</select>
         <input id="flow-q" placeholder="find a customer…" value="${q}" style="width:180px"/>
         ${isDemo() ? raw('<span class="chip demo">DEMO</span>') : ''}
@@ -189,11 +192,11 @@ function paint(root) {
     </div>
     <div class="note" style="margin:6px 2px 14px">A job walks these boxes left to right. The number is how many jobs are sitting in that box right now. The machine moves a job to the next box the moment the step before it is done; a person only supplies what the box asks for.</div>
 
-    <div class="flow">
-      ${raw([...cards.values()].map(card).join('') || '<div class="note">Nothing has moved in the last ' + DAYS + ' days.</div>')}
-    </div>`;
+    ${view === 'map' ? raw(mapHtml()) : raw(`<div class="flow">${[...cards.values()].map(card).join('') || '<div class="note">Nothing has moved in the last ' + DAYS + ' days.</div>'}</div>`)}`;
 
   $('#flow-brand').onchange = (e) => { brand = e.target.value; paint(root); };
+  $('#flow-jobs').onclick = () => { view = 'jobs'; paint(root); };
+  $('#flow-map').onclick = () => { view = 'map'; paint(root); };
   $('#flow-q').oninput = (e) => { q = e.target.value; paint(root); };
   const qi = $('#flow-q'); if (q) { qi.focus(); qi.setSelectionRange(q.length, q.length); }
   root.querySelectorAll('.fcard[data-cid]').forEach((el) => (el.querySelector('.fhead').onclick = () => window.__go('file', el.dataset.cid)));
@@ -221,4 +224,31 @@ function paint(root) {
     const mark = e.pid === 'customer' ? ICON.pen : e.cls === 'money' ? ICON.money : e.cls === 'done' ? ICON.done : e.cls === 'bad' ? ICON.bad : /^Email|^The sold packet/.test(e.body) ? ICON.mail : /handed/.test(e.body) ? ICON.handoff : (e.step && ICON[e.step]) || ICON.handoff;
     return `<div class="fline ${esc(e.cls || '')}" style="--c:${col.c};--cs:${col.cs}"><i class="mk">${mark}</i><i class="av">${esc(av)}</i><span class="b">${esc(e.body)}</span><span class="t">${esc(when(e.at))}</span></div>`;
   }
+}
+
+/* HOW IT WORKS — the lane as a map: each step, the person who holds it (from stage_seats, so
+   the office can change hands without a build), what the machine does, what the person does,
+   what the customer hears. */
+function seatFor(rule) {
+  const cc = brand === 'all' ? '1461' : brand;
+  if (rule === 'rep') return { name: 'The rep who sold it', id: 'rep' };
+  if (rule === 'locate') { const d = (state.people || []).find((p) => /^diana@/i.test(p.email || '')) || (state.seats || []).find((p) => /^diana@/i.test(p.email || '')); return d ? { name: d.name, id: d.id } : seatFor('sold_office'); }
+  const rows = (state.stageSeats || []).filter((s) => s.stage === rule);
+  const r = rows.find((s) => s.cc_company_id === cc) || rows[0];
+  const id = rule === 'production' ? (r?.watcher_id || r?.owner_id) : (r?.owner_id || r?.watcher_id);
+  const p = id && ((state.seats || []).find((x) => x.id === id) || (state.people || []).find((x) => x.id === id));
+  return p ? { name: p.name, id: p.id } : { name: 'The office', id: null };
+}
+function mapHtml() {
+  const rows = MAP.map((m, i) => {
+    const st = STEPS.find((s) => s.key === m.key); const who = seatFor(m.seat); const col = colorFor(who.id);
+    return `<div class="mrow">
+      <div class="mstep"><div class="mic">${ICON[m.key]}</div><div class="mn">${i + 1}</div><div class="ml">${esc(st.label)}</div></div>
+      <div class="mwho" style="--c:${col.c};--cs:${col.cs}"><i class="av">${esc(who.id === 'rep' ? 'REP' : initials(who.name))}</i><div><div class="mwn">${esc(who.name)}</div><div class="mwh">holds this step</div></div></div>
+      <div class="mcol"><div class="mk gold">The machine</div><ul>${m.machine.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="mcol"><div class="mk">${esc(who.id === 'rep' ? 'The rep' : who.id ? firstName(who.name) : 'The office')}</div><ul>${m.person.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="mcol"><div class="mk">The customer</div><div class="mcust">${esc(m.customer)}</div></div>
+    </div>`;
+  }).join('');
+  return `<div class="note" style="margin:0 2px 12px">Left to right: the step, who holds it, what the machine does by itself, the one thing that person supplies, and what the customer hears. Hands come from the seats table in the Office room — change a seat there and this map follows.</div><div class="map">${rows}</div>`;
 }

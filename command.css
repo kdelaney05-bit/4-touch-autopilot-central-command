@@ -282,3 +282,11 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .ai { display: inline-flex; vertical-align: middle; margin-right: 6px; color: var(--dim); } .ai svg { width: 15px; height: 15px; }
 .mile .u { font-family: var(--mono); font-size: 9.5px; color: var(--dimmer); margin-top: 3px; letter-spacing: .04em; }
 .fwhere .slow { color: var(--clock); font-weight: 600; }
+.map { display: flex; flex-direction: column; gap: 8px; }
+.mrow { display: grid; grid-template-columns: 96px 190px 1.3fr 1fr 1fr; gap: 14px; align-items: start; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.mstep { text-align: center; color: var(--ink); } .mic { color: var(--gold); } .mic svg { width: 26px; height: 26px; } .mn { font-family: var(--mono); font-size: 10px; color: var(--dimmer); } .ml { font-weight: 700; font-size: 13px; }
+.mwho { display: flex; gap: 8px; align-items: center; border-left: 4px solid var(--c); background: var(--cs); border-radius: 10px; padding: 8px 10px; }
+.mwho .av { width: 28px; height: 28px; font-size: 10px; } .mwn { font-weight: 700; font-size: 13.5px; } .mwh { font-size: 11px; color: var(--dimmer); }
+.mk { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dimmer); margin-bottom: 4px; } .mk.gold { color: var(--gold); }
+.mcol ul { margin: 0; padding-left: 16px; font-size: 13px; line-height: 1.4; } .mcol li { margin-bottom: 3px; } .mcust { font-size: 13px; line-height: 1.4; color: var(--dim); }
+@media (max-width: 900px) { .mrow { grid-template-columns: 80px 1fr; } .mcol, .mwho { grid-column: 1 / -1; } }
