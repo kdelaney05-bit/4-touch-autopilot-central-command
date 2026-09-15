@@ -20,6 +20,10 @@ second door onto the same work, not a replacement, until Kevin says so.
   answer right now, and your Tagged-for-you list.
 - **Sales** — the owner console's Sales section, live, plus the customers
   waiting on a rep. Doors to the rep app and Jermey's commercial desk.
+- **Pipeline** — every rep's book on the selling side, broken down by
+  stage the way the rep app files it: new leads, upcoming appointments, in
+  touches (the 4-Touch clock), estimate out, signed, lost. Pick a rep, tap a
+  customer, the file opens beside you.
 - **Marketing** — the owner console's Marketing section, live.
 - **Office** — every ask the field is waiting on, oldest first. An ask closes
   only on its input (the permit number, the photos, the date) and that input
