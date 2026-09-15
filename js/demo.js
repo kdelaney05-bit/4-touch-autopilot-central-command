@@ -6,7 +6,7 @@ const ago = (h) => new Date(now - h * 3600e3).toISOString();
 const day = (d) => new Date(now - d * 864e5).toISOString().slice(0, 10);
 const rep = (id, name, role = 'sales') => ({ id, name, role });
 const SEATS = [rep('k', 'Kevin Delaney', 'owner'), rep('g', 'Gio Calderin', 'owner'), rep('jc', 'Jessica Coley', 'manager'), rep('sam', 'Samantha White', 'office'),
-  rep('laura', 'Laura Schepp', 'office'), rep('jon', 'Jonathan Garcia', 'office'), rep('luis', 'Luis Gonzalez', 'manager'), rep('obed', 'Obed Santiago', 'manager'), rep('ger', 'Gerardo Costas', 'manager')];
+  rep('laura', 'Laura Schepp', 'office'), rep('jo', 'Jessica Oasis', 'manager'), rep('jon', 'Jonathan Garcia', 'office'), rep('luis', 'Luis Gonzalez', 'manager'), rep('obed', 'Obed Santiago', 'manager'), rep('ger', 'Gerardo Costas', 'manager')];
 const me = SEATS[0];
 
 const job = (o) => ({ job_id: o.id, cc_project_id: 'P' + o.id, cc_company_id: o.cc || '1461', customer_id: 'c' + o.id, customer_name: o.name, customer_phone: '(321) 555-0' + String(100 + Number(o.id.replace(/\D/g, ''))).slice(-3),
@@ -131,7 +131,7 @@ const EST = [{ customer_id: 'cp8', amount: 7800, occurred_at: ago(28) }, { custo
 function book() {
   const people = [...SEATS.map((s) => ({ ...s, initials: null, sms_from: null })),
     ...[...new Map(BOARD.map((b) => [b.rep_id, b.rep_name])).entries()].map(([id, name]) => ({ id, name, role: 'sales', initials: null, sms_from: id === 'r1' ? '+13863023131' : null }))];
-  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [{ cc_company_id: '1461', stage: 'sold_office', owner_id: 'sam', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'schedule', owner_id: 'jon', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'production', owner_id: null, watcher_id: 'luis' }, { cc_company_id: '1461', stage: 'invoiced', owner_id: 'laura', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'field_complete', owner_id: 'laura', watcher_id: 'jc' }], board: BOARD, queue: QUEUE, clock: CLOCK, pipeline: PIPE, estimates: EST,
+  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [{ cc_company_id: '1461', stage: 'sold_office', owner_id: 'sam', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'schedule', owner_id: 'jon', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'production', owner_id: null, watcher_id: 'luis' }, { cc_company_id: '1461', stage: 'invoiced', owner_id: 'laura', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'field_complete', owner_id: 'laura', watcher_id: 'jc' }], board: BOARD, queue: QUEUE, clock: CLOCK, pipeline: PIPE, estimates: EST, direct: DIRECT,
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
@@ -187,8 +187,22 @@ function file(customerId) {
 }
 
 function search(q) {
-  const s = q.toLowerCase();
-  return BOARD.filter((b) => b.customer_name.toLowerCase().includes(s)).map((b) => ({ id: b.customer_id, name: b.customer_name, phone: b.customer_phone })).slice(0, 8);
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  return BOARD.filter((b) => words.every((w) => b.customer_name.toLowerCase().includes(w))).map((b) => ({ id: b.customer_id, name: b.customer_name, phone: b.customer_phone, updated_at: b.stage_since })).slice(0, 8);
 }
 
-export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE };
+/* 346: direct lines — two fictional ones for the demo, and their threads. */
+const DIRECT = [
+  { other_id: 'jc', other_name: 'Jessica Coley', other_role: 'manager', other_initials: 'JC', last_at: ago(0.3), last_body: "That's the part I like — I didn't have to retype it anywhere.", last_from: 'jc', unseen: 1 },
+  { other_id: 'obed', other_name: 'Obed Santiago', other_role: 'manager', other_initials: 'OS', last_at: ago(5), last_body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', last_from: 'k', unseen: 0 },
+];
+const DM = {
+  jc: [
+    { id: 1, from_id: 'jc', to_id: 'k', body: "Sandoval moved again. Third time. I don't want to be the one who tells a customer no.", created_at: ago(0.5) },
+    { id: 2, from_id: 'k', to_id: 'jc', body: "You're not telling him no, you're telling him the crew costs us a day. Hold the deposit, offer the 24th, and put it on his file so Obed sees it without asking you.", created_at: ago(0.4) },
+    { id: 3, from_id: 'jc', to_id: 'k', body: "That's the part I like — I didn't have to retype it anywhere.", created_at: ago(0.3) },
+  ],
+  obed: [{ id: 4, from_id: 'k', to_id: 'obed', body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', created_at: ago(5) }],
+};
+const dm = (other) => DM[other] || [];
+export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm };

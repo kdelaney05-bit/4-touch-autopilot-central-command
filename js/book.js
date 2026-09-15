@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=46';
-import { DEMO } from './demo.js?v=46';
+import * as api from './api.js?v=51';
+import { DEMO } from './demo.js?v=51';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -22,6 +22,7 @@ export const state = {
   people: [],          // every active rep/seat: id, name, initials, role, sms_from — who a bubble can be
   pipeline: [],        // jobs on the selling side (appointment in 90 days, or signed in 60) with the customer embedded — the Pipeline room
   estimates: [],       // estimates, last 90 days — a price on file puts a customer in Estimate out
+  direct: null,        // v_direct_lines (346) — my direct lines; null until the migration is on live
   touches: [],         // touches, last 90 days — the last time a rep worked a customer; the Pipeline room's worked / cooling / unworked split
   warnings: [],
   loadedAt: null,
@@ -35,7 +36,7 @@ export async function loadAll() {
   const s = api.getSession();
   const since30 = new Date(Date.now() - 30 * 86400e3).toISOString();
   const since90 = new Date(Date.now() - 90 * 86400e3).toISOString(), since60 = new Date(Date.now() - 60 * 86400e3).toISOString();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches] = await Promise.all([
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role,email&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -59,8 +60,10 @@ export async function loadAll() {
     api.page(`estimates?select=customer_id,rep_id,amount,occurred_at&occurred_at=gte.${since90}&order=occurred_at.desc`, 4000).catch(() => []),
     // the Pipeline room's "is he working it": the last touch per customer (touches has no RLS; every seat reads it)
     api.page(`touches?select=customer_id,rep_id,occurred_at,channel&occurred_at=gte.${since90}&order=occurred_at.desc`, 8000).catch(() => []),
+    // 346: direct lines. null (not []) when the view is not on live yet, so the rail can say so instead of reading empty.
+    api.page('v_direct_lines?select=*&order=last_at.desc', 200).catch(() => null),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
@@ -183,11 +186,44 @@ export async function addDoc(job, threadId, lane, file, label) {
   const up = await uploadDoc(job, lane, file);
   return api.insert('thread_attachments', { thread_id: threadId, lane, source: 'storage', storage_path: up.storage_path, label: label || file.name, added_by: api.getSession().repId });
 }
+/* 346: a direct line — the thread with one person, a message to them, and 'seen'. */
+export async function directThread(otherId) {
+  if (isDemo()) return DEMO.dm(otherId);
+  const me = api.getSession().repId;
+  return api.page(`direct_messages?select=id,from_id,to_id,body,created_at,seen_at&or=(and(from_id.eq.${me},to_id.eq.${otherId}),and(from_id.eq.${otherId},to_id.eq.${me}))&order=created_at.asc`, 2000);
+}
+export async function sendDirect(toId, body) { guard(); return api.insert('direct_messages', { from_id: api.getSession().repId, to_id: toId, body }, false); }
+export async function directSeen(fromId) { if (isDemo()) return 0; return api.rpc('direct_seen', { p_from: fromId }).catch(() => 0); }
+/* THE HANDLE — 312's mention_resolve takes "@First" or "@First Last". Two active
+   Jessicas (Coley · Oasis) made a bare "@Jessica" a coin flip on 15 Sep, so a
+   first name shared by more than one active seat is written with the last
+   name. The server resolves the two-word form exactly. */
+export function mentionHandle(person) {
+  const f = firstName(person?.name || '');
+  if (!f) return '';
+  const dup = (state.people || []).filter((p) => p.id !== person.id && firstName(p.name).toLowerCase() === f.toLowerCase()).length > 0;
+  const last = String(person.name || '').trim().split(/\s+/).slice(1).join(' ');
+  return '@' + (dup && last ? f + ' ' + last : f);
+}
+/* People a line can go to: every active seat but me. Name match, first or last. */
+export function searchPeople(q) {
+  const term = q.trim().toLowerCase();
+  if (term.length < 2) return [];
+  return (state.people || []).filter((p) => p.id !== state.me?.id && String(p.name || '').toLowerCase().includes(term)).slice(0, 6);
+}
 export async function searchCustomers(q) {
   if (isDemo()) return DEMO.search(q);
   const term = q.trim();
   if (term.length < 2) return [];
   const digits = term.replace(/\D/g, '');
-  const filter = digits.length >= 4 ? `phone.ilike.*${digits}*` : `name.ilike.*${encodeURIComponent(term)}*`;
-  return api.page(`customers?select=id,name,phone&or=(${filter})&limit=12`, 12);
+  // Kevin, 15 Sep: "a drop down box either by their address or last name… a thousand ways to quickly get this out."
+  // A number is a phone; anything else matches the name OR the street, and the row says which so a "Cox" is not a surprise.
+  // Kevin, 15 Sep, eleven Delaneys deep: "Delaney beta" must find "Delaney, Kev beta" — so every word matches on its
+  // own (name OR street), the newest file comes first, and the row carries the street and the date to tell twins apart.
+  const words = term.split(/\s+/).filter(Boolean).slice(0, 4).map((w) => encodeURIComponent(w.replace(/[,()]/g, '')));
+  const filter = digits.length >= 4
+    ? `phone.ilike.*${digits}*`
+    : words.length === 1 ? `name.ilike.*${words[0]}*,street.ilike.*${words[0]}*` : null;
+  const where = filter ? `or=(${filter})` : `and=(${words.map((w) => `or(name.ilike.*${w}*,street.ilike.*${w}*)`).join(',')})`;
+  return api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=20`, 20);
 }

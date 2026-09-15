@@ -13,10 +13,11 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName } from './book.js?v=46';
-import { html, raw, esc } from './ui.js?v=46';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=46';
-import { renderRoom } from './village.js?v=46';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=51';
+import { toast } from './ui.js?v=51';
+import { html, raw, esc } from './ui.js?v=51';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=51';
+import { renderRoom } from './village.js?v=51';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -43,11 +44,57 @@ const BUCKETS = [
 ];
 const bucketOf = (text) => (BUCKETS.find(([, re]) => re.test(text)) || [null])[0];
 
-let pane = 'up';          // 'up' · 'wait' · 'room:office' …
+let pane = 'up';          // 'up' · 'wait' · 'room:office' · 'dm:<rep id>'
+let lastRoot = null;
+/* THE LANE — Jess, 14 Sep, on the Uvoice ticket: "How can I only receive
+   texts that I need (office lines)? I am still getting every text from
+   sales." The Jetstream picture's who-sees-what table says the same thing in
+   rules: Sam sees files at an office step plus any file she is tagged on;
+   Luis sees files at scheduling or later plus his tags; a rep his own book.
+   Open by default still stands — Everything is one tap away — but a seat
+   LANDS on its own lane, so the rail is theirs before it is everybody's. */
+let lane = null;          // 'all' · 'mine' — null = the seat's default
+const OFFICE_STAGES = ['sold_office', 'invoiced', 'paid'];
+const PROD_STAGES = ['sold_office', 'production', 'field_complete', 'invoiced'];
+function laneDefault() { const r = state.me?.role; return (r === 'owner' || r === 'admin') ? 'all' : 'mine'; }
+function laneWords() {
+  const r = state.me?.role;
+  if (r === 'office') return 'files at an office step, plus anything you are tagged on';
+  if (r === 'manager') return 'files at scheduling or later, plus anything you are tagged on';
+  if (r === 'sales') return 'your own book, plus anything you are tagged on';
+  return 'files you hold, plus anything you are tagged on';
+}
+function laneSet() {
+  const r = state.me?.role, me = state.me?.id, S = new Set();
+  const stages = r === 'office' ? OFFICE_STAGES : r === 'manager' ? PROD_STAGES : null;
+  for (const b of state.board || []) {
+    if (stages && stages.includes(b.stage)) S.add(b.customer_id);
+    if (b.rep_id === me || b.owner_id === me || b.supervisor_id === me) S.add(b.customer_id);
+  }
+  for (const q of state.queue || []) if (q.assignee_id === me || (r === 'office' && q.lane === 'OFFICE')) S.add(q.customer_id);
+  for (const m of state.mentions || []) if (m.customer_id) S.add(m.customer_id);
+  for (const c of state.clock || []) if (c.rep_id === me || c.owner_id === me) S.add(c.customer_id);
+  return S;
+}
+let dmTimer = null;       // the open line polls; leaving the room stops it (app.js go())
+
+export function stopLinePoll() { if (dmTimer) clearInterval(dmTimer); dmTimer = null; }
+
+/* 346: open a direct line with one person, from anywhere (the top box, the rail, a push). */
+export function openLine(personId) {
+  pane = 'dm:' + personId;
+  if (lastRoot && lastRoot.isConnected && !lastRoot.classList.contains('hidden')) renderSwitchboard(lastRoot);
+  else window.__go('line');
+}
+window.__line = openLine;
 
 export function renderSwitchboard(root) {
+  lastRoot = root;
+  stopLinePoll();
   const me = state.me || {};
-  const C = (state.clock || []).slice().sort((a, b) => (b.waiting_min || 0) - (a.waiting_min || 0));
+  if (lane === null) lane = laneDefault();
+  const inLane = lane === 'all' ? null : laneSet();
+  const C = (state.clock || []).filter((c) => !inLane || inLane.has(c.customer_id)).sort((a, b) => (b.waiting_min || 0) - (a.waiting_min || 0));
   const waiting = C.filter((c) => (c.waiting_min || 0) >= 15);
   const tagged = (state.mentions || []).filter((m) => !m.seen_at);
   const mine = (state.queue || []).filter((q) => q.assignee_id === me.id);
@@ -59,6 +106,7 @@ export function renderSwitchboard(root) {
         <h1 class="serif">Nobody has to hunt, and nothing gets to sit.</h1></div>
       <div class="right">${isDemo() ? raw('<span class="chip demo">DEMO · FICTIONAL BOOK</span>') : raw('<span class="chip">LIVE · DB</span>')}</div>
     </div>
+    ${raw(sayItHTML())}
     ${raw(stuckCard(C, waiting))}
     <div class="line-wrap">
       <div class="line-rail" id="line-rail">${raw(railHTML(upN, waiting, tagged, mine, C))}</div>
@@ -66,6 +114,9 @@ export function renderSwitchboard(root) {
     </div>`;
 
   root.querySelectorAll('[data-pane]').forEach((b) => (b.onclick = () => { pane = b.dataset.pane; renderSwitchboard(root); }));
+  root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
+  wireSayIt(root);
+  wirePeopleFind(root);
   paintPane(root, { waiting, tagged, mine, C });
 }
 
@@ -120,6 +171,8 @@ function stuckCard(C, waiting) {
 
 /* ── the rail ───────────────────────────────────────────────────────────── */
 function railHTML(upN, waiting, tagged, mine, C) {
+  const laneBar = `<div class="line-lane"><button class="sub ${lane === 'mine' ? 'on' : ''}" data-lane="mine">My lane</button><button class="sub ${lane === 'all' ? 'on' : ''}" data-lane="all">Everything</button></div>`
+    + `<div class="small" style="padding:0 12px 6px">${lane === 'mine' ? esc(laneWords()) : 'every file, every room — open by default'}</div>`;
   const rooms = [['office', 'The Office room'], ['production', 'The Production room'], ['village', 'The Village'], ['sales', 'Sales hype']];
   const recent = C.slice().sort((a, b) => new Date(b.occurred_at || 0) - new Date(a.occurred_at || 0)).slice(0, 8);
   const grp = (label, note, body) => `<div class="line-grp"><div class="kicker"><span>${esc(label)}</span><span>${esc(note)}</span></div>${body}</div>`;
@@ -128,12 +181,13 @@ function railHTML(upN, waiting, tagged, mine, C) {
     + `<span><span class="nm">${esc(nm)}</span><span class="pv">${esc(pv)}</span></span>`
     + (badge ? `<span class="line-badge">${esc(badge)}</span>` : '') + '</button>';
 
-  return grp('You\'re up', upN ? upN + ' waiting' : 'clear',
+  return laneBar + grp('You\'re up', upN ? upN + ' waiting' : 'clear',
       item(pane === 'up', 'up', '!', 'Everything waiting on you', tagged.length ? firstName(tagged[0].author_name || '') + ' tagged you' : (mine.length ? mine.length + ' asks on you' : 'nothing owed'), upN || '', 'gold'))
     + grp('Nothing goes unanswered', 'everyone sees',
       item(pane === 'wait', 'wait', '∅', 'Customers with no answer', waiting.length ? 'oldest ' + mins(waiting[0].waiting_min) : 'everybody answered', waiting.length || '', waiting.some((c) => tier(c.waiting_min) === 'all') ? 'red' : ''))
     + grp('Rooms', 'anybody helps',
       rooms.map(([k, label]) => item(pane === 'room:' + k, 'room:' + k, k.slice(0, 2).toUpperCase(), label, k === 'sales' ? 'the reps’ own thread' : 'staff only', '', k === 'office' ? 'blue' : k === 'production' ? 'orange' : k === 'sales' ? 'green' : 'gold')).join(''))
+    + grp('People', state.direct === null ? 'not on live yet' : 'direct lines', peopleRail())
     + grp('Lately', 'last to speak',
       recent.length ? recent.map((c) => `<button class="line-item" onclick="__peek('${esc(c.customer_id)}')">`
         + `<span class="line-av">${esc((firstName(c.customer_name) || '?').slice(0, 2).toUpperCase())}</span>`
@@ -146,6 +200,7 @@ function paintPane(root, d) {
   const el = root.querySelector('#line-pane');
   if (!el) return;
   if (pane.startsWith('room:')) { renderRoom(el, pane.slice(5)); return; }
+  if (pane.startsWith('dm:')) { renderLine(el, pane.slice(3)); return; }
   if (pane === 'wait') { el.innerHTML = waitHTML(d.waiting); return; }
   el.innerHTML = upHTML(d);
 }
@@ -195,4 +250,214 @@ function upHTML({ tagged, mine, waiting }) {
         <span class="mono ${q.open_min > 4320 ? 'red' : q.open_min > 1440 ? 'clock' : 'dimmer'}">${esc(mins(q.open_min))}</span>
       </button>`).join('')) : ''}
   </div>`;
+}
+
+
+/* ── 346: direct lines ─────────────────────────────────────────────────────
+   The one private thread in the system. Readable by the two people on it and
+   the owner (RLS, not the page). The rail lists the lines that exist; the
+   box under them starts a new one with anybody who has a seat. */
+function peopleRail() {
+  const D = state.direct;
+  const box = `<div class="line-find"><input data-person-find placeholder="Message anyone… a name" autocomplete="off"/><div class="line-find-pop" data-person-pop hidden></div></div>`;
+  if (D === null) return box + '<div class="small" style="padding:4px 10px 6px">Direct lines arrive with migration 346. Until it is on live this box finds people but cannot send.</div>';
+  const rows = (D || []).map((d) => {
+    const mine = d.last_from === state.me?.id;
+    return `<button class="line-item ${pane === 'dm:' + d.other_id ? 'on' : ''}" data-pane="dm:${esc(d.other_id)}">`
+      + `<span class="line-av blue">${esc(d.other_initials || (firstName(d.other_name) || '?').slice(0, 2).toUpperCase())}</span>`
+      + `<span><span class="nm">${esc(personName(d.other_name))}</span><span class="pv">${mine ? 'you: ' : ''}${esc(String(d.last_body || '').slice(0, 48))}</span></span>`
+      + (Number(d.unseen) ? `<span class="line-badge">${esc(d.unseen)}</span>` : '') + '</button>';
+  }).join('');
+  return box + (rows || '<div class="small" style="padding:4px 10px 6px">No lines yet. Type a name above.</div>');
+}
+
+/* wired once per paint — the rail is rebuilt on every click */
+function wirePeopleFind(root) {
+  const find = root.querySelector('[data-person-find]');
+  const pop = root.querySelector('[data-person-pop]');
+  if (!find || !pop) return;
+  const close = () => { pop.hidden = true; pop.innerHTML = ''; };
+  find.addEventListener('input', () => {
+    const rows = searchPeople(find.value);
+    if (!rows.length) { close(); return; }
+    pop.innerHTML = rows.map((p) => `<button class="line-item" data-open-line="${esc(p.id)}"><span class="line-av blue">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(p.name)}</span><span class="pv">${esc(p.role || '')}</span></span></button>`).join('');
+    pop.hidden = false;
+    pop.querySelectorAll('[data-open-line]').forEach((b) => (b.onclick = () => { close(); find.value = ''; openLine(b.dataset.openLine); }));
+  });
+  find.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { close(); find.blur(); }
+    if (e.key === 'Enter') { const first = pop.querySelector('[data-open-line]'); if (first) first.click(); }
+  });
+}
+
+const whenShort = (iso) => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+async function renderLine(el, otherId) {
+  const me = state.me || {};
+  const other = (state.people || []).find((p) => p.id === otherId) || (state.direct || []).map((d) => ({ id: d.other_id, name: d.other_name, role: d.other_role, initials: d.other_initials })).find((p) => p.id === otherId) || { id: otherId, name: 'A seat', role: '' };
+  el.innerHTML = `<div class="card line-dm">
+    <div class="head" style="margin-bottom:6px">
+      <div><div class="kicker">Direct line · just the two of you${['owner'].includes(me.role) ? '' : ', and Kevin'}</div>
+        <h3 class="serif" style="font-size:20px;margin-top:2px">${esc(personName(other.name))} <span class="small">· ${esc(other.role || '')}</span></h3></div>
+      <span class="small">About a job? Put it on the customer's file instead — then everybody has it.</span>
+    </div>
+    <div class="room-list" data-dm-list><div class="empty">Opening the line…</div></div>
+    <div class="composer">
+      <textarea data-dm-say placeholder="Say it to ${esc(firstName(other.name) || 'them')}…"></textarea>
+      <button class="btn fill" data-dm-send>Send</button>
+    </div>
+    <div class="small">Ctrl+Enter sends. They get a push on their phone. Nothing here is ever deleted.</div>
+  </div>`;
+  const list = el.querySelector('[data-dm-list]');
+  const say = el.querySelector('[data-dm-say]');
+  const send = el.querySelector('[data-dm-send]');
+  let newest = null;
+
+  const paintThread = async (quiet) => {
+    let rows = [];
+    try { rows = await directThread(otherId); }
+    catch (e) { if (!quiet) list.innerHTML = `<div class="empty">${esc(e.message || 'The line would not open')}</div>`; return; }
+    const last = rows.length ? rows[rows.length - 1].id : null;
+    if (quiet && last === newest) return;
+    newest = last;
+    list.innerHTML = rows.length ? rows.map((m) => {
+      const mine = m.from_id === me.id;
+      return `<div class="roomrow ${mine ? 'out' : ''}"><span class="ini">${esc(mine ? (me.initials || firstName(me.name) || 'me').slice(0, 2).toUpperCase() : (other.initials || firstName(other.name) || '?').slice(0, 2).toUpperCase())}</span>`
+        + `<div class="msg ${mine ? 'out' : 'in'}"><div class="who">${esc(mine ? 'You' : firstName(other.name))} · ${esc(whenShort(m.created_at))}</div><div class="say">${esc(m.body)}</div></div></div>`;
+    }).join('') : '<div class="empty">Nothing on this line yet. Say the first thing.</div>';
+    list.scrollTop = list.scrollHeight;
+  };
+
+  await paintThread(false);
+  // opening the line is reading it: mark theirs seen, and take the badge off the rail without a reload
+  const d = (state.direct || []).find((x) => x.other_id === otherId);
+  if (d && Number(d.unseen)) { d.unseen = 0; directSeen(otherId); const b = el.closest('.line-wrap')?.querySelector(`[data-pane="dm:${CSS.escape(otherId)}"] .line-badge`); if (b) b.remove(); }
+
+  let busy = false;                      // ref-style guard (b80): the render is not the lock
+  const post = async () => {
+    const body = (say.value || '').trim();
+    if (!body || busy) return;
+    if (isDemo()) { toast('Demo — nothing is saved'); return; }
+    busy = true; send.disabled = true;
+    try { await sendDirect(otherId, body); say.value = ''; await paintThread(false); }
+    catch (e) { toast(e.message || 'It did not go through', 'err'); }
+    finally { busy = false; send.disabled = false; }
+  };
+  send.onclick = post;
+  say.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post(); });
+  stopLinePoll();
+  dmTimer = setInterval(() => { if (!el.isConnected) { stopLinePoll(); return; } paintThread(true); }, 15000);
+}
+
+
+/* ── SAY IT — one box at the top of The Line ───────────────────────────────
+   Kevin, 15 Sep, after the Jess texting thread (308): "you should have the
+   ability to send it to whichever employee you want about whichever customer
+   you pick… a drop down box either by their address or last name… a thousand
+   ways to quickly get this out."
+   Pick the customer (last name · address · phone). Then either lane:
+     a PERSON  → the note lands on that customer's file with @First, and 312
+                 does the rest — the push and their Tagged list. Same rail as
+                 the file's own tag box, without opening the file.
+     the CUSTOMER → a text from the brand's approved line (file_text_queue,
+                 311), with Jess's office lines (308) as one-tap presets. It is
+                 a draft until Send, and the file opens after so the six-second
+                 undo is right there.
+   Nothing here is a new write: both doors already existed on the file. */
+let say = { cust: null, lane: 'person', to: '', text: '', lines: [] };
+
+function sayItHTML() {
+  const me = state.me || {};
+  const people = (state.people || []).filter((p) => p.id !== me.id);
+  const roles = [['@office', '@office · the office seat'], ['@schedule', '@schedule · scheduling'], ['@production', '@production · the supervisor'], ['@rep', '@rep · who sold it'], ['@invoice', '@invoice · billing']];
+  const c = say.cust;
+  const who = c ? `<span class="chip cust">on ${esc(personName(c.name))}${c.street ? ' · ' + esc(c.street) : ''}${c.city ? ', ' + esc(c.city) : ''}</span><button class="btn sm" data-say-clear>Change</button>`
+                : `<input data-say-find placeholder="Who is it about — last name, address, or phone" autocomplete="off"/><div class="line-find-pop" data-say-pop hidden></div>`;
+  const toOpts = `<option value="">— pick who —</option>` + roles.map(([v, l]) => `<option value="${v}" ${say.to === v ? 'selected' : ''}>${esc(l)}</option>`).join('')
+    + people.map((p) => `<option value="id:${esc(p.id)}" ${say.to === 'id:' + p.id ? 'selected' : ''}>${esc(mentionHandle(p))} · ${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</option>`).join('');
+  const presets = say.lane === 'customer' && c
+    ? `<div class="say-presets">${(say.lines || []).map((l) => `<button class="sub" data-say-line="${esc(l.key)}" title="${esc(l.body)}">${esc(l.label)}</button>`).join('') || '<span class="small">Reading the office lines…</span>'}</div>` : '';
+  const law = say.lane === 'customer'
+    ? (c ? `Goes to ${esc(firstName(c.name) || 'them')} as a text from the brand's approved line. A draft until Send; the file opens after with six seconds to take it back.` : 'Pick the customer first.')
+    : (c ? `Lands on ${esc(personName(c.name))}'s file as a note. Whoever you pick gets a push and it sits in their You're up until they open it. The customer never sees this.` : 'Pick the customer first — every word here lands on a file.');
+  return `<div class="card say" id="line-say">
+    <div class="head" style="margin-bottom:8px"><div class="kicker">Say it · to anyone, about any customer, from here</div><span class="small">${isDemo() ? 'demo — nothing sends' : 'texts from the brand line · notes with a push'}</span></div>
+    <div class="say-row"><span class="kicker">About</span><div class="say-who">${who}</div></div>
+    <div class="say-row"><span class="kicker">To</span>
+      <div class="lanes" style="margin:0">
+        <button class="lanebtn ${say.lane === 'person' ? 'on' : ''}" data-say-lane="person">A person</button>
+        <button class="lanebtn ${say.lane === 'customer' ? 'on' : ''}" data-say-lane="customer">The customer</button>
+        ${say.lane === 'person' ? `<select data-say-to style="width:auto;padding:5px 8px;font-size:12px">${toOpts}</select>` : ''}
+      </div></div>
+    ${presets}
+    <div class="composer" style="border:0;padding:0;background:transparent">
+      <textarea data-say-text placeholder="${say.lane === 'customer' ? 'The text…' : 'permit is in, ready to schedule · take this one · customer asked for you'}">${esc(say.text)}</textarea>
+      <button class="btn ${say.lane === 'customer' ? 'fill' : ''}" data-say-send ${c ? '' : 'disabled'}>${say.lane === 'customer' ? 'Send the text' : 'Post it'}</button>
+    </div>
+    <div class="small">${law} Ctrl+Enter sends.</div>
+  </div>`;
+}
+
+function wireSayIt(root) {
+  const box = root.querySelector('#line-say'); if (!box) return;
+  const repaint = () => { box.outerHTML = sayItHTML(); wireSayIt(root); };
+  const find = box.querySelector('[data-say-find]'), pop = box.querySelector('[data-say-pop]');
+  let t = null;
+  if (find) {
+    find.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(async () => {
+        const q = find.value.trim(); if (q.length < 2) { pop.hidden = true; return; }
+        let rows = []; try { rows = await searchCustomers(q); } catch (e) { toast(e.message, 'err'); return; }
+        pop.innerHTML = rows.length ? rows.map((r) => `<button class="line-item" data-say-pick="${esc(r.id)}" data-name="${esc(r.name)}" data-street="${esc(r.street || '')}" data-city="${esc(r.city || '')}">`
+          + `<span class="line-av">${esc((firstName(r.name) || '?').slice(0, 2).toUpperCase())}</span>`
+          + `<span><span class="nm">${esc(personName(r.name))}</span><span class="pv">${esc(r.street || r.phone || '')}${r.city ? ' · ' + esc(r.city) : ''}${r.updated_at ? ' · ' + esc(new Date(r.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : ''}</span></span></button>`).join('')
+          : '<div class="small" style="padding:6px 10px">Nobody by that name, address or number</div>';
+        pop.hidden = false;
+        pop.querySelectorAll('[data-say-pick]').forEach((b) => (b.onclick = async () => {
+          say.cust = { id: b.dataset.sayPick, name: b.dataset.name, street: b.dataset.street, city: b.dataset.city };
+          say.lines = [];
+          repaint();
+          try { say.lines = await linePreview(say.cust.id); } catch { say.lines = []; }
+          if (say.lane === 'customer') repaint();
+        }));
+      }, 220);
+    });
+    find.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const f = pop.querySelector('[data-say-pick]'); if (f) f.click(); } if (e.key === 'Escape') { pop.hidden = true; } });
+  }
+  box.querySelector('[data-say-clear]')?.addEventListener('click', () => { say.cust = null; say.lines = []; repaint(); });
+  box.querySelectorAll('[data-say-lane]').forEach((b) => (b.onclick = () => { say.lane = b.dataset.sayLane; repaint(); }));
+  box.querySelector('[data-say-to]')?.addEventListener('change', (e) => { say.to = e.target.value; });
+  const text = box.querySelector('[data-say-text]');
+  text.addEventListener('input', () => { say.text = text.value; });
+  box.querySelectorAll('[data-say-line]').forEach((b) => (b.onclick = () => { const l = (say.lines || []).find((x) => x.key === b.dataset.sayLine); if (l) { say.text = l.body; text.value = l.body; text.focus(); } }));
+
+  let busy = false;                        // ref-style guard (b80): the render is not the lock
+  const send = async () => {
+    const c = say.cust, body = (text.value || '').trim();
+    if (!c || !body || busy) return;
+    if (isDemo()) { toast('Demo — nothing is saved'); return; }
+    busy = true; const btn = box.querySelector('[data-say-send]'); btn.disabled = true;
+    try {
+      if (say.lane === 'customer') {
+        await textCustomer(c.id, body);
+        toast(`Queued to ${firstName(c.name) || 'them'} from the brand line · six seconds to take it back`);
+      } else {
+        const f = await loadFile(c.id);
+        let tid = f.thread?.id;
+        if (!tid) { if (!f.job?.job_id) throw new Error('No job on this file yet — open the file and start it there'); tid = await threadForJob(f.job.job_id); }
+        // a person is picked by id; the handle written into the note is the one 312 resolves without ambiguity
+        const person = say.to.startsWith('id:') ? (state.people || []).find((p) => p.id === say.to.slice(3)) : null;
+        const handle = person ? mentionHandle(person) : say.to;
+        const note = handle && !body.includes(handle) ? handle + ' ' + body : body;
+        await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', note);
+        toast(handle ? `Posted on ${personName(c.name)} · ${handle} gets a push` : `Posted on ${personName(c.name)}`);
+      }
+      say.text = ''; text.value = '';
+      window.__peek(c.id);                    // the file opens beside you: the text with its undo, or the note where it landed
+    } catch (e) { toast(e.message || 'It did not go through', 'err'); }
+    finally { busy = false; btn.disabled = false; }
+  };
+  box.querySelector('[data-say-send]').onclick = send;
+  text.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });
 }

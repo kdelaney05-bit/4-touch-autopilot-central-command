@@ -2,13 +2,13 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=46';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=46';
-import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=46';
-import { say, thing, iconForAsk } from './words.js?v=46';
-import { settleDialog } from './office.js?v=46';
-import { reload } from './app.js?v=46';
-import { relTime } from './production.js?v=46';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=51';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=51';
+import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=51';
+import { say, thing, iconForAsk } from './words.js?v=51';
+import { settleDialog } from './office.js?v=51';
+import { reload } from './app.js?v=51';
+import { relTime } from './production.js?v=51';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -167,7 +167,7 @@ function draw(root, ctx, compact) {
         <div class="lines" id="lines"><div class="small">Loading the lines…</div></div>
         <div class="kicker" style="margin-top:14px">Note to the team · the customer never sees this · tag the next person</div>
         <div class="subs" style="margin:4px 0 6px">
-          <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option>${raw(state.seats.map((s) => `<option value="@${esc(firstName(s.name))}">@${esc(firstName(s.name))} · ${esc(s.name)}</option>`).join(''))}</select>
+          <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option>${raw(state.seats.map((s) => `<option value="${esc(mentionHandle(s))}">${esc(mentionHandle(s))} · ${esc(s.name)}</option>`).join(''))}</select>
           <select id="note-what" style="width:auto;padding:5px 8px;font-size:12px"><option value="">What: a note</option>${raw(Object.keys(ASK_LABEL).map((t) => `<option value="${t}">Task: ${esc(ASK_LABEL[t])}</option>`).join(''))}</select>
         </div>
         <div class="composer" style="background:var(--officesoft)">
@@ -379,7 +379,7 @@ function draw(root, ctx, compact) {
       if (body) await postMessage(tid, lane, body);
       if (what) {
         const roleWords = ['@office', '@schedule', '@production', '@rep', '@invoice'];
-        const seat = to.startsWith('@') && !roleWords.includes(to) ? state.seats.find((s) => firstName(s.name).toLowerCase() === to.slice(1).toLowerCase()) : null;
+        const seat = to.startsWith('@') && !roleWords.includes(to) ? (state.seats.find((s) => mentionHandle(s).toLowerCase() === to.toLowerCase()) || state.seats.find((s) => firstName(s.name).toLowerCase() === to.slice(1).toLowerCase())) : null;
         const toId = seat?.id || (to === '@production' && job.supervisor_id) || (to === '@rep' && job.rep_id) || job.owner_id || me.id;
         const laneFor = ['COMPLETION_SIGNOFF', 'MATERIAL_REQUEST', 'SITE_ISSUE', 'SUPERVISOR_PING', 'SAFETY_JHA'].includes(what) ? 'SUPER' : ['CUSTOMER_REQUEST', 'SCHEDULE_QUESTION'].includes(what) ? 'CHAT' : 'OFFICE';
         await openAsk(tid, laneFor, what, body || null, toId);

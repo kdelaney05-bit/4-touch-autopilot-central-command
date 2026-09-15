@@ -11,6 +11,139 @@ texts, the office's private notes, the rooms, the direct lines and the subs,
 in one rail that never closes. Mockup (clickable, fictional book):
 https://claude.ai/artifact/7m5CaKCigjvzFsLyWgceLs
 
+## Linked conversations — where this thread lives, 15 Sep 2026
+
+Kevin: "can we link all these conversations please? I just did the same in
+another." Same subject, several rooms. Every one of them is here so the next
+session starts from all of it, not one of it.
+
+| Where | What it holds |
+|---|---|
+| **This session — "CRM chat room UI design"** (`session_01Tg41ydDEZ5KWJas2eUu37J`) | The Switchboard mockup (https://claude.ai/artifact/7m5CaKCigjvzFsLyWgceLs), The Biopsy (https://claude.ai/artifact/1TdqaMBrXJ2V3k2qrHwT9M), The Line room (v39 → v46 on `main`), migration 346 direct lines (`trureview-mobile`, branch `claude/ecstatic-johnson-z7180f`), this doc, `THE-OUTSIDE-WAIT.md`. |
+| **"Jetstream on steroids"** (`session_01E1AscsceFGrT2svxLgKYdc`, branch `claude/hopeful-ritchie-t4n04t`) | `docs/jetstream-on-steroids.html` on `main` (commit d1efd15) — the same one-chat CRM as a clickable picture, sign in as each person. Its **who-sees-what table** and **manager loop** are the rules The Line's lane switch now encodes. |
+| **"Unified customer management system"** (`session_01UBtRcgQ94S8U8bKyZKxqF2`, 15 Sep 15:35) | Kevin's "I just did the same in another." Its transcript is not readable from here; whatever it decided should be reconciled against this doc, not built twice. |
+| **"Liberty CRM"** (`session_01YYpQm5VczMsKQpP53Cuobh`, `trureview-mobile` · `claude/slim-claude-md`) | The CRM from the database side, same day. |
+| **"Email from Ron"** (`session_01X6JD43oMWhEGRwf2BLQN25`) | **The phones.** Jess, 15 Sep: "Is kev aware that all calls go to vm?" Travis: "showing up private number." That session drafted the emergency Uvoice ticket and is waiting on Kevin to call Dwayne with five action items. No chat surface fixes a phone that does not ring — gospel 19 makes this priority zero for her team. |
+| **Jess's own words, in Gmail** | "TEXTS" (14 Sep — *"How can I only receive texts that I need (office lines)? I am still getting every text from sales"*, Uvoice ticket T20260914.0006); "oasis calls" (14 Sep — rings once and stops, T20260914.0009); "reviews" (14 Sep — Claudette's 1–10 rule, below); "#Lead - Bedard, Brian" (15 Sep — calls to voicemail). |
+| **Uvoice tickets this week** | T20260914.0003 (three production users), T20260914.0016 / .0017 / .0018 (Mike's DID, Gustavo's line), T20260915.0003 (robocalls + voicemail-to-email off on rep extensions), and the **Gio voice-line draft** sitting in Kevin's Gmail drafts (15 Sep). |
+| **The office's day** | `docs/THE-OFFICE-DAY.md` — the office's four inputs beside CC's ten tasks; gospels 19–21 (the phone is human · take the paper off the humans, never the conversation · the people-happy business). |
+
+⚠️ **The conversation Kevin had with Jess** ("really good insight to what her
+team needs") is **not written down anywhere this session can reach** — it was
+spoken, or it lives in a session whose transcript is not exposed. What follows
+is her team's needs assembled from her own emails this week and the Jetstream
+table. The two or three things she actually said belong at the top of the next
+section the moment Kevin repeats them.
+
+## THE BETA — tonight, four seats (Kevin, 15 Sep: "something we can actually beta today, end of the day. With maybe Jess, Sam, myself, Gio")
+
+**What is live the moment v48 is on main** — no migration, no apply, every
+staff seat at https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/:
+
+- **The Line** is the landing screen. Rail on the left (You're up · Nothing
+  goes unanswered · Rooms · People · Lately), the lane switch on top.
+- **SAY IT** at the top of The Line: pick the customer by last name, street
+  or phone → a person (note on the file, push) or the customer (text from
+  the brand's line, Jess's office lines as presets) → Send.
+- **`@` in every room's composer** (Office · Production · the Village): type
+  `@` and two letters — people from the seats, customers by name / street /
+  phone. `@Samantha call this customer Mark Whitfield` hangs the post on
+  Whitfield's file, lands the same words on the file's thread, and 312
+  pushes Samantha and puts the file in her You're up. A hung post gains two
+  lanes: **Inside** (the note) or **Text the customer** (from the brand's
+  approved line, a draft until Post, the file opens with the six-second undo).
+- The top box finds people as well as customers; ⌘K focuses it.
+
+**The four-seat script (5 pm):**
+
+| Who | Does | Sees |
+|---|---|---|
+| Jess | In the Village: `@Sam` + a customer by street → Post | Sam's phone buzzes; the file has the note; the Village has the post hung on the customer |
+| Sam | Opens The Line → You're up → the file → answers on it | The note, the customer's texts and the asks in one thread |
+| Kevin | SAY IT → a customer by last name → **The customer** → the permit line → Send | The text goes out from 386-276-6898; the file opens with the undo |
+| Gio | `@Kevin` in the Village with a customer by phone number → Post | Kevin's phone buzzes; The Line's Unanswered board shows nothing sitting |
+
+**What is honestly NOT in tonight's beta:**
+
+- **Direct lines** (one person to one person, private) — built in the app,
+  inert until migration 346 is applied from Kevin's PC. Tonight a
+  person-to-person message is a room post with `@First`, which every seat
+  in that room reads. Open by default, so that is the rule anyway.
+- **Email from the thread** — there is no email-send rail in this app yet
+  (the phone app emails through the machine; Central Command does not).
+  Next build.
+- **Uvoice**: texting IS linked — a text from the thread goes out the
+  brand's approved line and the reply lands on the file (311 / 326 / the
+  cockpit lane, fencing live since 12 Sep; Oasis and Pro-Tech wait on their
+  lines). **Calls are not** — nothing pulls Uvoice's call records in; the
+  CDR feed is still the missing piece (The Biopsy names it).
+- The customer never sees a room. Only the text lane reaches them.
+
+## The texting thread with Jess — found (migration 308, 12–13 Sep)
+
+Kevin, 15 Sep: "look for another session I had with Jess about the texting…
+she wants her people to be able to do it." The session list only reaches
+today, but the thread left its record in `trureview-mobile`:
+`backend/migrations/308_office_lines.sql` — Kevin, 13 Sep: *"i don't think we
+need heymarket any longer… all outbound marketing, i'll take that over in
+here… easy. build it."* Heymarket's four weeks (527 sent, 240 back, 11 STOP)
+became rows: **`office_lines`** (Jess's wording verbatim — the review prompt,
+the five-star follow-up, the lead reply, permit approved, on the schedule,
+the invoice, the pay link), `brand_text_settings` (per-brand name, trade,
+callbacks, the Google review link), `line_render()` / `line_preview()`, the
+machine's copies on the chain behind `office_machine_texts` (OFF), STOP →
+`sms_opt_out_at`, a 9 or 10 after the review prompt → the five-star link,
+`payment_reminder_sweep` at 30 days. Handoffs: `docs/HANDOFF-2026-09-14.md`
+(the shared line is 386-276-6898) and `docs/UVOICE-LINE-CHECK-15SEP.md`.
+
+**So her people can text a customer today, from the file, in her own
+words.** What was missing is what Kevin described next — doing it from the
+playground without opening the file.
+
+### SAY IT — built, v47
+
+Kevin, 15 Sep: *"you should have the ability to send it to whichever employee
+you want about whichever customer you pick. So it's a drop down box either by
+their address or last name. So a thousand ways to quickly get this out."*
+
+One box at the top of The Line, above everything:
+
+1. **About** — type a last name, a street, or a phone number. The customer
+   search now matches `name` OR `street` (customers carry street · city ·
+   zip), and the row shows the address so a "Cox" is never a surprise.
+2. **To** — two lanes. **A person**: a dropdown of @office · @schedule ·
+   @production · @rep · @invoice and every seat by first name. The note lands
+   on that customer's file with the @mention and 312 does the rest — the push
+   and their You're up. **The customer**: a text from the brand's approved
+   line (311, `file_text_queue`), with **Jess's office lines as one-tap
+   presets** the moment a customer is picked (`line_preview`).
+3. **Send.** The file opens beside you after: the text sitting with its
+   six-second undo, or the note where it landed.
+
+Nothing here is a new write — both doors already existed on the file. The
+composer is the file's own tag box and Text button, reachable without the
+file. The typed text survives rail clicks (module state), a ref-style busy
+guard holds Send (b80), demo refuses politely.
+
+## The office's seat — what Jess's team needs
+
+Sam, Laura, Jonathan, and Jess over them. The Directors of First Impressions
+(gospel 19). Every item below names its source and what it becomes on the
+screen.
+
+| What they need | Where it came from | On the screen | State |
+|---|---|---|---|
+| **Text the customer from here, in her words.** | 308 (Jess's Heymarket lines → `office_lines`) · Kevin 15 Sep, the dropdown by name or address | **SAY IT** at the top of The Line — pick the customer by last name / address / phone, pick a person or the customer, her lines as presets, Send. | **Built, v47** |
+| **Their lane, not everyone's.** *"I am still getting every text from sales."* | Jess, 14 Sep, TEXTS ticket · the Jetstream table (*Sam: files at an office step, plus any file she is tagged on*) | **THE LANE** on The Line's rail: an office seat lands on files at an office step (sold · invoiced · paid) plus anything they are tagged on; production lands on scheduling-or-later; a rep on their own book. **Everything** is one tap away — open by default still stands, the seat just lands on its own work first. | **Built, v46** |
+| **A phone that rings.** *"Is kev aware that all calls go to vm?"* | Jess + Travis, 15 Sep · Jess, 14 Sep (oasis rings once) | Nothing on a screen fixes this. It is the Uvoice emergency in the "Email from Ron" session — Kevin calls Dwayne with five items. Until it is fixed, every other line on this page is second. | **Blocked on the phone company** |
+| **Jess looped in when Sam is tagged.** | The Jetstream table's *manager loop* (tag Sam → Jess is in; tag Obed → Luis; tag a rep → Gio; the tagger stays until it is handled) | The tag composer on the file shows the loop as it types — *"Sam · Jess is looped in"* — and the push goes to both. A small rules table (who is looped with whom), edited as rows like the seats. | Designed · needs a rows table + the push fan-out |
+| **The review at paid-in-full.** *"Claudette asks 1–10 once paid. 9/10 → Google link. 8 or below → how do we make it a 10."* | Jess, 14 Sep, "reviews" | The `review_prompt` office line already exists (*rate the staff and workmanship 1–10*). At stage PAID the file's NEXT line offers it; the reply routes itself: a 9 or 10 queues the Google-link line as a draft, an 8 or under opens an ask on Jess with the customer's words on it. **Rows, not code** — office lines + one chain step, Kevin and Jess edit them. | Rows to add · nothing built |
+| **The customer on the screen before hello.** | Gospel 20: *"the customer's source, last text and file on the screen before they say hello"* | The screen-pop: an inbound call on an office line opens that customer's file in the drawer with source, last text and NEXT. Needs the one thing being on Uvoice was supposed to buy — the call event feed. Same gap The Biopsy names. | Waits on the Uvoice call feed |
+| **"Where is the permit" stops being a phone call.** | Jetstream: *the thread says "Now: permit, waiting on the county, 4 days"* · THE-OFFICE-DAY | Exists: the NEXT line on every file. What The Line adds is the customer never having to ask — it is the second most-asked question on the bottleneck board, and `THE-OUTSIDE-WAIT.md` is the plan to answer it by machine. | NEXT line exists · machine answer designed |
+| **Getting help without walking over.** | THE-OFFICE-DAY: *post in the office room, tag the person, or send the file to their board* | The Office room in the rail, tags, direct lines (346), Send to… on the file. | Rooms + tags live · direct lines await 346 |
+| **A name and a color on every bubble.** | Jetstream: *one color per person the day they join, everywhere* | The Flow already does this (one color per person, the machine in gold). The Line's bubbles should read the same palette. | Small · after 346 |
+| **Listen.** | Jetstream: *Kevin's switch on any thread — on means every message pings his phone* | A per-thread toggle on the file header for owner seats; a `thread_listeners` row per (thread, seat). | Designed · needs a rows table |
+
 ## The three moves
 
 1. **Nothing is "just a chat."** Every thread hangs on something — a customer,

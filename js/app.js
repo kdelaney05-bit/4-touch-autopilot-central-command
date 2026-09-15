@@ -1,19 +1,19 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=46';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=46';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=46';
-import { BRAND_BY_CC } from './config.js?v=46';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=46';
-import { renderSwitchboard } from './switchboard.js?v=46';
-import { renderHome } from './home.js?v=46';
-import { renderSales } from './sales.js?v=46';
-import { renderPipeline } from './pipeline.js?v=46';
-import { renderMarketing } from './marketing.js?v=46';
-import { renderOffice } from './office.js?v=46';
-import { renderProduction } from './production.js?v=46';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=46';
-import { stopRoomPoll } from './village.js?v=46';
-import { renderFlow, stopFlow } from './flow.js?v=46';
+import * as api from './api.js?v=51';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=51';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=51';
+import { BRAND_BY_CC } from './config.js?v=51';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=51';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=51';
+import { renderHome } from './home.js?v=51';
+import { renderSales } from './sales.js?v=51';
+import { renderPipeline } from './pipeline.js?v=51';
+import { renderMarketing } from './marketing.js?v=51';
+import { renderOffice } from './office.js?v=51';
+import { renderProduction } from './production.js?v=51';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=51';
+import { stopRoomPoll } from './village.js?v=51';
+import { renderFlow, stopFlow } from './flow.js?v=51';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -27,6 +27,7 @@ export function rooms() {
 export function go(v, arg) {
   view = v;
   stopRoomPoll();                 // the room you are leaving stops talking to the database
+  stopLinePoll();
   stopFlow();
   if (v !== 'file') closeDrawer();
   if (v === 'file' && arg) { openFile(arg).catch((e) => toast(e.message || 'Could not open the file', 'err')); }
@@ -42,7 +43,7 @@ export function render() {
   $('#nav-who').textContent = me ? `${me.name.split(' ')[0]} · ${me.role}` : '';
   $('#who-sub').textContent = isDemo() ? 'DEMO — nothing is saved' : (state.loadedAt ? 'loaded ' + state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '');
   const tagged = (state.mentions || []).filter((m) => !m.seen_at).length;
-  const counts = { line: state.clock.filter((c) => c.waiting_min >= 60).length + tagged, office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length + tagged };
+  const counts = { line: state.clock.filter((c) => c.waiting_min >= 60).length + tagged + (state.direct || []).reduce((a, d) => a + Number(d.unseen || 0), 0), office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length + tagged };
   $('#tabs').innerHTML = r.map((k) => html`<button class="tab ${k === view || (view === 'file' && k === 'files') ? 'on' : ''}" data-view="${k}">${ROOM_LABEL[k]}${counts[k] ? raw(`<span class="n">${counts[k]}</span>`) : ''}</button>`).join('');
   $$('#tabs button').forEach((b) => (b.onclick = () => go(b.dataset.view)));
   for (const v of VIEWS) $('#view-' + v).classList.toggle('hidden', v !== view);
@@ -95,19 +96,26 @@ function wireFind() {
       if (q.length < 2) return;
       let rows = [];
       try { rows = await searchCustomers(q); } catch (e) { toast(e.message, 'err'); return; }
+      const people = searchPeople(q);   // 346: a person opens a direct line; a customer opens the file — same box
       pop = document.createElement('div');
       pop.className = 'card';
       pop.style.cssText = 'position:absolute;right:40px;top:58px;width:360px;z-index:9;padding:8px;gap:2px;box-shadow:0 20px 50px rgba(0,0,0,.15)';
-      pop.innerHTML = rows.length ? rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('') : '<div class="empty">Nobody by that name or number</div>';
+      pop.innerHTML = (people.length || rows.length)
+        ? people.map((p) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-person="${p.id}"><span><b>${p.name}</b></span><span class="mono dimmer">${p.role || ''}</span><span class="chip st-blue">OPEN A LINE ›</span></button>`).join('')
+          + rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b><br><span class="small">${c.street || ''}${c.city ? ' · ' + c.city : ''}${c.updated_at ? ' · ' + new Date(c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('')
+        : '<div class="empty">Nobody by that name or number</div>';
       pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__peek(b.dataset.id); }));
+      pop.querySelectorAll('button[data-person]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__line(b.dataset.person); }));
       $('nav.side').appendChild(pop);
     }, 220);
   });
   box.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { close(); box.blur(); }
-    if (e.key === 'Enter') { const first = pop?.querySelector('button[data-id]'); if (first) first.click(); }   // Enter opens the top match
+    if (e.key === 'Enter') { const first = pop?.querySelector('button[data-id],button[data-person]'); if (first) first.click(); }   // Enter opens the top match
   });
   document.addEventListener('click', (e) => { if (pop && !pop.contains(e.target) && e.target !== box) close(); });
+  // ⌘K / Ctrl+K from anywhere: the box, focused. Kevin, 15 Sep: "a quick way to message anyone".
+  document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); box.focus(); box.select(); } });
 }
 
 /* The New Job door — customer + job (+ appointment, + signing) in one call.

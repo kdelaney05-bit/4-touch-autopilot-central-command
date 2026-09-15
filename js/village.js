@@ -5,10 +5,10 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=46';
-import { state, isDemo, personName, firstName, searchCustomers } from './book.js?v=46';
-import { DEMO } from './demo.js?v=46';
-import { html, raw, esc, toast } from './ui.js?v=46';
+import * as api from './api.js?v=51';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=51';
+import { DEMO } from './demo.js?v=51';
+import { html, raw, esc, toast } from './ui.js?v=51';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -124,17 +124,20 @@ export function renderRoom(root, room, opts = {}) {
         <div class="room-pick" data-pick hidden></div>
         <div class="room-pop" data-pop hidden></div>
       </div>`)}
-      <div class="composer">
+      <div class="composer" style="position:relative">
         <textarea data-say placeholder="${meta.say}"></textarea>
         <button class="btn fill" data-post>Post</button>
+        <div class="line-find-pop at-pop" data-at-pop hidden></div>
       </div>
-      <div class="small">${meta.foot} Ctrl+Enter posts.</div>
+      ${room === 'sales' ? '' : raw('<div class="lanes at-lanes" data-lanes hidden><button class="lanebtn on" data-room-lane="inside">Inside</button><button class="lanebtn" data-room-lane="text">Text the customer</button><span class="small" data-lane-law></span></div>')}
+      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}Ctrl+Enter posts.</div>
     </div>`;
 
   const say = root.querySelector('[data-say]');
   root.querySelector('[data-post]').onclick = () => post(root, room, ctx);
   say.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post(root, room, ctx); });
   wireFind(root, ctx);
+  if (room !== 'sales') wireAt(root, ctx);
   paintPick(root, ctx);
   load(root, room, ctx, true).catch(() => {});
   arm();
@@ -169,10 +172,31 @@ async function post(root, room, ctx) {
   const btn = root.querySelector('[data-post]');
   btn.disabled = true;
   try {
+    if (room !== 'sales' && ctx.lane === 'text' && ctx.pick) {
+      // the customer lane: a text from the brand's approved line (311). It is already on the file's thread — the room does not get a copy.
+      await textCustomer(ctx.pick.id, body);
+      toast(`Queued to ${firstName(ctx.pick.name) || 'them'} from the brand line · six seconds to take it back`);
+      const cid = ctx.pick.id;
+      say.value = ''; ctx.pick = null; ctx.lane = 'inside'; paintPick(root, ctx);
+      window.__peek(cid);
+      return;
+    }
     if (room === 'sales') await api.insert('hype_messages', { body }, false);
     else await api.insert('team_messages', { room, body, customer_id: ctx.pick?.id ?? null }, false);
+    /* Kevin, 15 Sep: "keep it with inside the customer file." A post hung on a customer is ALSO a note on that
+       file's thread — same words, with the @First mentions intact, so 312 pushes the people named and puts the
+       file in their You're up. Best effort: a customer with no job yet still gets the room post. */
+    if (room !== 'sales' && ctx.pick?.id) {
+      try {
+        const f = await loadFile(ctx.pick.id);
+        let tid = f.thread?.id;
+        if (!tid && f.job?.job_id) tid = await threadForJob(f.job.job_id);
+        if (tid) await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', body);
+        else toast('Posted to the room · this customer has no job yet, so nothing landed on a file');
+      } catch (e) { toast('Posted to the room · the file did not take it: ' + (e.message || ''), 'err'); }
+    }
     say.value = '';
-    ctx.pick = null; paintPick(root, ctx);
+    ctx.pick = null; ctx.lane = 'inside'; paintPick(root, ctx);
     await load(root, room, ctx, true);
   } catch (e) { toast(e.message || 'The post did not go through', 'err'); }
   finally { btn.disabled = false; }
@@ -235,6 +259,15 @@ function wireFind(root, ctx) {
 }
 
 function paintPick(root, ctx) {
+  const lanes = root.querySelector('[data-lanes]');
+  if (lanes) {
+    lanes.hidden = !ctx.pick;
+    lanes.querySelectorAll('[data-room-lane]').forEach((b) => { b.classList.toggle('on', (ctx.lane || 'inside') === b.dataset.roomLane); b.onclick = () => { ctx.lane = b.dataset.roomLane; paintPick(root, ctx); }; });
+    const law = lanes.querySelector('[data-lane-law]');
+    if (law) law.textContent = (ctx.lane || 'inside') === 'text'
+      ? `Goes to ${firstName(ctx.pick?.name || '') || 'them'} as a text from the brand's approved line — a draft until Post.`
+      : `A note on ${personName(ctx.pick?.name || '')}'s file and this room. The customer never sees it.`;
+  }
   const pick = root.querySelector('[data-pick]');
   if (!pick) return;
   pick.hidden = !ctx.pick;
@@ -243,4 +276,63 @@ function paintPick(root, ctx) {
     : '';
   const un = pick.querySelector('[data-unpick]');
   if (un) un.onclick = () => { ctx.pick = null; paintPick(root, ctx); };
+}
+
+
+/* ── @ — a person or a customer, inline (Kevin, 15 Sep: "Jess can say, hey,
+   @Kevin call this customer, @address, @last name, @phone number").
+   Type @ and two letters: people come from the seats (every active rep),
+   customers from the same search the top box uses — name, street or phone.
+   Picking a person leaves "@First " in the text so 312 pushes them when the
+   note lands on a file. Picking a customer hangs the post on their file and
+   leaves their name in the text so the room can read who it is about. */
+function wireAt(root, ctx) {
+  const say = root.querySelector('[data-say]');
+  const pop = root.querySelector('[data-at-pop]');
+  if (!say || !pop) return;
+  let timer = null, frag = null;
+  const close = () => { pop.hidden = true; pop.innerHTML = ''; frag = null; };
+  const fragAtCaret = () => {
+    const upto = say.value.slice(0, say.selectionStart);
+    const m = /(^|\s)@([^\s@]{2,})$/.exec(upto);
+    return m ? { text: m[2], start: upto.length - m[2].length - 1 } : null;
+  };
+  const replaceFrag = (f, withText) => {
+    const before = say.value.slice(0, f.start), after = say.value.slice(say.selectionStart);
+    say.value = before + withText + ' ' + after;
+    const at = (before + withText + ' ').length;
+    say.focus(); say.setSelectionRange(at, at);
+  };
+  say.addEventListener('input', () => {
+    clearTimeout(timer);
+    const f = fragAtCaret();
+    if (!f) { close(); return; }
+    timer = setTimeout(async () => {
+      frag = f;
+      const all = searchPeople(f.text), lower = f.text.toLowerCase();
+      // "@whit" is Whitfield, not Samantha White: a first-name prefix wins, then customers, then last-name matches
+      const people = all.filter((p) => firstName(p.name).toLowerCase().startsWith(lower));
+      const others = all.filter((p) => !people.includes(p));
+      let custs = [];
+      try { custs = await searchCustomers(f.text); } catch { custs = []; }
+      if (!people.length && !custs.length && !others.length) { close(); return; }
+      const personRow = (p) => `<button class="line-item" data-at-person="${esc(mentionHandle(p).slice(1))}"><span class="line-av blue">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(mentionHandle(p))}</span><span class="pv">${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</span></span></button>`;
+      pop.innerHTML = (people.length ? '<div class="kicker" style="padding:6px 10px 2px">People</div>' + people.map(personRow).join('') : '')
+        + (custs.length ? '<div class="kicker" style="padding:6px 10px 2px">Customers</div>' + custs.slice(0, 6).map((c) => `<button class="line-item" data-at-cust="${esc(c.id)}" data-name="${esc(c.name)}"><span class="line-av">${esc((firstName(c.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(personName(c.name))}</span><span class="pv">${esc(c.street || c.phone || '')}${c.city ? ' · ' + esc(c.city) : ''}</span></span></button>`).join('') : '')
+        + (others.length ? '<div class="kicker" style="padding:6px 10px 2px">Also</div>' + others.map(personRow).join('') : '');
+      pop.hidden = false;
+      /* the old tail below is replaced */
+      pop.querySelectorAll('[data-at-person]').forEach((b) => (b.onclick = () => { replaceFrag(frag, '@' + b.dataset.atPerson); close(); }));
+      pop.querySelectorAll('[data-at-cust]').forEach((b) => (b.onclick = () => {
+        ctx.pick = { id: b.dataset.atCust, name: b.dataset.name };
+        replaceFrag(frag, personName(b.dataset.name)); close(); paintPick(root, ctx);
+      }));
+    }, 180);
+  });
+  say.addEventListener('keydown', (e) => {
+    if (pop.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    if (e.key === 'Enter' && !(e.metaKey || e.ctrlKey)) { const first = pop.querySelector('[data-at-person],[data-at-cust]'); if (first) { e.preventDefault(); first.click(); } }
+    if (e.key === 'Tab') { const first = pop.querySelector('[data-at-person],[data-at-cust]'); if (first) { e.preventDefault(); first.click(); } }
+  });
 }
