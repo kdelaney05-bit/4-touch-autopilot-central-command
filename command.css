@@ -445,3 +445,14 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .tour-bar i { display: block; height: 100%; width: 0; background: var(--goldbtn); animation: tourbar 7s linear forwards; }
 @keyframes tourbar { to { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .tour-bar i { animation: none; width: 100%; } }
+
+/* ── THE BING (Kevin, 15 Sep night): the task card in the corner — stays until ✓ Got it or Open ── */
+#alerts { position: fixed; top: 14px; right: 14px; z-index: 40; display: flex; flex-direction: column; gap: 10px; width: min(380px, calc(100vw - 28px)); }
+.alert { background: var(--card, #fff); color: var(--ink); border: 2px solid var(--gold, #b7791f); border-left-width: 8px; border-radius: 14px; padding: 12px 14px; box-shadow: 0 18px 48px rgba(0,0,0,.28); transform: translateX(120%); opacity: 0; transition: transform .3s ease, opacity .3s ease; }
+.alert.show { transform: none; opacity: 1; }
+.alert .ak { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--gold, #b7791f); font-weight: 700; }
+.alert .an { font-size: 18px; font-weight: 700; margin-top: 2px; }
+.alert .ab { font-size: 14px; line-height: 1.35; margin-top: 4px; }
+.alert .af { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+.alert .btn.ok { font-weight: 700; }   /* the green fill from .btn.ok, bold */
+@media (prefers-reduced-motion: reduce) { .alert { transition: none; } }
