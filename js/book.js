@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=51';
-import { DEMO } from './demo.js?v=51';
+import * as api from './api.js?v=54';
+import { DEMO } from './demo.js?v=54';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -32,7 +32,12 @@ export const isDemo = () => /[?&]demo=1/.test(location.search);
 
 export async function loadAll() {
   state.warnings = [];
-  if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
+  if (isDemo()) {
+    Object.assign(state, DEMO.book());
+    const as = (/[?&]as=(sales|office|manager)/.exec(location.search) || [])[1];   // see the demo as another seat
+    if (as) { const seat = (state.people || []).find((p) => p.role === as) || state.me; state.me = { ...seat, role: as, manages_company_id: null }; }
+    state.loadedAt = new Date(); return state;
+  }
   const s = api.getSession();
   const since30 = new Date(Date.now() - 30 * 86400e3).toISOString();
   const since90 = new Date(Date.now() - 90 * 86400e3).toISOString(), since60 = new Date(Date.now() - 60 * 86400e3).toISOString();

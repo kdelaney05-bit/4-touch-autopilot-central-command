@@ -5,10 +5,10 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=51';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=51';
-import { DEMO } from './demo.js?v=51';
-import { html, raw, esc, toast } from './ui.js?v=51';
+import * as api from './api.js?v=54';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=54';
+import { DEMO } from './demo.js?v=54';
+import { html, raw, esc, toast } from './ui.js?v=54';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -168,7 +168,15 @@ async function post(root, room, ctx) {
   const say = root.querySelector('[data-say]');
   const body = (say?.value || '').trim();
   if (!body) return;
-  if (isDemo()) { toast('Demo — nothing is saved'); return; }
+  if (isDemo()) {
+    // the demo posts IN MEMORY — the room reads it back, nothing leaves the browser. Same for the customer lane, marked as a text.
+    const asText = room !== 'sales' && ctx.lane === 'text' && ctx.pick;
+    demoPost(room, { name: state.me?.name || 'You', initials: state.me?.initials, body: asText ? '→ text to ' + firstName(ctx.pick.name) + ': ' + body : body, customerId: ctx.pick?.id, customerName: ctx.pick?.name });
+    toast(asText ? `Demo — would go to ${firstName(ctx.pick.name)} from the brand line · nothing is saved` : 'Demo — posted here only, nothing is saved');
+    say.value = ''; ctx.pick = null; ctx.lane = 'inside'; paintPick(root, ctx);
+    await load(root, room, ctx, true);
+    return;
+  }
   const btn = root.querySelector('[data-post]');
   btn.disabled = true;
   try {
@@ -287,8 +295,10 @@ function paintPick(root, ctx) {
    note lands on a file. Picking a customer hangs the post on their file and
    leaves their name in the text so the room can read who it is about. */
 function wireAt(root, ctx) {
-  const say = root.querySelector('[data-say]');
-  const pop = root.querySelector('[data-at-pop]');
+  wireAtOn(root.querySelector('[data-say]'), root.querySelector('[data-at-pop]'), (c) => { ctx.pick = c; paintPick(root, ctx); });
+}
+/* The same picker on any box: SAY IT on The Line uses it too (Kevin, 15 Sep: "how do I add more people?"). */
+export function wireAtOn(say, pop, onCustomer) {
   if (!say || !pop) return;
   let timer = null, frag = null;
   const close = () => { pop.hidden = true; pop.innerHTML = ''; frag = null; };
@@ -324,8 +334,8 @@ function wireAt(root, ctx) {
       /* the old tail below is replaced */
       pop.querySelectorAll('[data-at-person]').forEach((b) => (b.onclick = () => { replaceFrag(frag, '@' + b.dataset.atPerson); close(); }));
       pop.querySelectorAll('[data-at-cust]').forEach((b) => (b.onclick = () => {
-        ctx.pick = { id: b.dataset.atCust, name: b.dataset.name };
-        replaceFrag(frag, personName(b.dataset.name)); close(); paintPick(root, ctx);
+        replaceFrag(frag, personName(b.dataset.name)); close();
+        onCustomer({ id: b.dataset.atCust, name: b.dataset.name });
       }));
     }, 180);
   });
@@ -336,3 +346,16 @@ function wireAt(root, ctx) {
     if (e.key === 'Tab') { const first = pop.querySelector('[data-at-person],[data-at-cust]'); if (first) { e.preventDefault(); first.click(); } }
   });
 }
+
+
+/* Demo only: a post that lives in memory, shaped like a v_team_room row, so the
+   demo room behaves like the real one without a database. `window.__demoPost`
+   lets a walkthrough stage other people's replies arriving on the thread. */
+function demoPost(room, m) {
+  const rooms = (DEMO.rooms ||= {});
+  const list = (rooms[room] ||= []);
+  list.push({ id: 'd' + Date.now() + Math.random().toString(16).slice(2, 6), author_name: m.name, author_initials: m.initials || null, author_id: m.authorId ?? null,
+    body: m.body, customer_id: m.customerId ?? null, customer_name: m.customerName ?? null, created_at: new Date().toISOString(), reactions: m.reactions || {} });
+  return list[list.length - 1];
+}
+if (isDemo()) window.__demoPost = (room, m) => { demoPost(room, m); const ctx = mounts.get(room); if (ctx?.root) load(ctx.root, room, ctx, true).catch(() => {}); };
