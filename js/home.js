@@ -19,11 +19,11 @@
 // with no live source reads honestly absent. Sources are never blended;
 // nothing is projected into an actual. Costs and profit have no feed yet and
 // say so.
-import * as api from './api.js?v=42';
-import { state, isDemo, personName } from './book.js?v=42';
-import { html, raw, esc } from './ui.js?v=42';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=42';
-import { renderRoom } from './village.js?v=42';
+import * as api from './api.js?v=43';
+import { state, isDemo, personName } from './book.js?v=43';
+import { html, raw, esc } from './ui.js?v=43';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=43';
+import { renderRoom } from './village.js?v=43';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
@@ -72,7 +72,7 @@ async function loadLedgers() {
   const [sold, leads, appts, wos, crews, qb, sigs, accepts, mats] = await Promise.all([
     api.page(`sale_fact?select=job_id,rep_id,cc_company_id,sold_at,amount&sold_at=gte.${ymd(jan1)}&order=sold_at.desc&limit=8000`, 8000).catch(() => null),
     api.page(`jobs?select=id,cc_company_id,created_at&created_at=gte.${iso(m120)}&order=created_at.desc&limit=8000`, 8000).catch(() => null),
-    api.page(`appointment_rep_truth?select=cc_company_id,starts_at,is_cancelled,rep_name&starts_at=gte.${iso(m120)}&starts_at=lt.${iso(t7)}&order=starts_at.desc&limit=8000`, 8000).catch(() => null),
+    api.page(`appointment_rep_truth?select=cc_company_id,starts_at,cc_created_at,is_cancelled,rep_name&starts_at=gte.${iso(m120)}&starts_at=lt.${iso(t7)}&order=starts_at.desc&limit=8000`, 8000).catch(() => null),
     api.page('cc_work_orders?select=job_id,cc_company_id,crew_id,is_complete,install_starts_at,number&limit=2000', 2000).catch(() => null),
     api.page('cc_crews?select=cc_crew_id,name,color&is_active=eq.true&order=name', 200).catch(() => null),
     api.page(`qb_invoices?select=cc_company_id,txn_date,due_date,total_amt,balance,reporting_excluded&txn_date=gte.${ymd(jan1)}&order=txn_date.desc&limit=8000`, 8000).catch(() => null),
@@ -141,20 +141,38 @@ function ledgersHtml(L, B) {
   const ap = apAll || [];
   const cnt = (rows, f, a, b) => rows ? rows.filter((r) => inWin(r[f], a, b)).length : null;
   const amt = (rows, f, a, b, v) => rows ? sum(rows.filter((r) => inWin(r[f], a, b)), v) : null;
-  const leads = leadsAll ? leadsAll.filter((l) => inWin(l.created_at, m30, t1)) : null;
+  // LEADS: a day on which hundreds of "new" jobs appear is a bulk import (20 Jul
+  // 2026 wrote 6,787 rows in one go), not leads. Those days are out of the
+  // figure and out of the usual, and the usual only starts the day after the
+  // last import — there is no lead history before it. Kevin, 15 Sep: the first
+  // cut read "774 · usual 2,409 · down 68%" off exactly that import day.
+  const IMPORT_MAX = 300;
+  const dayCounts = {}; (leadsAll || []).forEach((l) => { const k = l.created_at.slice(0, 10); dayCounts[k] = (dayCounts[k] || 0) + 1; });
+  const realLeads = leadsAll ? leadsAll.filter((l) => dayCounts[l.created_at.slice(0, 10)] <= IMPORT_MAX) : null;
+  const importDays = Object.keys(dayCounts).filter((k) => dayCounts[k] > IMPORT_MAX).sort();
+  const leadStart = importDays.length ? new Date(Math.max(m120.getTime(), new Date(importDays[importDays.length - 1] + 'T00:00:00').getTime() + 864e5)) : m120;
+  const leadSpan = (m30 - leadStart) / 864e5;
+  const leadsUsualOf = (rows) => rows && leadSpan >= 21 ? rows.filter((l) => inWin(l.created_at, leadStart, m30)).length / leadSpan * 30 : null;
+  const leads = realLeads ? realLeads.filter((l) => inWin(l.created_at, m30, t1)) : null;
   const sold = soldAll ? soldAll.filter((s) => inWin(s.sold_at, m30, t1)) : null;
   const sold7 = sold ? sold.filter((s) => inWin(s.sold_at, m7, t1)) : null;
   const byRep = {}; (sold || []).forEach((s) => { const k = repName(s.rep_id); byRep[k] = (byRep[k] || 0) + Number(s.amount || 0); });
   // the usuals: 30-day figures against the three 30-day windows before them; weekly figures against the last 8 weeks; today against the same weekday over 8 weeks
-  const leadsUsual = leadsAll ? cnt(leadsAll, 'created_at', m120, m30) / 3 : null;
+  const leadsUsual = leadsUsualOf(realLeads);
   const apTodayUsual = apAll ? apAll.filter((a) => { const d = new Date(a.starts_at); return d >= m56 && d < t0 && d.getDay() === t0.getDay(); }).length / 8 : null;
   const apWeekUsual = apAll ? cnt(apAll, 'starts_at', m56, t0) / 8 : null;
+  // NEXT 7 DAYS is a week still filling up. Its honest usual is how many were
+  // ON THE BOOKS a week out in past weeks (booked before that week began) —
+  // not how many eventually ran. The first cut compared 40 booked against 98
+  // ran and read "down 53%"; against a-week-out it is 41, on pace.
+  const aheadUsual = (rows, f) => { if (!rows) return null; let n = 0; for (let k = 1; k <= 8; k++) { const ws = day(-7 * k), we = day(-7 * k + 7); n += rows.filter((a) => (!f || f(a)) && inWin(a.starts_at, ws, we) && a.cc_created_at && new Date(a.cc_created_at) < ws).length; } return n / 8; };
+  const apAheadUsual = aheadUsual(apAll);
   const sold7Usual = soldAll ? amt(soldAll, 'sold_at', m91, m7, (s) => s.amount) / 12 : null;
   const sold30Usual = soldAll ? amt(soldAll, 'sold_at', m120, m30, (s) => s.amount) / 3 : null;
   const salesFigs = [
     fig(nOf(leads ? leads.length : null), 'new leads · last 30 days', '', cmp(leads?.length, leadsUsual)),
     fig(nOf(cnt(apAll, 'starts_at', t0, t1)), 'appointments today', '', cmp(cnt(apAll, 'starts_at', t0, t1), apTodayUsual, false, `usual ${t0.toLocaleDateString([], { weekday: 'long' })}`)),
-    fig(nOf(cnt(apAll, 'starts_at', t0, t7)), 'appointments · next 7 days', '', cmp(cnt(apAll, 'starts_at', t0, t7), apWeekUsual, false, 'usual week')),
+    fig(nOf(cnt(apAll, 'starts_at', t0, t7)), 'appointments · next 7 days', '', cmp(cnt(apAll, 'starts_at', t0, t7), apAheadUsual, false, 'usual booked a week out')),
     fig(nOf(cnt(apAll, 'starts_at', m7, t0)), 'appointments ran · last 7 days', '', cmp(cnt(apAll, 'starts_at', m7, t0), apWeekUsual, false, 'usual week')),
     fig(nOf(sold7 ? money(sum(sold7, (s) => s.amount)) : null, sold7 ? `${sold7.length} jobs` : ''), 'sold · last 7 days', 'verify', cmp(sold7 ? sum(sold7, (s) => s.amount) : null, sold7Usual, true, 'usual week')),
     fig(nOf(sold ? money(sum(sold, (s) => s.amount)) : null, sold ? `${sold.length} jobs` : ''), 'sold · last 30 days', 'verify', cmp(sold ? sum(sold, (s) => s.amount) : null, sold30Usual, true, 'usual 30 days')),
@@ -189,7 +207,7 @@ function ledgersHtml(L, B) {
     fig(nOf(committed ? committed.length : null, committed && committed.length ? money(sum(committed, (c) => c.fin_sold_amount || c.yes?.total)) : ''), 'committed · said yes on our link, not in CC yet', 'gold'),
     fig(nOf(waitingToBuild.length, money(sum(waitingToBuild, (b) => b.fin_sold_amount))), 'sold · not built yet'),
     fig(nOf(wos ? waitingToBuild.filter((b) => bucketOf(b) === 'nodate').length : null), 'of those, no install date yet'),
-    fig(nOf(wos ? next7.length : null), 'installs · next 7 days', '', cmp(wos ? next7.length : null, wos ? wos.filter((w) => inWin(w.install_starts_at, m56, t0)).length / 8 : null, false, 'usual week')),
+    fig(nOf(wos ? next7.length : null), 'installs · next 7 days'),   // no usual yet: the CC mirror (343) is a day old and holds no honest eight weeks of work-order history
     fig(nOf(wos ? started.length : null), 'started · not marked done', started.length ? 'clock' : ''),
     fig(nOf(builtAll.length, money(sum(builtAll, (b) => b.fin_sold_amount))), 'built · can invoice', 'verify'),
   ].join('');
@@ -211,10 +229,9 @@ function ledgersHtml(L, B) {
   const AGES = [['current', 'not due yet'], ['1-30', '1–30 days late'], ['31-60', '31–60 days late'], ['61-90', '61–90 days late'], ['90+', 'over 90 days late']];
   const ageOf = (i) => { const d = i.due_date ? daysBetween(todayY, i.due_date) : 0; return d <= 0 ? 'current' : d <= 30 ? '1-30' : d <= 60 ? '31-60' : d <= 90 ? '61-90' : '90+'; };
   const invUsual = qbAll ? sum(qbAll.filter((i) => i.txn_date >= ymd(m120) && i.txn_date < ymd(m30)), (i) => i.total_amt) / 3 : null;
-  const collUsual = qbAll ? sum(qbAll.filter((i) => i.txn_date >= ymd(m120) && i.txn_date < ymd(m30)), (i) => i.total_amt - i.balance) / 3 : null;
   const cashFigs = [
     fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt)) : null, inv30 ? `${inv30.length} invoices` : ''), 'invoiced · last 30 days', '', cmp(inv30 ? sum(inv30, (i) => i.total_amt) : null, invUsual, true, 'usual 30 days')),
-    fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt - i.balance)) : null), 'collected on those invoices', 'verify', cmp(inv30 ? sum(inv30, (i) => i.total_amt - i.balance) : null, collUsual, true, 'usual 30 days')),
+    fig(nOf(inv30 ? money(sum(inv30, (i) => i.total_amt - i.balance)) : null), 'collected on those invoices', 'verify'),   // no usual: older invoices have had longer to be paid, so any comparison reads "down" by construction
     fig(nOf(openBal ? money(sum(openBal, (i) => i.balance)) : null, openBal ? `${openBal.length} open` : ''), 'still owed · this year\'s invoices'),
     fig(nOf(overdue ? money(sum(overdue, (i) => i.balance)) : null, overdue ? `${overdue.length} past due` : ''), 'of that, past the due date', overdue && overdue.length ? 'red' : ''),
   ].join('');
@@ -243,9 +260,9 @@ function ledgersHtml(L, B) {
     const old60 = bl.filter((b) => b.contract_signed_at && daysBetween(todayY, b.contract_signed_at) > 60 && bucketOf(b) !== 'built');
     const withMat = mats ? bl.filter((b) => matIn.has(b.job_id)).length : null;
     const a7 = L.appts ? ap.filter((a) => a.cc_company_id === cc && inWin(a.starts_at, t0, t7)).length : null;
-    const a7Usual = apAll ? apAll.filter((a) => a.cc_company_id === cc && inWin(a.starts_at, m56, t0)).length / 8 : null;
+    const a7Usual = aheadUsual(apAll, (a) => a.cc_company_id === cc);
     const coLeads = leads ? leads.filter((l) => l.cc_company_id === cc).length : null;
-    const coLeadsUsual = leadsAll ? leadsAll.filter((l) => l.cc_company_id === cc && inWin(l.created_at, m120, m30)).length / 3 : null;
+    const coLeadsUsual = leadsUsualOf(realLeads ? realLeads.filter((l) => l.cc_company_id === cc) : null);
     const coSold30 = sf ? sum(sf.filter((s) => inWin(s.sold_at, m30, t1)), (s) => s.amount) : null;
     const coSold30Usual = sf ? sum(sf.filter((s) => inWin(s.sold_at, m120, m30)), (s) => s.amount) / 3 : null;
     const quiet = !bl.length && !(inv && inv.length) && !(sf && sf.length);
