@@ -66,7 +66,7 @@ staff seat at https://kdelaney05-bit.github.io/4-touch-autopilot-central-command
 **What is honestly NOT in tonight's beta:**
 
 - **Direct lines** (one person to one person, private) — built in the app,
-  inert until migration 346 is applied from Kevin's PC. Tonight a
+  346 APPLIED 15 Sep ~21:20 UTC — direct lines are live from that moment. (Before it, a
   person-to-person message is a room post with `@First`, which every seat
   in that room reads. Open by default, so that is the rule anyway.
 - **Email from the thread** — there is no email-send rail in this app yet
