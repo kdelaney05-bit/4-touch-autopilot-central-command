@@ -6,9 +6,9 @@
 // on yes or no, signed, or lost. Pick a rep, see their book by stage, tap a
 // customer and the file opens beside you. Every number comes from live rows
 // the seat can read, counted once, and says its window.
-import { state, personName, firstName } from './book.js?v=28';
-import { html, raw, esc } from './ui.js?v=28';
-import { brandName } from './config.js?v=28';
+import { state, personName, firstName } from './book.js?v=29';
+import { html, raw, esc } from './ui.js?v=29';
+import { brandName } from './config.js?v=29';
 
 let rep = 'all';
 let brand = 'all';
@@ -90,7 +90,7 @@ export function renderPipeline(root) {
   root.innerHTML = html`
     <div class="head">
       <div><div class="kicker">Pipeline · ${esc(repName)} · the selling side of the book, by stage · last 90 days of appointments, 60 days of signings</div>
-        <h1 class="serif">${openN} customers in play. ${signedN} signed, ${esc(money(signed$) || '$0')}.</h1></div>
+        <h1 class="serif">${openN} customer${openN === 1 ? '' : 's'} in play. ${signedN} signed, ${esc(money(signed$) || '$0')}.</h1></div>
       <div class="right subs">${raw(brands.map((cc) => `<button class="sub ${brand === cc ? 'on' : ''}" data-brand="${esc(cc)}">${esc(brandName(cc))}</button>`).join(''))}<button class="sub ${brand === 'all' ? 'on' : ''}" data-brand="all">All brands</button></div>
     </div>
     <div class="card" style="padding:10px 14px">

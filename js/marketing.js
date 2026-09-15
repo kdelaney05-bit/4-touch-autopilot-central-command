@@ -1,9 +1,9 @@
 // Marketing — the owner console's Marketing section, embedded whole: the
 // appointments hero, the by-company band, the source strip, the spend → signed
 // ledger. Same origin (github.io), same login; nothing is duplicated here.
-import { html, raw } from './ui.js?v=28';
-import { CONSOLE_URL, CONSOLE_SECTION } from './config.js?v=28';
-import { isDemo } from './book.js?v=28';
+import { html, raw } from './ui.js?v=29';
+import { CONSOLE_URL, CONSOLE_SECTION } from './config.js?v=29';
+import { isDemo } from './book.js?v=29';
 
 export function renderMarketing(root) {
   root.innerHTML = html`
