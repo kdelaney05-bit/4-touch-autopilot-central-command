@@ -15,7 +15,7 @@ import { renderFiles, openFile, closeDrawer } from './file.js?v=39';
 import { stopRoomPoll } from './village.js?v=39';
 import { renderFlow, stopFlow } from './flow.js?v=39';
 
-let view = 'home';
+let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
 const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
 
