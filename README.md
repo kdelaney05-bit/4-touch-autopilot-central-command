@@ -113,8 +113,10 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The new ask types: SOLD_CHECK · INTRO_CALL · MILESTONE · INSPECTION · CLOSEOUT | **315** |
 | The whole CC workflow (brand-scoped chain, proof rules, the roofing chain, `cc_workflow_steps`), the village rooms, the pay link | **316** |
 | The fence job on the file: `fence_jobs`, the packet proofs, the office packet email (`fence_packet_queue`), and the read the card and the NOC fill share (`fence_takeoff_for`) | **328 · 331–334** |
+| The deposit + material lock (custom/aluminum = a card before material; stock waits on official paperwork) | **336** |
+| The signature sets the visit: a customer signing on the estimate link opens an OFFICE ask (SCHEDULE) on the file with the visit's list, pushes the office seat, emails the packet list | **338** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (335 as of 14 Sep).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (338 as of 15 Sep).
 
 ## What Kevin and Jess change without a build
 
