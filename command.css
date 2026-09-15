@@ -413,3 +413,15 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .card.say, .card.room { overflow: visible; }
 .line-find-pop, .say-who .line-find-pop, .composer .at-pop { max-height: min(60vh, 440px); overflow-y: auto; z-index: 12; }
 nav.side .card { max-height: 70vh; overflow-y: auto; }
+/* a rep's Line on a phone: the box first, the chrome small (Kevin, 15 Sep: "so easy a caveman can do it") */
+.rep-head { margin-bottom: 8px; }
+@media (max-width: 700px) {
+  nav.side { padding: 8px 16px; gap: 4px; }
+  nav.side .brand { font-size: 18px; margin-right: 6px; }
+  nav.side button.tab { padding: 5px 10px; font-size: 12px; }
+  nav.side .find { width: 100%; }
+  main { padding: 12px 16px; }
+  .head h1.serif { font-size: 22px; }
+  .card.say { padding: 12px 12px; }
+  .say-who input { max-width: none; }
+}

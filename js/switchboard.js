@@ -13,11 +13,12 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=52';
-import { toast } from './ui.js?v=52';
-import { html, raw, esc } from './ui.js?v=52';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=52';
-import { renderRoom, wireAtOn } from './village.js?v=52';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=53';
+import { toast } from './ui.js?v=53';
+import { html, raw, esc } from './ui.js?v=53';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=53';
+import { renderRoom, wireAtOn } from './village.js?v=53';
+import * as api from './api.js?v=53';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -100,14 +101,19 @@ export function renderSwitchboard(root) {
   const mine = (state.queue || []).filter((q) => q.assignee_id === me.id);
   const upN = tagged.length + mine.length + waiting.filter((c) => c.rep_id === me.id || c.owner_id === me.id).length;
 
+  /* A REP'S LINE (Kevin, 15 Sep: "I need a sales rep to be able to say, hey Jess, this customer called me, the crew
+     didn't do this right, can you get with Obed… so easy a caveman can do it"): the box first, nothing above it, no
+     dropdown, no boards. He types it like a text. The rail comes after. */
+  const rep = me.role === 'sales';
   root.innerHTML = html`
+    ${rep ? raw(`<div class="head rep-head"><div class="kicker">The Line · type it like a text</div>${isDemo() ? '<span class="chip demo">DEMO</span>' : ''}</div>`) : raw(`
     <div class="head">
       <div><div class="kicker">The Line · everything with a human waiting on the other end</div>
         <h1 class="serif">Nobody has to hunt, and nothing gets to sit.</h1></div>
-      <div class="right">${isDemo() ? raw('<span class="chip demo">DEMO · FICTIONAL BOOK</span>') : raw('<span class="chip">LIVE · DB</span>')}</div>
-    </div>
+      <div class="right">${isDemo() ? '<span class="chip demo">DEMO · FICTIONAL BOOK</span>' : '<span class="chip">LIVE · DB</span>'}</div>
+    </div>`)}
     ${raw(sayItHTML())}
-    ${raw(stuckCard(C, waiting))}
+    ${rep ? '' : raw(stuckCard(C, waiting))}
     <div class="line-wrap">
       <div class="line-rail" id="line-rail">${raw(railHTML(upN, waiting, tagged, mine, C))}</div>
       <div class="line-pane" id="line-pane"></div>
@@ -371,6 +377,7 @@ function sayItHTML() {
   const people = (state.people || []).filter((p) => p.id !== me.id);
   const roles = [['@office', '@office · the office seat'], ['@schedule', '@schedule · scheduling'], ['@production', '@production · the supervisor'], ['@rep', '@rep · who sold it'], ['@invoice', '@invoice · billing']];
   const c = say.cust;
+  const rep = me.role === 'sales';
   const who = c ? `<span class="chip cust">on ${esc(personName(c.name))}${c.street ? ' · ' + esc(c.street) : ''}${c.city ? ', ' + esc(c.city) : ''}</span><button class="btn sm" data-say-clear>Change</button>`
                 : `<input data-say-find placeholder="Who is it about — last name, address, or phone" autocomplete="off"/><div class="line-find-pop" data-say-pop hidden></div>`;
   const toOpts = `<option value="">— pick who —</option>` + roles.map(([v, l]) => `<option value="${v}" ${say.to === v ? 'selected' : ''}>${esc(l)}</option>`).join('')
@@ -379,7 +386,7 @@ function sayItHTML() {
     ? `<div class="say-presets">${(say.lines || []).map((l) => `<button class="sub" data-say-line="${esc(l.key)}" title="${esc(l.body)}">${esc(l.label)}</button>`).join('') || '<span class="small">Reading the office lines…</span>'}</div>` : '';
   const law = say.lane === 'customer'
     ? (c ? `Goes to ${esc(firstName(c.name) || 'them')} as a text from the brand's approved line. A draft until Send; the file opens after with six seconds to take it back.` : 'Pick the customer first.')
-    : (c ? `Lands on ${esc(personName(c.name))}'s file as a note. Whoever you pick gets a push and it sits in their You're up until they open it. The customer never sees this.` : 'Pick the customer first — every word here lands on a file.');
+    : (c ? `Lands on ${esc(personName(c.name))}'s file as a note. Everyone you @ gets a push and it sits in their You're up until they open it. The customer never sees this.` : 'No customer yet: this goes to the Village, where every seat reads it. @ a customer in the words and it lands on their file instead.');
   return `<div class="card say" id="line-say">
     <div class="head" style="margin-bottom:8px"><div class="kicker">Say it · to anyone, about any customer, from here</div><span class="small">${isDemo() ? 'demo — nothing sends' : 'texts from the brand line · notes with a push'}</span></div>
     <div class="say-row"><span class="kicker">About</span><div class="say-who">${who}</div></div>
@@ -387,13 +394,13 @@ function sayItHTML() {
       <div class="lanes" style="margin:0">
         <button class="lanebtn ${say.lane === 'person' ? 'on' : ''}" data-say-lane="person">A person</button>
         <button class="lanebtn ${say.lane === 'customer' ? 'on' : ''}" data-say-lane="customer">The customer</button>
-        ${say.lane === 'person' ? `<select data-say-to style="width:auto;padding:5px 8px;font-size:12px">${toOpts}</select>` : ''}
+        ${say.lane === 'person' && !rep ? `<select data-say-to style="width:auto;padding:5px 8px;font-size:12px">${toOpts}</select>` : ''}
       </div></div>
     ${presets}
     <div class="composer" style="border:0;padding:0;background:transparent;position:relative">
       <div class="line-find-pop at-pop" data-say-at-pop hidden></div>
-      <textarea data-say-text placeholder="${say.lane === 'customer' ? 'The text…' : 'permit is in, ready to schedule · take this one · customer asked for you'}">${esc(say.text)}</textarea>
-      <button class="btn ${say.lane === 'customer' ? 'fill' : ''}" data-say-send ${c ? '' : 'disabled'}>${say.lane === 'customer' ? 'Send the text' : 'Post it'}</button>
+      <textarea data-say-text placeholder="${say.lane === 'customer' ? 'The text…' : (rep ? '@Jess this customer called me, the crew missed the gate latch. Can you get with @Obed to fix it? @ the customer by name, street or phone…' : 'permit is in, ready to schedule · take this one · customer asked for you')}">${esc(say.text)}</textarea>
+      <button class="btn ${say.lane === 'customer' ? 'fill' : ''}" data-say-send ${(c || say.lane !== 'customer') ? '' : 'disabled'}>${say.lane === 'customer' ? 'Send the text' : 'Post it'}</button>
     </div>
     <div class="small">${law} Type <b>@</b> in the words for more people — everyone named gets the push. Ctrl+Enter sends.</div>
   </div>`;
@@ -443,10 +450,17 @@ function wireSayIt(root) {
   let busy = false;                        // ref-style guard (b80): the render is not the lock
   const send = async () => {
     const c = say.cust, body = (text.value || '').trim();
-    if (!c || !body || busy) return;
-    if (isDemo()) { toast('Demo — nothing is saved'); return; }
+    if (!body || busy || (say.lane === 'customer' && !c)) return;
     busy = true; const btn = box.querySelector('[data-say-send]'); btn.disabled = true;
     try {
+      if (!c) {
+        // nobody picked: it is a Village post — every staff seat reads it and gets the room's push (316)
+        if (isDemo()) { if (window.__demoPost) window.__demoPost('village', { name: state.me?.name, initials: state.me?.initials, body }); toast('Demo — posted to the Village here only'); }
+        else { await api.insert('team_messages', { room: 'village', body, customer_id: null }, false); toast('Posted to the Village · everyone gets the push'); }
+        say.text = ''; text.value = ''; pane = 'room:village'; renderSwitchboard(lastRoot);
+        return;
+      }
+      if (isDemo()) { toast('Demo — nothing is saved'); return; }
       if (say.lane === 'customer') {
         await textCustomer(c.id, body);
         toast(`Queued to ${firstName(c.name) || 'them'} from the brand line · six seconds to take it back`);
