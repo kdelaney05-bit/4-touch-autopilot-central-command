@@ -17,7 +17,7 @@ export const STEPS = [
   { key: 'signed',    label: 'Signed',       hint: 'the customer signed',                          types: [] },
   { key: 'paperwork', label: 'Paperwork',    hint: 'Sam is collecting the rest of the paperwork',   types: ['CONTRACT_DOC'] },
   { key: 'permit',    label: 'Permit',       hint: 'waiting on the county',                        types: ['PERMIT'] },
-  { key: 'locate',    label: '811 locate',   hint: 'Diana files it, the utilities mark the yard',  types: ['SURVEY'] },
+  { key: 'locate',    label: '811 locate',   hint: 'Sam files it, the utilities mark the yard',  types: ['SURVEY'] },
   { key: 'material',  label: 'Material',     hint: 'Jonathan orders it',                           types: ['MATERIAL', 'MATERIAL_REQUEST'] },
   { key: 'schedule',  label: 'Install date', hint: 'Jonathan sets the day with the customer',      types: ['SCHEDULE', 'SCHEDULE_QUESTION'] },
   { key: 'crew',      label: 'Crew',         hint: "Luis's crew builds it",                        types: ['COMPLETION_SIGNOFF', 'MILESTONE', 'SAFETY_JHA', 'SITE_ISSUE', 'SUPERVISOR_PING', 'CHANGE_ORDER', 'CUSTOMER_REQUEST'] },

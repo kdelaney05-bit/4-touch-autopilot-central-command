@@ -12,10 +12,10 @@
 // system lines, signatures (129/338), the fence job's stamps (336), the
 // signing notes (338) and the 811 tickets (341). Nothing here writes.
 // Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=36';
-import { state, isDemo, firstName } from './book.js?v=36';
-import { $, html, raw, esc } from './ui.js?v=36';
-import { brandName } from './config.js?v=36';
+import * as api from './api.js?v=37';
+import { state, isDemo, firstName } from './book.js?v=37';
+import { $, html, raw, esc } from './ui.js?v=37';
+import { brandName } from './config.js?v=37';
 
 const DAYS = 14;
 let timer = null;
@@ -24,7 +24,7 @@ let q = '';
 let view = 'jobs';      // jobs | map
 let cache = null;
 
-import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=36';
+import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=37';
 
 const PALETTE = [
   ['#1f6f4a', '#dff0e6'], ['#1d5fa8', '#e1e8f3'], ['#b45309', '#f6e3d6'], ['#0e7c86', '#dcf1f3'], ['#5b3a8f', '#ece5f6'],
@@ -150,7 +150,7 @@ function demoCache() {
     { cid: 'j8', cust: 'Pestana, Maria', brand: '1461', at: m(42), pid: p(1), body: 'Samantha turned in the property survey (1 file)', cls: 'done' },
     { cid: 'j8', cust: 'Pestana, Maria', brand: '1461', at: m(190), pid: 'customer', body: 'Maria Pestana SIGNED the contract on their iPhone', cls: 'money', step: 'signed' },
     { cid: 'j8', cust: 'Pestana, Maria', brand: '1461', at: m(191), pid: 'machine', body: 'Emailed Ron, Gio, Kevin: the customer signed, get out there today' },
-    { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(600), pid: 'machine', body: 'Diana filed the 811 locate — utilities have until 9/17', cls: 'done' },
+    { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(600), pid: 'machine', body: 'Sam filed the 811 locate — utilities have until 9/17', cls: 'done' },
     { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(300), pid: 'machine', body: 'All 6 utilities answered — clear to dig', cls: 'money' },
   ];
   const now = new Map([['j8', { idx: 6, step: STEPS[6], since: m(3), who: 'Luis', what: 'the finished-job photos', n: 1 }], ['j3', { idx: 5, step: STEPS[5], since: m(299), who: 'Jonathan', what: 'the install date', n: 1 }]]);
@@ -243,7 +243,7 @@ function paint(root) {
 function seatFor(rule) {
   const cc = brand === 'all' ? '1461' : brand;
   if (rule === 'rep') return { name: 'The rep who sold it', id: 'rep' };
-  if (rule === 'locate') { const d = (state.people || []).find((p) => /^diana@/i.test(p.email || '')) || (state.seats || []).find((p) => /^diana@/i.test(p.email || '')); return d ? { name: d.name, id: d.id } : seatFor('sold_office'); }
+  if (rule === 'locate') return seatFor('sold_office');   // the seat that files locates = the sold_office owner (Sam). Diana left; 15 Sep.
   const rows = (state.stageSeats || []).filter((s) => s.stage === rule);
   const r = rows.find((s) => s.cc_company_id === cc) || rows[0];
   const id = rule === 'production' ? (r?.watcher_id || r?.owner_id) : (r?.owner_id || r?.watcher_id);
@@ -291,7 +291,7 @@ function demoCache() {
     { cid: 'j8', cust: 'Pestana, Maria', brand: '1461', at: m(42), pid: p(1), body: 'Samantha turned in the property survey (1 file)', cls: 'done' },
     { cid: 'j8', cust: 'Pestana, Maria', brand: '1461', at: m(190), pid: 'customer', body: 'Maria Pestana SIGNED the contract on their iPhone', cls: 'money', step: 'signed' },
     { cid: 'j8', cust: 'Pestana, Maria', brand: '1461', at: m(191), pid: 'machine', body: 'Emailed Ron, Gio, Kevin: the customer signed, get out there today' },
-    { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(600), pid: 'machine', body: 'Diana filed the 811 locate — utilities have until 9/17', cls: 'done' },
+    { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(600), pid: 'machine', body: 'Sam filed the 811 locate — utilities have until 9/17', cls: 'done' },
     { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(300), pid: 'machine', body: 'All 6 utilities answered — clear to dig', cls: 'money' },
   ];
   const now = new Map([['j8', { idx: 6, step: STEPS[6], since: m(3), who: 'Luis', what: 'the finished-job photos', n: 1 }], ['j3', { idx: 5, step: STEPS[5], since: m(299), who: 'Jonathan', what: 'the install date', n: 1 }]]);
@@ -384,7 +384,7 @@ function paint(root) {
 function seatFor(rule) {
   const cc = brand === 'all' ? '1461' : brand;
   if (rule === 'rep') return { name: 'The rep who sold it', id: 'rep' };
-  if (rule === 'locate') { const d = (state.people || []).find((p) => /^diana@/i.test(p.email || '')) || (state.seats || []).find((p) => /^diana@/i.test(p.email || '')); return d ? { name: d.name, id: d.id } : seatFor('sold_office'); }
+  if (rule === 'locate') return seatFor('sold_office');   // the seat that files locates = the sold_office owner (Sam). Diana left; 15 Sep.
   const rows = (state.stageSeats || []).filter((s) => s.stage === rule);
   const r = rows.find((s) => s.cc_company_id === cc) || rows[0];
   const id = rule === 'production' ? (r?.watcher_id || r?.owner_id) : (r?.owner_id || r?.watcher_id);
