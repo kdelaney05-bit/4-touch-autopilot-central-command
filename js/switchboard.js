@@ -13,10 +13,11 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName } from './book.js?v=45';
-import { html, raw, esc } from './ui.js?v=45';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=45';
-import { renderRoom } from './village.js?v=45';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople } from './book.js?v=46';
+import { toast } from './ui.js?v=46';
+import { html, raw, esc } from './ui.js?v=46';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=46';
+import { renderRoom } from './village.js?v=46';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -43,11 +44,57 @@ const BUCKETS = [
 ];
 const bucketOf = (text) => (BUCKETS.find(([, re]) => re.test(text)) || [null])[0];
 
-let pane = 'up';          // 'up' · 'wait' · 'room:office' …
+let pane = 'up';          // 'up' · 'wait' · 'room:office' · 'dm:<rep id>'
+let lastRoot = null;
+/* THE LANE — Jess, 14 Sep, on the Uvoice ticket: "How can I only receive
+   texts that I need (office lines)? I am still getting every text from
+   sales." The Jetstream picture's who-sees-what table says the same thing in
+   rules: Sam sees files at an office step plus any file she is tagged on;
+   Luis sees files at scheduling or later plus his tags; a rep his own book.
+   Open by default still stands — Everything is one tap away — but a seat
+   LANDS on its own lane, so the rail is theirs before it is everybody's. */
+let lane = null;          // 'all' · 'mine' — null = the seat's default
+const OFFICE_STAGES = ['sold_office', 'invoiced', 'paid'];
+const PROD_STAGES = ['sold_office', 'production', 'field_complete', 'invoiced'];
+function laneDefault() { const r = state.me?.role; return (r === 'owner' || r === 'admin') ? 'all' : 'mine'; }
+function laneWords() {
+  const r = state.me?.role;
+  if (r === 'office') return 'files at an office step, plus anything you are tagged on';
+  if (r === 'manager') return 'files at scheduling or later, plus anything you are tagged on';
+  if (r === 'sales') return 'your own book, plus anything you are tagged on';
+  return 'files you hold, plus anything you are tagged on';
+}
+function laneSet() {
+  const r = state.me?.role, me = state.me?.id, S = new Set();
+  const stages = r === 'office' ? OFFICE_STAGES : r === 'manager' ? PROD_STAGES : null;
+  for (const b of state.board || []) {
+    if (stages && stages.includes(b.stage)) S.add(b.customer_id);
+    if (b.rep_id === me || b.owner_id === me || b.supervisor_id === me) S.add(b.customer_id);
+  }
+  for (const q of state.queue || []) if (q.assignee_id === me || (r === 'office' && q.lane === 'OFFICE')) S.add(q.customer_id);
+  for (const m of state.mentions || []) if (m.customer_id) S.add(m.customer_id);
+  for (const c of state.clock || []) if (c.rep_id === me || c.owner_id === me) S.add(c.customer_id);
+  return S;
+}
+let dmTimer = null;       // the open line polls; leaving the room stops it (app.js go())
+
+export function stopLinePoll() { if (dmTimer) clearInterval(dmTimer); dmTimer = null; }
+
+/* 346: open a direct line with one person, from anywhere (the top box, the rail, a push). */
+export function openLine(personId) {
+  pane = 'dm:' + personId;
+  if (lastRoot && lastRoot.isConnected && !lastRoot.classList.contains('hidden')) renderSwitchboard(lastRoot);
+  else window.__go('line');
+}
+window.__line = openLine;
 
 export function renderSwitchboard(root) {
+  lastRoot = root;
+  stopLinePoll();
   const me = state.me || {};
-  const C = (state.clock || []).slice().sort((a, b) => (b.waiting_min || 0) - (a.waiting_min || 0));
+  if (lane === null) lane = laneDefault();
+  const inLane = lane === 'all' ? null : laneSet();
+  const C = (state.clock || []).filter((c) => !inLane || inLane.has(c.customer_id)).sort((a, b) => (b.waiting_min || 0) - (a.waiting_min || 0));
   const waiting = C.filter((c) => (c.waiting_min || 0) >= 15);
   const tagged = (state.mentions || []).filter((m) => !m.seen_at);
   const mine = (state.queue || []).filter((q) => q.assignee_id === me.id);
@@ -66,6 +113,8 @@ export function renderSwitchboard(root) {
     </div>`;
 
   root.querySelectorAll('[data-pane]').forEach((b) => (b.onclick = () => { pane = b.dataset.pane; renderSwitchboard(root); }));
+  root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
+  wirePeopleFind(root);
   paintPane(root, { waiting, tagged, mine, C });
 }
 
@@ -120,6 +169,8 @@ function stuckCard(C, waiting) {
 
 /* ── the rail ───────────────────────────────────────────────────────────── */
 function railHTML(upN, waiting, tagged, mine, C) {
+  const laneBar = `<div class="line-lane"><button class="sub ${lane === 'mine' ? 'on' : ''}" data-lane="mine">My lane</button><button class="sub ${lane === 'all' ? 'on' : ''}" data-lane="all">Everything</button></div>`
+    + `<div class="small" style="padding:0 12px 6px">${lane === 'mine' ? esc(laneWords()) : 'every file, every room — open by default'}</div>`;
   const rooms = [['office', 'The Office room'], ['production', 'The Production room'], ['village', 'The Village'], ['sales', 'Sales hype']];
   const recent = C.slice().sort((a, b) => new Date(b.occurred_at || 0) - new Date(a.occurred_at || 0)).slice(0, 8);
   const grp = (label, note, body) => `<div class="line-grp"><div class="kicker"><span>${esc(label)}</span><span>${esc(note)}</span></div>${body}</div>`;
@@ -128,12 +179,13 @@ function railHTML(upN, waiting, tagged, mine, C) {
     + `<span><span class="nm">${esc(nm)}</span><span class="pv">${esc(pv)}</span></span>`
     + (badge ? `<span class="line-badge">${esc(badge)}</span>` : '') + '</button>';
 
-  return grp('You\'re up', upN ? upN + ' waiting' : 'clear',
+  return laneBar + grp('You\'re up', upN ? upN + ' waiting' : 'clear',
       item(pane === 'up', 'up', '!', 'Everything waiting on you', tagged.length ? firstName(tagged[0].author_name || '') + ' tagged you' : (mine.length ? mine.length + ' asks on you' : 'nothing owed'), upN || '', 'gold'))
     + grp('Nothing goes unanswered', 'everyone sees',
       item(pane === 'wait', 'wait', '∅', 'Customers with no answer', waiting.length ? 'oldest ' + mins(waiting[0].waiting_min) : 'everybody answered', waiting.length || '', waiting.some((c) => tier(c.waiting_min) === 'all') ? 'red' : ''))
     + grp('Rooms', 'anybody helps',
       rooms.map(([k, label]) => item(pane === 'room:' + k, 'room:' + k, k.slice(0, 2).toUpperCase(), label, k === 'sales' ? 'the reps’ own thread' : 'staff only', '', k === 'office' ? 'blue' : k === 'production' ? 'orange' : k === 'sales' ? 'green' : 'gold')).join(''))
+    + grp('People', state.direct === null ? 'not on live yet' : 'direct lines', peopleRail())
     + grp('Lately', 'last to speak',
       recent.length ? recent.map((c) => `<button class="line-item" onclick="__peek('${esc(c.customer_id)}')">`
         + `<span class="line-av">${esc((firstName(c.customer_name) || '?').slice(0, 2).toUpperCase())}</span>`
@@ -146,6 +198,7 @@ function paintPane(root, d) {
   const el = root.querySelector('#line-pane');
   if (!el) return;
   if (pane.startsWith('room:')) { renderRoom(el, pane.slice(5)); return; }
+  if (pane.startsWith('dm:')) { renderLine(el, pane.slice(3)); return; }
   if (pane === 'wait') { el.innerHTML = waitHTML(d.waiting); return; }
   el.innerHTML = upHTML(d);
 }
@@ -195,4 +248,101 @@ function upHTML({ tagged, mine, waiting }) {
         <span class="mono ${q.open_min > 4320 ? 'red' : q.open_min > 1440 ? 'clock' : 'dimmer'}">${esc(mins(q.open_min))}</span>
       </button>`).join('')) : ''}
   </div>`;
+}
+
+
+/* ── 346: direct lines ─────────────────────────────────────────────────────
+   The one private thread in the system. Readable by the two people on it and
+   the owner (RLS, not the page). The rail lists the lines that exist; the
+   box under them starts a new one with anybody who has a seat. */
+function peopleRail() {
+  const D = state.direct;
+  const box = `<div class="line-find"><input data-person-find placeholder="Message anyone… a name" autocomplete="off"/><div class="line-find-pop" data-person-pop hidden></div></div>`;
+  if (D === null) return box + '<div class="small" style="padding:4px 10px 6px">Direct lines arrive with migration 346. Until it is on live this box finds people but cannot send.</div>';
+  const rows = (D || []).map((d) => {
+    const mine = d.last_from === state.me?.id;
+    return `<button class="line-item ${pane === 'dm:' + d.other_id ? 'on' : ''}" data-pane="dm:${esc(d.other_id)}">`
+      + `<span class="line-av blue">${esc(d.other_initials || (firstName(d.other_name) || '?').slice(0, 2).toUpperCase())}</span>`
+      + `<span><span class="nm">${esc(personName(d.other_name))}</span><span class="pv">${mine ? 'you: ' : ''}${esc(String(d.last_body || '').slice(0, 48))}</span></span>`
+      + (Number(d.unseen) ? `<span class="line-badge">${esc(d.unseen)}</span>` : '') + '</button>';
+  }).join('');
+  return box + (rows || '<div class="small" style="padding:4px 10px 6px">No lines yet. Type a name above.</div>');
+}
+
+/* wired once per paint — the rail is rebuilt on every click */
+function wirePeopleFind(root) {
+  const find = root.querySelector('[data-person-find]');
+  const pop = root.querySelector('[data-person-pop]');
+  if (!find || !pop) return;
+  const close = () => { pop.hidden = true; pop.innerHTML = ''; };
+  find.addEventListener('input', () => {
+    const rows = searchPeople(find.value);
+    if (!rows.length) { close(); return; }
+    pop.innerHTML = rows.map((p) => `<button class="line-item" data-open-line="${esc(p.id)}"><span class="line-av blue">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(p.name)}</span><span class="pv">${esc(p.role || '')}</span></span></button>`).join('');
+    pop.hidden = false;
+    pop.querySelectorAll('[data-open-line]').forEach((b) => (b.onclick = () => { close(); find.value = ''; openLine(b.dataset.openLine); }));
+  });
+  find.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { close(); find.blur(); }
+    if (e.key === 'Enter') { const first = pop.querySelector('[data-open-line]'); if (first) first.click(); }
+  });
+}
+
+const whenShort = (iso) => new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+async function renderLine(el, otherId) {
+  const me = state.me || {};
+  const other = (state.people || []).find((p) => p.id === otherId) || (state.direct || []).map((d) => ({ id: d.other_id, name: d.other_name, role: d.other_role, initials: d.other_initials })).find((p) => p.id === otherId) || { id: otherId, name: 'A seat', role: '' };
+  el.innerHTML = `<div class="card line-dm">
+    <div class="head" style="margin-bottom:6px">
+      <div><div class="kicker">Direct line · just the two of you${['owner'].includes(me.role) ? '' : ', and Kevin'}</div>
+        <h3 class="serif" style="font-size:20px;margin-top:2px">${esc(personName(other.name))} <span class="small">· ${esc(other.role || '')}</span></h3></div>
+      <span class="small">About a job? Put it on the customer's file instead — then everybody has it.</span>
+    </div>
+    <div class="room-list" data-dm-list><div class="empty">Opening the line…</div></div>
+    <div class="composer">
+      <textarea data-dm-say placeholder="Say it to ${esc(firstName(other.name) || 'them')}…"></textarea>
+      <button class="btn fill" data-dm-send>Send</button>
+    </div>
+    <div class="small">Ctrl+Enter sends. They get a push on their phone. Nothing here is ever deleted.</div>
+  </div>`;
+  const list = el.querySelector('[data-dm-list]');
+  const say = el.querySelector('[data-dm-say]');
+  const send = el.querySelector('[data-dm-send]');
+  let newest = null;
+
+  const paintThread = async (quiet) => {
+    let rows = [];
+    try { rows = await directThread(otherId); }
+    catch (e) { if (!quiet) list.innerHTML = `<div class="empty">${esc(e.message || 'The line would not open')}</div>`; return; }
+    const last = rows.length ? rows[rows.length - 1].id : null;
+    if (quiet && last === newest) return;
+    newest = last;
+    list.innerHTML = rows.length ? rows.map((m) => {
+      const mine = m.from_id === me.id;
+      return `<div class="roomrow ${mine ? 'out' : ''}"><span class="ini">${esc(mine ? (me.initials || firstName(me.name) || 'me').slice(0, 2).toUpperCase() : (other.initials || firstName(other.name) || '?').slice(0, 2).toUpperCase())}</span>`
+        + `<div class="msg ${mine ? 'out' : 'in'}"><div class="who">${esc(mine ? 'You' : firstName(other.name))} · ${esc(whenShort(m.created_at))}</div><div class="say">${esc(m.body)}</div></div></div>`;
+    }).join('') : '<div class="empty">Nothing on this line yet. Say the first thing.</div>';
+    list.scrollTop = list.scrollHeight;
+  };
+
+  await paintThread(false);
+  // opening the line is reading it: mark theirs seen, and take the badge off the rail without a reload
+  const d = (state.direct || []).find((x) => x.other_id === otherId);
+  if (d && Number(d.unseen)) { d.unseen = 0; directSeen(otherId); const b = el.closest('.line-wrap')?.querySelector(`[data-pane="dm:${CSS.escape(otherId)}"] .line-badge`); if (b) b.remove(); }
+
+  let busy = false;                      // ref-style guard (b80): the render is not the lock
+  const post = async () => {
+    const body = (say.value || '').trim();
+    if (!body || busy) return;
+    if (isDemo()) { toast('Demo — nothing is saved'); return; }
+    busy = true; send.disabled = true;
+    try { await sendDirect(otherId, body); say.value = ''; await paintThread(false); }
+    catch (e) { toast(e.message || 'It did not go through', 'err'); }
+    finally { busy = false; send.disabled = false; }
+  };
+  send.onclick = post;
+  say.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post(); });
+  stopLinePoll();
+  dmTimer = setInterval(() => { if (!el.isConnected) { stopLinePoll(); return; } paintThread(true); }, 15000);
 }
