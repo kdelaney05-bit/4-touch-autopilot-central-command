@@ -19,11 +19,11 @@
 // with no live source reads honestly absent. Sources are never blended;
 // nothing is projected into an actual. Costs and profit have no feed yet and
 // say so.
-import * as api from './api.js?v=43';
-import { state, isDemo, personName } from './book.js?v=43';
-import { html, raw, esc } from './ui.js?v=43';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=43';
-import { renderRoom } from './village.js?v=43';
+import * as api from './api.js?v=44';
+import { state, isDemo, personName } from './book.js?v=44';
+import { html, raw, esc } from './ui.js?v=44';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=44';
+import { renderRoom } from './village.js?v=44';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
@@ -69,7 +69,7 @@ async function loadLedgers() {
   const t0 = day(0), t7 = day(7), m120 = day(-120);
   const jan1 = new Date(t0.getFullYear(), 0, 1);
   // 120 days back on leads and appointments: the last 30 are the figure, the 90 before are its "usual"
-  const [sold, leads, appts, wos, crews, qb, sigs, accepts, mats] = await Promise.all([
+  const [sold, leads, appts, wos, crews, qb, sigs, accepts, mats, pnl] = await Promise.all([
     api.page(`sale_fact?select=job_id,rep_id,cc_company_id,sold_at,amount&sold_at=gte.${ymd(jan1)}&order=sold_at.desc&limit=8000`, 8000).catch(() => null),
     api.page(`jobs?select=id,cc_company_id,created_at&created_at=gte.${iso(m120)}&order=created_at.desc&limit=8000`, 8000).catch(() => null),
     api.page(`appointment_rep_truth?select=cc_company_id,starts_at,cc_created_at,is_cancelled,rep_name&starts_at=gte.${iso(m120)}&starts_at=lt.${iso(t7)}&order=starts_at.desc&limit=8000`, 8000).catch(() => null),
@@ -79,6 +79,8 @@ async function loadLedgers() {
     api.page('customer_signatures?select=customer_id,job_id,signed_at,signer_name&order=signed_at.desc&limit=200', 200).catch(() => null),
     api.page('estimate_docs?select=customer_id,job_id,total,accepted_at&accepted_at=not.is.null&order=accepted_at.desc&limit=200', 200).catch(() => null),
     api.page('cc_material_orders?select=job_id,delivery_at,submitted_at&limit=2000', 2000).catch(() => null),
+    // 345: QuickBooks' own P&L per company per month (absent until the migration lands — then it just appears)
+    api.page(`v_company_pnl?select=cc_company_id,period_start,period_end,total_income,cogs,gross_profit,total_expenses,net_income,book_close_date,approved,state,synced_at&basis=eq.Accrual&period_start=gte.${ymd(jan1)}&order=period_start.desc&limit=100`, 100).catch(() => null),
   ]);
   // committed = the customer said yes on OUR link (accepted or signed) and CC does not carry the signing yet
   let committed = null;
@@ -89,7 +91,7 @@ async function loadLedgers() {
     const seen = new Set();
     committed = rows.filter((j) => !j.contract_signed_at && !seen.has(j.id) && seen.add(j.id)).map((j) => ({ ...j, yes: yes.filter((y) => y.job_id === j.id).sort((a, b) => new Date(b.at) - new Date(a.at))[0] }));
   }
-  return { sold, leads, appts, wos, crews, qb, committed, mats };
+  return { sold, leads, appts, wos, crews, qb, committed, mats, pnl };
 }
 
 export function renderHome(root) {
@@ -265,9 +267,22 @@ function ledgersHtml(L, B) {
     const coLeadsUsual = leadsUsualOf(realLeads ? realLeads.filter((l) => l.cc_company_id === cc) : null);
     const coSold30 = sf ? sum(sf.filter((s) => inWin(s.sold_at, m30, t1)), (s) => s.amount) : null;
     const coSold30Usual = sf ? sum(sf.filter((s) => inWin(s.sold_at, m120, m30)), (s) => s.amount) / 3 : null;
+    // THE P&L, REAL (345): QuickBooks' own numbers. The running month, the
+    // last month the accountant closed (approved), and the year. Net income
+    // is the one line Kevin asked for: "if we're making money we're doing
+    // good, if we're not, we're not."
+    const pn = L.pnl ? L.pnl.filter((p) => p.cc_company_id === cc) : null;
+    const pnRun = pn ? pn.find((p) => p.state === 'running') : null;
+    const pnClosed = pn ? pn.find((p) => p.approved) : null;
+    const pnYtdNet = pn && pn.length ? sum(pn, (p) => p.net_income) : null;
+    const netCls = (v) => v == null ? '' : v < 0 ? 'red' : 'verify';
+    const pnlRows = pn && pn.length ? `
+            ${rowline(`Net income · ${pnRun ? new Date(pnRun.period_start + 'T00:00:00').toLocaleDateString([], { month: 'long' }) + ', running' : 'this month'}`, pnRun ? `${moneyK(pnRun.net_income)} <span class="dimmer">· on ${moneyK(pnRun.total_income)} in</span>` : '—', netCls(pnRun?.net_income))}
+            ${rowline(`Net income · ${pnClosed ? new Date(pnClosed.period_start + 'T00:00:00').toLocaleDateString([], { month: 'long' }) + ', closed by the books' : 'last closed month'}`, pnClosed ? `${moneyK(pnClosed.net_income)} <span class="dimmer">· on ${moneyK(pnClosed.total_income)} in</span>` : '<span class="dimmer">no month closed yet</span>', netCls(pnClosed?.net_income))}
+            ${rowline('Net income · this year', moneyK(pnYtdNet), netCls(pnYtdNet))}` : rowline('Costs and profit', 'no feed yet', 'clock');
     const quiet = !bl.length && !(inv && inv.length) && !(sf && sf.length);
     return `<div class="ledger co ${quiet ? 'quiet' : ''}">
-      <div class="lhead"><h2>${esc(name)}</h2><div class="right">${demo ? src('DEMO') : ''}${!demo && inv ? src('QB PULL') : ''} ${!demo && sf ? src('LIVE DB') : ''} ${src('NO FEED YET', 'costs and profit: QuickBooks expenses are not synced, so this is the revenue side only')}</div></div>
+      <div class="lhead"><h2>${esc(name)}</h2><div class="right">${demo ? src('DEMO') : ''}${!demo && inv ? src('QB PULL · INVOICES') : ''} ${!demo && sf ? src('LIVE DB') : ''} ${pn && pn.length ? src('QB PULL · P&L', `QuickBooks' own Profit and Loss, accrual, synced ${new Date(pn[0].synced_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}; a month is approved when it ends on or before the books' closing date`) : src('NO FEED YET', 'costs and profit: the QuickBooks P&L feed (345) is written and waits on the database token')}</div></div>
       ${quiet ? '<div class="note">Nothing moving this year on this line.</div>' : `
       <div class="cogrid">
         <div>
@@ -282,7 +297,7 @@ function ledgersHtml(L, B) {
             ${rowline('Sold · this quarter', sf ? moneyK(soldIn(qStart)) : '—', 'verify')}
             ${rowline('Sold · this year', sf ? moneyK(soldIn(yStart)) : '—', 'verify')}
             ${rowline('Collected · this year', collectedYtd == null ? '—' : moneyK(collectedYtd))}
-            ${rowline('Costs and profit', 'no feed yet', 'clock')}
+            ${pnlRows}
           </div>
         </div>
         <div>
