@@ -1,27 +1,28 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=54';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=54';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=54';
-import { BRAND_BY_CC } from './config.js?v=54';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=54';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=54';
-import { renderHome } from './home.js?v=54';
-import { renderSales } from './sales.js?v=54';
-import { renderPipeline } from './pipeline.js?v=54';
-import { renderMarketing } from './marketing.js?v=54';
-import { renderOffice } from './office.js?v=54';
-import { renderProduction } from './production.js?v=54';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=54';
-import { stopRoomPoll } from './village.js?v=54';
-import { renderFlow, stopFlow } from './flow.js?v=54';
+import * as api from './api.js?v=55';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=55';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=55';
+import { BRAND_BY_CC } from './config.js?v=55';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=55';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=55';
+import { renderHome } from './home.js?v=55';
+import { renderSales } from './sales.js?v=55';
+import { renderPipeline } from './pipeline.js?v=55';
+import { renderMarketing } from './marketing.js?v=55';
+import { renderOffice } from './office.js?v=55';
+import { renderProduction } from './production.js?v=55';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=55';
+import { stopRoomPoll } from './village.js?v=55';
+import { renderFlow, stopFlow } from './flow.js?v=55';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
 const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
 
 export function rooms() {
-  const role = state.me?.role || 'sales';
-  return ROOMS_BY_ROLE[role] || ['files'];
+  const me = state.me;
+  if (me && ROOMS_BY_SEAT[me.id]) return ROOMS_BY_SEAT[me.id];   // the seat's own list beats its role's (Gio: everything but the books)
+  return ROOMS_BY_ROLE[me?.role || 'sales'] || ['files'];
 }
 
 export function go(v, arg) {
@@ -36,11 +37,47 @@ export function go(v, arg) {
 }
 window.__go = go;   // the tables' onclick handlers
 
+/* VIEW AS — Kevin, 15 Sep night: "I want to be able to just click down and, if I'm
+   that person, I can be them… flip through everyone in my company and see what
+   they would see." Owner and admin only. The rooms, the name and the role
+   become theirs; the rows stay what the real login can read (RLS runs on the
+   real token), which for an owner is everything — so a rep's Files list reads
+   wider than the rep's own would. The banner says so. Never saved. */
+export function viewAs(id) {
+  const real = state.realMe || state.me;
+  if (!real || !(KEYS.includes(real.id) || real.role === 'admin' || (isDemo() && real.role === 'owner'))) return;   // the keys only — an owner on paper does not get View as
+  const seat = id ? (state.people || []).find((p) => p.id === id) : null;
+  state.viewAsId = seat ? seat.id : null;
+  state.me = seat ? { ...real, ...seat } : real;
+  stopRoomPoll(); stopLinePoll(); stopFlow(); closeDrawer();
+  view = rooms()[0] || 'files';
+  render();
+  window.scrollTo({ top: 0 });
+}
+window.__viewAs = viewAs;
+const ROLE_ORDER = { owner: 0, admin: 1, manager: 2, office: 3, sales: 4, crew: 5 };
+function renderViewAs() {
+  const el = $('#viewas'); if (!el) return;
+  const real = state.realMe || state.me;
+  if (!real || !(KEYS.includes(real.id) || real.role === 'admin' || (isDemo() && real.role === 'owner'))) { el.hidden = true; el.innerHTML = ''; return; }
+  const people = (state.people || []).filter((p) => p.id !== real.id && p.role !== 'crew').slice().sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || String(a.name).localeCompare(String(b.name)));
+  const cur = state.viewAsId || '';
+  el.hidden = false;
+  el.innerHTML = html`<select id="viewas-pick" aria-label="View as">
+      <option value="">${raw('View as… (you: ' + esc(real.name.split(' ')[0]) + ')')}</option>
+      ${raw(people.map((p) => `<option value="${esc(p.id)}" ${p.id === cur ? 'selected' : ''}>${esc(p.name)} · ${esc(p.role)}</option>`).join(''))}
+    </select>
+    ${cur ? raw(`<div class="on"><b>Viewing as ${esc(state.me.name)} · ${esc(state.me.role)}</b>their rooms, their name — the rows are still what your login can see · <button id="viewas-back">back to you</button></div>`) : ''}`;
+  $('#viewas-pick').onchange = (e) => viewAs(e.target.value || null);
+  const back = $('#viewas-back'); if (back) back.onclick = () => viewAs(null);
+}
+
 export function render() {
   const me = state.me;
   const r = rooms();
   if (!r.includes(view) && view !== 'file') view = r[0] || 'files';
   $('#nav-who').textContent = me ? `${me.name.split(' ')[0]} · ${me.role}` : '';
+  renderViewAs();
   $('#who-sub').textContent = isDemo() ? 'DEMO — nothing is saved' : (state.loadedAt ? 'loaded ' + state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '');
   const tagged = (state.mentions || []).filter((m) => !m.seen_at).length;
   const counts = { line: state.clock.filter((c) => c.waiting_min >= 60).length + tagged + (state.direct || []).reduce((a, d) => a + Number(d.unseen || 0), 0), office: state.queue.length, production: state.board.filter((b) => b.stage === 'production' || b.stage === 'field_complete').length, home: state.clock.filter((c) => c.waiting_min >= 15).length + tagged };

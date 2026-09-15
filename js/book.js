@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=54';
-import { DEMO } from './demo.js?v=54';
+import * as api from './api.js?v=55';
+import { DEMO } from './demo.js?v=55';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -20,6 +20,8 @@ export const state = {
   parcels: [],         // parcel_lookups, last 30 days (324)
   nocs: [],            // paperwork_filled, last 30 days (325)
   people: [],          // every active rep/seat: id, name, initials, role, sms_from — who a bubble can be
+  realMe: null,        // the seat that actually signed in — View as (owner/admin) swaps state.me, never this
+  viewAsId: null,      // the seat an owner is looking through, or null
   pipeline: [],        // jobs on the selling side (appointment in 90 days, or signed in 60) with the customer embedded — the Pipeline room
   estimates: [],       // estimates, last 90 days — a price on file puts a customer in Estimate out
   direct: null,        // v_direct_lines (346) — my direct lines; null until the migration is on live
@@ -34,6 +36,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) {
     Object.assign(state, DEMO.book());
+    state.realMe = state.me;   // View as needs the real seat in the demo too
     const as = (/[?&]as=(sales|office|manager)/.exec(location.search) || [])[1];   // see the demo as another seat
     if (as) { const seat = (state.people || []).find((p) => p.role === as) || state.me; state.me = { ...seat, role: as, manages_company_id: null }; }
     state.loadedAt = new Date(); return state;
@@ -69,6 +72,11 @@ export async function loadAll() {
     api.page('v_direct_lines?select=*&order=last_at.desc', 200).catch(() => null),
   ]);
   Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct });
+  // View as (Kevin, 15 Sep night: "flip through everyone in my company and see what they would see"): an owner or
+  // admin looks through another seat — the rooms and the name are theirs; the rows are still what the owner's
+  // login can read, because RLS runs on the real token. Survives a reload.
+  state.realMe = me;
+  if (state.viewAsId && me && (["fa314b31-dac6-4666-8920-e95d471f5732"].includes(me.id) || me.role === "admin")) { const s = (people || []).find((p) => p.id === state.viewAsId); if (s) state.me = { ...me, ...s }; else state.viewAsId = null; }
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();
