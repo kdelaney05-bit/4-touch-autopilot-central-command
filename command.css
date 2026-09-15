@@ -441,3 +441,7 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .tour-card p { margin: 0 0 12px; font-size: 14.5px; color: var(--dim); line-height: 1.45; }
 .tour-foot { display: flex; gap: 8px; align-items: center; }
 .tour-lit { outline: 3px solid var(--goldbtn); outline-offset: 4px; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(28,26,21,.35); position: relative; z-index: 89; }
+.tour-bar { height: 3px; background: var(--line); border-radius: 2px; margin: 6px 0 2px; overflow: hidden; }
+.tour-bar i { display: block; height: 100%; width: 0; background: var(--goldbtn); animation: tourbar 7s linear forwards; }
+@keyframes tourbar { to { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .tour-bar i { animation: none; width: 100%; } }

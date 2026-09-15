@@ -1,20 +1,20 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=57';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=57';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=57';
-import { BRAND_BY_CC } from './config.js?v=57';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=57';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=57';
-import { renderHome } from './home.js?v=57';
-import { renderSales } from './sales.js?v=57';
-import { renderPipeline } from './pipeline.js?v=57';
-import { renderMarketing } from './marketing.js?v=57';
-import { renderOffice } from './office.js?v=57';
-import { renderProduction } from './production.js?v=57';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=57';
-import { stopRoomPoll } from './village.js?v=57';
-import { renderFlow, stopFlow } from './flow.js?v=57';
-import { startTour, tourWanted } from './tour.js?v=57';
+import * as api from './api.js?v=58';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=58';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=58';
+import { BRAND_BY_CC } from './config.js?v=58';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=58';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=58';
+import { renderHome } from './home.js?v=58';
+import { renderSales } from './sales.js?v=58';
+import { renderPipeline } from './pipeline.js?v=58';
+import { renderMarketing } from './marketing.js?v=58';
+import { renderOffice } from './office.js?v=58';
+import { renderProduction } from './production.js?v=58';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=58';
+import { stopRoomPoll } from './village.js?v=58';
+import { renderFlow, stopFlow } from './flow.js?v=58';
+import { startTour, tourWanted } from './tour.js?v=58';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;

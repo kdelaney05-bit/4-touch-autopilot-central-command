@@ -4,7 +4,7 @@
 // best thing and in one way better: it runs on the real screen, in the demo
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
-import { $, html, raw, esc } from './ui.js?v=57';
+import { $, html, raw, esc } from './ui.js?v=58';
 
 const STEPS = [
   { at: null, title: 'This is The Line.', body: 'Everything with a human waiting on the other end, on one screen. Nobody has to hunt, and nothing gets to sit. Let’s walk it in a minute.' },
@@ -16,22 +16,26 @@ const STEPS = [
   { at: null, title: 'That’s the whole thing.', body: 'Two things to try this week: say something to one person about one customer, and answer when someone says something to you. The customer never sees our notes. Only the texts we send them.' },
 ];
 
-let i = 0, root = null;
-export function startTour() {
-  i = 0;
+let i = 0, root = null, auto = null;
+const AUTO_MS = 7000;
+// ?auto=1 with ?tour=1: the tour runs itself, a step every seven seconds — the film, on the real screen
+export function startTour(autoplay = /[?&]auto=1/.test(location.search)) {
+  i = 0; clearTimeout(auto); auto = null;
   if (!root) { root = document.createElement('div'); root.id = 'tour'; document.body.appendChild(root); }
-  paint();
+  paint(autoplay);
 }
-function stop() { if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
-function paint() {
+function stop() { clearTimeout(auto); auto = null; if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
+function paint(autoplay = false) {
   const s = STEPS[i];
+  clearTimeout(auto); auto = null;
+  if (autoplay && i < STEPS.length - 1) auto = setTimeout(() => { i++; paint(true); }, AUTO_MS);
   document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit'));
   let target = null;
   if (s.at) for (const sel of s.at.split(',')) { target = document.querySelector(sel.trim()); if (target) break; }
   if (target) { target.classList.add('tour-lit'); target.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
   root.innerHTML = html`
     <div class="tour-card ${target ? '' : 'center'}">
-      <div class="kicker">Show me around · ${i + 1} of ${STEPS.length}</div>
+      <div class="kicker">Show me around · ${i + 1} of ${STEPS.length}${autoplay ? " · playing" : ""}</div>${autoplay ? raw("<div class=\"tour-bar\"><i></i></div>") : ""}
       <h2 class="serif">${s.title}</h2>
       <p>${s.body}</p>
       <div class="tour-foot">
@@ -42,7 +46,7 @@ function paint() {
       </div>
     </div>`;
   $('#tour-x').onclick = stop;
-  const b = $('#tour-b'); if (b) b.onclick = () => { i--; paint(); };
-  $('#tour-n').onclick = () => { if (i >= STEPS.length - 1) stop(); else { i++; paint(); } };
+  const b = $('#tour-b'); if (b) b.onclick = () => { i--; paint(autoplay); };
+  $('#tour-n').onclick = () => { if (i >= STEPS.length - 1) stop(); else { i++; paint(autoplay); } };
 }
 export const tourWanted = () => /[?&]tour=1/.test(location.search);
