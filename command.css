@@ -52,10 +52,10 @@ h1.serif { font-family: var(--serif); font-size: 30px; font-weight: 500; letter-
 .chip.demo { color: var(--clock); border-color: #ead9a8; background: var(--goldsoft); }
 
 /* ── nav ── */
-nav.side { display: flex; align-items: center; gap: 6px; padding: 14px 40px; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 5; }
+nav.side { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 14px 40px; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 5; }
 nav.side .brand { font-family: var(--serif); font-size: 24px; font-weight: 500; letter-spacing: -0.01em; margin-right: 18px; display: flex; align-items: baseline; gap: 12px; }
 nav.side .brand small { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; color: var(--dimmer); text-transform: uppercase; font-weight: 500; }
-nav.side .tabs { display: flex; gap: 4px; }
+nav.side .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
 nav.side button.tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--dim); }
 nav.side button.tab.on { background: var(--ink); color: var(--bg); }
 nav.side button.tab .n { font-family: var(--mono); font-size: 10px; background: var(--goldsoft); color: var(--gold); border-radius: 999px; padding: 1px 6px; }

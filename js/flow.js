@@ -12,10 +12,10 @@
 // system lines, signatures (129/338), the fence job's stamps (336), the
 // signing notes (338) and the 811 tickets (341). Nothing here writes.
 // Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=32';
-import { state, isDemo, firstName } from './book.js?v=32';
-import { $, html, raw, esc } from './ui.js?v=32';
-import { brandName } from './config.js?v=32';
+import * as api from './api.js?v=33';
+import { state, isDemo, firstName } from './book.js?v=33';
+import { $, html, raw, esc } from './ui.js?v=33';
+import { brandName } from './config.js?v=33';
 
 const DAYS = 14;
 let timer = null;
