@@ -11,10 +11,10 @@
 // system lines (thread_messages.is_system), signatures (129/338), the fence
 // job's stamps (336) and the notes that left the rep's mailbox (338). Nothing
 // here writes. Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=30';
-import { state, isDemo, firstName } from './book.js?v=30';
-import { $, html, raw, esc } from './ui.js?v=30';
-import { brandName } from './config.js?v=30';
+import * as api from './api.js?v=31';
+import { state, isDemo, firstName } from './book.js?v=31';
+import { $, html, raw, esc } from './ui.js?v=31';
+import { brandName } from './config.js?v=31';
 
 const DAYS = 14;
 let timer = null;
@@ -57,13 +57,14 @@ const dayKey = (d) => { const x = new Date(d); return x.toLocaleDateString([], {
 async function load() {
   const since = new Date(Date.now() - DAYS * 86400e3).toISOString();
   if (isDemo()) { cache = demoCache(); return cache; }
-  const [asks, sys, threads, sigs, fences, notes] = await Promise.all([
+  const [asks, sys, threads, sigs, fences, notes, locates] = await Promise.all([
     api.page(`thread_asks?select=id,thread_id,ask_type,doc_kind,state,note,opened_at,closed_at,opened_by,assignee_id,closed_by,proof,void_reason&or=(opened_at.gte.${since},closed_at.gte.${since})&order=opened_at.desc`, 3000),
     api.page(`thread_messages?select=id,thread_id,body,author_id,created_at,lane&is_system=eq.true&created_at=gte.${since}&order=created_at.desc`, 4000),
     api.page('job_threads?select=id,customer_id,customer_name,company_id', 6000),
     api.page(`customer_signatures?select=id,customer_id,signer_name,signed_at,device_hint&signed_at=gte.${since}&order=signed_at.desc`, 1000),
     api.page(`fence_jobs?select=id,customer_id,rep_id,quote,created_at,deposit_required,deposit_amount,deposit_paid_at,deposit_paid_by,paperwork_official_at,paperwork_official_by,material_release_at&created_at=gte.${since}&order=created_at.desc`, 1000),
     api.page(`rep_email_queue?select=id,customer_id,rep_id,subject,to_email,status,sent_at,queued_at,meta&meta->>kind=in.(signed_visit,fence_packet)&queued_at=gte.${since}&order=queued_at.desc`, 500).catch(() => []),
+    api.page(`locate_tickets?select=ticket,customer_id,taken_at,due_date,exp_date,address,city,all_clear,last_response_at,responses,caller&or=(taken_at.gte.${since},last_response_at.gte.${since})&order=taken_at.desc`, 1000).catch(() => []),
   ]);
   const T = new Map(threads.map((t) => [t.id, t]));
   const custName = (cid) => threads.find((t) => t.customer_id === cid)?.customer_name || (state.customers || []).find((c) => c.id === cid)?.name || 'A customer';
@@ -100,6 +101,12 @@ async function load() {
   for (const n of notes) push({ cid: n.customer_id, cust: custName(n.customer_id), brand: custBrand(n.customer_id), at: n.sent_at || n.queued_at, pid: 'machine', who: 'The machine',
                                 body: `${n.status === 'sent' ? 'emailed' : 'queued email'} "${n.subject}" → ${String(n.to_email || '').split(',').map((e) => e.trim().split('@')[0]).join(', ')}`, cls: '' });
 
+  // 341: the locates — the ticket filed at Sunshine 811 (Diana's paste, confirmed by Exactix) and the utilities' answers
+  for (const l of locates) {
+    const base = { cid: l.customer_id, cust: l.customer_id ? custName(l.customer_id) : (l.address || 'unmatched address'), brand: l.customer_id ? custBrand(l.customer_id) : null };
+    if (l.taken_at) push({ ...base, at: l.taken_at, pid: 'machine', who: 'Sunshine 811', body: `locate ticket ${l.ticket} filed${l.caller ? ' by ' + l.caller.split(' ')[0] : ''}${l.due_date ? ' · dig after ' + l.due_date.slice(5).replace('-', '/') : ''}`, cls: 'file', step: 'SURVEY' });
+    if (l.last_response_at) push({ ...base, at: l.last_response_at, pid: 'machine', who: 'Sunshine 811', body: `ticket ${l.ticket}: ${(l.responses || []).length} utilit${(l.responses || []).length === 1 ? 'y' : 'ies'} answered${l.all_clear ? ' — ALL CLEAR' : ''}`, cls: l.all_clear ? 'money' : '' });
+  }
   ev.sort((a, b) => new Date(b.at) - new Date(a.at));
   const open = asks.filter((a) => a.state === 'OPEN');
   cache = { events: ev, open, at: new Date() };
