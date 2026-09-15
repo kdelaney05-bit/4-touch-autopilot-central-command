@@ -1,7 +1,7 @@
 // Liberty Command — Supabase over plain fetch, the desk's rails verbatim (desk/js/api.js). Every call
 // carries the publishable key plus the rep's own JWT, so RLS decides what
 // comes back. Nothing here knows about the desk's screens.
-import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=55';
+import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=59';
 
 // ── session ───────────────────────────────────────────────────────────────────
 let session = null;               // { token, refresh, repId, email, expiresAt }
@@ -37,6 +37,44 @@ export async function signIn(email, password) {
   saveSession({ token: j.access_token, refresh: j.refresh_token, email,
                 repId: j.user?.id ?? '', expiresAt: Date.now() + (j.expires_in ?? 3600) * 1000 });
   return session;
+}
+
+/* THE FIRST LOGIN (Kevin, 15 Sep night: "can we just create logins and
+   passwords for everyone and send them out and keep everything locked up").
+   Nobody's password ever passes through a person: the seat gets a one-time
+   link (24 h), taps it, lands here with a recovery session in the URL hash,
+   and chooses their own password. Forgot it later → the same door. */
+export async function recover(email) {
+  const redirect = location.origin + location.pathname;
+  const r = await fetch(SUPA_URL + '/auth/v1/recover?redirect_to=' + encodeURIComponent(redirect), {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify({ email }),
+  });
+  if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error_description || j.msg || j.message || 'Could not send the link'); }
+  return true;
+}
+/* A recovery / invite / magic link lands with the session in the hash. Read it once, keep it, clean the address bar. */
+export function sessionFromHash() {
+  const h = location.hash || '';
+  if (!/access_token=/.test(h)) return null;
+  const p = new URLSearchParams(h.replace(/^#/, ''));
+  const token = p.get('access_token'), refresh = p.get('refresh_token');
+  if (!token) return null;
+  let repId = '';
+  try { repId = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))).sub || ''; } catch {}
+  saveSession({ token, refresh, email: '', repId, expiresAt: Date.now() + Number(p.get('expires_in') || 3600) * 1000 });
+  const type = p.get('type') || 'recovery';
+  history.replaceState(null, '', location.pathname + location.search);
+  return { type };
+}
+export async function setPassword(password) {
+  if (!session?.token) throw new Error('Open the link from your email first.');
+  const r = await fetch(SUPA_URL + '/auth/v1/user', {
+    method: 'PUT', headers: { ...authHeaders(), Authorization: 'Bearer ' + session.token }, body: JSON.stringify({ password }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error_description || j.msg || j.message || 'Could not set the password');
+  if (j.email) saveSession({ ...session, email: j.email, repId: j.id || session.repId });
+  return true;
 }
 
 /* SINGLE-FLIGHT refresh (App.tsx refreshOnce): Supabase rotates the refresh

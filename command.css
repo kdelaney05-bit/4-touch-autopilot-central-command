@@ -425,3 +425,23 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
   .card.say { padding: 12px 12px; }
   .say-who input { max-width: none; }
 }
+
+/* ── View as (owner / admin): look through any seat (15 Sep 2026) ── */
+.viewas { margin: 6px 0 10px; display: flex; flex-direction: column; gap: 6px; }
+.viewas select { width: 100%; font: 12.5px var(--sans); padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.viewas .on { font-size: 11.5px; line-height: 1.35; color: var(--clock); background: var(--goldsoft); border: 1px solid #ead9a8; border-radius: 8px; padding: 6px 8px; }
+.viewas .on b { display: block; color: var(--ink); }
+.viewas .on button { border: 0; background: none; color: var(--link); font: 600 11.5px var(--sans); padding: 0; cursor: pointer; text-decoration: underline; }
+
+/* ── the tour: a caption per step on the real screen (15 Sep 2026) ── */
+#tour { position: fixed; inset: 0; z-index: 90; pointer-events: none; }
+.tour-card { position: fixed; right: 18px; bottom: 18px; width: min(380px, calc(100vw - 36px)); background: var(--card); border: 1px solid var(--goldbtn); border-radius: 16px; padding: 16px 18px; box-shadow: 0 16px 50px rgba(28,26,21,.22); pointer-events: auto; }
+.tour-card.center { left: 50%; right: auto; bottom: auto; top: 50%; transform: translate(-50%, -50%); }
+.tour-card h2 { margin: 6px 0 4px; font-size: 22px; }
+.tour-card p { margin: 0 0 12px; font-size: 14.5px; color: var(--dim); line-height: 1.45; }
+.tour-foot { display: flex; gap: 8px; align-items: center; }
+.tour-lit { outline: 3px solid var(--goldbtn); outline-offset: 4px; border-radius: 14px; box-shadow: 0 0 0 9999px rgba(28,26,21,.35); position: relative; z-index: 89; }
+.tour-bar { height: 3px; background: var(--line); border-radius: 2px; margin: 6px 0 2px; overflow: hidden; }
+.tour-bar i { display: block; height: 100%; width: 0; background: var(--goldbtn); animation: tourbar 7s linear forwards; }
+@keyframes tourbar { to { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .tour-bar i { animation: none; width: 100%; } }

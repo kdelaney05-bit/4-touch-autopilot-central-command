@@ -75,3 +75,13 @@ export const ROOM_LABEL = { line: 'The Line', home: 'The Business', sales: 'Sale
    on its own the first time; same email and password. */
 export const CONSOLE_URL = 'https://kdelaney05-bit.github.io/liberty-command/';
 export const CONSOLE_SECTION = { sales: 'sales', marketing: 'marketing', home: 'master' };
+
+/* THE KEYS (Kevin, 15 Sep night): "Gio is an owner, but by paper only… sweat
+   equity… he doesn't get the keys that I get. A layer above Jess. Keep him
+   focused on revenue… keep him away from the financials until they're tight."
+   So a seat's rooms can override its role's: Gio keeps every room but The
+   Business (page one, the P&L, collected). View as is the keys' too. */
+export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732'];                       // Kevin
+export const ROOMS_BY_SEAT = {
+  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],   // Gio — revenue, never the books
+};

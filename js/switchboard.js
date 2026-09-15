@@ -13,12 +13,12 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=55';
-import { toast } from './ui.js?v=55';
-import { html, raw, esc } from './ui.js?v=55';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=55';
-import { renderRoom, wireAtOn } from './village.js?v=55';
-import * as api from './api.js?v=55';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle } from './book.js?v=59';
+import { toast, openModal } from './ui.js?v=59';
+import { html, raw, esc } from './ui.js?v=59';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=59';
+import { renderRoom, wireAtOn } from './village.js?v=59';
+import * as api from './api.js?v=59';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -44,6 +44,88 @@ const BUCKETS = [
   ['Changing something', /\bchange|\bmove\b|\breschedul|\binstead\b|\badd\b|\bcancel/i],
 ];
 const bucketOf = (text) => (BUCKETS.find(([, re]) => re.test(text)) || [null])[0];
+
+/* THE ANSWER ON THE FILE (350). Kevin, 15 Sep night: "this is a living,
+   thinking, breathing file… if we have the answer, are we able to give the
+   answer to the person being asked? I don't want it to do the work." So: for
+   a customer whose question is one the file can answer — the permit, the
+   start, the balance — a card with what the file knows and the reply in the
+   office's own words, filled in. The seat reads it, changes a word, taps
+   Send. Nothing sends by itself. No fact → the card says so, honestly. */
+const ANSWER_KIND = { 'Where is the permit': 'permit', 'When do we start': 'start', 'Paying the balance': 'balance' };
+const money = (n) => '$' + Math.round(Number(n) || 0).toLocaleString();
+const shortDate = (s) => s ? new Date(String(s).length <= 10 ? s + 'T12:00:00' : s).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
+function factLine(kind, F) {
+  if (kind === 'permit') {
+    const p = F.permit;
+    if (!p) return { has: false, text: 'The file has no permit step yet — nobody has applied, or the job is not signed.' };
+    if (p.state === 'DONE') return { has: true, text: /none required/i.test(p.number || '') ? 'No permit is needed at this address.' : `Permit APPROVED · ${p.number || 'number on the file'} · ${shortDate(p.closed_at)}` };
+    return { has: true, text: `With the county since ${shortDate(p.opened_at)} · day ${Math.round(p.days)}${p.usual_days ? ` of about ${Math.round(p.usual_days)}` : ''}${p.assignee ? ` · ${firstName(p.assignee)} holds it` : ''}${p.usual_days && p.days > p.usual_days ? ' · PAST ITS USUAL PACE' : ''}` };
+  }
+  if (kind === 'start') {
+    const s = F.schedule;
+    if (!s) return { has: false, text: 'The file has no schedule step yet.' };
+    if (s.state === 'DONE' && s.date) return { has: true, text: `On the schedule for ${shortDate(s.date)}${s.crew ? ` · crew ${s.crew}` : ''}` };
+    return { has: true, text: `Not on the calendar yet · waiting on ${s.waiting_on ? firstName(s.waiting_on) : 'the scheduler'}${F.permit && F.permit.state !== 'DONE' ? ' · the permit is still open' : ''}` };
+  }
+  if (kind === 'balance') {
+    const b = F.balance || {};
+    if (Number(b.balance) > 0) return { has: true, text: `${money(b.balance)} open on ${b.invoices} invoice${b.invoices === 1 ? '' : 's'}${b.due ? ` · due ${shortDate(b.due)}` : ''} (QuickBooks)` };
+    if (b.invoice_state && b.invoice_state !== 'DONE') return { has: true, text: 'No invoice out yet — the invoice step is still open' };
+    return { has: false, text: 'No open balance on the file.' };
+  }
+  return { has: false, text: '' };
+}
+async function openAnswer(c, kind) {
+  let R;
+  try {
+    R = isDemo()
+      ? { facts: { permit: { state: 'OPEN', opened_at: new Date(Date.now() - 6 * 864e5).toISOString(), days: 6, usual_days: 5, assignee: 'Samantha White' }, schedule: { state: 'OPEN', waiting_on: 'Jonathan Garcia' }, balance: { balance: 0, invoices: 0 } },
+          answers: { permit: `Hi ${firstName(personName(c.customer_name))}, ${firstName(state.me.name)} at ${brandName(c.cc_company_id)}. Your permit is in with the county — we applied ${shortDate(new Date(Date.now() - 6 * 864e5).toISOString())} and they usually take about 5 days, so I'm calling them today to check on it. I'll text you the minute it clears.`, start: `Hi ${firstName(personName(c.customer_name))}, ${firstName(state.me.name)} at ${brandName(c.cc_company_id)}. You're not on the calendar yet — we're waiting on the permit first, then Jonathan sets the day and texts it to you here. Should be soon.` } }
+      : await api.rpc('answer_facts', { p_customer: c.customer_id });
+  } catch (e) { toast(e.message || 'Could not read the file', 'err'); return; }
+  const F = (R && R.facts) || {};
+  const fact = factLine(kind, F);
+  const draft = (R && R.answers && R.answers[kind]) || '';
+  const needsLink = /{{link}}/.test(draft);
+  const title = { permit: 'Where is the permit?', start: 'When do we start?', balance: 'Paying the balance?' }[kind];
+  openModal({
+    title,
+    submitLabel: fact.has && draft ? 'Send it from the brand line' : 'Close',
+    body: `
+      <div class="kicker">${esc(personName(c.customer_name))} asked · ${esc(mins(c.waiting_min))} ago</div>
+      <div class="inv" style="grid-template-columns:1fr;margin:6px 0 10px">“${esc(said(c).slice(0, 240))}”</div>
+      <div class="kicker">What the file says</div>
+      <div style="font-size:15px;margin:4px 0 12px" class="${fact.has ? '' : 'clock'}">${esc(fact.text)}</div>
+      ${fact.has && draft ? `<div class="kicker">The answer, in the office's words — change anything, then send</div>
+      <textarea id="ans" rows="5" style="width:100%;margin-top:4px">${esc(draft.replace('{{link}}', needsLink ? '[pay link — Collect on the file makes one]' : ''))}</textarea>
+      ${needsLink ? '<div class="small" style="margin-top:6px">There is no pay link on the file yet. Open the file, press Collect, and the link goes in the text.</div>' : ''}
+      <div class="small" style="margin-top:6px">Goes out as a text on the brand's line, from you, with six seconds to undo. The customer never sees the file.</div>`
+      : `<div class="small">The file cannot answer this one yet. Open the file to see where it stands.</div>`}`,
+    onSubmit: async (form) => {
+      const ta = form.querySelector('#ans');
+      if (!ta) return;
+      const body = ta.value.trim();
+      if (!body) throw new Error('Nothing to send.');
+      if (/\[pay link/.test(body)) throw new Error('Take the pay-link placeholder out, or add the real link from the file.');
+      const r = await textCustomer(c.customer_id, body);
+      const root = document.getElementById('toast-root');
+      root.innerHTML = `<div class="toast">Sent from ${esc((r && r.from) || 'the main line')} · <button id="undo">Undo</button></div>`;
+      let undone = false;
+      document.getElementById('undo').onclick = async () => { undone = true; try { await cancelText(r.id); root.innerHTML = '<div class="toast">Not sent</div>'; setTimeout(() => (root.innerHTML = ''), 2000); } catch (e) { toast(e.message, 'err'); } };
+      setTimeout(() => { if (!undone) root.innerHTML = ''; }, 6500);
+    },
+  });
+}
+function answerRows(waiting) {
+  const rows = waiting.map((c) => ({ c, kind: ANSWER_KIND[bucketOf(said(c))] })).filter((x) => x.kind).slice(0, 8);
+  if (!rows.length) return '';
+  return `<div class="kicker" style="margin-top:10px">The file can answer these · read it, fix a word, send</div>` + rows.map(({ c, kind }) => `
+    <div class="inv" style="grid-template-columns:1fr auto auto;margin-top:6px"><span><b>${esc(personName(c.customer_name))}</b><div class="small">“${esc(said(c).slice(0, 80))}”</div></span><span class="mono dimmer">${esc(mins(c.waiting_min))}</span><button class="btn sm fill" data-answer="${esc(c.customer_id)}" data-kind="${kind}">Answer</button></div>`).join('');
+}
+function wireAnswers(root, waiting) {
+  root.querySelectorAll('[data-answer]').forEach((b) => (b.onclick = () => { const c = waiting.find((x) => x.customer_id === b.dataset.answer); if (c) openAnswer(c, b.dataset.kind); }));
+}
 
 let pane = 'up';          // 'up' · 'wait' · 'room:office' · 'dm:<rep id>'
 let lastRoot = null;
@@ -110,7 +192,7 @@ export function renderSwitchboard(root) {
     <div class="head">
       <div><div class="kicker">The Line · everything with a human waiting on the other end</div>
         <h1 class="serif">Nobody has to hunt, and nothing gets to sit.</h1></div>
-      <div class="right">${isDemo() ? '<span class="chip demo">DEMO · FICTIONAL BOOK</span>' : '<span class="chip">LIVE · DB</span>'}</div>
+      <div class="right"><button class="btn sm" id="tour-go" title="A one-minute walk through the screen">Show me around</button> ${isDemo() ? '<span class="chip demo">DEMO · FICTIONAL BOOK</span>' : '<span class="chip">LIVE · DB</span>'}</div>
     </div>`)}
     ${raw(sayItHTML())}
     ${rep ? '' : raw(stuckCard(C, waiting))}
@@ -123,6 +205,8 @@ export function renderSwitchboard(root) {
   root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
   wireSayIt(root);
   wirePeopleFind(root);
+  wireAnswers(root, waiting);
+  const tg = root.querySelector('#tour-go'); if (tg) tg.onclick = () => window.__tour && window.__tour();
   paintPane(root, { waiting, tagged, mine, C });
 }
 
@@ -148,7 +232,7 @@ function stuckCard(C, waiting) {
 
   return html`
     <div class="two" style="align-items:start;margin-bottom:18px">
-      <div class="card">
+      <div class="card" data-tour="stuck">
         <div class="head" style="margin-bottom:8px">
           <div class="kicker">Where it is stuck · every open ask, by what it waits on</div>
           <span class="small">${Q.length} open</span>
@@ -162,7 +246,7 @@ function stuckCard(C, waiting) {
           </div>`).join('')) : raw('<div class="empty">No asks open. That is the whole board empty.</div>')}
         <div class="small" style="margin-top:8px">Bar is how many. The number on the right is the <b>oldest one in that lane</b> — that is the one that is actually stuck.</div>
       </div>
-      <div class="card">
+      <div class="card" data-tour="asking">
         <div class="head" style="margin-bottom:8px">
           <div class="kicker">What they are asking · the customers waiting right now</div>
           <span class="small">${waiting.length} waiting</span>
@@ -170,6 +254,7 @@ function stuckCard(C, waiting) {
         ${topAsks.length ? raw(topAsks.map(([b, n]) => `
           <div class="inv" style="grid-template-columns:1fr auto;margin-bottom:6px"><span>${esc(b)}?</span><span class="mono">${n}</span></div>`).join('')) : raw('<div class="empty">Nobody is waiting on an answer.</div>')}
         ${unmatched ? raw(`<div class="small" style="margin-top:6px">${unmatched} more did not match a known question — those are the ones worth reading.</div>`) : ''}
+        ${raw(answerRows(waiting))}
         <div class="small" style="margin-top:8px">The most-asked question is the bottleneck naming itself. Anything at the top of this list for a week is something the machine should be answering.</div>
       </div>
     </div>`;
@@ -387,7 +472,7 @@ function sayItHTML() {
   const law = say.lane === 'customer'
     ? (c ? `Goes to ${esc(firstName(c.name) || 'them')} as a text from the brand's approved line. A draft until Send; the file opens after with six seconds to take it back.` : 'Pick the customer first.')
     : (c ? `Lands on ${esc(personName(c.name))}'s file as a note. Everyone you @ gets a push and it sits in their You're up until they open it. The customer never sees this.` : 'No customer yet: this goes to the Village, where every seat reads it. @ a customer in the words and it lands on their file instead.');
-  return `<div class="card say" id="line-say">
+  return `<div data-tour="sayit" class="card say" id="line-say">
     <div class="head" style="margin-bottom:8px"><div class="kicker">Say it · to anyone, about any customer, from here</div><span class="small">${isDemo() ? 'demo — nothing sends' : 'texts from the brand line · notes with a push'}</span></div>
     <div class="say-row"><span class="kicker">About</span><div class="say-who">${who}</div></div>
     <div class="say-row"><span class="kicker">To</span>
