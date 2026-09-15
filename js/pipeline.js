@@ -6,9 +6,9 @@
 // on yes or no, signed, or lost. Pick a rep, see their book by stage, tap a
 // customer and the file opens beside you. Every number comes from live rows
 // the seat can read, counted once, and says its window.
-import { state, personName, firstName } from './book.js?v=44';
-import { html, raw, esc } from './ui.js?v=44';
-import { brandName } from './config.js?v=44';
+import { state, personName, firstName } from './book.js?v=45';
+import { html, raw, esc } from './ui.js?v=45';
+import { brandName } from './config.js?v=45';
 
 let rep = 'all';
 let brand = 'all';
@@ -37,6 +37,9 @@ export function pipelineRows() {
   for (const e of state.estimates || []) { const cur = est.get(e.customer_id); if (!cur || String(e.occurred_at) > String(cur.occurred_at)) est.set(e.customer_id, e); }
   const clock = new Map((state.clock || []).map((c) => [c.customer_id, c]));
   const who = new Map((state.people || []).map((p) => [p.id, p.name]));
+  // the last time anybody worked this customer — a touch of any channel (90 days)
+  const lastTouch = new Map();
+  for (const t of state.touches || []) { const cur = lastTouch.get(t.customer_id); if (!cur || String(t.occurred_at) > cur) lastTouch.set(t.customer_id, t.occurred_at); }
   const rows = [];
   for (const [cid, jobs] of byCust) {
     const when = (j) => String(j.contract_signed_at || j.appt_starts_at || j.created_at || '');
@@ -49,7 +52,8 @@ export function pipelineRows() {
     const stage = signed ? 'signed' : c.disposition === 'lost' ? 'lost' : priced ? 'estimate' : apptMs != null && apptMs > Date.now() ? 'appointment' : apptMs != null ? 'touches' : 'lead';
     rows.push({ customer_id: cid, name: c.name || latest.title || 'Unnamed', city: c.city || null, rep_id: latest.rep_id, rep_name: who.get(latest.rep_id) || null,
                 cc: latest.cc_company_id, stage, title: latest.title, appt_at: latest.appt_starts_at, signed_at: signed?.contract_signed_at || null,
-                amount: signed ? Number(signed.fin_sold_amount || 0) : e ? Number(e.amount || 0) : 0, est_at: e?.occurred_at || null, clock: clock.get(cid) || null });
+                amount: signed ? Number(signed.fin_sold_amount || 0) : e ? Number(e.amount || 0) : 0, est_at: e?.occurred_at || null, clock: clock.get(cid) || null,
+                last_touch: lastTouch.get(cid) || null, lost_at: c.disposition_at || null });
   }
   return rows;
 }
@@ -72,6 +76,46 @@ function line(r) {
   if (r.stage === 'signed') return { t: `Signed ${day(r.signed_at)} · ${money(r.amount)}`, due: false };
   if (r.stage === 'lost') return { t: 'Lost · off the board', due: false };
   return { t: r.title ? String(r.title).slice(0, 48) : 'No appointment yet', due: false };
+}
+
+/* THE PIE (Kevin, 15 Sep: "how big his pie is in play of bids out to sell,
+   and how big his pie is that he hasn't really sold… is he cleaning his pie
+   up, is he working his pie"). One band per rep: the dollars he has priced
+   and not yet heard yes or no on, split by when he last worked each one —
+   working it (touched inside 7 days), cooling (8–21), unworked (longer, or
+   never). Beside it, what he decided in 60 days (signed vs lost) and what
+   share of those decided dollars he won (144's law: dollars, not counts).
+   Under it, what the owed law (143) says he still owes an answer on: priced
+   more than 60 days ago, no yes and no no. Language law: unworked, never a
+   failure word. */
+const moneyK = (n) => !n ? '$0' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
+function pieOf(rows) {
+  const now = Date.now(), d = (iso) => iso ? (now - new Date(iso).getTime()) / 86400e3 : null;
+  const est = rows.filter((r) => r.stage === 'estimate');
+  const cut = (r) => { const a = d(r.last_touch); return a == null ? 'unworked' : a <= 7 ? 'working' : a <= 21 ? 'cooling' : 'unworked'; };
+  const seg = (k) => { const list = est.filter((r) => cut(r) === k); return { k, n: list.length, $: list.reduce((a, r) => a + r.amount, 0) }; };
+  const signed = rows.filter((r) => r.stage === 'signed'), lost = rows.filter((r) => r.stage === 'lost' && d(r.lost_at) != null && d(r.lost_at) <= 60);
+  const signed$ = signed.reduce((a, r) => a + r.amount, 0), lost$ = lost.reduce((a, r) => a + r.amount, 0);
+  return {
+    n: est.length, $: est.reduce((a, r) => a + r.amount, 0),
+    working: seg('working'), cooling: seg('cooling'), unworked: seg('unworked'),
+    owed: est.filter((r) => d(r.est_at) > 60), signed, signed$, lost, lost$,
+    winShare: signed$ + lost$ > 0 ? Math.round(signed$ / (signed$ + lost$) * 100) : null,
+    ahead: rows.filter((r) => r.stage === 'appointment').length, visited: rows.filter((r) => r.stage === 'touches').length, leads: rows.filter((r) => r.stage === 'lead').length,
+    waiting: rows.filter((r) => r.clock && r.clock.waiting_min >= 15).length,
+  };
+}
+function pieHtml(p, name, repId) {
+  const segs = [['working', 'working it · touched inside 7 days', 'var(--verify)'], ['cooling', 'cooling · 8 to 21 days since a touch', 'var(--goldbtn)'], ['unworked', 'unworked · longer than 3 weeks, or never', 'var(--faint)']];
+  const stack = p.$ ? segs.map(([k, , c]) => { const s = p[k]; const w = Math.round(s.$ / p.$ * 100); return s.$ ? `<span style="width:${w}%;background:${c}" title="${esc(k)} · ${esc(moneyK(s.$))} · ${s.n}">${w >= 14 ? moneyK(s.$) : ''}</span>` : ''; }).join('') : '<span class="none">nothing priced and open</span>';
+  const legend = segs.map(([k, label, c]) => `<span><i style="background:${c}"></i>${esc(label)} <b>${esc(moneyK(p[k].$))}</b> · ${p[k].n}</span>`).join('');
+  const decided = p.winShare == null ? `<span class="dimmer">nothing decided in 60 days</span>` : `signed <b class="verify">${esc(moneyK(p.signed$))}</b> · ${p.signed.length} &nbsp; lost <b>${esc(moneyK(p.lost$))}</b> · ${p.lost.length} &nbsp; wins <b>${p.winShare}%</b> of the dollars decided`;
+  return `<div class="pie" ${repId ? `data-rep="${esc(repId)}"` : ''}>
+    <div class="pie-head"><div><b>${esc(name)}</b> <span class="small">${p.n} estimate${p.n === 1 ? '' : 's'} out · <b class="mono">${esc(moneyK(p.$))}</b> in play</span></div><div class="small">${decided}</div></div>
+    <div class="stack">${stack}</div>
+    <div class="pie-legend">${legend}</div>
+    <div class="small">${p.owed.length ? `<b class="clock">${p.owed.length} priced more than 60 days ago, no yes and no no · ${esc(moneyK(p.owed.reduce((a, r) => a + r.amount, 0)))}</b> &nbsp;·&nbsp; ` : ''}${p.ahead} appointment${p.ahead === 1 ? '' : 's'} ahead &nbsp;·&nbsp; ${p.visited} visited, no price on file &nbsp;·&nbsp; ${p.leads} new lead${p.leads === 1 ? '' : 's'}${p.waiting ? ` &nbsp;·&nbsp; <b class="red">${p.waiting} texted and waiting</b>` : ''}</div>
+  </div>`;
 }
 
 export function renderPipeline(root) {
@@ -100,6 +144,10 @@ export function renderPipeline(root) {
         ${raw(reps.map((x) => `<button class="sub ${rep === x.id ? 'on' : ''}" data-rep="${esc(x.id)}" title="${esc(x.name)} · ${x.n} in play · ${x.signed} signed">${esc(firstName(x.name))} · ${x.n}${x.signed ? ' <span class="mono" style="color:var(--verify)">+' + x.signed + '</span>' : ''}</button>`).join(''))}
       </div>
     </div>
+    <div class="kicker" style="margin:14px 0 6px">The pie · what each rep has priced and is waiting to hear on, by when he last worked it${brand !== 'all' ? ' · ' + esc(brandName(brand)) : ''}</div>
+    <div class="pies">${raw(rep === 'all'
+      ? reps.map((x) => ({ x, p: pieOf(all.filter((r) => r.rep_id === x.id && (brand === 'all' || r.cc === brand))) })).sort((a, b) => b.p.$ - a.p.$).map(({ x, p }) => pieHtml(p, x.name, x.id)).join('')
+      : pieHtml(pieOf(rows), repName, null))}</div>
     <div class="pipe">
       ${raw(PIPE_STAGES.map(([s, label, sub, color]) => {
         const list = by(s); const $ = list.reduce((a, r) => a + r.amount, 0);
@@ -115,7 +163,7 @@ export function renderPipeline(root) {
     </div>
     <div class="small" style="margin-top:8px">Stages follow the rep app's own rule: signed beats lost; a booking still ahead is an appointment; a visit that ran is in touches; a price on file is an estimate out. Tap a customer to open the file beside you. Counted once from jobs, estimates and the text clock the moment this room opened${state.loadedAt ? ' · ' + esc(state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) : ''}.</div>`;
 
-  root.querySelectorAll('[data-rep]').forEach((b) => (b.onclick = () => { rep = b.dataset.rep; renderPipeline(root); }));
+  root.querySelectorAll('[data-rep]').forEach((b) => (b.onclick = () => { rep = b.dataset.rep; renderPipeline(root); window.scrollTo({ top: 0 }); }));
   root.querySelectorAll('[data-brand]').forEach((b) => (b.onclick = () => { brand = b.dataset.brand; renderPipeline(root); }));
   root.querySelectorAll('.pcard').forEach((b) => (b.onclick = () => window.__peek(b.dataset.cust)));
 }
