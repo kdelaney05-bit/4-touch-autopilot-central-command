@@ -1,19 +1,19 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=55';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=55';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=55';
-import { BRAND_BY_CC } from './config.js?v=55';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=55';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=55';
-import { renderHome } from './home.js?v=55';
-import { renderSales } from './sales.js?v=55';
-import { renderPipeline } from './pipeline.js?v=55';
-import { renderMarketing } from './marketing.js?v=55';
-import { renderOffice } from './office.js?v=55';
-import { renderProduction } from './production.js?v=55';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=55';
-import { stopRoomPoll } from './village.js?v=55';
-import { renderFlow, stopFlow } from './flow.js?v=55';
+import * as api from './api.js?v=56';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=56';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=56';
+import { BRAND_BY_CC } from './config.js?v=56';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=56';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=56';
+import { renderHome } from './home.js?v=56';
+import { renderSales } from './sales.js?v=56';
+import { renderPipeline } from './pipeline.js?v=56';
+import { renderMarketing } from './marketing.js?v=56';
+import { renderOffice } from './office.js?v=56';
+import { renderProduction } from './production.js?v=56';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=56';
+import { stopRoomPoll } from './village.js?v=56';
+import { renderFlow, stopFlow } from './flow.js?v=56';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
