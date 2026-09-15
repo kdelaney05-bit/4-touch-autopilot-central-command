@@ -12,10 +12,10 @@
 // system lines, signatures (129/338), the fence job's stamps (336), the
 // signing notes (338) and the 811 tickets (341). Nothing here writes.
 // Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=33';
-import { state, isDemo, firstName } from './book.js?v=33';
-import { $, html, raw, esc } from './ui.js?v=33';
-import { brandName } from './config.js?v=33';
+import * as api from './api.js?v=34';
+import { state, isDemo, firstName } from './book.js?v=34';
+import { $, html, raw, esc } from './ui.js?v=34';
+import { brandName } from './config.js?v=34';
 
 const DAYS = 14;
 let timer = null;
@@ -23,51 +23,7 @@ let brand = 'all';
 let q = '';
 let cache = null;
 
-/* the steps a job walks, in order, in the office's words */
-const STEPS = [
-  { key: 'signed',    label: 'Signed',          hint: 'the customer signed', types: [] },
-  { key: 'paperwork', label: 'Paperwork',       hint: 'Sam is collecting the rest of the paperwork', types: ['CONTRACT_DOC'] },
-  { key: 'permit',    label: 'Permit',          hint: 'waiting on the county', types: ['PERMIT'] },
-  { key: 'locate',    label: '811 locate',      hint: 'Diana files it, the utilities mark the yard', types: ['SURVEY'] },
-  { key: 'material',  label: 'Material',        hint: 'Jonathan orders it', types: ['MATERIAL'] },
-  { key: 'schedule',  label: 'Install date',    hint: 'Jonathan sets the day with the customer', types: ['SCHEDULE'] },
-  { key: 'crew',      label: 'Crew',            hint: "Luis's crew builds it", types: ['COMPLETION_SIGNOFF', 'MILESTONE'] },
-  { key: 'invoice',   label: 'Invoice',         hint: 'Laura bills it, Sam books the inspection', types: ['INVOICE', 'INSPECTION'] },
-  { key: 'payment',   label: 'Payment',         hint: 'waiting on the money', types: ['PAYMENT'] },
-  { key: 'closeout',  label: 'Done',            hint: 'paid and closed', types: ['CLOSEOUT'] },
-];
-const I = (d, extra = '') => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}${extra}</svg>`;
-const ICON = {
-  signed:    I('<path d="M4 20h16"/><path d="M14.5 4.5l5 5L9 20H4v-5z"/>'),
-  paperwork: I('<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/>'),
-  permit:    I('<circle cx="12" cy="11" r="6"/><path d="M12 8v3l2 1"/><path d="M8 20l4-3 4 3"/>'),
-  locate:    I('<path d="M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/>'),
-  material:  I('<path d="M3 8l9-4 9 4-9 4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/>'),
-  schedule:  I('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
-  crew:      I('<path d="M4 20l6-6"/><path d="M13 5l6 6"/><path d="M11 7l6 6 3-3-6-6z"/><path d="M4 20l3 0 0-3"/>'),
-  invoice:   I('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'),
-  payment:   I('<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>'),
-  closeout:  I('<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>'),
-  handoff:   I('<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>'),
-  done:      I('<path d="M5 12l4 4L19 7"/>'),
-  money:     I('<path d="M12 4v16"/><path d="M8.5 8h5a2 2 0 0 1 0 4h-3a2 2 0 0 0 0 4h5"/>'),
-  bad:       I('<path d="M6 6l12 12M18 6L6 18"/>'),
-  mail:      I('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 7l9 6 9-6"/>'),
-  pen:       I('<path d="M4 20h16"/><path d="M14.5 4.5l5 5L9 20H4v-5z"/>'),
-};
-const STEP_OF = {}; for (const s of STEPS) for (const t of s.types) STEP_OF[t] = s;
-
-/* what each ask is, in words — never the code name */
-const THING = {
-  'CONTRACT_DOC:contract': 'the signed contract', 'CONTRACT_DOC:noc': 'the recorded Notice of Commencement', 'CONTRACT_DOC:hoa': 'the HOA approval',
-  'CONTRACT_DOC:survey': 'the property survey', 'CONTRACT_DOC:permit_sig': 'the signed permit application', 'CONTRACT_DOC:': 'a document',
-  'PERMIT:': 'the permit', 'SURVEY:': 'the 811 locate', 'MATERIAL:': 'the material order', 'SCHEDULE:': 'the install date',
-  'COMPLETION_SIGNOFF:': 'the finished-job photos', 'INVOICE:': 'the invoice', 'INSPECTION:': 'the final inspection', 'PAYMENT:': 'the payment',
-  'CLOSEOUT:': 'the closeout', 'MILESTONE:tearoff': 'the tear-off photo', 'MILESTONE:walkthrough': 'the walkthrough', 'SOLD_CHECK:': 'sold or not',
-  'INTRO_CALL:': 'the intro call', 'CHANGE_ORDER:': 'the change order', 'SAFETY_JHA:': 'the safety photo', 'CUSTOMER_REQUEST:': "the customer's request",
-  'MATERIAL_REQUEST:': 'a material request', 'SITE_ISSUE:': 'a site issue', 'SCHEDULE_QUESTION:': 'a schedule question', 'SUPERVISOR_PING:': 'the supervisor',
-};
-const thing = (a) => THING[`${a.ask_type}:${a.doc_kind || ''}`] || THING[`${a.ask_type}:`] || String(a.ask_type || '').toLowerCase().replace(/_/g, ' ');
+import { STEPS, STEP_OF, thing, ICON, person, pace } from './words.js?v=34';
 
 const PALETTE = [
   ['#1f6f4a', '#dff0e6'], ['#1d5fa8', '#e1e8f3'], ['#b45309', '#f6e3d6'], ['#0e7c86', '#dcf1f3'], ['#5b3a8f', '#ece5f6'],
@@ -85,12 +41,11 @@ const initials = (n) => String(n || '?').split(/[\s,]+/).filter(Boolean).slice(0
 const when = (d) => { const x = new Date(d); const today = new Date().toDateString() === x.toDateString(); return (today ? '' : x.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) + ' ') + x.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
 const ago = (d) => { const m = (Date.now() - new Date(d)) / 60000; return m < 60 ? Math.round(m) + ' min' : m < 1440 ? Math.round(m / 60) + ' h' : Math.round(m / 1440) + ' d'; };
 const md = (s) => { if (!s) return ''; const [y, m, d] = String(s).split('-'); return `${Number(m)}/${Number(d)}`; };
-const person = (name) => { const raw = String(name || '').trim(); if (raw.includes(',')) { const [l, f] = raw.split(',').map((x) => x.trim()); return `${f} ${l}`; } return raw; };
 
 async function load() {
   const since = new Date(Date.now() - DAYS * 86400e3).toISOString();
   if (isDemo()) { cache = demoCache(); return cache; }
-  const [asks, sys, threads, sigs, fences, notes, locates] = await Promise.all([
+  const [asks, sys, threads, sigs, fences, notes, locates, baseline] = await Promise.all([
     api.page(`thread_asks?select=id,thread_id,ask_type,doc_kind,state,note,opened_at,closed_at,opened_by,assignee_id,closed_by,proof,void_reason&or=(opened_at.gte.${since},closed_at.gte.${since})&order=opened_at.desc`, 3000),
     api.page(`thread_messages?select=id,thread_id,body,author_id,created_at,lane&is_system=eq.true&created_at=gte.${since}&order=created_at.desc`, 4000),
     api.page('job_threads?select=id,customer_id,customer_name,company_id,job_address', 6000),
@@ -98,6 +53,7 @@ async function load() {
     api.page(`fence_jobs?select=id,customer_id,rep_id,quote,created_at,deposit_required,deposit_amount,deposit_paid_at,deposit_paid_by,paperwork_official_at,paperwork_official_by,material_release_at&created_at=gte.${since}&order=created_at.desc`, 1000),
     api.page(`rep_email_queue?select=id,customer_id,rep_id,subject,to_email,status,sent_at,queued_at,meta&meta->>kind=in.(signed_visit,fence_packet)&queued_at=gte.${since}&order=queued_at.desc`, 500).catch(() => []),
     api.page(`locate_tickets?select=ticket,customer_id,taken_at,due_date,exp_date,address,city,all_clear,last_response_at,responses,caller&or=(taken_at.gte.${since},last_response_at.gte.${since})&order=taken_at.desc`, 1000).catch(() => []),
+    api.page('v_step_baseline?select=*', 50).catch(() => []),
   ]);
   const T = new Map(threads.map((t) => [t.id, t]));
   const byCust = new Map(); for (const t of threads) if (t.customer_id && !byCust.has(t.customer_id)) byCust.set(t.customer_id, t);
@@ -168,7 +124,7 @@ async function load() {
     if (!cur || idx < cur.idx) now.set(t.customer_id, { idx, step: st, a, since: a.opened_at, who: first(a.assignee_id), what: thing(a), n: 1 });
     else if (idx === cur.idx) cur.n++;
   }
-  cache = { events: ev, now, threads: byCust, addr: custAddr, at: new Date() };
+  cache = { events: ev, now, threads: byCust, addr: custAddr, baseline, at: new Date() };
   return cache;
 }
 
@@ -186,7 +142,7 @@ function demoCache() {
     { cid: 'j3', cust: 'Keyeck, Tony', brand: '1461', at: m(300), pid: 'machine', body: 'All 6 utilities answered — clear to dig', cls: 'money' },
   ];
   const now = new Map([['j8', { idx: 6, step: STEPS[6], since: m(3), who: 'Luis', what: 'the finished-job photos', n: 1 }], ['j3', { idx: 5, step: STEPS[5], since: m(299), who: 'Jonathan', what: 'the install date', n: 1 }]]);
-  return { events: ev, now, threads: new Map(), addr: () => '', at: new Date() };
+  return { events: ev, now, threads: new Map(), addr: () => '', baseline: [{ ask_type: 'PERMIT', n_done: 40, median_days: 6, p80_days: 11 }, { ask_type: 'SCHEDULE', n_done: 40, median_days: 9, p80_days: 16 }], at: new Date() };
 }
 
 export function renderFlow(root) {
@@ -200,7 +156,8 @@ export function stopFlow() { if (timer) clearInterval(timer); timer = null; }
 
 function paint(root) {
   if (!cache) return;
-  const { events, now, addr, at } = cache;
+  const { events, now, addr, baseline, at } = cache;
+  const usual = (s) => { const b = (baseline || []).find((x) => STEP_OF[x.ask_type]?.key === s.key && Number(x.n_done) >= 5); return b ? `usually ${Number(b.median_days) < 1 ? 'same day' : Math.round(Number(b.median_days)) + ' day' + (Math.round(Number(b.median_days)) === 1 ? '' : 's')}` : ''; };
   const brands = [...new Set(events.map((e) => e.brand).filter(Boolean))];
   const E = events.filter((e) => (brand === 'all' || e.brand === brand) && (!q || (e.cust + ' ' + e.body).toLowerCase().includes(q.toLowerCase())));
 
@@ -228,7 +185,7 @@ function paint(root) {
     </div>
 
     <div class="flow-miles">
-      ${raw(STEPS.map((s, i) => `<div class="mile ${counts[s.key] ? 'live' : ''}"><div class="ic">${ICON[s.key]}</div><div class="n">${counts[s.key] || 0}</div><div class="l">${esc(s.label)}</div><div class="h">${esc(s.hint)}</div>${i < STEPS.length - 1 ? '<i class="arrow">›</i>' : ''}</div>`).join(''))}
+      ${raw(STEPS.map((s, i) => `<div class="mile ${counts[s.key] ? 'live' : ''}"><div class="ic">${ICON[s.key]}</div><div class="n">${counts[s.key] || 0}</div><div class="l">${esc(s.label)}</div><div class="h">${esc(s.hint)}</div>${usual(s) ? `<div class="u">${esc(usual(s))}</div>` : ''}${i < STEPS.length - 1 ? '<i class="arrow">›</i>' : ''}</div>`).join(''))}
     </div>
     <div class="note" style="margin:6px 2px 14px">A job walks these boxes left to right. The number is how many jobs are sitting in that box right now. The machine moves a job to the next box the moment the step before it is done; a person only supplies what the box asks for.</div>
 
@@ -245,7 +202,7 @@ function paint(root) {
   function card(c) {
     const n = c.cid ? now.get(c.cid) : null;
     const where = n
-      ? `<b>Now:</b> ${esc(n.step.label)} — waiting on ${esc(n.who)} for ${esc(n.what)}${n.n > 1 ? ` (+${n.n - 1} more)` : ''} · ${esc(ago(n.since))}`
+      ? `<b>Now:</b> ${esc(n.step.label)} — waiting on ${esc(n.who)} for ${esc(n.what)}${n.n > 1 ? ` (+${n.n - 1} more)` : ''} · ${esc(ago(n.since))}${(() => { const p = pace(baseline, n.a?.ask_type, n.since); return p?.slow ? ` <span class="slow">longer than usual (${p.usual < 1 ? 'same day' : Math.round(p.usual) + ' d'})</span>` : ''; })()}`
       : (c.list[0]?.cls === 'money' || /clear to dig|released|SIGNED/.test(c.list[0]?.body || '')) ? `<b>Now:</b> nothing waiting — the machine moves it when the next piece lands` : `<b>Now:</b> nothing open on this file`;
     const shown = c.list.slice(0, 4), hidden = c.list.length - shown.length;
     const a = c.cid ? addr(c.cid) : '';

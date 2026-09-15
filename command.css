@@ -279,3 +279,6 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .track .seg.past { background: var(--verifydim); border-color: var(--verifydim); color: var(--verify); }
 .track .seg.now { background: var(--goldsoft); border-color: var(--gold); color: var(--gold); box-shadow: 0 0 0 2px var(--goldsoft); }
 @media (max-width: 720px) { .track .seg em { display: none; } .fline { grid-template-columns: 22px 22px 1fr; } .fline .t { grid-column: 3; } }
+.ai { display: inline-flex; vertical-align: middle; margin-right: 6px; color: var(--dim); } .ai svg { width: 15px; height: 15px; }
+.mile .u { font-family: var(--mono); font-size: 9.5px; color: var(--dimmer); margin-top: 3px; letter-spacing: .04em; }
+.fwhere .slow { color: var(--clock); font-weight: 600; }

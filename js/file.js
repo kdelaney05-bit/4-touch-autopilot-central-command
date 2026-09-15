@@ -2,12 +2,13 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=33';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=33';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=33';
-import { settleDialog } from './office.js?v=33';
-import { reload } from './app.js?v=33';
-import { relTime } from './production.js?v=33';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=34';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=34';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=34';
+import { say, thing, iconForAsk } from './words.js?v=34';
+import { settleDialog } from './office.js?v=34';
+import { reload } from './app.js?v=34';
+import { relTime } from './production.js?v=34';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -96,7 +97,7 @@ function draw(root, ctx, compact) {
     items.push({ at: o.sent_at || o.queued_at, kind: 'out', pid: o.rep_id, who: (p?.name || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), line: lineLabel(o.from_number, job, p), body: o.body });
   });
   emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', pid: e.source === 'machine' ? 'machine' : job.rep_id, body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : (personOf(job.rep_id)?.name || 'the rep')} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.body, lane: m.lane }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.is_system ? say(m.body) : m.body, lane: m.lane }));
   // the steps and the paper, as one line each, where they happened
   const ev = (at, cls, pid, body) => { if (at) items.push({ at, kind: 'ev', cls, pid, body }); };
   attachments.forEach((f) => ev(f.created_at, 'file', f.added_by, `${f.label || f.storage_path || f.source} · on the file`));
@@ -106,7 +107,7 @@ function draw(root, ctx, compact) {
   if (ctx.data.fence) ev(ctx.data.fence.created_at, 'file', ctx.data.fence.rep_id, `The fence job · ${ctx.data.fence.linear_ft} ft · ${fmtMoney(ctx.data.fence.quote)} · Complete Quote in the calculator`);
   if (ctx.data.parcel) ev(ctx.data.parcel.fetched_at, ctx.data.parcel.signer_match === 'mismatch' ? 'bad' : 'file', null, `Owner of record · ${(ctx.data.parcel.owner_names || []).join(' & ') || '—'} · ${ctx.data.parcel.signer_match === 'match' ? 'matches the signer' : ctx.data.parcel.signer_match === 'mismatch' ? 'NOT the signer' : 'from the county'}`);
   handoffs.forEach((h) => ev(h.at, 'step', h.to_seat, `${seatName(h.to_seat) || 'nobody'} ${h.kind === 'handback' ? 'handed it back' : h.kind === 'assign' ? 'was assigned by ' + (seatName(h.by_id) || '') : 'took the job'}${h.note ? ' · ' + h.note : ''}`));
-  asks.filter((a) => a.state !== 'OPEN' && a.closed_at).forEach((a) => ev(a.closed_at, 'step', a.assignee_id, `${askLabel(a)} · settled by ${a.assignee_name || ''}${a.proof?.value ? ' · ' + a.proof.value : ''}${a.minutes_to_close != null ? ' · ' + mins(a.minutes_to_close) : ''}`));
+  asks.filter((a) => a.state !== 'OPEN' && a.closed_at).forEach((a) => ev(a.closed_at, 'step', a.assignee_id, a.state === 'VOID' ? `${(a.assignee_name || 'someone').split(' ')[0]} took ${thing(a)} off the list${a.void_reason ? ' — ' + a.void_reason : ''}` : a.proof?.waived ? `${(a.assignee_name || 'someone').split(' ')[0]} skipped ${thing(a)}: ${a.proof.waived}` : `${(a.assignee_name || 'someone').split(' ')[0]} turned in ${thing(a)}${a.proof?.value ? ': ' + a.proof.value : ''}`));
   if (job.contract_signed_at) ev(job.contract_signed_at, 'money', job.rep_id, `SOLD · ${money(job.fin_sold_amount)} · ${job.rep_name || ''}`);
   if (job.completed_at) ev(job.completed_at, 'step', job.supervisor_id, 'Field complete');
   items.sort((a, b) => new Date(a.at) - new Date(b.at));
@@ -531,7 +532,7 @@ function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
   if (openAsks.length) {
     const a = openAsks.slice().sort((x, y) => new Date(x.opened_at) - new Date(y.opened_at))[0];
     const m = ageMin(a.opened_at);
-    return { tone: m != null && m > 4320 ? 'bad' : '', text: `${askLabel(a)} · ${a.assignee_name || 'nobody'} holds it · open ${m != null ? mins(m) : ''}${openAsks.length > 1 ? ` · ${openAsks.length - 1} more below` : ''}. Settle it in the Asks card.` };
+    return { tone: m != null && m > 4320 ? 'bad' : '', text: `Waiting on ${(a.assignee_name || 'nobody').split(' ')[0]} for ${thing(a)} · open ${m != null ? mins(m) : ''}${openAsks.length > 1 ? ` · ${openAsks.length - 1} more below` : ''}. Settle it in the Asks card.` };
   }
   const est = (estimates || [])[0];
   if (est && est.status === 'sent') return { tone: '', text: `Estimate #${est.serial_number} is out, waiting on the customer since ${new Date(est.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}. Text a nudge from the Cockpit.` };
@@ -604,7 +605,7 @@ function askRow(a, me) {
   const mine = a.assignee_id === me?.id;
   const cls = a.lane === 'SUPER' ? 'st-orange' : a.lane === 'CHAT' ? 'st-green' : 'st-blue';
   const openMin = (Date.now() - new Date(a.opened_at)) / 6e4;
-  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span><button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
+  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span><button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
 }
 
 function withQueueShape(a, job) {
