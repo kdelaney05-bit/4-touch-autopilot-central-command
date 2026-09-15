@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=32';
-import { DEMO } from './demo.js?v=32';
+import * as api from './api.js?v=37';
+import { DEMO } from './demo.js?v=37';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -36,7 +36,7 @@ export async function loadAll() {
   const since90 = new Date(Date.now() - 90 * 86400e3).toISOString(), since60 = new Date(Date.now() - 60 * 86400e3).toISOString();
   const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
-    api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
+    api.page('reps?select=id,name,role,email&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
     api.page('v_stage_board?select=*&order=days_in_stage.desc', 3000),
     api.page('v_office_queue?select=*&order=opened_at.asc', 2000),

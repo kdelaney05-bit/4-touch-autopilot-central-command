@@ -1,12 +1,13 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=32';
-import * as api from './api.js?v=32';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=32';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=32';
-import { DEMO_STEPS } from './demo-office.js?v=32';
-import { reload } from './app.js?v=32';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=37';
+import * as api from './api.js?v=37';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=37';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=37';
+import { iconForAsk } from './words.js?v=37';
+import { DEMO_STEPS } from './demo-office.js?v=37';
+import { reload } from './app.js?v=37';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -66,7 +67,7 @@ function row(q) {
   const red = q.open_min > (LINE_MIN[q.ask_type] || 1e9);
   const green = q.ask_type === 'INVOICE';
   return `<div class="ask ${green ? 'green' : ''}" style="cursor:pointer" onclick="__peek('${esc(q.customer_id)}')">
-    <span class="chip ${green ? 'st-green' : 'st-blue'}">${esc(askLabel(q))}</span>
+    <span class="chip ${green ? 'st-green' : 'st-blue'}"><i class="ai">${iconForAsk(q)}</i>${esc(askLabel(q))}</span>
     <div><b>${esc(personName(q.customer_name))}</b> · ${esc(brandName(q.cc_company_id))} · ${esc(money(q.job_value))}<div class="who">${esc(q.note || '')} · opened by ${esc(q.opened_by_name || 'the file')} · ${esc(q.assignee_name || 'unassigned')} holds it</div></div>
     <span class="mono ${red ? 'red' : ''}">${esc(mins(q.open_min))}</span>
     <span class="chip ${STAGES[q.stage]?.cls || 'st-ink'}">${esc(stageLabel(q.stage))}</span>

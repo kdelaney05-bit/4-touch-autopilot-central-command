@@ -67,7 +67,7 @@ export const ROOMS_BY_ROLE = {
   sales:   ['files'],
   crew:    [],
 };
-export const ROOM_LABEL = { home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'The Flow', files: 'Files' };
+export const ROOM_LABEL = { home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', files: 'Files' };
 
 /* The owner console (liberty-command, GitHub Pages, same github.io origin) —
    the dashboard Kevin lived in while the app was built. Its sections route
