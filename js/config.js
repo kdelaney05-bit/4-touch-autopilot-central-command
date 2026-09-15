@@ -54,14 +54,14 @@ export const askLabel = (a) => {
 
 /* Which rooms a role opens. RLS decides the rows either way. */
 export const ROOMS_BY_ROLE = {
-  owner:   ['home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
-  admin:   ['home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
-  manager: ['production', 'pipeline', 'flow', 'files', 'office'],
-  office:  ['office', 'flow', 'files', 'production'],
-  sales:   ['files'],
+  owner:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
+  admin:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
+  manager: ['line', 'production', 'pipeline', 'flow', 'files', 'office'],
+  office:  ['line', 'office', 'flow', 'files', 'production'],
+  sales:   ['line', 'files'],
   crew:    [],
 };
-export const ROOM_LABEL = { home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', files: 'Files' };
+export const ROOM_LABEL = { line: 'The Line', home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', files: 'Files' };
 
 /* The owner console (liberty-command, GitHub Pages, same github.io origin) —
    the dashboard Kevin lived in while the app was built. Its sections route

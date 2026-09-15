@@ -290,3 +290,38 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .mk { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dimmer); margin-bottom: 4px; } .mk.gold { color: var(--gold); }
 .mcol ul { margin: 0; padding-left: 16px; font-size: 13px; line-height: 1.4; } .mcol li { margin-bottom: 3px; } .mcust { font-size: 13px; line-height: 1.4; color: var(--dim); }
 @media (max-width: 900px) { .mrow { grid-template-columns: 80px 1fr; } .mcol, .mwho { grid-column: 1 / -1; } }
+
+/* ── The Line — the switchboard (15 Sep). The rail never changes when the pane
+   does: that is the whole point of the room, so the two are separate grids
+   and only #line-pane is repainted by a click. ── */
+.line-wrap { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 14px; align-items: start; }
+.line-rail { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 6px 0 10px; position: sticky; top: 78px; max-height: calc(100vh - 100px); overflow-y: auto; }
+.line-grp { padding: 10px 10px 2px; }
+.line-grp .kicker { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 6px 6px; }
+.line-item { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 9px; align-items: center; width: 100%; text-align: left; padding: 7px 8px; border-radius: 10px; border: 1px solid transparent; }
+.line-item:hover { background: var(--card-hi); border-color: var(--line); }
+.line-item.on { background: var(--card-hi); border-color: var(--goldbtn); box-shadow: 0 0 0 3px rgba(201,150,43,.14); }
+.line-av { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; font-family: var(--mono); font-size: 10px; font-weight: 700; background: var(--card-hi); color: var(--dim); border: 1px solid var(--line); }
+.line-av.gold { background: var(--goldsoft); color: #8a6508; border-color: transparent; }
+.line-av.blue { background: var(--officesoft); color: var(--office); border-color: transparent; }
+.line-av.orange { background: var(--prodsoft); color: var(--prod); border-color: transparent; }
+.line-av.green { background: var(--greensoft); color: var(--verify); border-color: transparent; }
+.line-av.red { background: #fbf1ef; color: var(--red); border-color: transparent; }
+.line-item .nm { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.line-item .pv, .line-row .pv { display: block; font-size: 11px; color: var(--dimmer); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.line-badge { font-family: var(--mono); font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 999px; background: var(--red); color: #fff; }
+.line-pane .card { margin-bottom: 0; }
+.line-row { grid-template-columns: 28px minmax(0, 1fr) auto; width: 100%; text-align: left; cursor: pointer; margin-bottom: 6px; }
+.line-row:hover { border-color: var(--goldbtn); }
+.line-bar { display: grid; grid-template-columns: minmax(96px, 1.1fr) minmax(0, 2fr) 34px 58px; gap: 10px; align-items: center; padding: 4px 0; }
+.line-bar .bl { font-size: 12.5px; color: var(--dim); text-align: right; }
+.line-bar .tr { height: 16px; background: var(--card-hi); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); }
+.line-bar .tr i { display: block; height: 100%; background: var(--goldbtn); border-radius: 0 3px 3px 0; }
+.line-bar .bn { font-size: 12.5px; font-weight: 700; text-align: right; }
+.line-bar .bo { font-size: 11.5px; text-align: right; }
+@media (max-width: 900px) {
+  .line-wrap { grid-template-columns: 1fr; }
+  .line-rail { position: static; max-height: none; }
+}
+.line-grp .kicker span:last-child { white-space: nowrap; flex: 0 0 auto; }
+.line-grp .kicker span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
