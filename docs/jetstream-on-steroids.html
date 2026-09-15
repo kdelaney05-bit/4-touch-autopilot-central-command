@@ -1,0 +1,761 @@
+<title>Jetstream on Steroids</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f3ec; --card:#ffffff; --card-hi:#fbf9f4; --line:#e3ddd0; --ink:#1c1a15; --dim:#5a544a; --dimmer:#8a8377;
+  --gold:#b8860b; --goldsoft:#fbf0d0; --green:#2f8f5b; --greensoft:#e6f2e9; --blue:#1d5fa8; --bluesoft:#e1e8f3;
+  --ron:#1f6f4a; --ronsoft:#dff0e6; --sam:#1d5fa8; --samsoft:#e1e8f3; --obed:#b45309; --obedsoft:#f6e3d6; --laura:#0e7c86; --laurasoft:#dcf1f3; --kevin:#5b3a8f; --kevinsoft:#ece5f6;
+  --luis:#a8323e; --luissoft:#f8e2e4; --gio:#6b6d0e; --giosoft:#eef0d2; --jess:#7a2e6d; --jesssoft:#f2e0ee; --travis:#245e8f; --travissoft:#dde9f2; --jon:#8a4b1f; --jonsoft:#f3e4d7; --diana:#3f6f8f; --dianasoft:#dfe9f0; --crew:#6e5a3a; --crewsoft:#efe6d6;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace; --sans:'Source Sans 3',-apple-system,'Segoe UI',system-ui,sans-serif; --serif:'Newsreader',Georgia,serif;
+  --shadow:0 8px 30px rgba(28,26,21,.08);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#171511; --card:#221f1a; --card-hi:#2a2620; --line:#3a352c; --ink:#f1ede4; --dim:#c9c2b4; --dimmer:#9a927f;
+  --gold:#e2b44d; --goldsoft:#3a2f14; --green:#7ccb9c; --greensoft:#1b3324; --blue:#8db4ee; --bluesoft:#1b2a40;
+  --ron:#7fcf9f; --ronsoft:#1c3327; --sam:#8db4ee; --samsoft:#1b2a40; --obed:#e6a26b; --obedsoft:#3d2818; --laura:#7fd0d8; --laurasoft:#12343a; --kevin:#c2a9ec; --kevinsoft:#2a2038;
+  --luis:#ef8f98; --luissoft:#3d1f23; --gio:#c9cc5e; --giosoft:#2e2f14; --jess:#dc9ad0; --jesssoft:#3a1f36; --travis:#8fb8e6; --travissoft:#1c2c3d; --jon:#e0a874; --jonsoft:#3a2618; --diana:#9cc3de; --dianasoft:#1d2e3a; --crew:#c9b48e; --crewsoft:#33291a;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  --bg:#171511; --card:#221f1a; --card-hi:#2a2620; --line:#3a352c; --ink:#f1ede4; --dim:#c9c2b4; --dimmer:#9a927f;
+  --gold:#e2b44d; --goldsoft:#3a2f14; --green:#7ccb9c; --greensoft:#1b3324; --blue:#8db4ee; --bluesoft:#1b2a40;
+  --ron:#7fcf9f; --ronsoft:#1c3327; --sam:#8db4ee; --samsoft:#1b2a40; --obed:#e6a26b; --obedsoft:#3d2818; --laura:#7fd0d8; --laurasoft:#12343a; --kevin:#c2a9ec; --kevinsoft:#2a2038;
+  --luis:#ef8f98; --luissoft:#3d1f23; --gio:#c9cc5e; --giosoft:#2e2f14; --jess:#dc9ad0; --jesssoft:#3a1f36; --travis:#8fb8e6; --travissoft:#1c2c3d; --jon:#e0a874; --jonsoft:#3a2618; --diana:#9cc3de; --dianasoft:#1d2e3a; --crew:#c9b48e; --crewsoft:#33291a;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:24px 72px}
+.wrap{max-width:1180px;margin:0 auto}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(34px,5.5vw,50px);letter-spacing:-.01em;margin:6px 0 4px;text-wrap:balance;line-height:1.05}
+.lede{font-size:17px;color:var(--dim);max-width:66ch;margin:0 0 18px}
+h3{font-family:var(--serif);font-weight:500;font-size:26px;margin:38px 0 8px;text-wrap:balance}
+p{max-width:68ch;margin:8px 0;color:var(--dim)}
+svg.i{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;flex:0 0 15px}
+
+/* person colors */
+.p-ron{--c:var(--ron);--cs:var(--ronsoft)}.p-sam{--c:var(--sam);--cs:var(--samsoft)}.p-obed{--c:var(--obed);--cs:var(--obedsoft)}.p-laura{--c:var(--laura);--cs:var(--laurasoft)}.p-kevin{--c:var(--kevin);--cs:var(--kevinsoft)}.p-machine{--c:var(--gold);--cs:var(--goldsoft)}
+.p-luis{--c:var(--luis);--cs:var(--luissoft)}.p-gio{--c:var(--gio);--cs:var(--giosoft)}.p-jess{--c:var(--jess);--cs:var(--jesssoft)}.p-travis{--c:var(--travis);--cs:var(--travissoft)}.p-jon{--c:var(--jon);--cs:var(--jonsoft)}.p-diana{--c:var(--diana);--cs:var(--dianasoft)}.p-crew{--c:var(--crew);--cs:var(--crewsoft)}.p-customer{--c:var(--dimmer);--cs:var(--card)}
+.av{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--c);color:#fff;font-family:var(--mono);font-size:10px;font-weight:500;flex:0 0 22px}
+.p-machine .av{color:#1c1a15}
+.p-customer .av{background:var(--card);color:var(--dim);border:1px solid var(--line)}
+
+/* ── the sign-in strip ── */
+.signin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
+.signin .kicker{margin-right:4px}
+.who{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px 5px 6px;display:inline-flex;align-items:center;gap:7px;font-size:13.5px;cursor:pointer;color:var(--ink);font-family:var(--sans)}
+.who small{color:var(--dimmer);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.who.on{border-color:var(--c);background:var(--cs);box-shadow:inset 0 0 0 1px var(--c)}
+.who:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+
+/* ── the app frame ── */
+.app{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);display:grid;grid-template-rows:auto 1fr;min-height:640px}
+.top{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--card-hi);flex-wrap:wrap}
+.brand{font-family:var(--serif);font-size:20px;font-weight:500;white-space:nowrap}
+.jump{flex:1 1 220px;position:relative}
+.jump input{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px 8px 34px;font:14px var(--sans);background:var(--card);color:var(--ink)}
+.jump input:focus{outline:2px solid var(--blue);outline-offset:1px}
+.jump svg.i{position:absolute;left:11px;top:11px;color:var(--dimmer)}
+.jump .drop{position:absolute;left:0;right:0;top:40px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);z-index:20;overflow:hidden}
+.jump .drop button{display:flex;width:100%;text-align:left;border:0;background:none;padding:9px 12px;font:14px var(--sans);color:var(--ink);gap:10px;align-items:center;cursor:pointer}
+.jump .drop button:hover,.jump .drop button:focus-visible{background:var(--card-hi);outline:none}
+.jump .drop small{color:var(--dimmer);margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+.me{display:inline-flex;align-items:center;gap:8px;font-size:13.5px}
+.me .bell{position:relative;display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:5px 10px;gap:6px;align-items:center;font-family:var(--mono);font-size:11px;background:var(--card)}
+.me .bell b{background:var(--c);color:#fff;border-radius:999px;padding:0 6px;font-weight:500}
+.body{display:grid;grid-template-columns:250px minmax(0,1fr) 300px;min-height:0}
+@media(max-width:960px){.body{grid-template-columns:220px minmax(0,1fr)}.side{display:none}.side.open{display:block;grid-column:1/-1}}
+@media(max-width:680px){.body{grid-template-columns:1fr}.rail{border-right:0;border-bottom:1px solid var(--line);max-height:260px;overflow:auto}}
+
+/* rail */
+.rail{border-right:1px solid var(--line);padding:12px 10px;background:var(--card-hi);overflow:auto}
+.rail .see{font-size:12.5px;color:var(--dim);padding:6px 8px 10px;line-height:1.35}
+.rail .see b{color:var(--ink);font-weight:600}
+.sec{margin-top:10px}
+.sec .kicker{padding:4px 8px}
+.row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;cursor:pointer;width:100%;border:0;background:none;text-align:left;font:14px var(--sans);color:var(--ink)}
+.row:hover,.row:focus-visible{background:var(--card);outline:none}
+.row.on{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}
+.row .dot{width:10px;height:10px;border-radius:50%;background:var(--c);flex:0 0 10px}
+.row .txt{min-width:0;flex:1}
+.row .txt b{display:block;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .txt span{display:block;font-size:11.5px;color:var(--dimmer);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .n{font-family:var(--mono);font-size:10px;background:var(--c,var(--dimmer));color:#fff;border-radius:999px;padding:1px 6px}
+.row .on-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex:0 0 7px;margin-left:auto}
+
+/* thread */
+.main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.head{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.head h2{font-family:var(--serif);font-weight:500;font-size:22px;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.head h2 small{font-family:var(--sans);font-size:13.5px;color:var(--dimmer);font-weight:400}
+.now{font-size:13.5px;color:var(--dim);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.now b{color:var(--ink);font-weight:600}
+.headrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.strip{display:flex;gap:3px;flex:1 1 140px;min-width:120px}
+.strip span{flex:1 1 0;height:10px;border-radius:3px;background:var(--c);min-width:5px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 11px;font:13px var(--sans);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{background:var(--card-hi)}.btn:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+.btn.prime{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.listen.on{background:var(--kevinsoft);border-color:var(--kevin);color:var(--kevin)}
+.btn.listen.on .sw::after{transform:translateX(12px)}
+.sw{width:26px;height:14px;border-radius:999px;background:var(--line);position:relative;display:inline-block}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--card);transition:transform .15s}
+.btn.listen.on .sw{background:var(--kevin)}
+.thread{flex:1 1 auto;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-height:340px;max-height:560px}
+.day{align-self:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer);padding:8px 0 2px}
+.msg{max-width:78%;border-radius:14px;padding:9px 13px;font-size:14.5px;line-height:1.4;white-space:pre-wrap;word-break:break-word;position:relative}
+.msg .who{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer);margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.msg.in{background:var(--card);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+.msg.out{align-self:flex-end;border-bottom-right-radius:4px;background:var(--cs);border:1px solid var(--line);border-left:5px solid var(--c)}
+.msg.out .who{color:var(--c)}
+.msg.note{align-self:flex-end;border-left:5px solid var(--c);background:var(--card-hi);border:1px dashed var(--blue);border-radius:12px}
+.msg.note .who{color:var(--c)}
+.msg.crewmsg{border-style:solid;border-color:var(--crew);background:var(--cs)}
+.msg.crewmsg.in{border-left:5px solid var(--crew);background:var(--crewsoft)}
+.msg small.aud{display:block;color:var(--dimmer);font-size:11.5px;margin-top:4px;font-style:italic}
+.msg .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.tag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 8px 2px 3px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;background:var(--cs);color:var(--c);border:1px solid var(--c)}
+.tag .av{width:16px;height:16px;font-size:8px;flex-basis:16px}
+.tag.auto{border-style:dashed}
+.ev{align-self:center;border-left:5px solid var(--c,var(--line));max-width:94%;font-family:var(--mono);font-size:11.5px;color:var(--dim);background:var(--card-hi);border:1px solid var(--line);border-radius:999px;padding:5px 12px;text-align:center;display:flex;align-items:center;gap:7px;cursor:default}
+.ev b{color:var(--ink);font-weight:500}
+.ev.file{border-color:var(--green);color:var(--green)}.ev.file b{color:var(--green)}
+.ev.money{border-color:var(--gold);color:var(--gold)}.ev.money b{color:var(--gold)}
+.ev.hi{box-shadow:0 0 0 3px var(--goldsoft);border-color:var(--gold)}
+.photos{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.photos span{width:44px;height:44px;border-radius:6px;background:linear-gradient(135deg,#c9bfa8,#8e8470);display:inline-block}
+.opennote{align-self:flex-end;font-size:12px;color:var(--dimmer);margin-top:-4px}
+.opennote button{border:0;background:none;color:var(--blue);font:12.5px var(--sans);cursor:pointer;padding:0;text-decoration:underline}
+
+/* composer */
+.compose{border-top:1px solid var(--line);padding:10px 14px 12px;background:var(--card-hi);display:flex;flex-direction:column;gap:8px}
+.aud{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.aud .kicker{margin-right:2px}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 11px;font:12.5px var(--sans);color:var(--dim);cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.pill.on{color:var(--ink);font-weight:600}
+.pill.cust.on{border-color:var(--ink)}
+.pill.team.on{border:1px dashed var(--blue);background:var(--bluesoft);color:var(--blue)}
+.pill.crewp.on{border-color:var(--crew);background:var(--crewsoft);color:var(--crew)}
+.box{display:flex;gap:8px;align-items:flex-end}
+.box textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:12px;padding:9px 12px;font:14.5px var(--sans);min-height:44px;background:var(--card);color:var(--ink);line-height:1.4}
+.box textarea:focus{outline:2px solid var(--blue);outline-offset:1px}
+.box.team textarea{border:1px dashed var(--blue);background:var(--bluesoft)}
+.box.crewp textarea{border-color:var(--crew);background:var(--crewsoft)}
+.hint{font-size:12px;color:var(--dimmer)}
+.hint b{color:var(--dim);font-weight:600}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.quick button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:4px 9px;font:12.5px var(--sans);color:var(--dim);cursor:pointer;text-align:left}
+.quick button:hover{background:var(--card-hi);color:var(--ink)}
+
+/* side panel */
+.side{border-left:1px solid var(--line);padding:12px 14px;background:var(--card-hi);overflow:auto;font-size:13.5px}
+.side h4{margin:0 0 6px;font:600 13.5px var(--sans)}
+.side .blk{margin-bottom:16px}
+.money{font-family:var(--serif);font-size:30px;font-weight:500;line-height:1;margin:2px 0 4px}
+.track{display:flex;gap:3px;margin:8px 0 4px}
+.track span{flex:1;height:14px;border-radius:3px;background:var(--line)}
+.track span.lit{background:var(--green)}.track span.now{background:var(--gold)}
+.tl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9.5px;color:var(--dimmer);letter-spacing:.04em}
+.docs button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;text-align:left;padding:5px 4px;border-radius:7px;font:13.5px var(--sans);color:var(--ink);cursor:pointer}
+.docs button:hover{background:var(--card)}
+.docs button span{color:var(--dimmer);font-size:12px;margin-left:auto;white-space:nowrap}
+.ppl{display:flex;flex-direction:column;gap:5px}
+.pp{display:flex;align-items:center;gap:8px;border-left:4px solid var(--c);padding:5px 8px;border-radius:0 8px 8px 0;background:var(--card)}
+.pp b{font-weight:600;font-size:13.5px}
+.pp span{color:var(--dimmer);font-size:12px;display:block}
+.pp .txt{flex:1;min-width:0}
+.pp button{border:1px solid var(--line);background:var(--card-hi);border-radius:999px;padding:2px 8px;font:11.5px var(--sans);cursor:pointer;color:var(--ink)}
+.pp button:hover{background:var(--cs);border-color:var(--c);color:var(--c)}
+.chain{border:1px dashed var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;color:var(--dim);background:var(--card)}
+.chain b{color:var(--ink)}
+
+/* DM drawer */
+.drawer{position:fixed;right:16px;bottom:16px;width:min(360px,calc(100vw - 32px));background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);z-index:50;display:flex;flex-direction:column;max-height:70vh}
+.drawer .dh{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--cs);border-radius:16px 16px 0 0}
+.drawer .dh b{flex:1}
+.drawer .dh small{color:var(--dimmer);font-size:11.5px;display:block;font-weight:400}
+.drawer .dh button{border:0;background:none;font:16px var(--sans);cursor:pointer;color:var(--dim)}
+.drawer .dt{padding:10px 12px;overflow:auto;display:flex;flex-direction:column;gap:6px;flex:1}
+.drawer .msg{max-width:88%;font-size:13.5px}
+.drawer .dc{padding:8px 10px;border-top:1px solid var(--line);display:flex;gap:6px}
+.drawer .dc input{flex:1;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font:13.5px var(--sans);background:var(--card);color:var(--ink)}
+
+/* loop-in modal */
+.modal{position:fixed;inset:0;background:rgba(20,18,14,.45);z-index:60;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal .card{background:var(--card);border:1px solid var(--line);border-radius:16px;width:min(440px,100%);padding:16px 18px;box-shadow:var(--shadow)}
+.modal h4{margin:0 0 4px;font:500 22px var(--serif)}
+.modal p{margin:0 0 10px;font-size:13.5px}
+.modal .list{display:flex;flex-direction:column;gap:4px;max-height:300px;overflow:auto}
+.modal .row{padding:7px 8px}
+.modal .row.picked{background:var(--cs);box-shadow:inset 0 0 0 1px var(--c)}
+.modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+/* phone frame for the crew */
+.phone{width:min(360px,100%);margin:18px auto;border:10px solid #2a2622;border-radius:34px;background:var(--card);overflow:hidden;box-shadow:var(--shadow)}
+.phone .ph{padding:12px 14px;border-bottom:1px solid var(--line);background:var(--crewsoft)}
+.phone .ph b{font-family:var(--serif);font-size:19px;font-weight:500;display:block}
+.phone .ph span{font-size:12.5px;color:var(--dim)}
+.phone .wo{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13.5px;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.phone .wo div b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);font-weight:400}
+.phone .thread{max-height:300px;min-height:200px;padding:10px 12px}
+.phone .msg{max-width:88%;font-size:13.5px}
+.phone .big{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px;border-top:1px solid var(--line)}
+.phone .big button{border:1px solid var(--line);border-radius:12px;padding:12px 8px;font:600 14px var(--sans);background:var(--card-hi);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.phone .big button svg.i{width:22px;height:22px}
+.crewwrap{padding:10px 16px;text-align:center;color:var(--dim);font-size:13.5px}
+
+/* toasts */
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:999px;font-size:13.5px;z-index:70;box-shadow:var(--shadow);display:flex;gap:8px;align-items:center;max-width:calc(100vw - 32px)}
+.toast .av{width:20px;height:20px;font-size:9px}
+
+/* below the app */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card b.t{display:block;font-size:15px;margin-bottom:4px}
+.card p{font-size:13.5px;margin:4px 0}
+.card ul{margin:6px 0 0;padding-left:18px;color:var(--dim);font-size:13.5px}.card li{margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dimmer);font-weight:400;background:var(--card-hi)}
+tr:last-child td{border-bottom:0}
+td b{font-weight:600}
+.tbl{overflow-x:auto;border-radius:12px}
+.borrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.borrow .card{border-top:4px solid var(--c,var(--line))}
+.borrow .card .kicker{margin-bottom:4px}
+.rule{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.rule:last-child{border-bottom:0}
+.rule .n{font-family:var(--serif);font-size:26px;color:var(--gold);line-height:1;width:34px;flex:0 0 34px}
+.rule b{display:block;font-size:15px}
+.rule p{margin:2px 0 0;font-size:13.5px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="kicker">The new CRM · one chat for the whole company · a clickable picture</div>
+  <h1>Jetstream on Steroids</h1>
+  <p class="lede">One place to talk. Every customer has a thread. Every room has a thread. Every person can be reached from wherever you are standing, and everything you say lands in the customer's file with a name, a color and a time. Sign in as each person below and watch what they see change.</p>
+
+  <div class="signin" id="signin"><span class="kicker">Sign in as</span></div>
+
+  <div class="app" id="app">
+    <div class="top">
+      <div class="brand" id="brand">Liberty · the chat</div>
+      <div class="jump">
+        <svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="jumpbox" type="text" placeholder="Jump to a customer, a person, a document, a room…" autocomplete="off" aria-label="Jump to anything">
+        <div class="drop" id="jumpdrop" hidden></div>
+      </div>
+      <div class="me" id="me"></div>
+    </div>
+    <div class="body">
+      <nav class="rail" id="rail" aria-label="Threads"></nav>
+      <section class="main" id="main"></section>
+      <aside class="side" id="side"></aside>
+    </div>
+  </div>
+
+  <h3>Who sees what</h3>
+  <p>One login each. The rule is simple: you see the customers you touch, the rooms your department lives in, and every person in the company for a quick message. The owner sees everything and chooses what to listen to.</p>
+  <div class="tbl"><table>
+    <tr><th>Person</th><th>Customer threads</th><th>Rooms</th><th>Crews and subs</th><th>Pings they get</th></tr>
+    <tr><td><b>Kevin</b> · owner</td><td>Every file, every brand. Listen on or off per thread.</td><td>All four. Reads them all, posts as Kevin.</td><td>All crews, all subs.</td><td>Only where he turned Listen on, plus a direct tag. Never auto-tagged.</td></tr>
+    <tr><td><b>Gio</b> · sales manager</td><td>Every file, for now. Auto-looped when any rep is tagged.</td><td>Sales, Office, Production, the village.</td><td>The fence crews.</td><td>Any tag on a rep, any Sales room post, his own tags.</td></tr>
+    <tr><td><b>Luis</b> · production manager</td><td>Files that have reached scheduling or later, plus any file he is tagged on.</td><td>Production, the village.</td><td>All crews and subs.</td><td>Any tag on Obed, crew messages, his own tags.</td></tr>
+    <tr><td><b>Sam</b> · office</td><td>Files at an office step (permit, paperwork, invoice), plus any file she is tagged on.</td><td>Office, the village.</td><td>The notary, the surveyor.</td><td>Her tags. Jess is looped with her automatically.</td></tr>
+    <tr><td><b>Ron</b> · rep</td><td>His own customers only. Never another rep's book.</td><td>Sales, the village.</td><td>None directly. He tags Obed and the crew hears it through Obed.</td><td>His customers' texts, his tags, wins in the Sales room.</td></tr>
+    <tr><td><b>Crew Ortiz</b> · sub</td><td>Only the job they are on, and only the crew side of it. No login. A link by text.</td><td>None.</td><td>Obed and Luis.</td><td>The work order, day-of changes, "where are you".</td></tr>
+  </table></div>
+
+  <h3>The rules the picture is built on</h3>
+  <div class="card" id="rules"></div>
+
+  <h3>What we took from the others</h3>
+  <p>Each of the big tools got one thing right. We are taking that one thing from each and leaving the rest.</p>
+  <div class="borrow" id="borrow"></div>
+
+  <h3>What is already true today, and what this adds</h3>
+  <div class="grid3">
+    <div class="card" style="border-top:4px solid var(--green)"><div class="kicker">Already built in Central Command</div><ul>
+      <li>The customer file thread: texts on any line, emails, team notes with tags, step lines like "Sam settled the permit".</li>
+      <li>Tag = a push and a Tagged list for that person.</li>
+      <li>Four rooms beside the reps' hype thread: Sales, Office, Production, the village. A post can hang on a customer.</li>
+      <li>The supervisor app on TestFlight: Today, Sites, Crews, Pay, live files.</li>
+    </ul></div>
+    <div class="card" style="border-top:4px solid var(--gold)"><div class="kicker">This picture adds · in build order</div><ul>
+      <li><b>A name and a color on every bubble.</b> One color per person the day they join, everywhere.</li>
+      <li><b>The manager loop.</b> Tag Obed and Luis is in. Tag Sam and Jess is in. Tag a rep and Gio is in. The tagger stays until it's handled.</li>
+      <li><b>Listen.</b> Kevin's switch on any thread. On means every message pings his phone.</li>
+      <li><b>Quick messages.</b> Anyone to anyone, from inside the file, without leaving it.</li>
+      <li><b>The crew side.</b> A no-login link for subs: work order, photos, "here", "done". Their words land in the file, marked crew.</li>
+      <li><b>Documents and calls in the timeline.</b> One line each, at the moment they happened.</li>
+    </ul></div>
+    <div class="card" style="border-top:4px solid var(--blue)"><div class="kicker">What it replaces</div><ul>
+      <li>Internal emails about a customer. If it's about a file, it's a note on the file.</li>
+      <li>Calling the office to ask "where is the permit". The thread says "Now: permit, waiting on the county, 4 days".</li>
+      <li>Texting a crew from a personal phone. The crew link is the only line, and it is saved.</li>
+      <li>Group chats that nobody can find later. The rooms are the group chats, and every post can hang on a file.</li>
+    </ul></div>
+  </div>
+</div>
+
+<script>
+// ───────────────────────── data ─────────────────────────
+const I = {
+  tag:'<svg class="i" viewBox="0 0 24 24"><path d="M20 12l-8 8-8-8V4h8z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg>',
+  doc:'<svg class="i" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>',
+  call:'<svg class="i" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2"/></svg>',
+  money:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15 9.5c0-1.4-1.3-2-3-2s-3 .6-3 2 1.3 2 3 2 3 .6 3 2-1.3 2-3 2-3-.6-3-2"/></svg>',
+  photo:'<svg class="i" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M8 6l1.5-2h5L16 6"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  ear:'<svg class="i" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0112 0c0 3-2 4-3 6s-1 4-3.5 4S8 18 8 16"/><path d="M9.5 10a2.5 2.5 0 015 0c0 1.5-1.5 2-1.5 3.5"/></svg>',
+  pin:'<svg class="i" viewBox="0 0 24 24"><path d="M12 21s-6-5.5-6-11a6 6 0 0112 0c0 5.5-6 11-6 11z"/><circle cx="12" cy="10" r="2"/></svg>',
+  check:'<svg class="i" viewBox="0 0 24 24"><path d="M5 12l4 4L19 6"/></svg>',
+  step:'<svg class="i" viewBox="0 0 24 24"><path d="M4 18h5v-5h5V8h6"/></svg>',
+  send:'<svg class="i" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></svg>',
+  person:'<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>',
+  room:'<svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>',
+  truck:'<svg class="i" viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
+  flag:'<svg class="i" viewBox="0 0 24 24"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>',
+  mail:'<svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+};
+
+const PEOPLE = {
+  kevin:  {name:'Kevin',        ini:'KD', role:'owner',                     dept:'owner',      cls:'p-kevin',  manager:null},
+  gio:    {name:'Gio',          ini:'GC', role:'sales manager',             dept:'sales',      cls:'p-gio',    manager:null},
+  jess:   {name:'Jess',         ini:'JS', role:'office manager',            dept:'office',     cls:'p-jess',   manager:null},
+  luis:   {name:'Luis',         ini:'LG', role:'production manager',        dept:'production', cls:'p-luis',   manager:null},
+  ron:    {name:'Ron',          ini:'RS', role:'rep · fencing',             dept:'sales',      cls:'p-ron',    manager:'gio'},
+  travis: {name:'Travis',       ini:'TB', role:'rep · roofing',             dept:'sales',      cls:'p-travis', manager:'gio'},
+  sam:    {name:'Sam',          ini:'SW', role:'office · permits, paperwork, 811 locates', dept:'office', cls:'p-sam', manager:'jess'},
+  laura:  {name:'Laura',        ini:'LS', role:'office · invoices',         dept:'office',     cls:'p-laura',  manager:'jess'},
+  jon:    {name:'Jonathan',     ini:'JG', role:'office · scheduling',       dept:'office',     cls:'p-jon',    manager:'jess'},
+  obed:   {name:'Obed',         ini:'OS', role:'field supervisor',          dept:'production', cls:'p-obed',   manager:'luis'},
+  machine:{name:'The machine',  ini:'AI', role:'confirmations, the four touches', dept:'machine', cls:'p-machine', manager:null},
+  crew_ortiz:{name:'Crew Ortiz', ini:'CO', role:'fence crew · 3 men',       dept:'crew',       cls:'p-crew',   manager:'obed', ext:true},
+  crew_reyes:{name:'Crew Reyes', ini:'CR', role:'roofing crew · 6 men',     dept:'crew',       cls:'p-crew',   manager:'obed', ext:true},
+  notary: {name:'Pat · notary', ini:'PN', role:'mobile notary',             dept:'crew',       cls:'p-crew',   manager:'sam',  ext:true},
+  ace:    {name:'Ace Concrete', ini:'AC', role:'sub · footings',            dept:'crew',       cls:'p-crew',   manager:'luis', ext:true},
+};
+const VIEWERS = ['kevin','gio','luis','sam','ron','crew_ortiz'];
+const STEPS = ['Booked','Estimate','Signed','Paperwork','Permit','Locate','Scheduled','Material','Built','Paid'];
+
+// customer files
+const FILES = {
+  reed: {name:'Dana Reed', brand:'Liberty Fencing', job:"6' white PVC · 142 ft · 2 gates", money:9900, rep:'ron', stage:9, now:'Paid · the review ask went out Tuesday', waiting:null,
+    people:['machine','ron','sam','kevin','obed','laura'], listen:false,
+    docs:[['Proposal signed','Aug 23','ev-prop'],['The packet · 5 files','Aug 23','ev-prop'],['NOC notarized','Aug 25','ev-noc'],['Permit 26BC15273','Aug 26','ev-permit'],['6 photos · field complete','Sep 6','ev-photos'],['Invoice · paid $9,900','Sep 8','ev-paid']],
+    thread:[
+      {d:'Tue Aug 19'},
+      {k:'out',p:'machine',line:'Fencing main line',t:'9:02 AM',x:'Hi Dana, this is Liberty Fencing. Your estimate is booked for Thu, Aug 21 at 2:00 PM with Ron. Reply here anytime.'},
+      {k:'in',p:'customer',n:'Dana',t:'9:15 AM',x:'Sounds good, see you then'},
+      {d:'Thu Aug 21'},
+      {k:'ev',p:'ron',ic:'pin',x:'Ron <b>arrived</b> · 1:56 PM · the geofence stamped it'},
+      {k:'out',p:'ron',line:'his line',t:'4:41 PM',x:'Thank you for having me out today, Dana. The estimate is on its way to your email. Text me here with anything. — Ron'},
+      {k:'ev',p:'machine',ic:'mail',x:'<b>Your digital estimate</b> · emailed 4:43 PM · opened 6:10 PM'},
+      {d:'Sat Aug 23'},
+      {k:'in',p:'customer',n:'Dana',t:'10:40 AM',x:"Let's do it. Can you put the second gate by the shed instead of the driveway?"},
+      {k:'out',p:'ron',line:'his line',t:'10:44 AM',x:'Done. I moved it in the drawing, same price. Sending the proposal to sign now.'},
+      {k:'ev',cls:'file',p:'ron',ic:'doc',id:'ev-prop',x:'<b>Proposal signed</b> · 11:02 AM · the packet went to Sam, Laura, Jess, Luis, Gio · 5 files'},
+      {k:'note',p:'ron',t:'11:05 AM',tags:['sam'],auto:['jess'],x:'Gate moved to the shed side. Survey is in the packet. No easement, she checked with the HOA. All yours.'},
+      {d:'Mon Aug 25'},
+      {k:'out',p:'sam',line:'Fencing main line',t:'9:20 AM',x:"Hi Dana, Sam at Liberty Fencing. I've got your paperwork from Ron. Your Notice of Commencement is ready to notarize. Can you come by Tuesday or Wednesday morning?"},
+      {k:'in',p:'customer',n:'Dana',t:'9:48 AM',x:'Tuesday at 10 works'},
+      {k:'ev',p:'sam',ic:'call',x:'<b>Call</b> · Dana called the Fencing main line · Sam answered · 3 min · 2:15 PM'},
+      {k:'ev',cls:'file',p:'sam',ic:'doc',id:'ev-noc',x:'<b>NOC notarized</b> · Sam · recorded at the Clerk Aug 26'},
+      {d:'Tue Aug 26'},
+      {k:'ev',cls:'file',p:'sam',ic:'doc',id:'ev-permit',x:'<b>Permit approved</b> · 26BC15273 · the county took 4 days · usually 6'},
+      {k:'out',p:'sam',line:'Fencing main line',t:'3:30 PM',x:'Permit approved, Dana! Survey stakes go in Friday and Obed, our supervisor, will text you the start day.'},
+      {k:'out',p:'kevin',line:'Fencing main line',t:'5:10 PM',x:"Dana, Kevin here, I own Liberty. Ron and Sam will take great care of you. If anything ever isn't right, text this number and it comes straight to me."},
+      {k:'in',p:'customer',n:'Dana',t:'5:14 PM',x:'Wow. Thank you Kevin.'},
+      {d:'Thu Sep 4'},
+      {k:'note',p:'obed',t:'7:40 AM',tags:['crew_ortiz'],crew:true,x:'Reed · 142 ft white PVC · Friday 7:30 · two days · the shed gate goes in day two. Material is on the trailer.'},
+      {k:'crewin',p:'crew_ortiz',t:'7:52 AM',x:'Ok. We bring the auger. Two days is fine.'},
+      {k:'out',p:'obed',line:'his line',t:'8:12 AM',x:'Good morning Dana, Obed with Liberty Fencing. Crew Ortiz starts Friday at 7:30, two days. The shed gate goes in day two.'},
+      {k:'in',p:'customer',n:'Dana',t:'8:30 AM',x:'Great, the side gate will be unlocked'},
+      {d:'Sat Sep 6'},
+      {k:'crewin',p:'crew_ortiz',t:'3:41 PM',photos:6,x:'Done. 6 photos.'},
+      {k:'ev',cls:'file',p:'obed',ic:'photo',id:'ev-photos',x:'<b>Field complete</b> · Obed signed off · 6 photos · 3:51 PM'},
+      {k:'out',p:'obed',line:'his line',t:'3:50 PM',x:'All done, Dana. 6 photos are on your file. Laura in our office will send the invoice Monday. Thank you for choosing us. — Obed'},
+      {d:'Mon Sep 8'},
+      {k:'out',p:'laura',line:'Fencing main line',t:'10:02 AM',x:'Hi Dana, Laura at Liberty Fencing. Your fence is complete and your invoice is ready: liberty.pay/reed-4481.'},
+      {k:'in',p:'customer',n:'Dana',t:'12:15 PM',x:'Paid. Thank you all, the yard looks amazing.'},
+      {k:'ev',cls:'money',p:'laura',ic:'money',id:'ev-paid',x:'<b>Paid</b> · $9,900 · the bell rang for Ron · 12:16 PM'},
+    ]},
+  bell: {name:'Marcus Bell', brand:'Pro-Tech Roofing', job:'Shingle re-roof · 28 sq · Timberline HDZ Pewter', money:18400, rep:'travis', stage:4, now:'Permit', waiting:'the county · 6 days, usually 5',
+    people:['machine','travis','sam','luis','kevin'], listen:true,
+    docs:[['Contract signed','Sep 3','ev-b-sign'],['NOC notarized','Sep 5','ev-b-noc'],['Permit application','Sep 5','ev-b-permit']],
+    thread:[
+      {d:'Wed Sep 3'},
+      {k:'out',p:'travis',line:'his line',t:'1:10 PM',x:"Marcus, great meeting you today. I'm going to schedule a time to come get the NOC notarized. In the meantime, go ahead and sign my contract, sending the link right now."},
+      {k:'in',p:'customer',n:'Marcus',t:'1:32 PM',x:'Signed. When can you start?'},
+      {k:'ev',cls:'file',p:'travis',ic:'doc',id:'ev-b-sign',x:'<b>Contract signed</b> · 1:31 PM · the packet went to Sam, Laura, Jess, Luis, Gio · 4 files'},
+      {k:'ev',cls:'money',p:'machine',ic:'money',x:'<b>Deposit</b> · $1,840 on card · 1:33 PM · material can be ordered once the paperwork is official'},
+      {d:'Fri Sep 5'},
+      {k:'ev',cls:'file',p:'sam',ic:'doc',id:'ev-b-noc',x:'<b>NOC notarized</b> · Pat the notary went to the house · 10:15 AM'},
+      {k:'ev',cls:'file',p:'sam',ic:'doc',id:'ev-b-permit',x:'<b>Permit applied</b> · Brevard · 11:40 AM'},
+      {k:'note',p:'sam',t:'11:45 AM',tags:['luis'],x:'Marcus mentioned a soft spot by the chimney. Are we quoting decking by the sheet or do you want to walk it before the permit clears?'},
+      {k:'note',p:'luis',t:'12:20 PM',tags:['sam'],auto:['jess'],x:'By the sheet, $95 each, it is in the contract. Crew Reyes will call it on tear-off day. No walk needed.'},
+      {d:'Thu Sep 11'},
+      {k:'ev',p:'sam',ic:'call',x:'<b>Call</b> · Marcus called the Roofing main line · 2 min · 9:05 AM · asked about the permit'},
+      {k:'out',p:'sam',line:'Roofing main line',t:'9:12 AM',x:"Hi Marcus, Sam at Pro-Tech. Your permit is with the county, they usually take about 5 days and we are on day 6, so I gave them a call. I'll text you the minute it clears."},
+      {k:'in',p:'customer',n:'Marcus',t:'9:15 AM',x:'Appreciate it'},
+      {d:'Mon Sep 15'},
+      {k:'ev',p:'machine',ic:'flag',x:'<b>Permit is past its usual pace</b> · day 6 of about 5 · Sam is on it · Kevin is listening to this thread'},
+    ]},
+  nair: {name:'Priya Nair', brand:'Liberty Fencing', job:"6' black aluminum · 96 ft · 1 gate", money:11250, rep:'ron', stage:5, now:'Locate', waiting:'the utilities · until Wed 9/17',
+    people:['machine','ron','sam','jon'], listen:false,
+    docs:[['Proposal signed','Sep 9','ev-n-sign'],['Card deposit · $2,250','Sep 9','ev-n-dep'],['811 ticket 2609-1183','Sep 12','ev-n-811']],
+    thread:[
+      {d:'Tue Sep 9'},
+      {k:'in',p:'customer',n:'Priya',t:'6:40 PM',x:'We are ready to go with the aluminum. Send the contract.'},
+      {k:'out',p:'ron',line:'his line',t:'6:44 PM',x:"Great. I'll be out to get your selections and the survey. In the meantime, go ahead and sign the contract and we can get your material ordered."},
+      {k:'ev',cls:'file',p:'ron',ic:'doc',id:'ev-n-sign',x:'<b>Proposal signed</b> · 7:02 PM · aluminum is custom, so the deposit was collected at signing'},
+      {k:'ev',cls:'money',p:'machine',ic:'money',id:'ev-n-dep',x:'<b>Deposit</b> · $2,250 on card · 7:03 PM'},
+      {d:'Fri Sep 12'},
+      {k:'ev',cls:'file',p:'sam',ic:'doc',id:'ev-n-811',x:'<b>Sam filed the 811 locate</b> · ticket 2609-1183 · utilities have until Wed 9/17'},
+      {k:'note',p:'jon',t:'2:10 PM',tags:['ron'],auto:['gio'],x:'Install is penciled for Mon 9/22 with Crew Ortiz if the locate clears. Does she know the black aluminum is 10 business days from the supplier?'},
+      {k:'note',p:'ron',t:'2:30 PM',tags:['jon'],auto:['jess'],x:'She knows, she picked it for the pool code. 9/22 is perfect.'},
+      {k:'out',p:'jon',line:'Fencing main line',t:'2:35 PM',x:'Hi Priya, Jonathan at Liberty Fencing. Your install is set for Monday, Sep 22. The utility companies mark your yard this week, small paint flags are normal.'},
+      {k:'in',p:'customer',n:'Priya',t:'3:01 PM',x:'Perfect, thank you!'},
+    ]},
+};
+
+const ROOMS = {
+  sales:{name:'Sales room',note:'the reps · wins and the hype',members:['kevin','gio','ron','travis'],dept:['sales','owner'],
+    thread:[
+      {d:'Today'},
+      {k:'room',p:'ron',t:'7:12 AM',x:'Nair signed last night. Black aluminum, 96 ft, $11,250. Deposit on the card.',file:'nair'},
+      {k:'room',p:'gio',t:'7:15 AM',x:'That is the pool-code pitch working. Everybody with a pool house this week: lead with the code.'},
+      {k:'room',p:'travis',t:'8:02 AM',x:'Bell permit is on day 6. Sam is chasing it. Not stressing.',file:'bell'},
+    ]},
+  office:{name:'Office room',note:'permits, paperwork, invoices, scheduling',members:['jess','sam','laura','jon','gio','kevin'],dept:['office','owner'],
+    thread:[
+      {d:'Today'},
+      {k:'room',p:'sam',t:'8:40 AM',x:'Bell permit: called Brevard, the reviewer is out until Wednesday. Told Marcus.',file:'bell'},
+      {k:'room',p:'sam',t:'9:05 AM',x:'Three locates cleared overnight. Nair still has two utilities out, due 9/17.',file:'nair'},
+      {k:'room',p:'jess',t:'9:20 AM',x:'Reminder, anything custom gets the deposit at signing. No deposit, no order. The machine will block it anyway.'},
+    ]},
+  production:{name:'Production room',note:'Luis, Obed, the crews',members:['luis','obed','gio','kevin'],dept:['production','owner'],
+    thread:[
+      {d:'Today'},
+      {k:'room',p:'obed',t:'6:50 AM',x:'Crew Ortiz on the Diaz job today, Crew Reyes tearing off Kowalski. Bell is waiting on the permit.',file:'bell'},
+      {k:'room',p:'luis',t:'7:05 AM',x:'Ace Concrete confirmed footings for Nair the Friday before install. Aluminum is ordered.',file:'nair'},
+    ]},
+  village:{name:'The village',note:'everyone · every customer',members:'all',dept:['all'],
+    thread:[
+      {d:'Today'},
+      {k:'room',p:'laura',t:'12:20 PM',x:'Reed paid in full. $9,900. Ron, the bell was yours.',file:'reed'},
+      {k:'room',p:'kevin',t:'12:31 PM',x:'That is a 20-day fence, booked to paid. That is what it looks like when the thread does the work.'},
+    ]},
+};
+
+const DMS = {
+  'kevin-gio':[{p:'kevin',x:'Bell permit is stuck. I turned Listen on for that file.'},{p:'gio',x:'Saw it. Sam has the reviewer name, she is calling back Wednesday.'}],
+  'sam-ron':[{p:'sam',x:'Nair survey, do you have the PDF or just the photo?'},{p:'ron',x:'PDF, it is in the packet. Second file.'}],
+  'luis-obed':[{p:'luis',x:'Ortiz to Nair on the 22nd. Reyes stays on Kowalski.'},{p:'obed',x:'Got it.'}],
+};
+
+// access rules, in plain English
+const ACCESS = {
+  kevin:{see:'<b>Everything.</b> Every customer file on every brand, all four rooms, every crew. You are pinged only where you turn Listen on.',
+    files:()=>true, rooms:()=>true, crews:()=>true, listen:true},
+  gio:{see:'<b>All the files for now</b>, every room, the crews. You are looped in automatically whenever a rep is tagged.',
+    files:()=>true, rooms:()=>true, crews:()=>true},
+  luis:{see:'<b>Production.</b> Files from scheduling onward, plus any file you are tagged on. The Production room and the village. Every crew.',
+    files:f=>f.stage>=6||threadHasTag(f,'luis'), rooms:r=>r.dept.includes('production')||r.dept.includes('all'), crews:()=>true},
+  sam:{see:'<b>The office.</b> Files at an office step (paperwork, permit, invoice) plus any file you are tagged on. The Office room and the village.',
+    files:f=>[3,4,5,9].includes(f.stage)||threadHasTag(f,'sam'), rooms:r=>r.dept.includes('office')||r.dept.includes('all'), crews:p=>p==='notary'},
+  ron:{see:'<b>Your customers.</b> Only your own book, never another rep\'s. The Sales room and the village. Anyone in the company for a quick message.',
+    files:f=>f.rep==='ron', rooms:r=>r.dept.includes('sales')||r.dept.includes('all'), crews:()=>false},
+  crew_ortiz:{see:'', files:()=>false, rooms:()=>false, crews:()=>false},
+};
+function threadHasTag(f,who){return f.thread.some(m=>(m.tags||[]).includes(who)||(m.auto||[]).includes(who));}
+
+// ───────────────────────── state ─────────────────────────
+let me='kevin', sel={type:'file',id:'bell'}, audience='cust', drawer=null, modal=null, sideOpen=false;
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const P=id=>PEOPLE[id];
+const avatar=id=>`<span class="av">${P(id).ini}</span>`;
+const firstName=id=>P(id).name;
+function toast(html){const t=document.createElement('div');t.className='toast';t.innerHTML=html;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
+
+// ───────────────────────── render ─────────────────────────
+function renderSignin(){
+  const el=$('#signin');
+  el.querySelectorAll('.who').forEach(b=>b.remove());
+  VIEWERS.forEach(id=>{
+    const p=P(id);const b=document.createElement('button');
+    b.className=`who ${p.cls}${id===me?' on':''}`;b.innerHTML=`${avatar(id)}${p.name}<small>${p.role.split(' ·')[0]}</small>`;
+    b.onclick=()=>{me=id;drawer=null;modal=null;if(id==='crew_ortiz'){sel={type:'crew',id:'reed'};}else if(!canSee(sel)){sel=firstVisible();}renderAll();};
+    el.appendChild(b);
+  });
+}
+function canSee(s){
+  const a=ACCESS[me];
+  if(s.type==='file')return a.files(FILES[s.id]);
+  if(s.type==='room')return a.rooms(ROOMS[s.id]);
+  if(s.type==='dm')return true;
+  if(s.type==='crewline')return a.crews(s.id);
+  return false;
+}
+function firstVisible(){
+  const f=Object.keys(FILES).find(id=>ACCESS[me].files(FILES[id]));
+  if(f)return{type:'file',id:f};
+  return{type:'room',id:'village'};
+}
+function tagged(who){
+  // count open tags on me across files
+  let n=0;Object.values(FILES).forEach(f=>f.thread.forEach(m=>{if((m.tags||[]).includes(who)||(m.auto||[]).includes(who))n++;}));
+  return n;
+}
+function renderMe(){
+  const p=P(me);const n=me==='crew_ortiz'?1:tagged(me)+(me==='kevin'?1:0);
+  $('#me').innerHTML=`<span class="bell ${p.cls}" title="Things waiting on you">${I.tag} <b>${n}</b></span><span class="${p.cls}" style="display:inline-flex;align-items:center;gap:6px">${avatar(me)}<b>${p.name}</b></span>`;
+  $('#brand').textContent = me==='crew_ortiz' ? 'Crew link' : 'Liberty · the chat';
+}
+function stageLine(f){return f.waiting?`<b>Now: ${f.now}</b> · waiting on ${f.waiting}`:`<b>Now: ${f.now}</b>`;}
+function renderRail(){
+  const a=ACCESS[me];const r=$('#rail');
+  if(me==='crew_ortiz'){r.innerHTML=`<div class="see">You are looking at the crew's link. No login. It only knows the job it was sent for.</div>
+    <div class="sec"><div class="kicker">Your jobs</div>
+    <button class="row on p-crew"><span class="dot"></span><div class="txt"><b>Reed · 142 ft white PVC</b><span>Done Sat · photos in</span></div></button>
+    <button class="row p-crew" disabled style="opacity:.55"><span class="dot"></span><div class="txt"><b>Nair · 96 ft aluminum</b><span>Mon 9/22 · 7:30</span></div></button></div>`;return;}
+  let h=`<div class="see">${a.see}</div>`;
+  const my=tagged(me);
+  h+=`<div class="sec"><div class="kicker">Waiting on you</div><button class="row ${P(me).cls}" id="tagged-row">${I.tag}<div class="txt"><b>Tagged · ${my}</b><span>${my?'open tags with your name on them':'nothing right now'}</span></div>${my?`<span class="n">${my}</span>`:''}</button></div>`;
+  h+=`<div class="sec"><div class="kicker">Customer files</div>`;
+  Object.entries(FILES).forEach(([id,f])=>{if(!a.files(f))return;
+    const on=sel.type==='file'&&sel.id===id;
+    h+=`<button class="row ${P(f.rep).cls}${on?' on':''}" data-t="file" data-id="${id}"><span class="dot" title="${firstName(f.rep)}'s customer"></span><div class="txt"><b>${f.name}</b><span>${f.waiting?`${f.now} · waiting on ${f.waiting.split(' ·')[0]}`:f.now}</span></div>${f.listen&&me==='kevin'?`<span class="p-kevin" title="Listening" style="color:var(--kevin)">${I.ear}</span>`:''}</button>`;});
+  h+=`</div><div class="sec"><div class="kicker">Rooms</div>`;
+  Object.entries(ROOMS).forEach(([id,rm])=>{if(!a.rooms(rm))return;const on=sel.type==='room'&&sel.id===id;
+    h+=`<button class="row${on?' on':''}" data-t="room" data-id="${id}">${I.room}<div class="txt"><b>${rm.name}</b><span>${rm.note}</span></div></button>`;});
+  h+=`</div><div class="sec"><div class="kicker">People · quick message</div>`;
+  Object.keys(PEOPLE).filter(id=>!P(id).ext&&id!=='machine'&&id!==me).forEach(id=>{
+    h+=`<button class="row ${P(id).cls}" data-t="dm" data-id="${id}"><span class="dot"></span><div class="txt"><b>${P(id).name}</b><span>${P(id).role}</span></div><span class="on-dot" title="online"></span></button>`;});
+  h+=`</div>`;
+  const crews=Object.keys(PEOPLE).filter(id=>P(id).ext&&a.crews(id));
+  if(crews.length){h+=`<div class="sec"><div class="kicker">Crews and subs · no login, a link by text</div>`;
+    crews.forEach(id=>{const on=sel.type==='crewline'&&sel.id===id;h+=`<button class="row p-crew${on?' on':''}" data-t="crewline" data-id="${id}">${I.truck}<div class="txt"><b>${P(id).name}</b><span>${P(id).role}</span></div></button>`;});h+=`</div>`;}
+  r.innerHTML=h;
+  r.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=b.dataset.t,id=b.dataset.id;if(t==='dm'){openDM(id);return;}sel={type:t,id};renderMain();renderRail();renderSide();});
+  const tr=$('#tagged-row');if(tr)tr.onclick=()=>{const f=Object.entries(FILES).find(([,f])=>threadHasTag(f,me));if(f){sel={type:'file',id:f[0]};renderAll();toast(`${I.tag} Your tags live on the file they were made on. This is the first one.`);}else toast('Nothing is waiting on you.');};
+}
+
+function bubble(m){
+  if(m.d)return`<div class="day">${m.d}</div>`;
+  const p=m.p?P(m.p):null;const cls=p?p.cls:'';
+  if(m.k==='ev')return`<div class="ev ${m.cls||''} ${cls}" ${m.id?`id="${m.id}"`:''}>${I[m.ic||'step']}<span>${m.x}</span></div>`;
+  if(m.k==='in')return`<div class="msg in p-customer"><div class="who">${m.n} · ${m.t}</div>${esc(m.x)}</div>`;
+  if(m.k==='crewin')return`<div class="msg in crewmsg ${cls}"><div class="who">${avatar(m.p)}${p.name} · crew link · ${m.t}</div>${esc(m.x)}${m.photos?`<div class="photos">${'<span></span>'.repeat(m.photos)}</div>`:''}<small class="aud">The customer never sees crew messages. Obed and Luis do.</small></div>`;
+  if(m.k==='out')return`<div class="msg out ${cls}"><div class="who">${avatar(m.p)}${p.name} · ${m.line} · ${m.t}</div>${esc(m.x)}${m.photos?`<div class="photos">${'<span></span>'.repeat(m.photos)}</div>`:''}</div>`;
+  if(m.k==='note'){
+    const tags=(m.tags||[]).map(t=>`<span class="tag ${P(t).cls}">${avatar(t)}${P(t).name}</span>`).join('')+(m.auto||[]).map(t=>`<span class="tag auto ${P(t).cls}" title="looped in automatically as the manager">${avatar(t)}${P(t).name} · looped in</span>`).join('');
+    const aud=m.crew?`To the crew · the customer never sees this`:`Team note · the customer never sees this`;
+    return`<div class="msg note ${m.crew?'crewmsg':''} ${cls}"><div class="who">${avatar(m.p)}${p.name} · ${m.t}</div>${esc(m.x)}<div class="tags">${tags}</div><small class="aud">${aud}</small></div>`;}
+  if(m.k==='room'){
+    return`<div class="msg out ${cls}" style="align-self:flex-start;border-bottom-left-radius:14px;border-bottom-right-radius:4px"><div class="who">${avatar(m.p)}${p.name} · ${m.t}</div>${esc(m.x)}${m.file?`<div class="tags"><button class="tag ${P(FILES[m.file].rep).cls}" data-open="${m.file}" style="cursor:pointer;background:var(--card)">${I.doc} Open ${FILES[m.file].name}'s file</button></div>`:''}</div>`;}
+  return'';
+}
+
+function renderMain(){
+  const m=$('#main');
+  if(me==='crew_ortiz'){renderCrewPhone(m);return;}
+  if(sel.type==='file'){
+    const f=FILES[sel.id];const strip=f.people.map(p=>`<span class="${P(p).cls}" title="${P(p).name}"></span>`).join('');
+    const listen=me==='kevin'?`<button class="btn listen ${f.listen?'on':''}" id="listen">${I.ear} Listen <span class="sw"></span></button>`:'';
+    m.innerHTML=`<div class="head">
+      <h2>${f.name} <small>· ${f.brand} · ${f.job}</small></h2>
+      <div class="now">${I.step} ${stageLine(f)}</div>
+      <div class="headrow"><div class="strip" title="Who moved through this file, in order">${strip}</div>${listen}<button class="btn" id="loop">${I.tag} Loop someone in</button><button class="btn" id="sidebtn">${I.doc} The file</button></div>
+    </div>
+    <div class="thread" id="thread">${f.thread.map(bubble).join('')}</div>
+    ${composer(f)}`;
+    if(me==='kevin')$('#listen').onclick=()=>{f.listen=!f.listen;renderMain();renderRail();toast(f.listen?`${I.ear} Listening to ${f.name}. Every message here pings your phone until you turn it off.`:`Listen is off for ${f.name}. You still see everything, it just stays quiet.`);};
+    $('#loop').onclick=()=>openLoop(f);
+  } else if(sel.type==='room'){
+    const r=ROOMS[sel.id];const who=r.members==='all'?'everyone with a seat':r.members.map(firstName).join(', ');
+    m.innerHTML=`<div class="head"><h2>${r.name} <small>· ${r.note}</small></h2><div class="now">${I.person} In this room: ${who}. Hang a post on a customer and their file is one tap away.</div></div>
+    <div class="thread" id="thread">${r.thread.map(bubble).join('')}</div>
+    <div class="compose"><div class="box"><textarea id="ta" placeholder="Post to ${r.name}…"></textarea><button class="btn prime" id="sendbtn">${I.send} Post</button></div><div class="hint">Type a customer's name and the post hangs on their file. Everyone in the room can open it from here.</div></div>`;
+    $('#sendbtn').onclick=()=>postRoom(r);
+  } else if(sel.type==='crewline'){
+    const c=P(sel.id);
+    m.innerHTML=`<div class="head"><h2>${c.name} <small>· ${c.role}</small></h2><div class="now">${I.truck} No account. They get a link by text for each job. What they type lands on that job's file, marked crew. The customer never sees it.</div></div>
+    <div class="thread" id="thread">
+      <div class="day">Today</div>
+      <div class="msg note crewmsg p-obed"><div class="who">${avatar('obed')}Obed · 6:50 AM</div>Ortiz, today is Diaz on Wickham. Tomorrow you are off. Monday 9/22 is Nair, 96 ft aluminum, footings by Ace are in Friday.<div class="tags"><span class="tag p-crew">${avatar('crew_ortiz')}Crew Ortiz</span><span class="tag auto p-luis">${avatar('luis')}Luis · looped in</span></div><small class="aud">To the crew · goes out on their link</small></div>
+      <div class="msg in crewmsg p-crew"><div class="who">${avatar('crew_ortiz')}Crew Ortiz · crew link · 6:58 AM</div>Ok. Diaz we finish today.</div>
+      <div class="ev p-crew">${I.pin}<span>Crew Ortiz <b>arrived</b> · Diaz · 7:26 AM · the link stamped it</span></div>
+    </div>
+    <div class="compose"><div class="aud"><span class="kicker">To</span><span class="pill crewp on">${I.truck} ${c.name}</span><span class="hint">Spanish and English both go out. Luis is on every crew thread.</span></div><div class="box crewp"><textarea id="ta" placeholder="Message ${c.name}…"></textarea><button class="btn prime" id="sendbtn">${I.send} Send</button></div></div>`;
+    $('#sendbtn').onclick=()=>{const v=$('#ta').value.trim();if(!v)return;$('#thread').insertAdjacentHTML('beforeend',`<div class="msg note crewmsg ${P(me).cls}"><div class="who">${avatar(me)}${firstName(me)} · now</div>${esc(v)}<div class="tags"><span class="tag p-crew">${avatar(sel.id)}${c.name}</span></div><small class="aud">To the crew · goes out on their link</small></div>`);$('#ta').value='';$('#thread').scrollTop=1e6;toast(`${I.truck} Sent to ${c.name}'s link. Saved on the job.`);};
+  }
+  const th=$('#thread');if(th){th.scrollTop=th.scrollHeight;th.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{sel={type:'file',id:b.dataset.open};renderAll();});}
+  const sb=$('#sidebtn');if(sb)sb.onclick=()=>{sideOpen=!sideOpen;$('#side').classList.toggle('open',sideOpen);};
+}
+
+function composer(f){
+  const a=ACCESS[me];const crewOK=a.crews('crew_ortiz');
+  const pills=`<span class="pill cust ${audience==='cust'?'on':''}" data-a="cust">${I.person} To ${f.name.split(' ')[0]}</span><span class="pill team ${audience==='team'?'on':''}" data-a="team">${I.tag} Team note</span>${crewOK?`<span class="pill crewp ${audience==='crew'?'on':''}" data-a="crew">${I.truck} To the crew</span>`:''}`;
+  const line=me==='kevin'||me==='gio'?`${f.brand.split(' ')[0]} main line`:(P(me).dept==='sales'?'your line':`${f.brand.split(' ')[0]} main line`);
+  const hints={cust:`Goes to ${f.name.split(' ')[0]} as a text from <b>${line}</b>, signed <b>${firstName(me)}</b>. Saved here in your color.`,
+    team:`Only the team sees this. Type <b>@</b> and a name to ping someone. Their manager is looped in with them.`,
+    crew:`Goes out on the crew's link, in Spanish and English. Luis is on it. The customer never sees it.`};
+  const quick={cust:[`Hi ${f.name.split(' ')[0]}, ${firstName(me)} at ${f.brand}. Quick update on your ${f.brand.includes('Roof')?'roof':'fence'}…`,`Great. Go ahead and sign my contract, I'm sending the link right now.`,`Your permit cleared. Our supervisor will text you the start day.`],
+    team:[`@Sam where are we on the permit?`,`@Obed can the crew do Monday?`,`@Laura ready to invoice.`],
+    crew:[`Start 7:30. Material is on the trailer.`,`Send me photos when the posts are set.`,`Customer says the side gate is unlocked.`]};
+  return`<div class="compose"><div class="aud"><span class="kicker">Send as ${firstName(me)}</span>${pills}</div>
+    <div class="quick">${quick[audience].map(q=>`<button data-q="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+    <div class="box ${audience==='team'?'team':audience==='crew'?'crewp':''}"><textarea id="ta" placeholder="${audience==='cust'?`Text ${f.name.split(' ')[0]}…`:audience==='team'?'A note for the team, @ someone to loop them in…':'A message for the crew…'}"></textarea><button class="btn prime" id="sendbtn">${I.send} Send</button></div>
+    <div class="hint">${hints[audience]}</div></div>`;
+}
+function bindComposer(){
+  document.querySelectorAll('.pill[data-a]').forEach(p=>p.onclick=()=>{audience=p.dataset.a;renderMain();});
+  document.querySelectorAll('.quick [data-q]').forEach(b=>b.onclick=()=>{$('#ta').value=b.dataset.q;$('#ta').focus();});
+  const s=$('#sendbtn');if(s&&sel.type==='file')s.onclick=sendFile;
+}
+function sendFile(){
+  const f=FILES[sel.id];const v=$('#ta').value.trim();if(!v)return;
+  const now='now';let m;
+  if(audience==='cust'){const line=P(me).dept==='sales'?'his line':`${f.brand.split(' ')[0]} main line`;m={k:'out',p:me,line,t:now,x:v};toast(`${I.send} Texted ${f.name.split(' ')[0]} from ${line}, signed ${firstName(me)}. It is on the file.`);}
+  else if(audience==='team'){
+    const tags=[];const auto=[];(v.match(/@(\w+)/g)||[]).forEach(h=>{const id=Object.keys(PEOPLE).find(k=>P(k).name.toLowerCase().startsWith(h.slice(1).toLowerCase()));if(id&&!tags.includes(id)){tags.push(id);const mg=P(id).manager;if(mg&&mg!==me&&!tags.includes(mg)&&!auto.includes(mg))auto.push(mg);}});
+    m={k:'note',p:me,t:now,tags,auto,x:v.replace(/@(\w+)/g,(s,n)=>{const id=Object.keys(PEOPLE).find(k=>P(k).name.toLowerCase().startsWith(n.toLowerCase()));return id?P(id).name:s;})};
+    if(tags.length){const who=tags.map(firstName).join(', ');const mg=auto.length?` ${auto.map(firstName).join(' and ')} ${auto.length>1?'are':'is'} looped in as the manager.`:'';toast(`${I.tag} ${who} got a push.${mg} You stay on this until it's handled.`);}
+    else toast(`Saved as a team note on ${f.name}'s file. Nobody was pinged.`);
+    if(!f.people.includes(me))f.people.push(me);
+  } else {m={k:'note',p:me,t:now,tags:['crew_ortiz'],auto:['luis'],crew:true,x:v};toast(`${I.truck} Sent to Crew Ortiz's link. Luis is on it.`);}
+  f.thread.push(m);$('#ta').value='';renderMain();renderSide();
+}
+function postRoom(r){const v=$('#ta').value.trim();if(!v)return;const file=Object.keys(FILES).find(id=>v.toLowerCase().includes(FILES[id].name.split(' ')[1].toLowerCase()));r.thread.push({k:'room',p:me,t:'now',x:v,file});$('#ta').value='';renderMain();toast(file?`Posted. It hangs on ${FILES[file].name}'s file.`:'Posted to the room.');}
+
+function renderSide(){
+  const s=$('#side');
+  if(me==='crew_ortiz'){s.innerHTML=`<div class="blk"><h4>What the crew link knows</h4><p style="font-size:13px">The address, the work order, the drawing, the supervisor. Not the price, not the customer's phone, not any other job.</p></div>`;return;}
+  if(sel.type==='file'){
+    const f=FILES[sel.id];
+    const track=STEPS.map((st,i)=>`<span class="${i<f.stage?'lit':i===f.stage?'now':''}" title="${st}"></span>`).join('');
+    const ppl=f.people.filter(p=>p!=='machine').map(p=>`<div class="pp ${P(p).cls}">${avatar(p)}<div class="txt"><b>${P(p).name}</b><span>${P(p).role}</span></div>${p!==me?`<button data-dm="${p}">Message</button>`:''}</div>`).join('');
+    const chain=f.rep==='ron'?'Tag Ron and Gio is in. Tag Sam and Jess is in. Tag Obed and Luis is in.':'Tag Travis and Gio is in. Tag Sam and Jess is in. Tag Obed and Luis is in.';
+    s.innerHTML=`<div class="blk"><div class="kicker">${f.brand}</div><div class="money">$${f.money.toLocaleString()}</div><div style="font-size:13px;color:var(--dim)">${f.job}</div>
+      <div class="track">${track}</div><div class="tl"><span>${STEPS[0]}</span><span>${STEPS[f.stage]}</span><span>${STEPS[9]}</span></div>
+      <div style="font-size:13px;margin-top:6px">${stageLine(f)}</div></div>
+      <div class="blk"><h4>Documents · tap one to jump to it in the thread</h4><div class="docs">${f.docs.map(d=>`<button data-doc="${d[2]}">${I.doc}${d[0]}<span>${d[1]}</span></button>`).join('')}</div></div>
+      <div class="blk"><h4>People on this file</h4><div class="ppl">${ppl}</div></div>
+      <div class="blk"><h4>Who gets looped in</h4><div class="chain">${chain} <b>${me==='kevin'?'You are never auto-tagged. Listen is your choice.':'Kevin is never auto-tagged. He listens when he wants.'}</b></div></div>`;
+    s.querySelectorAll('[data-doc]').forEach(b=>b.onclick=()=>{const ev=document.getElementById(b.dataset.doc);if(ev){ev.scrollIntoView({block:'center',behavior:'smooth'});ev.classList.add('hi');setTimeout(()=>ev.classList.remove('hi'),1800);}});
+    s.querySelectorAll('[data-dm]').forEach(b=>b.onclick=()=>openDM(b.dataset.dm));
+  } else if(sel.type==='room'){
+    const r=ROOMS[sel.id];const mem=r.members==='all'?Object.keys(PEOPLE).filter(id=>!P(id).ext&&id!=='machine'):r.members;
+    s.innerHTML=`<div class="blk"><h4>In this room</h4><div class="ppl">${mem.map(p=>`<div class="pp ${P(p).cls}">${avatar(p)}<div class="txt"><b>${P(p).name}</b><span>${P(p).role}</span></div>${p!==me?`<button data-dm="${p}">Message</button>`:''}</div>`).join('')}</div></div>
+      <div class="blk"><h4>Manners</h4><p style="font-size:13px">Wins, questions, heads-ups. If it is about one customer, hang it on their file so it is findable later. Nobody is told to go make touches here.</p></div>`;
+    s.querySelectorAll('[data-dm]').forEach(b=>b.onclick=()=>openDM(b.dataset.dm));
+  } else if(sel.type==='crewline'){
+    const c=P(sel.id);
+    s.innerHTML=`<div class="blk"><h4>${c.name}</h4><p style="font-size:13px">${c.role}. Reached by a link texted to the crew lead. Every job gets its own link, so their words always land on the right file.</p></div>
+      <div class="blk"><h4>This week</h4><div class="docs"><button data-open="reed">${I.doc}Reed · done Sat<span>photos in</span></button><button data-open="nair">${I.doc}Nair · Mon 9/22<span>aluminum</span></button></div></div>
+      <div class="blk"><h4>Always on their thread</h4><div class="ppl"><div class="pp p-obed">${avatar('obed')}<div class="txt"><b>Obed</b><span>field supervisor</span></div></div><div class="pp p-luis">${avatar('luis')}<div class="txt"><b>Luis</b><span>looped in as the manager</span></div></div></div></div>`;
+    s.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{sel={type:'file',id:b.dataset.open};renderAll();});
+  }
+}
+
+function renderCrewPhone(m){
+  m.innerHTML=`<div class="crewwrap">This is what Crew Ortiz sees when they tap the link Obed texted them. No app to install, no password.</div>
+  <div class="phone">
+    <div class="ph"><b>Reed · 142 ft white PVC</b><span>1480 Pineapple Ave, Melbourne · Fri Sep 5, 7:30 · 2 days</span></div>
+    <div class="wo"><div><b>Style</b>6' white PVC privacy</div><div><b>Gates</b>2 · one by the shed</div><div><b>Posts</b>4×4 · 8 ft on center · concrete</div><div><b>Your supervisor</b>Obed · tap to call</div></div>
+    <div class="thread" id="thread">
+      <div class="day">Thu Sep 4</div>
+      <div class="msg out p-obed"><div class="who">${avatar('obed')}Obed · 7:40 AM</div>Reed · 142 ft white PVC · Friday 7:30 · two days · the shed gate goes in day two. Material is on the trailer.</div>
+      <div class="msg out p-obed" style="align-self:flex-end;font-style:italic;opacity:.85"><div class="who">${avatar('obed')}Obed · en español</div>Reed · 142 pies PVC blanco · viernes 7:30 · dos días · el portón del cobertizo va el segundo día. El material está en el remolque.</div>
+      <div class="msg in crewmsg p-crew"><div class="who">${avatar('crew_ortiz')}You · 7:52 AM</div>Ok. We bring the auger. Two days is fine.</div>
+      <div class="day">Sat Sep 6</div>
+      <div class="ev p-crew">${I.pin}<span>You tapped <b>Here</b> · 7:26 AM</span></div>
+      <div class="msg in crewmsg p-crew"><div class="who">${avatar('crew_ortiz')}You · 3:41 PM</div>Done. 6 photos.<div class="photos">${'<span></span>'.repeat(6)}</div></div>
+      <div class="msg out p-obed"><div class="who">${avatar('obed')}Obed · 3:49 PM</div>Looks good. Monday first thing, set that last panel by the shed.</div>
+    </div>
+    <div class="big"><button>${I.pin}Here</button><button>${I.photo}Photos</button><button>${I.check}Done</button><button>${I.call}Call Obed</button></div>
+  </div>`;
+}
+
+// quick DM drawer
+function openDM(id){
+  drawer=id;const key=[me,id].sort().join('-');const msgs=DMS[key]||[];
+  const old=$('.drawer');if(old)old.remove();
+  const d=document.createElement('div');d.className='drawer';
+  d.innerHTML=`<div class="dh ${P(id).cls}">${avatar(id)}<b>${P(id).name}<small>${P(id).role} · online · you never left the file</small></b><button id="dmx" aria-label="Close">×</button></div>
+    <div class="dt" id="dt">${msgs.length?msgs.map(x=>`<div class="msg ${x.p===me?'out':'in'} ${P(x.p).cls}"><div class="who">${avatar(x.p)}${P(x.p).name}</div>${esc(x.x)}</div>`).join(''):`<div class="hint">No messages yet. This stays between you and ${P(id).name}. If it is about a customer, put it on their file instead so everyone can find it.</div>`}</div>
+    <div class="dc"><input id="dmi" placeholder="Message ${P(id).name}…"><button class="btn prime" id="dms">${I.send}</button></div>`;
+  document.body.appendChild(d);
+  $('#dmx').onclick=()=>{d.remove();drawer=null;};
+  const send=()=>{const v=$('#dmi').value.trim();if(!v)return;DMS[key]=DMS[key]||[];DMS[key].push({p:me,x:v});$('#dt').insertAdjacentHTML('beforeend',`<div class="msg out ${P(me).cls}"><div class="who">${avatar(me)}${P(me).name}</div>${esc(v)}</div>`);$('#dmi').value='';$('#dt').scrollTop=1e6;toast(`${I.send} ${P(id).name} got a push.`);};
+  $('#dms').onclick=send;$('#dmi').onkeydown=e=>{if(e.key==='Enter')send();};
+  $('#dmi').focus();
+}
+
+// loop-in modal
+function openLoop(f){
+  const old=$('.modal');if(old)old.remove();
+  const d=document.createElement('div');d.className='modal';let picked=null;
+  const list=Object.keys(PEOPLE).filter(id=>id!==me&&id!=='machine'&&(!P(id).ext||ACCESS[me].crews(id)));
+  const render=()=>{d.innerHTML=`<div class="card"><h4>Loop someone in</h4><p>They get a push and this file lands in their Tagged list. Their manager comes with them. You stay on it until it is handled.</p>
+    <div class="list">${list.map(id=>`<button class="row ${P(id).cls}${picked===id?' picked':''}" data-p="${id}">${avatar(id)}<div class="txt"><b>${P(id).name}</b><span>${P(id).role}</span></div></button>`).join('')}</div>
+    <div class="chain" style="margin-top:10px">${picked?loopLine(picked):'Pick a person.'}</div>
+    <div class="foot"><button class="btn" id="mx">Cancel</button><button class="btn prime" id="mok" ${picked?'':'disabled'}>${I.tag} Loop in</button></div></div>`;
+    d.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{picked=b.dataset.p;render();});
+    $('#mx',d).onclick=()=>d.remove();
+    $('#mok',d).onclick=()=>{const mg=P(picked).manager;const auto=mg&&mg!==me?[mg]:[];f.thread.push({k:'note',p:me,t:'now',tags:[picked],auto,crew:P(picked).ext,x:`Looping in ${P(picked).name} on ${f.name}. ${f.waiting?`We are waiting on ${f.waiting.split(' ·')[0]}.`:''}`});if(!f.people.includes(picked))f.people.push(picked);d.remove();renderMain();renderSide();toast(`${I.tag} ${P(picked).name} got a push.${auto.length?` ${firstName(auto[0])} is looped in as the manager.`:''}`);};
+  };
+  render();document.body.appendChild(d);
+}
+function loopLine(id){const mg=P(id).manager;const p=P(id);
+  if(id==='kevin')return`<b>Kevin</b> gets one push for this tag. He is never auto-looped, and he decides whether to Listen after that.`;
+  if(!mg)return`<b>${p.name}</b> is a manager, so nobody else comes with them.`;
+  if(mg===me)return`<b>${p.name}</b> gets the push. You are their manager, so you are already on it.`;
+  return`<b>${p.name}</b> gets the push, and <b>${P(mg).name}</b> is looped in as their manager. You stay on this thread until ${p.name.split(' ')[0]} has done their part.`;}
+
+// jump box
+function jump(q){
+  const d=$('#jumpdrop');q=q.trim().toLowerCase();if(!q){d.hidden=true;return;}
+  const a=ACCESS[me];const out=[];
+  Object.entries(FILES).forEach(([id,f])=>{if(a.files(f)&&(f.name.toLowerCase().includes(q)||f.job.toLowerCase().includes(q)))out.push({h:`${avatar(f.rep)} ${f.name} <small>customer · ${f.brand}</small>`,cls:P(f.rep).cls,go:()=>{sel={type:'file',id};renderAll();}});
+    if(a.files(f))f.docs.forEach(doc=>{if(doc[0].toLowerCase().includes(q))out.push({h:`${I.doc} ${doc[0]} <small>${f.name} · ${doc[1]}</small>`,cls:'',go:()=>{sel={type:'file',id};renderAll();setTimeout(()=>{const ev=document.getElementById(doc[2]);if(ev){ev.scrollIntoView({block:'center'});ev.classList.add('hi');}},50);}});});
+  Object.keys(PEOPLE).forEach(id=>{if(id===me||id==='machine')return;if(P(id).ext&&!a.crews(id))return;if(P(id).name.toLowerCase().includes(q))out.push({h:`${avatar(id)} ${P(id).name} <small>${P(id).ext?'crew link':'quick message'}</small>`,cls:P(id).cls,go:()=>{if(P(id).ext){sel={type:'crewline',id};renderAll();}else openDM(id);}});});
+  Object.entries(ROOMS).forEach(([id,r])=>{if(a.rooms(r)&&r.name.toLowerCase().includes(q))out.push({h:`${I.room} ${r.name} <small>room</small>`,cls:'',go:()=>{sel={type:'room',id};renderAll();}});});
+  if(!out.length){d.innerHTML=`<button disabled style="color:var(--dimmer)">Nothing you can see matches "${esc(q)}"</button>`;d.hidden=false;return;}
+  d.innerHTML=out.slice(0,7).map((o,i)=>`<button class="${o.cls}" data-i="${i}">${o.h}</button>`).join('');d.hidden=false;
+  d.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{out[b.dataset.i].go();$('#jumpbox').value='';d.hidden=true;});
+}
+$('#jumpbox').addEventListener('input',e=>jump(e.target.value));
+$('#jumpbox').addEventListener('blur',()=>setTimeout(()=>{$('#jumpdrop').hidden=true;},200));
+
+function renderAll(){renderSignin();renderMe();renderRail();renderMain();renderSide();bindComposer();}
+const _rm=renderMain;renderMain=function(){_rm();bindComposer();};
+
+// rules + borrowed
+const RULES=[
+  ['One customer, one thread.','Every text on every line, every email, every document, every call, every note, in time order, for the life of the job. Nothing about a customer lives anywhere else.'],
+  ['A name and a color on every bubble.','Each person gets one color the day they join and keeps it on every file and every board. You can read a thread without reading a word.'],
+  ['Three audiences, one box.','To the customer, a team note, or to the crew. The box changes color so nobody sends the wrong thing to the wrong person. The customer never sees notes or crew talk.'],
+  ['Tag = ping. Manager comes along.','Tag Obed and Luis is in. Tag Sam and Jess is in. Tag a rep and Gio is in. Whoever tagged stays on it until the tagged person has done their part.'],
+  ['The owner listens by choice.','Kevin is auto-tagged into nothing. He flips Listen on any thread and hears every message until he flips it off. That is how he finds the leaks.'],
+  ['Anyone can reach anyone without leaving.','Tap a name anywhere and a small window opens. If it is about a customer, it goes on the file instead so it can be found later.'],
+  ['Subs and crews are in, without an account.','A link by text per job. Work order, photos, Here, Done, call the supervisor. Their words land on the file, marked crew.'],
+  ['Every screen reads in plain sentences.','"Now: permit, waiting on the county, 6 days, usually 5." No code words, no alarm colors. Grey until something is clearly past its normal.'],
+  ['You see what you touch.','Reps see their book. The office sees office steps. Production sees from scheduling on. Managers see their lane. Kevin and Gio see all of it.'],
+];
+$('#rules').innerHTML=RULES.map((r,i)=>`<div class="rule"><div class="n">${i+1}</div><div><b>${r[0]}</b><p>${r[1]}</p></div></div>`).join('');
+
+const BORROW=[
+  ['AccuLynx','p-obed','The job file is the inbox.','Every text, email and note about a job sits on the job, with @mentions that notify. We take that whole idea and add the color per person and the crew link they do not have.'],
+  ['Salesforce Chatter','p-sam','Follow a record.','Anyone can follow a customer and get its feed. That is Kevin\'s Listen switch, one thread at a time, instead of a firehose.'],
+  ['Slack Connect','p-gio','Outside people in your channel.','A sub can be in the conversation without being an employee. We do it with a per-job link instead of a Slack account, because crews will not install anything.'],
+  ['Front and Missive','p-laura','Internal comments inside the customer thread.','The team talks about the email right under the email, and the customer never sees it. That is our team note, dashed and in the thread where it happened.'],
+  ['ServiceTitan','p-luis','Dispatch talks to the field in one screen.','Office to tech texting is on the job, not on personal phones. Ours goes one step further: the crew replies land on the customer file too.'],
+  ['Procore and Buildertrend','p-jon','Daily log, photos and RFIs on the job.','Photos and "we found rot" questions belong on the file with a time stamp. Our crew link does the daily log with Here, Photos, Done.'],
+];
+$('#borrow').innerHTML=BORROW.map(b=>`<div class="card ${b[1]}"><div class="kicker">${b[0]}</div><b class="t">${b[2]}</b><p>${b[3]}</p></div>`).join('');
+
+renderAll();
+</script>
