@@ -35,6 +35,50 @@ is her team's needs assembled from her own emails this week and the Jetstream
 table. The two or three things she actually said belong at the top of the next
 section the moment Kevin repeats them.
 
+## THE BETA — tonight, four seats (Kevin, 15 Sep: "something we can actually beta today, end of the day. With maybe Jess, Sam, myself, Gio")
+
+**What is live the moment v48 is on main** — no migration, no apply, every
+staff seat at https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/:
+
+- **The Line** is the landing screen. Rail on the left (You're up · Nothing
+  goes unanswered · Rooms · People · Lately), the lane switch on top.
+- **SAY IT** at the top of The Line: pick the customer by last name, street
+  or phone → a person (note on the file, push) or the customer (text from
+  the brand's line, Jess's office lines as presets) → Send.
+- **`@` in every room's composer** (Office · Production · the Village): type
+  `@` and two letters — people from the seats, customers by name / street /
+  phone. `@Samantha call this customer Mark Whitfield` hangs the post on
+  Whitfield's file, lands the same words on the file's thread, and 312
+  pushes Samantha and puts the file in her You're up. A hung post gains two
+  lanes: **Inside** (the note) or **Text the customer** (from the brand's
+  approved line, a draft until Post, the file opens with the six-second undo).
+- The top box finds people as well as customers; ⌘K focuses it.
+
+**The four-seat script (5 pm):**
+
+| Who | Does | Sees |
+|---|---|---|
+| Jess | In the Village: `@Sam` + a customer by street → Post | Sam's phone buzzes; the file has the note; the Village has the post hung on the customer |
+| Sam | Opens The Line → You're up → the file → answers on it | The note, the customer's texts and the asks in one thread |
+| Kevin | SAY IT → a customer by last name → **The customer** → the permit line → Send | The text goes out from 386-276-6898; the file opens with the undo |
+| Gio | `@Kevin` in the Village with a customer by phone number → Post | Kevin's phone buzzes; The Line's Unanswered board shows nothing sitting |
+
+**What is honestly NOT in tonight's beta:**
+
+- **Direct lines** (one person to one person, private) — built in the app,
+  inert until migration 346 is applied from Kevin's PC. Tonight a
+  person-to-person message is a room post with `@First`, which every seat
+  in that room reads. Open by default, so that is the rule anyway.
+- **Email from the thread** — there is no email-send rail in this app yet
+  (the phone app emails through the machine; Central Command does not).
+  Next build.
+- **Uvoice**: texting IS linked — a text from the thread goes out the
+  brand's approved line and the reply lands on the file (311 / 326 / the
+  cockpit lane, fencing live since 12 Sep; Oasis and Pro-Tech wait on their
+  lines). **Calls are not** — nothing pulls Uvoice's call records in; the
+  CDR feed is still the missing piece (The Biopsy names it).
+- The customer never sees a room. Only the text lane reaches them.
+
 ## The texting thread with Jess — found (migration 308, 12–13 Sep)
 
 Kevin, 15 Sep: "look for another session I had with Jess about the texting…

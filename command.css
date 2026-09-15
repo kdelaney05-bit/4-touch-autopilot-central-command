@@ -405,3 +405,7 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .lanebtn.on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 .lanes { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 @media (max-width: 700px) { .say-row { grid-template-columns: 1fr; gap: 4px; } .say-presets { margin-left: 0; } }
+/* @ in every room's composer (15 Sep): the popup sits under the box, the lane chips show once a customer is hung */
+.composer .at-pop { left: 0; right: auto; top: 100%; width: min(460px, 100%); max-height: 320px; overflow-y: auto; }
+.at-lanes { margin: 6px 0 4px; }
+.at-lanes .small { margin-left: 4px; }
