@@ -13,11 +13,11 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=51';
-import { toast } from './ui.js?v=51';
-import { html, raw, esc } from './ui.js?v=51';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=51';
-import { renderRoom } from './village.js?v=51';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview, mentionHandle } from './book.js?v=52';
+import { toast } from './ui.js?v=52';
+import { html, raw, esc } from './ui.js?v=52';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=52';
+import { renderRoom, wireAtOn } from './village.js?v=52';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -390,11 +390,12 @@ function sayItHTML() {
         ${say.lane === 'person' ? `<select data-say-to style="width:auto;padding:5px 8px;font-size:12px">${toOpts}</select>` : ''}
       </div></div>
     ${presets}
-    <div class="composer" style="border:0;padding:0;background:transparent">
+    <div class="composer" style="border:0;padding:0;background:transparent;position:relative">
+      <div class="line-find-pop at-pop" data-say-at-pop hidden></div>
       <textarea data-say-text placeholder="${say.lane === 'customer' ? 'The text…' : 'permit is in, ready to schedule · take this one · customer asked for you'}">${esc(say.text)}</textarea>
       <button class="btn ${say.lane === 'customer' ? 'fill' : ''}" data-say-send ${c ? '' : 'disabled'}>${say.lane === 'customer' ? 'Send the text' : 'Post it'}</button>
     </div>
-    <div class="small">${law} Ctrl+Enter sends.</div>
+    <div class="small">${law} Type <b>@</b> in the words for more people — everyone named gets the push. Ctrl+Enter sends.</div>
   </div>`;
 }
 
@@ -430,6 +431,13 @@ function wireSayIt(root) {
   box.querySelector('[data-say-to]')?.addEventListener('change', (e) => { say.to = e.target.value; });
   const text = box.querySelector('[data-say-text]');
   text.addEventListener('input', () => { say.text = text.value; });
+  // @ in the words: more people than the dropdown holds, and a customer by name / street / phone fills About
+  wireAtOn(text, box.querySelector('[data-say-at-pop]'), async (c) => {
+    say.text = text.value; say.cust = { id: c.id, name: c.name }; say.lines = [];
+    repaint();
+    try { say.lines = await linePreview(c.id); } catch { say.lines = []; }
+    if (say.lane === 'customer') repaint();
+  });
   box.querySelectorAll('[data-say-line]').forEach((b) => (b.onclick = () => { const l = (say.lines || []).find((x) => x.key === b.dataset.sayLine); if (l) { say.text = l.body; text.value = l.body; text.focus(); } }));
 
   let busy = false;                        // ref-style guard (b80): the render is not the lock

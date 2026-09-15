@@ -5,10 +5,10 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=51';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=51';
-import { DEMO } from './demo.js?v=51';
-import { html, raw, esc, toast } from './ui.js?v=51';
+import * as api from './api.js?v=52';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=52';
+import { DEMO } from './demo.js?v=52';
+import { html, raw, esc, toast } from './ui.js?v=52';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -295,8 +295,10 @@ function paintPick(root, ctx) {
    note lands on a file. Picking a customer hangs the post on their file and
    leaves their name in the text so the room can read who it is about. */
 function wireAt(root, ctx) {
-  const say = root.querySelector('[data-say]');
-  const pop = root.querySelector('[data-at-pop]');
+  wireAtOn(root.querySelector('[data-say]'), root.querySelector('[data-at-pop]'), (c) => { ctx.pick = c; paintPick(root, ctx); });
+}
+/* The same picker on any box: SAY IT on The Line uses it too (Kevin, 15 Sep: "how do I add more people?"). */
+export function wireAtOn(say, pop, onCustomer) {
   if (!say || !pop) return;
   let timer = null, frag = null;
   const close = () => { pop.hidden = true; pop.innerHTML = ''; frag = null; };
@@ -332,8 +334,8 @@ function wireAt(root, ctx) {
       /* the old tail below is replaced */
       pop.querySelectorAll('[data-at-person]').forEach((b) => (b.onclick = () => { replaceFrag(frag, '@' + b.dataset.atPerson); close(); }));
       pop.querySelectorAll('[data-at-cust]').forEach((b) => (b.onclick = () => {
-        ctx.pick = { id: b.dataset.atCust, name: b.dataset.name };
-        replaceFrag(frag, personName(b.dataset.name)); close(); paintPick(root, ctx);
+        replaceFrag(frag, personName(b.dataset.name)); close();
+        onCustomer({ id: b.dataset.atCust, name: b.dataset.name });
       }));
     }, 180);
   });
