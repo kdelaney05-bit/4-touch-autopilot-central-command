@@ -35,6 +35,52 @@ is her team's needs assembled from her own emails this week and the Jetstream
 table. The two or three things she actually said belong at the top of the next
 section the moment Kevin repeats them.
 
+## The texting thread with Jess — found (migration 308, 12–13 Sep)
+
+Kevin, 15 Sep: "look for another session I had with Jess about the texting…
+she wants her people to be able to do it." The session list only reaches
+today, but the thread left its record in `trureview-mobile`:
+`backend/migrations/308_office_lines.sql` — Kevin, 13 Sep: *"i don't think we
+need heymarket any longer… all outbound marketing, i'll take that over in
+here… easy. build it."* Heymarket's four weeks (527 sent, 240 back, 11 STOP)
+became rows: **`office_lines`** (Jess's wording verbatim — the review prompt,
+the five-star follow-up, the lead reply, permit approved, on the schedule,
+the invoice, the pay link), `brand_text_settings` (per-brand name, trade,
+callbacks, the Google review link), `line_render()` / `line_preview()`, the
+machine's copies on the chain behind `office_machine_texts` (OFF), STOP →
+`sms_opt_out_at`, a 9 or 10 after the review prompt → the five-star link,
+`payment_reminder_sweep` at 30 days. Handoffs: `docs/HANDOFF-2026-09-14.md`
+(the shared line is 386-276-6898) and `docs/UVOICE-LINE-CHECK-15SEP.md`.
+
+**So her people can text a customer today, from the file, in her own
+words.** What was missing is what Kevin described next — doing it from the
+playground without opening the file.
+
+### SAY IT — built, v47
+
+Kevin, 15 Sep: *"you should have the ability to send it to whichever employee
+you want about whichever customer you pick. So it's a drop down box either by
+their address or last name. So a thousand ways to quickly get this out."*
+
+One box at the top of The Line, above everything:
+
+1. **About** — type a last name, a street, or a phone number. The customer
+   search now matches `name` OR `street` (customers carry street · city ·
+   zip), and the row shows the address so a "Cox" is never a surprise.
+2. **To** — two lanes. **A person**: a dropdown of @office · @schedule ·
+   @production · @rep · @invoice and every seat by first name. The note lands
+   on that customer's file with the @mention and 312 does the rest — the push
+   and their You're up. **The customer**: a text from the brand's approved
+   line (311, `file_text_queue`), with **Jess's office lines as one-tap
+   presets** the moment a customer is picked (`line_preview`).
+3. **Send.** The file opens beside you after: the text sitting with its
+   six-second undo, or the note where it landed.
+
+Nothing here is a new write — both doors already existed on the file. The
+composer is the file's own tag box and Text button, reachable without the
+file. The typed text survives rail clicks (module state), a ref-style busy
+guard holds Send (b80), demo refuses politely.
+
 ## The office's seat — what Jess's team needs
 
 Sam, Laura, Jonathan, and Jess over them. The Directors of First Impressions
@@ -43,6 +89,7 @@ screen.
 
 | What they need | Where it came from | On the screen | State |
 |---|---|---|---|
+| **Text the customer from here, in her words.** | 308 (Jess's Heymarket lines → `office_lines`) · Kevin 15 Sep, the dropdown by name or address | **SAY IT** at the top of The Line — pick the customer by last name / address / phone, pick a person or the customer, her lines as presets, Send. | **Built, v47** |
 | **Their lane, not everyone's.** *"I am still getting every text from sales."* | Jess, 14 Sep, TEXTS ticket · the Jetstream table (*Sam: files at an office step, plus any file she is tagged on*) | **THE LANE** on The Line's rail: an office seat lands on files at an office step (sold · invoiced · paid) plus anything they are tagged on; production lands on scheduling-or-later; a rep on their own book. **Everything** is one tap away — open by default still stands, the seat just lands on its own work first. | **Built, v46** |
 | **A phone that rings.** *"Is kev aware that all calls go to vm?"* | Jess + Travis, 15 Sep · Jess, 14 Sep (oasis rings once) | Nothing on a screen fixes this. It is the Uvoice emergency in the "Email from Ron" session — Kevin calls Dwayne with five items. Until it is fixed, every other line on this page is second. | **Blocked on the phone company** |
 | **Jess looped in when Sam is tagged.** | The Jetstream table's *manager loop* (tag Sam → Jess is in; tag Obed → Luis; tag a rep → Gio; the tagger stays until it is handled) | The tag composer on the file shows the loop as it types — *"Sam · Jess is looped in"* — and the push goes to both. A small rules table (who is looped with whom), edited as rows like the seats. | Designed · needs a rows table + the push fan-out |

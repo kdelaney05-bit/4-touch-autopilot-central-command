@@ -13,11 +13,11 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople } from './book.js?v=46';
-import { toast } from './ui.js?v=46';
-import { html, raw, esc } from './ui.js?v=46';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=46';
-import { renderRoom } from './village.js?v=46';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, linePreview } from './book.js?v=47';
+import { toast } from './ui.js?v=47';
+import { html, raw, esc } from './ui.js?v=47';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=47';
+import { renderRoom } from './village.js?v=47';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -106,6 +106,7 @@ export function renderSwitchboard(root) {
         <h1 class="serif">Nobody has to hunt, and nothing gets to sit.</h1></div>
       <div class="right">${isDemo() ? raw('<span class="chip demo">DEMO · FICTIONAL BOOK</span>') : raw('<span class="chip">LIVE · DB</span>')}</div>
     </div>
+    ${raw(sayItHTML())}
     ${raw(stuckCard(C, waiting))}
     <div class="line-wrap">
       <div class="line-rail" id="line-rail">${raw(railHTML(upN, waiting, tagged, mine, C))}</div>
@@ -114,6 +115,7 @@ export function renderSwitchboard(root) {
 
   root.querySelectorAll('[data-pane]').forEach((b) => (b.onclick = () => { pane = b.dataset.pane; renderSwitchboard(root); }));
   root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
+  wireSayIt(root);
   wirePeopleFind(root);
   paintPane(root, { waiting, tagged, mine, C });
 }
@@ -345,4 +347,114 @@ async function renderLine(el, otherId) {
   say.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post(); });
   stopLinePoll();
   dmTimer = setInterval(() => { if (!el.isConnected) { stopLinePoll(); return; } paintThread(true); }, 15000);
+}
+
+
+/* ── SAY IT — one box at the top of The Line ───────────────────────────────
+   Kevin, 15 Sep, after the Jess texting thread (308): "you should have the
+   ability to send it to whichever employee you want about whichever customer
+   you pick… a drop down box either by their address or last name… a thousand
+   ways to quickly get this out."
+   Pick the customer (last name · address · phone). Then either lane:
+     a PERSON  → the note lands on that customer's file with @First, and 312
+                 does the rest — the push and their Tagged list. Same rail as
+                 the file's own tag box, without opening the file.
+     the CUSTOMER → a text from the brand's approved line (file_text_queue,
+                 311), with Jess's office lines (308) as one-tap presets. It is
+                 a draft until Send, and the file opens after so the six-second
+                 undo is right there.
+   Nothing here is a new write: both doors already existed on the file. */
+let say = { cust: null, lane: 'person', to: '', text: '', lines: [] };
+
+function sayItHTML() {
+  const me = state.me || {};
+  const people = (state.people || []).filter((p) => p.id !== me.id);
+  const roles = [['@office', '@office · the office seat'], ['@schedule', '@schedule · scheduling'], ['@production', '@production · the supervisor'], ['@rep', '@rep · who sold it'], ['@invoice', '@invoice · billing']];
+  const c = say.cust;
+  const who = c ? `<span class="chip cust">on ${esc(personName(c.name))}${c.street ? ' · ' + esc(c.street) : ''}${c.city ? ', ' + esc(c.city) : ''}</span><button class="btn sm" data-say-clear>Change</button>`
+                : `<input data-say-find placeholder="Who is it about — last name, address, or phone" autocomplete="off"/><div class="line-find-pop" data-say-pop hidden></div>`;
+  const toOpts = `<option value="">— pick who —</option>` + roles.map(([v, l]) => `<option value="${v}" ${say.to === v ? 'selected' : ''}>${esc(l)}</option>`).join('')
+    + people.map((p) => `<option value="@${esc(firstName(p.name))}" ${say.to === '@' + firstName(p.name) ? 'selected' : ''}>@${esc(firstName(p.name))} · ${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</option>`).join('');
+  const presets = say.lane === 'customer' && c
+    ? `<div class="say-presets">${(say.lines || []).map((l) => `<button class="sub" data-say-line="${esc(l.key)}" title="${esc(l.body)}">${esc(l.label)}</button>`).join('') || '<span class="small">Reading the office lines…</span>'}</div>` : '';
+  const law = say.lane === 'customer'
+    ? (c ? `Goes to ${esc(firstName(c.name) || 'them')} as a text from the brand's approved line. A draft until Send; the file opens after with six seconds to take it back.` : 'Pick the customer first.')
+    : (c ? `Lands on ${esc(personName(c.name))}'s file as a note. Whoever you pick gets a push and it sits in their You're up until they open it. The customer never sees this.` : 'Pick the customer first — every word here lands on a file.');
+  return `<div class="card say" id="line-say">
+    <div class="head" style="margin-bottom:8px"><div class="kicker">Say it · to anyone, about any customer, from here</div><span class="small">${isDemo() ? 'demo — nothing sends' : 'texts from the brand line · notes with a push'}</span></div>
+    <div class="say-row"><span class="kicker">About</span><div class="say-who">${who}</div></div>
+    <div class="say-row"><span class="kicker">To</span>
+      <div class="lanes" style="margin:0">
+        <button class="lanebtn ${say.lane === 'person' ? 'on' : ''}" data-say-lane="person">A person</button>
+        <button class="lanebtn ${say.lane === 'customer' ? 'on' : ''}" data-say-lane="customer">The customer</button>
+        ${say.lane === 'person' ? `<select data-say-to style="width:auto;padding:5px 8px;font-size:12px">${toOpts}</select>` : ''}
+      </div></div>
+    ${presets}
+    <div class="composer" style="border:0;padding:0;background:transparent">
+      <textarea data-say-text placeholder="${say.lane === 'customer' ? 'The text…' : 'permit is in, ready to schedule · take this one · customer asked for you'}">${esc(say.text)}</textarea>
+      <button class="btn ${say.lane === 'customer' ? 'fill' : ''}" data-say-send ${c ? '' : 'disabled'}>${say.lane === 'customer' ? 'Send the text' : 'Post it'}</button>
+    </div>
+    <div class="small">${law} Ctrl+Enter sends.</div>
+  </div>`;
+}
+
+function wireSayIt(root) {
+  const box = root.querySelector('#line-say'); if (!box) return;
+  const repaint = () => { box.outerHTML = sayItHTML(); wireSayIt(root); };
+  const find = box.querySelector('[data-say-find]'), pop = box.querySelector('[data-say-pop]');
+  let t = null;
+  if (find) {
+    find.addEventListener('input', () => {
+      clearTimeout(t);
+      t = setTimeout(async () => {
+        const q = find.value.trim(); if (q.length < 2) { pop.hidden = true; return; }
+        let rows = []; try { rows = await searchCustomers(q); } catch (e) { toast(e.message, 'err'); return; }
+        pop.innerHTML = rows.length ? rows.map((r) => `<button class="line-item" data-say-pick="${esc(r.id)}" data-name="${esc(r.name)}" data-street="${esc(r.street || '')}" data-city="${esc(r.city || '')}">`
+          + `<span class="line-av">${esc((firstName(r.name) || '?').slice(0, 2).toUpperCase())}</span>`
+          + `<span><span class="nm">${esc(personName(r.name))}</span><span class="pv">${esc(r.street || r.phone || '')}${r.city ? ' · ' + esc(r.city) : ''}</span></span></button>`).join('')
+          : '<div class="small" style="padding:6px 10px">Nobody by that name, address or number</div>';
+        pop.hidden = false;
+        pop.querySelectorAll('[data-say-pick]').forEach((b) => (b.onclick = async () => {
+          say.cust = { id: b.dataset.sayPick, name: b.dataset.name, street: b.dataset.street, city: b.dataset.city };
+          say.lines = [];
+          repaint();
+          try { say.lines = await linePreview(say.cust.id); } catch { say.lines = []; }
+          if (say.lane === 'customer') repaint();
+        }));
+      }, 220);
+    });
+    find.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const f = pop.querySelector('[data-say-pick]'); if (f) f.click(); } if (e.key === 'Escape') { pop.hidden = true; } });
+  }
+  box.querySelector('[data-say-clear]')?.addEventListener('click', () => { say.cust = null; say.lines = []; repaint(); });
+  box.querySelectorAll('[data-say-lane]').forEach((b) => (b.onclick = () => { say.lane = b.dataset.sayLane; repaint(); }));
+  box.querySelector('[data-say-to]')?.addEventListener('change', (e) => { say.to = e.target.value; });
+  const text = box.querySelector('[data-say-text]');
+  text.addEventListener('input', () => { say.text = text.value; });
+  box.querySelectorAll('[data-say-line]').forEach((b) => (b.onclick = () => { const l = (say.lines || []).find((x) => x.key === b.dataset.sayLine); if (l) { say.text = l.body; text.value = l.body; text.focus(); } }));
+
+  let busy = false;                        // ref-style guard (b80): the render is not the lock
+  const send = async () => {
+    const c = say.cust, body = (text.value || '').trim();
+    if (!c || !body || busy) return;
+    if (isDemo()) { toast('Demo — nothing is saved'); return; }
+    busy = true; const btn = box.querySelector('[data-say-send]'); btn.disabled = true;
+    try {
+      if (say.lane === 'customer') {
+        await textCustomer(c.id, body);
+        toast(`Queued to ${firstName(c.name) || 'them'} from the brand line · six seconds to take it back`);
+      } else {
+        const f = await loadFile(c.id);
+        let tid = f.thread?.id;
+        if (!tid) { if (!f.job?.job_id) throw new Error('No job on this file yet — open the file and start it there'); tid = await threadForJob(f.job.job_id); }
+        const note = say.to && !body.includes(say.to) ? say.to + ' ' + body : body;
+        await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', note);
+        toast(say.to ? `Posted on ${personName(c.name)} · ${say.to} gets a push` : `Posted on ${personName(c.name)}`);
+      }
+      say.text = ''; text.value = '';
+      window.__peek(c.id);                    // the file opens beside you: the text with its undo, or the note where it landed
+    } catch (e) { toast(e.message || 'It did not go through', 'err'); }
+    finally { busy = false; btn.disabled = false; }
+  };
+  box.querySelector('[data-say-send]').onclick = send;
+  text.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });
 }

@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=46';
-import { DEMO } from './demo.js?v=46';
+import * as api from './api.js?v=47';
+import { DEMO } from './demo.js?v=47';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -205,6 +205,9 @@ export async function searchCustomers(q) {
   const term = q.trim();
   if (term.length < 2) return [];
   const digits = term.replace(/\D/g, '');
-  const filter = digits.length >= 4 ? `phone.ilike.*${digits}*` : `name.ilike.*${encodeURIComponent(term)}*`;
-  return api.page(`customers?select=id,name,phone&or=(${filter})&limit=12`, 12);
+  // Kevin, 15 Sep: "a drop down box either by their address or last name… a thousand ways to quickly get this out."
+  // A number is a phone; anything else matches the name OR the street, and the row says which so a "Cox" is not a surprise.
+  const q_ = encodeURIComponent(term);
+  const filter = digits.length >= 4 ? `phone.ilike.*${digits}*` : `name.ilike.*${q_}*,street.ilike.*${q_}*`;
+  return api.page(`customers?select=id,name,phone,street,city&or=(${filter})&limit=12`, 12);
 }
