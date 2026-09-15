@@ -1,9 +1,9 @@
 // The Business — the one place. Four doors, the funnel, what needs you now,
 // the line right now. Every number is a count of live rows the seat can read.
-import { state, isDemo, personName, firstName } from './book.js?v=30';
-import { html, raw, esc } from './ui.js?v=30';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=30';
-import { renderRoom } from './village.js?v=30';
+import { state, isDemo, personName, firstName } from './book.js?v=32';
+import { html, raw, esc } from './ui.js?v=32';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=32';
+import { renderRoom } from './village.js?v=32';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';

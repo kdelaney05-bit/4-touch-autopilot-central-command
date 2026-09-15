@@ -1,21 +1,22 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=30';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=30';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=30';
-import { BRAND_BY_CC } from './config.js?v=30';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=30';
-import { renderHome } from './home.js?v=30';
-import { renderSales } from './sales.js?v=30';
-import { renderPipeline } from './pipeline.js?v=30';
-import { renderMarketing } from './marketing.js?v=30';
-import { renderOffice } from './office.js?v=30';
-import { renderProduction } from './production.js?v=30';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=30';
-import { stopRoomPoll } from './village.js?v=30';
+import * as api from './api.js?v=32';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=32';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=32';
+import { BRAND_BY_CC } from './config.js?v=32';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=32';
+import { renderHome } from './home.js?v=32';
+import { renderSales } from './sales.js?v=32';
+import { renderPipeline } from './pipeline.js?v=32';
+import { renderMarketing } from './marketing.js?v=32';
+import { renderOffice } from './office.js?v=32';
+import { renderProduction } from './production.js?v=32';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=32';
+import { stopRoomPoll } from './village.js?v=32';
+import { renderFlow, stopFlow } from './flow.js?v=32';
 
 let view = 'home';
 let loading = false;
-const VIEWS = ['home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'files', 'file'];
+const VIEWS = ['home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
 
 export function rooms() {
   const role = state.me?.role || 'sales';
@@ -25,6 +26,7 @@ export function rooms() {
 export function go(v, arg) {
   view = v;
   stopRoomPoll();                 // the room you are leaving stops talking to the database
+  stopFlow();
   if (v !== 'file') closeDrawer();
   if (v === 'file' && arg) { openFile(arg).catch((e) => toast(e.message || 'Could not open the file', 'err')); }
   render();
@@ -49,6 +51,7 @@ export function render() {
   if (view === 'marketing') renderMarketing($('#view-marketing'));
   if (view === 'office') renderOffice($('#view-office'));
   if (view === 'production') renderProduction($('#view-production'));
+  if (view === 'flow') renderFlow($('#view-flow'));
   if (view === 'files') renderFiles($('#view-files'));
   document.title = `${counts.home ? counts.home + ' waiting · ' : ''}Central Command · 4-Touch Autopilot`;
 }

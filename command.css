@@ -239,3 +239,24 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .pcard .t.due { color: var(--gold); font-weight: 600; }
 .pcard .clock { font-size: 12px; color: var(--red); }
 @media (max-width: 1000px) { .pipe { grid-template-columns: repeat(6, 250px); } }
+
+/* ── The Flow (Kevin, 15 Sep: "a scrolling timeline of all the stuff in our entire workflow flowing thru this new lane") ── */
+.flow-miles { display: flex; gap: 6px; flex-wrap: wrap; align-items: stretch; }
+.mile { position: relative; flex: 1 1 0; min-width: 88px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 10px 12px; text-align: center; color: var(--dimmer); }
+.mile.live { border-color: var(--gold); background: var(--goldsoft); color: var(--ink); }
+.mile .n { font-family: var(--serif); font-size: 26px; line-height: 1; font-weight: 500; }
+.mile .l { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; margin-top: 4px; }
+.mile .arrow { position: absolute; right: -9px; top: 50%; transform: translateY(-55%); color: var(--faint); font-style: normal; font-size: 18px; }
+.flow { display: flex; flex-direction: column; gap: 4px; }
+.flow-day { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--dimmer); margin: 14px 2px 4px; }
+.flow-line { display: grid; grid-template-columns: 62px 22px minmax(90px, 150px) 1fr minmax(120px, 220px); gap: 10px; align-items: center; padding: 7px 10px; border: 1px solid var(--line); border-left: 5px solid var(--c, var(--line)); border-radius: 10px; background: var(--card); font-size: 13px; cursor: pointer; }
+.flow-line:hover { background: var(--card-hi); }
+.flow-line .t { font-family: var(--mono); font-size: 11px; color: var(--dimmer); }
+.flow-line .w { color: var(--c, var(--dim)); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flow-line .b { color: var(--ink); min-width: 0; }
+.flow-line .c { font-family: var(--mono); font-size: 11px; color: var(--dimmer); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flow-line.file .b { color: var(--verify); }
+.flow-line.money { background: var(--goldsoft); border-color: #ead9a8; }
+.flow-line.money .b { color: var(--gold); font-weight: 600; }
+.flow-line.bad .b { color: var(--red); }
+@media (max-width: 720px) { .flow-line { grid-template-columns: 52px 22px 1fr; } .flow-line .w { display: none; } .flow-line .c { grid-column: 1 / -1; text-align: left; } }
