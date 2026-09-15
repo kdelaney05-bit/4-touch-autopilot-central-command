@@ -116,10 +116,22 @@ const HYPE = [
   hy('Kevin Delaney', 'This is the board I want to look at every morning. Nobody here is selling alone.', 3),
 ];
 
+// The Pipeline room's fictional selling side: the same shape the live jobs read returns, customer embedded.
+const pj = (id, name, city, rep, apptH, o = {}) => ({ id, customer_id: 'c' + id, rep_id: rep, cc_company_id: o.cc || '1461', title: o.title || 'Fence estimate', appt_starts_at: apptH == null ? null : ago(apptH), contract_signed_at: o.signedH != null ? ago(o.signedH) : null, fin_sold_amount: o.amt ?? null, created_at: ago((apptH ?? 48) + 72),
+  customers: { name, phone: '(321) 555-0' + String(100 + Number(id.replace(/\D/g, ''))).slice(-3), city, disposition: o.lost ? 'lost' : null } });
+const PIPE = [
+  pj('p1', 'Hartley, Nina', 'Palm Bay', 'r3', -30, { cc: '1563', title: 'Shingle re-roof' }), pj('p2', 'Duarte, Miguel', 'Cocoa', 'r1', -6), pj('p3', 'Chen, Amy', 'Rockledge', 'r2', -52),
+  pj('p4', 'Bellamy, Joe', 'Melbourne', 'r3', 3, { cc: '1563', title: 'Roof, 24 sq' }), pj('p5', 'Osei, Grace', 'Titusville', 'r1', 20), pj('p6', 'Ferraro, Dom', 'Merritt Island', 'r2', 40), pj('p7', 'Quinn, Sarah', 'Viera', 'g', 60),
+  pj('p8', 'Lindqvist, Erik', 'Palm Coast', 'r5', 30), pj('p9', 'Baptiste, Marie', 'Cocoa', 'r1', 80), pj('p10', 'Torres, Luis', 'Winter Park', 'r4', 12, { cc: '1560', title: 'Paver patio' }),
+  pj('p11', 'Nakamura, Ken', 'Melbourne', 'r3', 150, { cc: '1563' }), pj('p12', 'Whitaker, Ann', 'Palm Bay', 'r2', 200, { lost: true }), pj('p13', 'Grant, Tyrell', 'Deltona', 'r5', null), pj('p14', 'Ivey, Paula', 'Orlando', 'r4', null, { cc: '1560' }),
+  ...BOARD.filter((b) => b.contract_signed_at).slice(0, 6).map((b) => ({ id: b.job_id, customer_id: b.customer_id, rep_id: b.rep_id, cc_company_id: b.cc_company_id, title: b.title, appt_starts_at: ago(300), contract_signed_at: b.contract_signed_at, fin_sold_amount: b.fin_sold_amount, created_at: ago(400), customers: { name: b.customer_name, phone: b.customer_phone, city: 'Cocoa', disposition: null } })),
+];
+const EST = [{ customer_id: 'cp8', amount: 7800, occurred_at: ago(28) }, { customer_id: 'cp9', amount: 12400, occurred_at: ago(70) }, { customer_id: 'cp11', amount: 18900, occurred_at: ago(140) }];
+
 function book() {
   const people = [...SEATS.map((s) => ({ ...s, initials: null, sms_from: null })),
     ...[...new Map(BOARD.map((b) => [b.rep_id, b.rep_name])).entries()].map(([id, name]) => ({ id, name, role: 'sales', initials: null, sms_from: id === 'r1' ? '+13863023131' : null }))];
-  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK,
+  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [], board: BOARD, queue: QUEUE, clock: CLOCK, pipeline: PIPE, estimates: EST,
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],

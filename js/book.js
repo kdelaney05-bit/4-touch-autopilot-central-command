@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=27';
-import { DEMO } from './demo.js?v=27';
+import * as api from './api.js?v=30';
+import { DEMO } from './demo.js?v=30';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -20,6 +20,8 @@ export const state = {
   parcels: [],         // parcel_lookups, last 30 days (324)
   nocs: [],            // paperwork_filled, last 30 days (325)
   people: [],          // every active rep/seat: id, name, initials, role, sms_from — who a bubble can be
+  pipeline: [],        // jobs on the selling side (appointment in 90 days, or signed in 60) with the customer embedded — the Pipeline room
+  estimates: [],       // estimates, last 90 days — a price on file puts a customer in Estimate out
   warnings: [],
   loadedAt: null,
 };
@@ -31,7 +33,8 @@ export async function loadAll() {
   if (isDemo()) { Object.assign(state, DEMO.book()); state.loadedAt = new Date(); return state; }
   const s = api.getSession();
   const since30 = new Date(Date.now() - 30 * 86400e3).toISOString();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people] = await Promise.all([
+  const since90 = new Date(Date.now() - 90 * 86400e3).toISOString(), since60 = new Date(Date.now() - 60 * 86400e3).toISOString();
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -49,8 +52,12 @@ export async function loadAll() {
     api.page(`paperwork_filled?select=customer_id,form_key,filled_at&filled_at=gte.${since30}&order=filled_at.desc`, 2000).catch(() => []),
     // everyone who can appear on a file's thread — reps, office, production, owners — with the line they text from (Kevin, 14 Sep: a color per person)
     api.page('reps?select=id,name,initials,role,sms_from&active=eq.true&order=name.asc', 500).catch(() => []),
+    // the Pipeline room (Kevin, 14 Sep): the selling side of every rep's book — unsigned jobs with an appointment in the last 90 days
+    // (or still ahead), plus what was signed in the last 60, with the customer on the row. RLS decides whose book a seat sees.
+    api.page(`jobs?select=id,customer_id,rep_id,cc_company_id,title,appt_starts_at,contract_signed_at,fin_sold_amount,created_at,customers(name,phone,city,disposition)&or=(and(contract_signed_at.is.null,appt_starts_at.gte.${since90}),contract_signed_at.gte.${since60})&order=appt_starts_at.desc.nullslast`, 5000).catch(() => []),
+    api.page(`estimates?select=customer_id,rep_id,amount,occurred_at&occurred_at=gte.${since90}&order=occurred_at.desc`, 4000).catch(() => []),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates });
   if (!me) state.warnings.push('No seat row for this login — the database will show nothing.');
   if (board.truncated) state.warnings.push('Stage board cut at 3,000 rows.');
   state.loadedAt = new Date();

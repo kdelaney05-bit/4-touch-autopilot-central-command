@@ -2,12 +2,12 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=27';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=27';
-import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=27';
-import { settleDialog } from './office.js?v=27';
-import { reload } from './app.js?v=27';
-import { relTime } from './production.js?v=27';
+import { state, isDemo, personName, firstName, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=30';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=30';
+import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=30';
+import { settleDialog } from './office.js?v=30';
+import { reload } from './app.js?v=30';
+import { relTime } from './production.js?v=30';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -146,18 +146,24 @@ function draw(root, ctx, compact) {
       </div>
     </div>
 
-    <div class="grid-file">
-      <div class="card">
+    <!-- THE CONVERSATION, HORIZONTAL (Kevin, 14 Sep: "you can't read any of the chat because it's too small… go horizontal:
+         a way larger screen on one side with the texting box, and on the other side all the pre-written things to send").
+         Left: the thread, big, and the box you type in. Right: the lines — tap one, it fills the box, edit, Send. -->
+    <div class="card convo">
+      <div class="convo-main">
         <div class="head" style="margin-bottom:4px"><div class="kicker" style="font-size:11px;color:var(--gold)">The customer's line · ${line ? esc(line.label + ' ' + line.line_e164) : 'no main line yet'} to ${esc(customer?.phone || 'no phone on file')}</div><span class="chip">TEXTS · EMAILS · THE FILE</span></div>
         <div class="thread" id="thread">
           ${items.length ? raw(items.map(bubble).join('')) : raw('<div class="empty">Nothing on the line yet. The first text from here starts the thread.</div>')}
         </div>
-        <div class="subs" style="margin-top:6px"><span class="kicker">Lines</span><select id="lines" style="width:auto;padding:5px 8px;font-size:12px"><option value="">Pick a pre-written text…</option></select></div>
         <div class="composer">
           <textarea id="compose" placeholder="${optOut ? 'Customer said STOP' : `Text ${esc(firstName(name))} as ${esc(firstName(me?.name || ''))}, from ${esc(line?.label || 'the main line')}…`}" ${optOut ? 'disabled' : ''}></textarea>
           <button class="btn fill" id="send" ${optOut || !customer?.phone ? 'disabled' : ''}>Send</button>
         </div>
         <div class="small">Sent from the file on the brand's main line, credited to you. Six seconds to undo. A line fills in with this customer's name and brand; edit it before you send.</div>
+      </div>
+      <div class="convo-side">
+        <div class="kicker">Things to say · tap one, it fills the box on the left · edit it · Send</div>
+        <div class="lines" id="lines"><div class="small">Loading the lines…</div></div>
         <div class="kicker" style="margin-top:14px">Note to the team · the customer never sees this · tag the next person</div>
         <div class="subs" style="margin:4px 0 6px">
           <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option>${raw(state.seats.map((s) => `<option value="@${esc(firstName(s.name))}">@${esc(firstName(s.name))} · ${esc(s.name)}</option>`).join(''))}</select>
@@ -169,7 +175,9 @@ function draw(root, ctx, compact) {
         </div>
         <div class="small">They get a push, and it sits in their Tagged list until they open this file. A task also opens an ask on them with the clock running.</div>
       </div>
+    </div>
 
+    <div class="grid-file cards">
       <div style="display:flex;flex-direction:column;gap:12px">
         <div class="card">
           <div class="head" style="margin-bottom:0"><div class="kicker">Asks on this file · the clock is the point</div>${thread ? raw('<button class="btn sm" id="new-ask">+ Ask</button>') : ''}</div>
@@ -178,6 +186,8 @@ function draw(root, ctx, compact) {
         </div>
         ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], deed, staff && !!(thread?.id || job.job_id))) : ''}
         ${raw(fenceCard(ctx.data.fence, ctx.data.packet || [], estimates))}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -204,11 +214,13 @@ function draw(root, ctx, compact) {
   const th = q('#thread'); th.scrollTop = th.scrollHeight;
   q('#send').onclick = () => send(ctx, q, compact);
   q('#compose').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(ctx, q, compact); });
+  // the lines, readable and tappable (Kevin, 14 Sep: "you can't really see the pre-written things") — a tap fills the box, never sends
   linePreview(ctx.customerId).then((lines) => {
-    const sel = q('#lines'); if (!sel) return;
-    lines.forEach((l) => { const o = document.createElement('option'); o.value = l.key; o.textContent = l.label; o.dataset.body = l.body; sel.appendChild(o); });
-    sel.onchange = () => { const o = sel.selectedOptions[0]; if (o?.dataset.body) { q('#compose').value = o.dataset.body; q('#compose').focus(); } };
-  }).catch(() => {});
+    const box = q('#lines'); if (!box) return;
+    if (!lines.length) { box.innerHTML = '<div class="small">No pre-written lines for this brand yet. Kevin and Jess add them as rows in the Office room.</div>'; return; }
+    box.innerHTML = lines.map((l) => `<button class="line" type="button" data-body="${esc(l.body)}"><b>${esc(l.label)}</b><span>${esc(l.body)}</span></button>`).join('');
+    box.querySelectorAll('.line').forEach((b) => (b.onclick = () => { const c = q('#compose'); if (!c || c.disabled) return; c.value = b.dataset.body; c.focus(); box.querySelectorAll('.line').forEach((x) => x.classList.toggle('on', x === b)); }));
+  }).catch(() => { const box = q('#lines'); if (box) box.innerHTML = '<div class="small">The lines could not load. Type it yourself on the left.</div>'; });
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId))); }));
   if (q('#file-take')) q('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } catch (e) { toast(e.message, 'err'); } };
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });

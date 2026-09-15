@@ -1,20 +1,21 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=27';
-import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=27';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=27';
-import { BRAND_BY_CC } from './config.js?v=27';
-import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=27';
-import { renderHome } from './home.js?v=27';
-import { renderSales } from './sales.js?v=27';
-import { renderMarketing } from './marketing.js?v=27';
-import { renderOffice } from './office.js?v=27';
-import { renderProduction } from './production.js?v=27';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=27';
-import { stopRoomPoll } from './village.js?v=27';
+import * as api from './api.js?v=30';
+import { state, loadAll, isDemo, searchCustomers, createJob } from './book.js?v=30';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=30';
+import { BRAND_BY_CC } from './config.js?v=30';
+import { ROOMS_BY_ROLE, ROOM_LABEL } from './config.js?v=30';
+import { renderHome } from './home.js?v=30';
+import { renderSales } from './sales.js?v=30';
+import { renderPipeline } from './pipeline.js?v=30';
+import { renderMarketing } from './marketing.js?v=30';
+import { renderOffice } from './office.js?v=30';
+import { renderProduction } from './production.js?v=30';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=30';
+import { stopRoomPoll } from './village.js?v=30';
 
 let view = 'home';
 let loading = false;
-const VIEWS = ['home', 'sales', 'marketing', 'office', 'production', 'files', 'file'];
+const VIEWS = ['home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'files', 'file'];
 
 export function rooms() {
   const role = state.me?.role || 'sales';
@@ -44,6 +45,7 @@ export function render() {
   for (const v of VIEWS) $('#view-' + v).classList.toggle('hidden', v !== view);
   if (view === 'home') renderHome($('#view-home'));
   if (view === 'sales') renderSales($('#view-sales'));
+  if (view === 'pipeline') renderPipeline($('#view-pipeline'));
   if (view === 'marketing') renderMarketing($('#view-marketing'));
   if (view === 'office') renderOffice($('#view-office'));
   if (view === 'production') renderProduction($('#view-production'));
