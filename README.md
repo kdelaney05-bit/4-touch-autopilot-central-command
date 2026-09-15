@@ -33,6 +33,9 @@ second door onto the same work, not a replacement, until Kevin says so.
 - **Production** — the stage board: every sold customer, who holds them, how
   long they have held them. Take the job, assign, hand back. The supervisor's
   own board.
+- **The Flow** — one scrolling timeline of everything moving through the
+  lane, newest first, one color per person, the machine in gold, with the ten
+  milestones across the top and how many files sit at each right now.
 - **Files** — find anybody, open their file.
 - **The customer file** — the spine under every room. One thread from the
   machine's first text to the final invoice, texts and emails together, any
@@ -115,8 +118,9 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The fence job on the file: `fence_jobs`, the packet proofs, the office packet email (`fence_packet_queue`), and the read the card and the NOC fill share (`fence_takeoff_for`) | **328 · 331–334** |
 | The deposit + material lock (custom/aluminum = a card before material; stock waits on official paperwork) | **336** |
 | The signature sets the visit: a customer signing on the estimate link pushes Gio and emails the rep, Gio and Kevin what the visit has to collect (no office ask, no office list: Kevin, 15 Sep) | **338** |
+| The chain marches: a signature opens the office checklist and settles what the machine can; the checklist finishing IS paperwork official; no-permit addresses settle PERMIT themselves; material release opens MATERIAL for Jonathan; the date hands the job to Luis ("no humans does any thinking") | **340** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (338 as of 15 Sep).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (340 as of 15 Sep).
 
 ## What Kevin and Jess change without a build
 
