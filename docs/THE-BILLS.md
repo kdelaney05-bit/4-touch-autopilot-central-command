@@ -4,6 +4,8 @@ Kevin, 16 Sep 2026, on Jess's forward of the ABC Supply email: "how we can
 integrate all these payables and bills… I have a login to everything. So if
 we could set up an API… pull that in to automate that."
 
+The one-page before/after, per person: `docs/the-bills-before-after.html`.
+
 Lane label: **BILLS**. Built beside Contractors Cloud and QuickBooks, every
 switch OFF until Kevin flips it (gospel 6). Takes the paper off Jess,
 Jonathan and Claudette; takes no conversation off anyone (gospel 20).

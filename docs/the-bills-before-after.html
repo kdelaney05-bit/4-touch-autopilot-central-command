@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One Invoice, Before and After</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f1f0eb;--panel:#fff;--panel2:#f6f5f0;--line:#d8d6cd;--ink:#1b1f1d;--dim:#56605d;--mute:#8a938f;--gold:#b7791f;--goldsoft:#f7ecd6;--green:#2e7d4f;--greensoft:#e3f0e7;--blue:#1d5fa8;--bluesoft:#e1e8f3;--red:#b3261e;--redsoft:#f6e1df;--display:'Barlow Condensed','Arial Narrow',sans-serif;--body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1b2a40;--red:#f08b84;--redsoft:#3d201e}}
+:root[data-theme="dark"]{--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1b2a40;--red:#f08b84;--redsoft:#3d201e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;padding:16px 16px 60px}
+.page{max-width:1040px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6vw,66px);line-height:.95;margin:6px 0 14px;text-transform:uppercase;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.5vw,44px);line-height:1;margin:0 0 6px;text-transform:uppercase}
+p{margin:0;color:var(--dim);max-width:64ch;font-size:17px}
+.big{font-size:20px;color:var(--ink);max-width:58ch}
+section{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-top:18px}
+@media(max-width:760px){section{padding:20px 16px}}
+.invoice{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+.invoice .doc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-family:var(--mono);font-size:13px;color:var(--dim);line-height:1.6}
+.invoice .doc b{display:block;font-family:var(--display);font-size:22px;color:var(--ink);text-transform:uppercase;letter-spacing:.02em}
+.lanes{display:grid;gap:12px;margin-top:16px}
+.lane{display:grid;grid-template-columns:150px 1fr;gap:12px;align-items:start;border-top:1px solid var(--line);padding-top:12px}
+@media(max-width:640px){.lane{grid-template-columns:1fr}}
+.who{font-family:var(--display);font-size:24px;text-transform:uppercase;line-height:1}
+.who small{display:block;font-family:var(--body);font-size:13px;color:var(--mute);text-transform:none;margin-top:3px}
+.steps{display:flex;flex-wrap:wrap;gap:8px}
+.step{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 12px 6px 6px;font-size:14.5px;color:var(--ink)}
+.step i{font-style:normal;font-family:var(--mono);font-size:11px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;justify-content:center}
+.step.m{background:var(--goldsoft);border-color:var(--gold)}
+.step.m i{background:var(--gold);color:#fff}
+.step.k{background:var(--greensoft);border-color:var(--green);font-weight:600}
+.step.k i{background:var(--green)}
+.step.x{border-style:dashed;color:var(--mute);background:transparent}
+.step.x i{background:var(--mute)}
+.tally{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:6px}
+.tally b{color:var(--ink);font-size:14px}
+.rule{border-left:5px solid var(--gold);padding:8px 14px;margin-top:14px;font-size:17px;color:var(--ink);max-width:70ch}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .n{font-family:var(--display);font-size:46px;line-height:1;font-weight:700}
+.tile .n small{font-size:22px;color:var(--mute);font-weight:600}
+.tile .n .arrow{color:var(--mute);font-size:30px;margin:0 6px}
+.tile .n .after{color:var(--green)}
+.tile span{display:block;font-size:13.5px;color:var(--dim);margin-top:4px}
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.keep{background:var(--panel2);border:1px solid var(--line);border-top:5px solid var(--gold);border-radius:12px;padding:12px 14px}
+.keep b{display:block;font-family:var(--display);font-size:22px;text-transform:uppercase}
+.keep span{font-size:14px;color:var(--dim);display:block;line-height:1.45}
+.foot{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase;margin-top:22px;line-height:1.7}
+.foot a{color:var(--blue)}
+.tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mute);vertical-align:middle;margin-left:8px}
+.tag.off{color:var(--red);border-color:var(--red);background:var(--redsoft)}
+</style>
+
+<div class="page">
+
+<div class="eyebrow">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis · The bills · 16 Sep 2026</div>
+<h1>One invoice. Before, and after.</h1>
+<p class="big">Follow a single supplier invoice through the office. The same people, the same judgment. The typing moves to the machine.</p>
+
+<section>
+  <div class="eyebrow">The invoice</div>
+  <div class="invoice">
+    <div class="doc"><b>ABC Supply</b>emailed 6:38 AM · five lines · two POs · one PDF · one IIF file<br>the IIF carries vendor · invoice number · PO · date · due date · amount, per line</div>
+    <p>About 20 of these arrive every day across the four companies (1,847 bills in the last 90 days, per Contractors Cloud). Every one of them makes the trip below.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Before <span class="tag">today</span></h2>
+  <p>Three people touch it, in two systems, and the two copies never meet.</p>
+  <div class="lanes">
+    <div class="lane">
+      <div class="who">Jess<small>Executive Manager</small></div>
+      <div>
+        <div class="steps">
+          <span class="step"><i>1</i>opens the supplier's email</span>
+          <span class="step"><i>2</i>works out which company and which job</span>
+          <span class="step"><i>3</i>forwards it to Jonathan</span>
+        </div>
+        <div class="tally"><b>3</b> touches</div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Jonathan<small>Logistics</small></div>
+      <div>
+        <div class="steps">
+          <span class="step"><i>1</i>opens Jess's forward</span>
+          <span class="step"><i>2</i>opens the PDF</span>
+          <span class="step"><i>3</i>finds the job in Contractors Cloud by the PO</span>
+          <span class="step"><i>4</i>opens the material order</span>
+          <span class="step"><i>5</i>adds a bill: vendor, date, amount, netting the lines by hand</span>
+          <span class="step"><i>6</i>attaches it to the order</span>
+          <span class="step"><i>7</i>saves</span>
+        </div>
+        <div class="tally"><b>7</b> touches · the invoice number gets skipped, a credit gets typed as a bill</div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Claudette<small>Books</small></div>
+      <div>
+        <div class="steps">
+          <span class="step"><i>1</i>logs into the supplier's portal</span>
+          <span class="step"><i>2</i>finds the new invoices</span>
+          <span class="step"><i>3</i>downloads each one</span>
+          <span class="step"><i>4</i>opens QuickBooks</span>
+          <span class="step"><i>5</i>new bill: vendor, invoice number, date, due date</span>
+          <span class="step"><i>6</i>amount, account, customer and job</span>
+          <span class="step"><i>7</i>saves</span>
+          <span class="step"><i>8</i>month end: reconciles the statement against her typing, and against Jonathan's</span>
+        </div>
+        <div class="tally"><b>8</b> touches · the same invoice, typed a second time from a different copy</div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Kevin<small>Owner</small></div>
+      <div>
+        <div class="steps"><span class="step x"><i>?</i>hears about it when a number is wrong</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="rule"><b>18 human touches per invoice.</b> About 360 a day. And on the last 1,250 bills in Contractors Cloud, the invoice number is blank on every one and none has ever reached QuickBooks.</div>
+</section>
+
+<section>
+  <h2>After <span class="tag off">switches off until Kevin flips them</span></h2>
+  <p>The machine reads, finds, files and checks. The people decide and pay.</p>
+  <div class="lanes">
+    <div class="lane">
+      <div class="who" style="color:var(--gold)">The machine<small>the moment the email lands</small></div>
+      <div>
+        <div class="steps">
+          <span class="step m"><i>1</i>reads the supplier's email</span>
+          <span class="step m"><i>2</i>reads the IIF: vendor, invoice number, PO, date, due date, amount, credits as credits</span>
+          <span class="step m"><i>3</i>finds the job by the PO on the material order</span>
+          <span class="step m"><i>4</i>saves the PDF on the customer's file</span>
+          <span class="step m"><i>5</i>checks the amount against the order's estimate, red if over</span>
+          <span class="step m"><i>6</i>lands a <b>Bill landed</b> card on the file · NEXT: Jonathan</span>
+          <span class="step m"><i>7</i>switch on: writes it into Contractors Cloud with the Ref # filled, and into QuickBooks with the invoice number</span>
+        </div>
+        <div class="tally"><b>0</b> human touches · never skips the vendor, the invoice number or the QuickBooks link</div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Jonathan<small>Logistics</small></div>
+      <div>
+        <div class="steps"><span class="step k"><i>1</i>Approve · or "wrong job" · or "over the estimate, look"</span></div>
+        <div class="tally"><b>1</b> touch · his judgment stays, the typing goes</div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Claudette<small>Books</small></div>
+      <div>
+        <div class="steps"><span class="step k"><i>1</i>pays it in QuickBooks · the statement already matches</span></div>
+        <div class="tally"><b>1</b> touch · no portals, no retype, no month-end hunt</div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Jess<small>Executive Manager</small></div>
+      <div>
+        <div class="steps"><span class="step x"><i>0</i>nothing to forward · the bill is on the file with everything else</span></div>
+      </div>
+    </div>
+    <div class="lane">
+      <div class="who">Kevin<small>Owner</small></div>
+      <div>
+        <div class="steps"><span class="step x"><i>0</i>payables by brand on The Business room, live, with the source and the as-of</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="rule"><b>2 human touches per invoice.</b> About 40 a day. Both of them are decisions, not typing.</div>
+</section>
+
+<section>
+  <h2>The count</h2>
+  <div class="score">
+    <div class="tile"><div class="n">18<span class="arrow">→</span><span class="after">2</span></div><span>human touches per invoice</span></div>
+    <div class="tile"><div class="n">360<span class="arrow">→</span><span class="after">40</span></div><span>touches a day, at about 20 invoices a day</span></div>
+    <div class="tile"><div class="n">3<span class="arrow">→</span><span class="after">1</span></div><span>copies of the same invoice: the email, CC, QuickBooks → one file, linked to both</span></div>
+    <div class="tile"><div class="n">0<span class="arrow">→</span><span class="after">100<small>%</small></span></div><span>bills carrying the supplier's invoice number and a QuickBooks link</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>What each person keeps</h2>
+  <p>Nobody's job goes to the machine. The retyping does. The part that needs a person gets the whole person.</p>
+  <div class="keeps">
+    <div class="keep"><b>Jonathan</b><span>The yes. Is this the right job, is the price what we ordered, does it get paid. One tap, with the order beside it.</span></div>
+    <div class="keep"><b>Claudette</b><span>The money. Paying, the exceptions, the statement. Every bill already in QuickBooks with its number, so her time goes to what's wrong, not what's missing.</span></div>
+    <div class="keep"><b>Jess</b><span>The conversation. The phone, the customers, the team. Not a single forward.</span></div>
+    <div class="keep"><b>Kevin</b><span>The picture. What we owe, by brand, today, and where the number came from.</span></div>
+  </div>
+</section>
+
+<div class="foot">
+  Source: Jess's forward of the ABC Supply email, 16 Sep 8:19 AM · the Contractors Cloud bills report, 16 Sep (1,847 bills, 18 Jun–16 Sep) · <a href="THE-BILLS.md">docs/THE-BILLS.md</a><br>
+  Built beside Contractors Cloud and QuickBooks. Every switch OFF until Kevin flips it. Take the paper off the humans, never the conversation.
+</div>
+
+</div>
+</html>
