@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=92';
+import { $, html, raw, esc } from './ui.js?v=93';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -79,7 +79,23 @@ const OFFICE_STEPS = [
   { room: 'line', at: '[data-tour="asking"]', title: 'What they are asking, and the file answers.', body: 'Every customer waiting right now, sorted by what they asked. Where the file already knows the answer, Answer shows it in our words. Read it, fix a word, Send.' },
   { room: 'line', at: null, title: 'That is the whole day.', body: 'Four inputs. Everything else opens itself, and the documents from Contractors Cloud are landing on the files tonight: contracts, surveys, NOCs, permits. CC stays open beside this until Kevin says otherwise. This is where we talk, and where the job moves.' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS };
+// THE CHAIN FILM (Kevin, 16 Sep: "from contract signing, automatic, and then what happens and who does what and what
+// the sales guy gets and how he gets it to the office and all he's doing is this"). One job, signature to close-out,
+// every seat's part lighting up in turn. Runs in the owner's demo so every room is on the screen.
+const CHAIN_STEPS = [
+  { room: 'line', at: null, title: 'One job, signature to close-out. Nobody assigns anything.', body: 'This is how a job moves now. Watch each person\'s part light up in turn. The rep does one thing. The office does four. The machine does the rest.' },
+  { room: 'files', at: '#drawer [data-tour="paperwork"], #drawer .asks, #drawer #photos-card', do: 'peek:cj7', title: 'The customer signs on the link. On their phone.', body: 'The rep sent the estimate link from the app. The customer signs it in the driveway or that night. That signature is the trigger: the file opens the paperwork checklist by itself, the contract settles itself, and the rep is finished. He turned in nothing. The link did it.' },
+  { room: 'office', at: '[data-tour="office-tiles"]', title: 'Sam\'s tile lights: Paperwork.', body: 'The same second, the paperwork ask lands on the office seat with a clock. Sam\'s desk bings, her phone buzzes, her email has the link. Nobody told her. Nobody made a task.' },
+  { room: 'office', at: '[data-tour="office-asks"]', title: 'Sam presses Done. It asks for the real thing.', body: 'Not a checkbox: the county forms for that address, filled from the file, one upload. That input closes Paperwork and opens the next ask on its own: Permit, on Sam, with a five-day clock.' },
+  { room: 'office', at: '#cc-workflow', title: 'The permit number in. Then one paste.', body: 'Sam types the permit number. The machine texts the customer "your permit is in" from the main line, the moment you flip that switch. The Locate ask opens with the whole 811 ticket already written from the file. Sam pastes it once.' },
+  { room: 'office', at: '[data-tour="office-tiles"]', title: 'Jonathan\'s turn.', body: 'Material releases, and MATERIAL opens on Jonathan\'s seat: the PO number, then the start date. The schedule text goes to the customer. He never adds a name to a project team.' },
+  { room: 'production', at: '[data-take], [data-tour="prod-board"]', title: 'Luis\'s turn: Take the job.', body: 'The start date pushes production. Luis, Obed or Robert gets the buzz and taps Take the job. On a roof that supervisor then gives seven taps as the job goes: a photo, a result, a day. On a fence: sign off.' },
+  { room: 'flow', at: '[data-tour="flow-head"], .pipe', title: 'The Job Board moves by itself.', body: 'Every sold job, by stage, sliding right as each input lands. Nobody drags a card. If you want to know where a job is, it is here, and it is on the file.' },
+  { room: 'office', at: '[data-tour="office-tiles"]', title: 'Laura\'s turn: Ready to invoice.', body: 'The supervisor signs off and Ready to invoice lights on Laura. Invoice from the file; the number closes it; the customer gets the invoice text. Payment lands, close-out is one tap, and the review prompt goes to the customer.' },
+  { room: 'line', at: '[data-tour="sent"]', title: 'And you see the whole chain.', body: 'Who got it, who did it, how fast: this led to this led to this, down to done. Appreciate on the one that landed well.' },
+  { room: 'line', at: null, title: 'That is the job, start to finish.', body: 'The rep: one link. The office: four inputs. The supervisor: a tap and, on a roof, seven more. The customer: texted at every turn. The machine: everything between. Nobody\'s job is taken; the hunting is.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS };
 let FILM_NAME = '1';
 // THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
 // (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded

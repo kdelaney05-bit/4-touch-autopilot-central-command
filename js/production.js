@@ -1,10 +1,10 @@
 // Production — the stage board (every sold customer, by who holds them), My
 // board (the supervisor's jobs), and Take the job.
-import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=92';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=92';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=92';
-import { reload } from './app.js?v=92';
-import { renderRoom } from './village.js?v=92';
+import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=93';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=93';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=93';
+import { reload } from './app.js?v=93';
+import { renderRoom } from './village.js?v=93';
 
 let sub = 'stage';      // stage | mine
 let brand = 'all';
@@ -42,7 +42,7 @@ export function renderProduction(root) {
           <div class="small">${esc(money(open.filter((b) => b.stage === s).reduce((a, b) => a + Number(b.fin_sold_amount || 0), 0)))} · line at ${STAGE_LINE_DAYS[s]} d</div></div>`).join(''))}
     </div>
 
-    <div class="card">
+    <div class="card" data-tour="prod-board">
       <div class="subs" style="margin-bottom:6px">
         <button class="sub ${brand === 'all' ? 'on' : ''}" data-brand="all">All · ${open.length}</button>
         ${raw(brands.map((cc) => `<button class="sub ${brand === cc ? 'on' : ''}" data-brand="${esc(cc)}">${esc(brandName(cc))}</button>`).join(''))}

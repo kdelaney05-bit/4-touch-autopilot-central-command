@@ -12,10 +12,10 @@
 // system lines, signatures (129/338), the fence job's stamps (336), the
 // signing notes (338) and the 811 tickets (341). Nothing here writes.
 // Refreshes itself every 30 seconds while the room is open.
-import * as api from './api.js?v=92';
-import { state, isDemo, firstName } from './book.js?v=92';
-import { $, html, raw, esc } from './ui.js?v=92';
-import { brandName } from './config.js?v=92';
+import * as api from './api.js?v=93';
+import { state, isDemo, firstName } from './book.js?v=93';
+import { $, html, raw, esc } from './ui.js?v=93';
+import { brandName } from './config.js?v=93';
 
 const DAYS = 14;
 let timer = null;
@@ -24,7 +24,7 @@ let q = '';
 let view = 'jobs';      // jobs | map
 let cache = null;
 
-import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=92';
+import { STEPS, STEP_OF, thing, ICON, person, pace, MAP } from './words.js?v=93';
 
 const PALETTE = [
   ['#1f6f4a', '#dff0e6'], ['#1d5fa8', '#e1e8f3'], ['#b45309', '#f6e3d6'], ['#0e7c86', '#dcf1f3'], ['#5b3a8f', '#ece5f6'],
@@ -190,7 +190,7 @@ function paint(root) {
 
   root.innerHTML = html`
     <div class="head">
-      <div><div class="kicker">The job board · every sold job, where it is, what moved · refreshed ${at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
+      <div data-tour="flow-head"><div class="kicker">The job board · every sold job, where it is, what moved · refreshed ${at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
         <h1 class="serif">${cards.size} jobs moved in the last ${DAYS} days. ${moved} today.</h1></div>
       <div class="right subs">
         <button class="sub ${view === 'jobs' ? 'on' : ''}" id="flow-jobs">The jobs</button>
