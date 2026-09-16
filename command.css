@@ -542,3 +542,6 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .task .who { font-size: 12px; color: var(--dim); }
 .mbfoot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 @media (max-width: 700px) { .mybook { grid-template-columns: 1fr; } }
+
+/* THE NEXT WORD — the box lights when the right line lands in it */
+#compose.hot { box-shadow: 0 0 0 3px var(--goldsoft), 0 0 0 5px var(--gold); transition: box-shadow .3s; }

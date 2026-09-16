@@ -2,15 +2,15 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords } from './book.js?v=69';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=69';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=69';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=69';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=70';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=70';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=70';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=70';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=69';
-import { settleDialog } from './office.js?v=69';
-import { reload } from './app.js?v=69';
-import { relTime } from './production.js?v=69';
+import { say, thing, iconForAsk } from './words.js?v=70';
+import { settleDialog } from './office.js?v=70';
+import { reload } from './app.js?v=70';
+import { relTime } from './production.js?v=70';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -264,8 +264,9 @@ function draw(root, ctx, compact) {
     if (!lines.length) { box.innerHTML = '<div class="small">No pre-written lines for this brand yet. Kevin and Jess add them as rows in the Office room.</div>'; return; }
     box.innerHTML = lines.map((l) => `<button class="line" type="button" data-body="${esc(l.body)}"><b>${esc(l.label)}</b><span>${esc(l.body)}</span></button>`).join('');
     box.querySelectorAll('.line').forEach((b) => (b.onclick = () => { const c = q('#compose'); if (!c || c.disabled) return; c.value = b.dataset.body; c.focus(); box.querySelectorAll('.line').forEach((x) => x.classList.toggle('on', x === b)); }));
+    applyNextWord(ctx, q, lines, box);
   }).catch(() => { const box = q('#lines'); if (box) box.innerHTML = '<div class="small">The lines could not load. Type it yourself on the left.</div>'; });
-  root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId))); }));
+  root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), (r, proof) => { state.nextWord = nextWordFor({ ...a, customer_id: ctx.customerId }, proof); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); }); }));
   if (q('#file-take')) q('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } catch (e) { toast(e.message, 'err'); } };
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
@@ -762,4 +763,18 @@ window.__lightbox = lightbox;
 /* 354: under a note — who it reached (📱 phone buzzed · 🖥 waits in You're up) and ✓ who has opened it */
 function receiptLine(rows) {
   return `<div class="rcpt">→ ${rows.map((r) => `<span class="${r.seen_at ? 'seen' : ''}" title="${esc(r.seen_at ? 'opened ' + when(r.seen_at) : (r.has_phone ? 'buzzed on the phone' : 'waits in their You\'re up — no phone signed in'))}">${esc(firstName(r.name))}${r.seen_at ? ' ✓' : r.has_phone ? ' 📱' : ' 🖥'}</span>`).join(' · ')}</div>`;
+}
+
+/* THE NEXT WORD lands in the box: the right line, filled in, highlighted, the cursor on it — one tap left */
+async function applyNextWord(ctx, q, lines, box) {
+  const nw = state.nextWord; if (!nw || nw.customerId !== ctx.customerId) return;
+  state.nextWord = null;
+  const c = q('#compose'); if (!c || c.disabled) { toast('The words are ready but this file cannot be texted from here (no approved line for this brand yet).', 'err'); return; }
+  const body = await renderLine(nw.key, ctx.customerId, nw.extra || {}).catch(() => '');
+  if (!body) { toast('No approved line for that yet — type it yourself.', 'err'); return; }
+  c.value = body; c.classList.add('hot'); c.focus();
+  box?.querySelectorAll('.line').forEach((x) => x.classList.toggle('on', x.dataset.body === (lines.find((l) => l.key === nw.key) || {}).body));
+  c.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  toast(`${nw.why ? nw.why[0].toUpperCase() + nw.why.slice(1) + ' — the' : 'The'} words are in the box. Read them, press Send.`);
+  setTimeout(() => c.classList.remove('hot'), 6000);
 }

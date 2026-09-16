@@ -1,13 +1,13 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch } from './book.js?v=69';
-import * as api from './api.js?v=69';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=69';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=69';
-import { iconForAsk } from './words.js?v=69';
-import { DEMO_STEPS } from './demo-office.js?v=69';
-import { reload } from './app.js?v=69';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=70';
+import * as api from './api.js?v=70';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=70';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=70';
+import { iconForAsk } from './words.js?v=70';
+import { DEMO_STEPS } from './demo-office.js?v=70';
+import { reload } from './app.js?v=70';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -53,7 +53,7 @@ export function renderOffice(root) {
 
   workflowCard(root);
   root.querySelectorAll('[data-f]').forEach((b) => (b.onclick = () => { filter = b.dataset.f; renderOffice(root); }));
-  root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.settle); if (a) settleDialog(a, () => reload(true)); }));
+  root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.settle); if (a) settleDialog(a, (r, proof) => { reload(true); offerNextWord(nextWordFor(a, proof)); }); }));
   root.querySelectorAll('[data-switch]').forEach((b) => (b.onclick = async () => {
     const cur = sw(b.dataset.switch)?.is_on;
     const ask = { appt_confirm: 'Turn the confirmation text ON? The next new appointments get a text from the main line within 5 minutes.', text_clock: 'Turn the answer clock ON? Watchers get pinged 15 minutes after any customer text from now on.', office_machine_texts: 'Turn the chain\'s texts ON? From now on a settled permit, schedule, invoice and payment texts the customer from the main line.', after_hours_reply: 'Turn the after-hours holding text ON?' };
@@ -107,7 +107,7 @@ export function settleDialog(a, after) {
       const r = await settleAsk(a.ask_id, proof);
       const opened = (r?.opened || []).length, texted = (r?.texts || []).length;
       toast(`Done${opened ? ` · ${opened} next step${opened > 1 ? 's' : ''} opened` : ''}${texted ? ' · the customer was texted' : ''}`);
-      after?.();
+      after?.(r, proof);
     } });
 }
 

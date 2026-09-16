@@ -52,6 +52,7 @@ a desktop cockpit and a mobile command center."
 | 66 | SEND QUOTE TO GIO: the pricer's queue at the top of The Line (checklist, pictures, price box), the file's card with the clock | "cut this down 1/3–1/4… get complicated quotes to guys" |
 | 67 | THE RECEIPT: after a post, who it reached and how; under every note, who it tagged and ✓ who opened it — never a notification | "i didn't get a notification of who it went to… who opened it etc. not in my notifications but if i need to" |
 | 69 | MY BOOK: Files opens on the seat's own customers, one card each with the wait and the open tasks as a checklist (who, how long); Everyone is the whole list | "all their customers and current open tasks in this easier to read and understand UI… we took all the best from CC… Jet Stream and the tasks were the best part… 10x easier" |
+| 70 | THE NEXT WORD (the office's and ops' gift): close the permit ask → "your permit is approved" is in the box; set the schedule → "you're on the schedule for Friday" is in the box, date filled; invoice → the invoice line; a customer asks about paying → Reply puts the pay-link line in the box. The right one of the twelve approved lines, filled from the file, lit, one tap left. Nothing sends by itself | "give the office staff and ops staff a gift like we did the sales reps — a quicker better faster way" |
 
 ## The database (trureview-mobile, all APPLIED LIVE 16 Sep)
 

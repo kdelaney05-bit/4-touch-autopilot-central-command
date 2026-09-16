@@ -13,13 +13,13 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords } from './book.js?v=69';
-import { toast, openModal } from './ui.js?v=69';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=69';
-import { html, raw, esc } from './ui.js?v=69';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=69';
-import { renderRoom, wireAtOn } from './village.js?v=69';
-import * as api from './api.js?v=69';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=70';
+import { toast, openModal } from './ui.js?v=70';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=70';
+import { html, raw, esc } from './ui.js?v=70';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=70';
+import { renderRoom, wireAtOn } from './village.js?v=70';
+import * as api from './api.js?v=70';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -119,13 +119,15 @@ async function openAnswer(c, kind) {
   });
 }
 function answerRows(waiting) {
-  const rows = waiting.map((c) => ({ c, kind: ANSWER_KIND[bucketOf(said(c))] })).filter((x) => x.kind).slice(0, 8);
+  const rows = waiting.map((c) => ({ c, kind: ANSWER_KIND[bucketOf(said(c))], line: NEXT_WORD_FOR_QUESTION[bucketOf(said(c))] || null })).sort((a, b) => (b.kind ? 1 : 0) - (a.kind ? 1 : 0)).slice(0, 12);
   if (!rows.length) return '';
-  return `<div class="kicker" style="margin-top:10px">The file can answer these · read it, fix a word, send</div>` + rows.map(({ c, kind }) => `
-    <div class="inv" style="grid-template-columns:1fr auto auto;margin-top:6px"><span><b>${esc(personName(c.customer_name))}</b><div class="small">“${esc(said(c).slice(0, 80))}”</div></span><span class="mono dimmer">${esc(mins(c.waiting_min))}</span><button class="btn sm fill" data-answer="${esc(c.customer_id)}" data-kind="${kind}">Answer</button></div>`).join('');
+  return `<div class="kicker" style="margin-top:10px">The file can answer these · read it, fix a word, send</div>` + rows.map(({ c, kind, line }) => `
+    <div class="inv" style="grid-template-columns:1fr auto auto;margin-top:6px"><span><b>${esc(personName(c.customer_name))}</b><div class="small">“${esc(said(c).slice(0, 80))}”</div></span><span class="mono dimmer">${esc(mins(c.waiting_min))}</span>${kind ? `<button class="btn sm fill" data-answer="${esc(c.customer_id)}" data-kind="${kind}">Answer</button>` : `<button class="btn sm ${line ? 'fill' : ''}" data-reply="${esc(c.customer_id)}" data-key="${esc(line || '')}" title="${line ? 'the line is ready in the box' : 'open the file and reply'}">Reply</button>`}</div>`).join('');
 }
 function wireAnswers(root, waiting) {
   root.querySelectorAll('[data-answer]').forEach((b) => (b.onclick = () => { const c = waiting.find((x) => x.customer_id === b.dataset.answer); if (c) openAnswer(c, b.dataset.kind); }));
+  // THE NEXT WORD: Reply opens the file with the best-guess line already in the box
+  root.querySelectorAll('[data-reply]').forEach((b) => (b.onclick = () => { if (b.dataset.key) offerNextWord({ customerId: b.dataset.reply, key: b.dataset.key, extra: {}, why: 'they asked' }); else window.__peek(b.dataset.reply); }));
 }
 
 let pane = 'up';          // 'up' · 'wait' · 'room:office' · 'dm:<rep id>'

@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=69';
-import { DEMO } from './demo.js?v=69';
+import * as api from './api.js?v=70';
+import { DEMO } from './demo.js?v=70';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -185,6 +185,9 @@ export async function linePreview(customerId) {
   if (isDemo()) return [
     { key: 'review_prompt', label: 'Review prompt · rate us 1–10', body: 'Hey Dana, This is Kevin with Liberty Fencing and I wanted to follow up on the project and ask how would you rate the staff and workmanship on a scale from 1-10 ( 10 being the BEST) ?' },
     { key: 'permit_in', label: 'Permit approved', body: 'Hi Dana, Kevin at Liberty Fencing. Your permit is approved. Next up is scheduling — we\'ll text you the day here.' },
+    { key: 'schedule_set', label: "You're on the schedule", body: "Hi Dana, Kevin with Liberty Fencing. You're on the schedule for {{date}}. Obed, our supervisor, will text you here before the crew arrives." },
+    { key: 'invoice_sent', label: 'Invoice sent', body: 'Thank you for choosing Liberty Fencing. We sincerely appreciate your business. Please find your invoice attached for your records. {{link}}' },
+    { key: 'super_hello', label: 'Supervisor hello', body: "Hi Dana, Obed here, your Liberty Fencing supervisor. I'll text you the start day, and I'm your contact through the job — reply here anytime." },
     { key: 'pay_link', label: 'Payment link', body: 'Hi Dana, Liberty Fencing here. Your invoice is ready and you can pay it online here: {{link}} — thank you!' },
     { key: 'lead_reply', label: 'Estimate request · call us back', body: 'Good morning, Liberty Fencing here. I am reaching out because we received a request that you were looking for a Free Fencing Estimate for an upcoming project and I\'d love to get that scheduled for you today! Please call us back at 321-215-4437 at your earliest convenience. We look forward to hearing from you. Thank you' },
   ];
@@ -329,3 +332,36 @@ export function receiptWords(rows) {
   if (desk.length) parts.push(`${desk.join(', ')} ${desk.length === 1 ? 'sees it' : 'see it'} in You're up (no phone signed in)`);
   return 'Sent → ' + parts.join(' · ');
 }
+
+/* THE NEXT WORD (Kevin, 16 Sep: "give the office staff and ops staff a gift like we did the
+   sales reps — a quicker better faster way"). The office's Armory is the twelve approved lines,
+   already filled from the file. This puts the RIGHT one in the box at the moment it is needed:
+   close the permit ask → "your permit is approved" is in the box; set the schedule → "you're on
+   the schedule for Thursday" is in the box; a customer asks about paying → the pay-link line is
+   in the box. One tap: Send. Nothing sends by itself; the machine texts stay off. */
+export const NEXT_WORD_FOR_ASK = { PERMIT: 'permit_in', SCHEDULE: 'schedule_set', INVOICE: 'invoice_sent', INVOICE_SENT: 'invoice_sent' };
+export const NEXT_WORD_FOR_QUESTION = { 'Where is the permit': 'permit_in', 'When do we start': 'schedule_set', 'Paying the balance': 'pay_link', 'Where is the crew': 'super_hello', 'What does it cost': 'lead_reply', 'Changing something': null };
+export function nextWordFor(ask, proof) {
+  const key = NEXT_WORD_FOR_ASK[ask?.ask_type]; if (!key) return null;
+  const extra = {};
+  if (ask.ask_type === 'SCHEDULE' && proof?.value) extra.date = proof.value;
+  if (proof?.link) extra.link = proof.link;
+  if (proof?.value && ask.ask_type === 'PERMIT') extra.permit = proof.value;
+  return { customerId: ask.customer_id, key, extra, why: askLabelWord(ask.ask_type) };
+}
+const askLabelWord = (t) => ({ PERMIT: 'the permit is in', SCHEDULE: 'the day is set', INVOICE: 'the invoice went out' })[t] || 'that step closed';
+/* the line, rendered for this customer with the extras (the date, the link) — the same renderer the machine uses */
+export async function renderLine(key, customerId, extra = {}) {
+  if (isDemo()) { const l = (await linePreview(customerId)).find((x) => x.key === key); return l ? fillExtra(l.body, extra) : ''; }
+  try { const r = await api.rpc('line_render', { p_key: key, p_customer: customerId, p_sender: api.getSession().repId, p_extra: extra }); if (typeof r === 'string' && r) return r; } catch {}
+  const l = (await linePreview(customerId).catch(() => [])).find((x) => x.key === key);
+  return l ? fillExtra(l.body, extra) : '';
+}
+function fillExtra(body, extra) {
+  let s = String(body || '');
+  if (extra.date) { const d = new Date(String(extra.date).length <= 10 ? extra.date + 'T12:00:00' : extra.date); s = s.replace(/\{\{date\}\}/g, d.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' })); }
+  if (extra.link) s = s.replace(/\{\{link\}\}/g, extra.link);
+  return s;
+}
+/* offer it: remember what the box should hold, open the file beside the room */
+export function offerNextWord(nw) { if (!nw) return; state.nextWord = nw; if (window.__peek) window.__peek(nw.customerId); }
