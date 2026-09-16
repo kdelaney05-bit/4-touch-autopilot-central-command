@@ -4,7 +4,7 @@
 // best thing and in one way better: it runs on the real screen, in the demo
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
-import { $, html, raw, esc } from './ui.js?v=77';
+import { $, html, raw, esc } from './ui.js?v=78';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -28,43 +28,63 @@ const STEPS = [
   { room: 'line', at: null, title: 'That’s the whole thing.', body: 'Two things to try this week: say something to one person about one customer, and answer when someone says something to you. The customer never sees our notes. Only the texts we send them.' },
 ];
 
+// THE CREWS FILM (Kevin, 16 Sep: "he needs to visually see that. create a short form video I can just send to
+// Mike on how it works, with the subtitles… commentate our instructions"). ?tour=crews&auto=1 — and &voice=1
+// reads every caption aloud in the browser's own voice.
+const CREW_STEPS = [
+  { room: 'line', at: '[data-tour="crews"]', title: 'Mike, this is your crews card.', body: 'It sits on The Line. Your crews are people with a phone, not logins. Every nugget you send them lands here with a receipt.' },
+  { room: 'line', at: '#crew-add', title: 'Add a crew once.', body: '+ Crew: a name, a phone, their language. That is it. Each crew gets one link for good; they never install anything.' },
+  { room: 'files', at: '#drawer #photos-card', do: 'peek:cj6', title: 'On the job: take the picture.', body: 'Open the customer. ＋ Photo. The scope on the yard, then the words, the crew, and the price for that piece. Post it. Scope and price, locked in the pic.' },
+  { room: 'files', at: '#lightbox .cap', do: 'lightbox', title: 'Tap the photo. Send to a crew.', body: 'Any photo on the file has the button. It carries the picture, your words, the customer and the price with it.' },
+  { room: 'files', at: '#modal-form', do: 'lbcrew', title: 'The nugget, already filled.', body: 'Pick who. Say what to bring back: a photo, a number, yes or no, or just done. A by-when if you want. Send it.' },
+  { room: 'line', at: '[data-tour="crews"] .nug', do: 'closemodal', title: 'Their court, your receipt.', body: 'Ramón gets a text with the link. Here you see: texted at 7:23, opened at 7:31, RECIBIDO Ramón at 7:32, brought back with the photo. Nothing to argue about. If it says not opened, call before a pallet moves.' },
+  { room: 'line', at: null, title: 'What Ramón sees.', body: 'The customer and the address in gold. Your picture, big. Your words. The price. One button: RECIBIDO · ENTENDIDO. Then the one thing to bring back.', link: 'https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1', linkText: 'Open Ramón\'s screen' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS };
+let FILM = STEPS;
 let i = 0, root = null, auto = null;
 const AUTO_MS = 7000;
 // ?auto=1 with ?tour=1: the tour runs itself, a step every seven seconds — the film, on the real screen
-export function startTour(autoplay = /[?&]auto=1/.test(location.search)) {
+export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = (/[?&]tour=([a-z0-9]+)/.exec(location.search) || [])[1]) {
+  FILM = FILMS[name] || STEPS;
   i = 0; clearTimeout(auto); auto = null;
   if (!root) { root = document.createElement('div'); root.id = 'tour'; document.body.appendChild(root); }
   paint(autoplay);
 }
-function stop() { clearTimeout(auto); auto = null; if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
+function stop() { clearTimeout(auto); auto = null; try { speechSynthesis.cancel(); } catch {} if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
 const AUTO_LONG = new Set(['peek:cj3']);   // the file steps get a beat more
 function paint(autoplay = false) {
-  const s = STEPS[i];
+  const s = FILM[i];
   clearTimeout(auto); auto = null;
-  if (autoplay && i < STEPS.length - 1) auto = setTimeout(() => { i++; paint(true); }, AUTO_MS);
+  if (autoplay && i < FILM.length - 1) auto = setTimeout(() => { i++; paint(true); }, AUTO_MS + (s.do ? 2500 : 0) + Math.max(0, (s.body.length - 160) * 25));
   document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit'));
   // the step's room: switch only when the seat has it and the page is not already there
   if (s.room && window.__go && !document.querySelector(`#tabs .tab.on[data-view="${s.room}"]`) && document.querySelector(`#tabs [data-view="${s.room}"]`)) window.__go(s.room);
   // a step can DO something first: fire the demo bing, or open a file beside the room — then light its target once it is there
   if (s.do === 'bing' && window.__demoBing) window.__demoBing();
   if (s.do && s.do.startsWith('peek:') && window.__peek && !document.querySelector('#drawer:not([hidden])')) window.__peek(s.do.slice(5));
+  if (s.do === 'lightbox') document.querySelector('#drawer #photos-card .pthumb')?.click();
+  if (s.do === 'lbcrew') { document.querySelector('#lb-crew')?.click(); }
+  if (s.do === 'closemodal') { document.querySelector('#modal-cancel')?.click(); const lb = document.querySelector('#lightbox'); if (lb) lb.hidden = true; }
+  // the voice: &voice=1 reads the caption in the browser's own voice (Kevin: "commentate our instructions")
+  if (/[?&]voice=1/.test(location.search) && 'speechSynthesis' in window) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(s.title + ' ' + s.body); u.rate = 1.02; speechSynthesis.speak(u); } catch {} }
   const light = () => { let t = null; if (s.at) for (const sel of s.at.split(',')) { t = document.querySelector(sel.trim()); if (t) break; } if (t) { t.classList.add('tour-lit'); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } return t; };
   let target = light();
   if (!target && s.do) setTimeout(() => { const t = light(); if (t) { const card = root && root.querySelector('.tour-card'); if (card) card.classList.remove('center'); } }, 900);
   root.innerHTML = html`
     <div class="tour-card ${target ? '' : 'center'}">
-      <div class="kicker">Show me around · ${i + 1} of ${STEPS.length}${autoplay ? " · playing" : ""}</div>${autoplay ? raw("<div class=\"tour-bar\"><i></i></div>") : ""}
+      <div class="kicker">Show me around · ${i + 1} of ${FILM.length}${autoplay ? " · playing" : ""}</div>${autoplay ? raw("<div class=\"tour-bar\"><i></i></div>") : ""}
       <h2 class="serif">${s.title}</h2>
-      <p>${s.body}</p>
+      <p>${s.body}</p>${s.link ? raw(`<p><a class="btn sm fill" href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.linkText || 'Open')}</a></p>`) : ''}
       <div class="tour-foot">
         <button class="btn" id="tour-x">Skip</button>
         <span style="flex:1"></span>
         ${i > 0 ? raw('<button class="btn" id="tour-b">Back</button>') : ''}
-        <button class="btn fill" id="tour-n">${i === STEPS.length - 1 ? 'Done' : 'Next'}</button>
+        <button class="btn fill" id="tour-n">${i === FILM.length - 1 ? 'Done' : 'Next'}</button>
       </div>
     </div>`;
   $('#tour-x').onclick = stop;
   const b = $('#tour-b'); if (b) b.onclick = () => { i--; paint(autoplay); };
-  $('#tour-n').onclick = () => { if (i >= STEPS.length - 1) stop(); else { i++; paint(autoplay); } };
+  $('#tour-n').onclick = () => { if (i >= FILM.length - 1) stop(); else { i++; paint(autoplay); } };
 }
-export const tourWanted = () => /[?&]tour=1/.test(location.search);
+export const tourWanted = () => /[?&]tour=(1|crews)\b/.test(location.search);
