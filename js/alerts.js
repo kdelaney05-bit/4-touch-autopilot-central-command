@@ -7,9 +7,9 @@
 // Every 10 seconds this asks for anything new with your name on it: an @-tag
 // on a customer's file (v_my_mentions) or a direct line to you
 // (direct_messages). The phone gets the same thing as a push (312 / 346).
-import * as api from './api.js?v=75';
-import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=75';
-import { $, esc } from './ui.js?v=75';
+import * as api from './api.js?v=76';
+import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=76';
+import { $, esc } from './ui.js?v=76';
 
 let timer = null, since = null, unseen = 0;
 const seen = new Set();
@@ -121,7 +121,8 @@ export function startAlerts() {
     const m = (state.mentions || [])[0];
     const stage = () => { if (m && !document.querySelector('#alerts .alert')) fire([{ id: 'demo', kind: 'mention', thread_id: m.thread_id, customer_id: m.customer_id, customer: m.customer_name, from: m.author_name, body: m.body, at: m.created_at }]); };
     window.__demoBing = stage;
-    if (!/[?&]tour=1/.test(location.search)) setTimeout(stage, 20000);   // the film fires it on its own step
+    // the film fires it on its own step; a plain demo tab stays quiet unless the page asks (&bing=1) — Kevin, 16 Sep: "a loud notification buzz on my laptop for no reason"
+    if (/[?&]bing=1/.test(location.search)) setTimeout(stage, 20000);
     timer = 1; paintBell(); return;
   }
   try { since = localStorage.getItem(KEY()) || new Date().toISOString(); } catch { since = new Date().toISOString(); }
