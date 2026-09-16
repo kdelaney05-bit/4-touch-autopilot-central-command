@@ -1,0 +1,54 @@
+# Hand-off · 16 Sep 2026, launch day, evening
+
+Kevin moved to a new Claude account tonight. This is the whole state of the day for the next session, in one place. Every repo is pushed (see "Where everything is"). Memory files on Kevin's PC (`~/.claude/projects/C--Users-kdela-OneDrive-Desktop-Commercial-Desk/memory/`) are keyed to the folder, not the account, so a session opened from `Desktop/Commercial-Desk` on this PC gets them back.
+
+## What shipped today (all live)
+
+- **Central Command** (this repo, GitHub Pages, push = deploy, cache-bust `?v=94` on index.html + every js import): The Village as a top tab, dense-but-bubbly, name tags; the Nag (every @tag = email + text with the link, migration 360 + `liberty-notify` on the box); email-only for Jess and Sam (361); group tags @sales / @supers / @everyone (362); the Jetstream rule "stay on the file" (363); office seats search the whole book (364); Enter posts + the 🎤 dictation box; the tab mark; global error toasts; the find-popup fix.
+- **Films (the Ride-Alongs, `docs/ride-alongs.html`)**: live-screen tours `?demo=1&…&tour=<1|keys|office|crews|gio|super|chain>&auto=1&voice=1` (narrator GUY, en-US-GuyNeural via msedge-tts, recorded under `films/<film>/<n>.mp3`; after any caption change run `node tools/narrate.mjs <film>`), and mp4 films under `films/` played by `docs/film.html?f=<name>` (in-page player; three of them 404'd until 5:30 PM — fixed). Films: the-invoice, the-bills, what-youre-getting, put-it-to-bed, tell-the-team, supervisor-app, **the-paperwork** (Gio's, 2:18).
+- **Graphics**: `docs/who-does-what.html` (per-person before/after), `docs/today.html` (rollout list), `docs/visuals.html`, **`docs/sign-everything.html`** (the customer's phone signing the whole packet — Kevin's ruling below).
+- **Rep app 1.0.4 OTA `01a0abe1`** (published on Kevin's "Publish." ~4:45 PM): SEND TO SIGN on every filed proposal/estimate row (mints an `estimate_links` row for that proofs id, texts the estimate-view link), Text it now / Email it now after saving, SAY IT on Today, push tap opens the site.
+- **NOT published, on main (wt-photos f479e1b)**: the typed estimate covers the pad's Property box (Gio's ask). Needs Kevin's next "publish" (`eas update --channel production` from main, runtime 1.0.4 only — both phones seen today are native build 116 = 1.0.4).
+- **Supervisor app 1.1.0 build 4** VALID on TestFlight (crash fixed: two expo-font copies). Kevin's phone still said "Could not reach the live database" — edge logs show ZERO requests from the supervisor app; cause unknown; needs his exact words after sign-out/in.
+- **Gio's practice files**: customers "Gio Calderin — Practice 1–4 (fence)" under Gio, his cell (386) 795-2111 + gio@ on each, jobs `cc_company_id 1461`, source app_live.
+- **The CC documents pull** (`pull-cc-files.mjs --scope all`) runs on the box overnight (live → sold → all); log `backend/logs/cc-files-2026-09-16.log`. `lb-board-refresh` cron stays PAUSED (22 s every 2 min was timing out statements).
+
+## Kevin's rulings today (verbatim where it matters)
+
+- The Ride-Along is the named form for anything new: self-running, subtitles + voice, one link per person. Every important change ships with one. Gospel 31 (permanent, self-improving) and 32 (the machine babysits so the people hunt).
+- Voice: Steve Jobs clone DECLINED. Narrator = Guy (Microsoft neural, free). Never a real person's voice passed off as them.
+- Passwords by Kevin's hand only (set-seat-password.mjs on the box). Nothing ships to reps before "publish". Every outbound is a draft until "send" — today he said "go ahead and reply to everybody", so replies went out as him.
+- **Quotes**: "It should be like open… send this one for signature to the customer. That's it." → SEND TO SIGN. "When you change a price, it should automatically send a new one" → the row for the new proposal carries the same button (auto-send not built).
+- **Paperwork, final shape (6 PM)**: "when the customer signs/accepts the contract, I want them to accept everything." Anything that was wet-ink/notary (NOC, Hold Harmless, permit applications) becomes a NORMAL sign-here/date-here document in the same packet. No notary tabs, no DocuSign notary add-on. Eric and Travis (notaries) witness in person and print a normal copy. Applies to everyone.
+- Gio (email, 4:40 PM): remove the house/Property box from the estimate form (done, unpublished); keep the adapted proposal as is; wants the disclosures in the one send (see paperwork).
+
+## The DocuSign finding (important)
+
+There is NO DocuSign integration key for the company account and never was. Gmail searched top to bottom: only Kevin's PERSONAL DocuSign account (welcome mail 3 Jun 2026; the Claude DocuSign connector = that account, 4 personal envelopes, 0 templates). PC `.env` has no `DOCUSIGN_*`; the box has only `DOCUSIGN_CONNECT_SECRET` (ours). The 242 paperwork rail idles for that reason. **The fastest path to "accept everything" does not need DocuSign at all**: our own signing link (319 packet, `esign_packet` ON, 337 contract sheet) already does one signature + a tap per document. Two settings turn it on for Eric and Travis: (1) let sales-seat links carry the packet (today owner/admin-sent links only, PR #407's gate), (2) `paperwork_forms` rows for NOC / HHA / permit apps: `signing` esign_notary → esign and `stage` permit_run → signing (330 set esign_notary on purpose; Kevin reversed it tonight). Then one real job with Kevin copied.
+
+## Open threads with people (all as Kevin, from his Gmail)
+
+- **Gio** (thread "Sending a proposal to sign", 1a0abe23101143d2): four emails today — practice files + steps, "it was not turned on", the paperwork answer, the film link. Asked him to confirm the disclosure set. Owed: the disclosures switch once Kevin says go; the pad change publish.
+- **Jess + Sam** (thread "Every supplier, one list", 1a0ab536fac7c01c): their supplier map read back, three gaps asked (SRS / Iron World / Stephens / iDeal; Bello / La Fence / MK = crews?; who types Heritage). The Bills build belongs to the Commercial-Desk ride-along session ("Claudette" = Jess's own Claude doing QuickBooks entry).
+- **Uvoice** (ticket T20260910.0005): Pro-Tech SMS campaign complete — (321) 783-1694 office DID (Jessica/Sam/Laura in ConnectUC, log out/in), (321) 783-1688 Jermey → Cloud Message, (321) 352-6955 Pro-Tech rail line → Cloud Message. Tokens for the two Cloud Message accounts still being generated; told Oliver to send them on the ticket. ⚠️ that ticket email carries two portal passwords in clear text — never copy them. When tokens land: the sms-rail worker holds ONE `CLOUDMESSAGE_TOKEN`; needs a per-line token map before Jermey's `reps.sms_from='+13217831688'` and the Pro-Tech line ride the rail.
+- **Village help desk**: scheduled task `village-help-desk` (every 10 min while the app is open) answers technical questions signed "— Kevin's help desk (automatic)".
+- Awaiting Kevin: his cell for the nag; ruling "@Jessica alone = Jess Coley?"; Travis's call-sheet wording; an Oasis test text; phones for Laura, Jonathan, Obed, Robert, Nick.
+
+## Owed builds (in order)
+
+1. Publish the pad change (1.0.4 OTA from main).
+2. Paperwork "accept everything": the two settings above + a phone-app Ride-Along frame for SEND TO SIGN (needs a real rep session to photograph).
+3. Per-line Cloud Message tokens on the sms rail (when Uvoice sends them).
+4. Supervisor app: customer texts in the app; the "could not reach the live database" mystery on Kevin's phone.
+5. "Step off this file" button (363), Village name-tag bing card polish, job_progress timeout hog, gmail_ingest_record 403 from the box worker, Jess's office-line text copies, `lb-board-refresh` re-arm when Liberty Black returns.
+6. The Bills / The Invoice (other session's design; Kevin's supplier map is the input).
+
+## Where everything is
+
+- **This repo** `kdelaney05-bit/4-touch-autopilot-central-command` main @ the commit that carries this file. Pages: https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/
+- **trureview-mobile** (`kdelaney05-bit/trureview-mobile`): main @ f479e1b (App.tsx: SEND TO SIGN e9644fd, SAY IT 3c7dcf1, estimate send-now 0958e38, pad cover f479e1b; migrations 360–364 applied + registered, **next free = 365** — verify the live registry first). Worktree on Kevin's PC: `C:\Users\kdela\AppData\Local\Temp\claude\wt-photos` (branch main-docs tracking main, push with `git push origin HEAD:main`; has a REAL node_modules, so `eas update` runs from it). Migrations run with `LIBERTY_ENV_FILE=C:/Users/kdela/trureview-mobile/backend/.env node backend/scripts/run-sql-file.mjs <file>` (only the LAST statement's rows print; the PC `SUPABASE_SECRET_KEY` is INVALID — mint admin things on the box).
+- **Commercial-Desk clone** (`C:\Users\kdela\OneDrive\Desktop\Commercial-Desk`, same repo): branch `claude/jake-sales-virus` pushed @ 4fe60f2 with `tools/ride-along/` (make.mjs, specs, img, shoot-supervisor.mjs), `tools/evolution-film/`, the 339 draft migration, launch.json. The mp4s are gitignored there; the finished ones live in this repo's `films/`. That branch is 24 behind main — merge or cherry-pick, don't rebase blind.
+- **liberty-command** (PUBLIC Pages repo): c.html rebuilt afa53c3, pushed. Working tree has 19 uncommitted files from other sessions — look before committing; it is public, never PII.
+- **The box**: `ssh root@178.156.252.178`, `/opt/liberty-command`, env `/etc/liberty-command.env` (never source it), run as `sudo -u liberty LIBERTY_ENV_FILE=/etc/liberty-command.env node …`; services `liberty-notify`, `liberty-sms`, `liberty-paperwork` (idle), timers incl. cc_incremental every 15 min.
+- **Post-as-Kevin rail** (when browser clicks die): `insert into team_messages (room, author_id, author_name, body) values ('village','fa314b31-dac6-4666-8920-e95d471f5732','Kevin Delaney','…')` — triggers fire.
+- **Gospels**: `docs/GOSPELS.md` (31, 32). Laws: language law, no failure words, never generate/type/email passwords, JS `String.replace` with `$'` corrupts files (use split/join), Bash heredocs with backticks eat code (Write scripts instead).
