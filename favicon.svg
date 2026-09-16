@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Central Command's tab mark (Sam, 16 Sep: "a logo/icon that shows up on the browser tab… easy to recognize at a glance") -->
+  <rect width="64" height="64" rx="14" fill="#1c1a15"/>
+  <rect x="3" y="3" width="58" height="58" rx="12" fill="none" stroke="#b7791f" stroke-width="3"/>
+  <text x="32" y="43" text-anchor="middle" font-family="Arial Narrow, Arial, Helvetica, sans-serif" font-weight="700" font-size="32" fill="#f4d58d" letter-spacing="-1">CC</text>
+</svg>

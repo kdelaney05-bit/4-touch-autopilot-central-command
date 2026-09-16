@@ -1,7 +1,7 @@
 // Liberty Command — Supabase over plain fetch, the desk's rails verbatim (desk/js/api.js). Every call
 // carries the publishable key plus the rep's own JWT, so RLS decides what
 // comes back. Nothing here knows about the desk's screens.
-import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=86';
+import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=87';
 
 // ── session ───────────────────────────────────────────────────────────────────
 let session = null;               // { token, refresh, repId, email, expiresAt }

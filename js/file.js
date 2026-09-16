@@ -2,16 +2,16 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=86';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=86';
-import { enterPosts, micButton } from './dictate.js?v=86';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=86';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=86';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=87';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=87';
+import { enterPosts, micButton } from './dictate.js?v=87';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=87';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=87';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=86';
-import { settleDialog } from './office.js?v=86';
-import { reload } from './app.js?v=86';
-import { relTime } from './production.js?v=86';
+import { say, thing, iconForAsk } from './words.js?v=87';
+import { settleDialog } from './office.js?v=87';
+import { reload } from './app.js?v=87';
+import { relTime } from './production.js?v=87';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
