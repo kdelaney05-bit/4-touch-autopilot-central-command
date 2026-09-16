@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Who Does What</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f1f0eb;--panel:#fff;--panel2:#f6f5f0;--line:#d8d6cd;--ink:#1b1f1d;--dim:#56605d;--mute:#8a938f;--gold:#b7791f;--goldsoft:#f7ecd6;--green:#2e7d4f;--greensoft:#e3f0e7;--blue:#1d5fa8;--bluesoft:#e4edf9;--red:#b3261e;--redsoft:#f6e3e1;--display:'Barlow Condensed','Arial Narrow',sans-serif;--body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1d2a3b;--red:#f08b84;--redsoft:#3d2220}}
+:root[data-theme="dark"]{--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1d2a3b;--red:#f08b84;--redsoft:#3d2220}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding:22px 16px 70px}
+.wrap{max-width:1040px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(38px,6.5vw,62px);line-height:.95;margin:6px 0 8px;text-transform:uppercase}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(24px,4vw,32px);line-height:1;margin:0 0 6px;text-transform:uppercase}
+p{margin:0 0 8px;color:var(--dim)}.lead{font-size:18px;color:var(--ink);max-width:860px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:18px}
+.box.gold{border-left:6px solid var(--gold)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:12px;font-size:13px;color:var(--dim)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+/* people */
+.person{display:grid;grid-template-columns:150px 1fr 1fr;gap:14px;padding:16px 0;border-top:1px solid var(--line);align-items:start}
+.person:first-of-type{border-top:0}
+.who{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.av{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:24px;font-weight:700;color:#fff;background:var(--blue);position:relative}
+.av.office{background:#1d5fa8}.av.super{background:#2e7d4f}.av.rep{background:#b7791f}.av.exec{background:#6b3fa0}
+.av .hat{position:absolute;right:-4px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;font-size:13px}
+.who b{font-size:15px}.who .role{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.col h4{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px;background:var(--panel2);color:var(--ink)}
+.chip.was{background:var(--redsoft);border-color:transparent}
+.chip.bot{background:var(--greensoft);border-color:transparent}
+.chip.you{background:var(--goldsoft);border-color:transparent;font-weight:600}
+.count{display:inline-block;font-family:var(--display);font-size:26px;line-height:1;margin:6px 0 2px}
+.count small{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-left:6px}
+.arrow{font-family:var(--display);font-size:22px;color:var(--mute)}
+/* the ribbon */
+.ribbon{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;margin-top:10px}
+.step{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 10px 8px;display:flex;flex-direction:column;gap:6px;min-height:150px}
+.step .n{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--mute)}
+.step .t{font-weight:600;font-size:13px;line-height:1.25;min-height:32px}
+.row{display:flex;align-items:center;gap:6px}
+.mini{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-size:12px;font-weight:700;color:#fff;flex:0 0 26px}
+.mini.office{background:#1d5fa8}.mini.super{background:#2e7d4f}.mini.rep{background:#b7791f}.mini.exec{background:#6b3fa0}
+.mini.bot{background:var(--green);font-size:14px}
+.mini.gone{background:var(--line);color:var(--mute)}
+.step .was{font-size:12px;color:var(--dim)}
+.step .now{font-size:12.5px;color:var(--ink)}
+.step.auto{border-color:var(--green)}
+.step.gone{opacity:.72}
+.step.input{border-color:var(--gold)}
+.small{font-size:13px;color:var(--mute)}
+@media (max-width:760px){.person{grid-template-columns:1fr}.who{flex-direction:row;text-align:left;align-items:center}}
+@media print{body{background:#fff;padding:0}.box{break-inside:avoid;border-color:#bbb}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis · 16 Sep 2026</div>
+  <h1>Who does what: before, and now</h1>
+  <p class="lead">Nobody's job is taken. The machine takes the hunting, the chasing and the checkboxes. You keep the judgment, the customer, and the one input each step was really about. Red is what you physically did in Contractors Cloud. Green is what the machine does now. Gold is what is still yours.</p>
+  <div class="legend"><span><i class="mini office">S</i> office</span><span><i class="mini exec">J</i> executive manager</span><span><i class="mini super">L</i> supervisor</span><span><i class="mini rep">R</i> rep</span><span><i class="mini bot">⚙</i> the machine</span><span><i class="mini gone">—</i> gone for good</span></div>
+
+  <div class="box" id="people"></div>
+
+  <div class="box gold">
+    <h2>Fence and Oasis · the ten steps</h2>
+    <p>The CC template made ten tasks per job, assigned by hand, closed with a checkbox. Here: four inputs from the office. Everything else opens itself.</p>
+    <div class="ribbon" id="fence"></div>
+  </div>
+
+  <div class="box gold">
+    <h2>Roofing · the twenty-one steps</h2>
+    <p>Twenty-one tasks per job became four office inputs and seven supervisor inputs. The week-one, week-two and week-three calls and the PM folder are gone.</p>
+    <div class="ribbon" id="roof"></div>
+  </div>
+
+  <div class="box">
+    <h2>What you get back</h2>
+    <p>Sam: the hours of typing 811 tickets and marking applied. Jonathan: the whiteboard and the "did the super get it?" calls. Laura: the chasing on invoices and the review asks. Jess: the Jetstreams to five people and the babysitting. Luis, Obed, Robert: the calls to find out what changed. The reps: "did it sell?" calls from the office. What fills that time is the part only a person can do: the customer on the phone who is upset, the job that is going sideways, the next sale.</p>
+    <p class="small">Every line here is in the Office room's workflow card, editable by Kevin, and the machine reads the same rules. Contractors Cloud stays on until Kevin says otherwise; the office works its asks here with CC open beside it first.</p>
+  </div>
+</div>
+<script>
+const PEOPLE = [
+  { ini: 'S', cls: 'office', name: 'Samantha', role: 'permits · locates · paperwork', hat: '📋',
+    was: ['🔍 open the task list, filter, sort', '☎ call the rep: did it sell?', '📎 upload the contract, make the sales order', '📝 pull the permit, mark applied, type the intake fee', '⌨ type the whole 811 locate ticket', '☎ follow-up calls to the homeowner', '☑ tick the inspection box'],
+    bot: ['opens each ask the moment the last one closes', 'puts it on your seat with a clock', 'texts the customer "permit is in"', 'watches the customer\'s texts, 15-minute clock', 'closes the step on your input'],
+    you: ['the rest of the paperwork (uploads)', 'the permit number', 'one paste for the locate'], before: 7, now: 3 },
+  { ini: 'J', cls: 'office', name: 'Jonathan', role: 'materials · schedule', hat: '🧱',
+    was: ['📦 order materials', '📅 schedule labor by hand', '👥 add the supervisor to the project team', '☎ "homeowner is on schedule" call', '☑ tick, tick, tick'],
+    bot: ['opens MATERIAL the moment material releases', 'sends the schedule text from the main line', 'pushes production and hands the job to the supervisor'],
+    you: ['the PO number', 'the start date'], before: 5, now: 2 },
+  { ini: 'L', cls: 'office', name: 'Laura', role: 'invoice · collect · close-out', hat: '💵',
+    was: ['🧾 build the invoice in Billdu or QuickBooks', '☎ "did you get the invoice?"', '☎ the past-due chase', '☎ the review ask', '☑ close-out'],
+    bot: ['opens Ready to invoice on sign-off', 'the past-due reminder on the 30-day clock', 'the review prompt after payment, the five-star link', 'payment and close-out close by themselves'],
+    you: ['the invoice number (or one tap, once QuickBooks is flipped on)'], before: 5, now: 1 },
+  { ini: 'J', cls: 'exec', name: 'Jess', role: 'executive manager', hat: '🗝',
+    was: ['📧 start a Jetstream to five people per job', '☎ chase whoever went quiet', '👥 add names to project teams', '🔍 verify what the rep said', '📧 email back and forth'],
+    bot: ['every note lives on the customer\'s file, everyone on the file hears it', 'asks land on seats by the map, nobody assigns', 'the Office room shows the oldest ask first', 'receipts show who opened what'],
+    you: ['read, decide, and step in where a person is needed'], before: 5, now: 1 },
+  { ini: 'L', cls: 'super', name: 'Luis · Obed · Robert', role: 'supervisors', hat: '🏗',
+    was: ['📋 the whiteboard hand-off', '☎ calls to find out what changed', '📷 photos texted around and lost', '📞 crews on the phone, nothing written'],
+    bot: ['Take the job push when the date is set', 'the nugget to a crew with the picture and the price, receipt included', 'photos land on the file with the crew and the dollars'],
+    you: ['roofing: a photo, a result, a day — seven taps per job', 'fence: take the job, sign off'], before: 4, now: 2 },
+  { ini: 'R', cls: 'rep', name: 'The reps', role: 'sales', hat: '🤝',
+    was: ['☎ "did it sell?" calls from the office', '📎 forward the contract, again', '❓ hunt for the permit or the date'],
+    bot: ['the contract signed on the link opens the paperwork itself', 'the estimate outcome is already on the console', 'the file tells you where the job is'],
+    you: ['sell'], before: 3, now: 0 },
+];
+const FENCE = [
+  ['Determine if sold or cancel', 'rep', 'gone', 'On the rep and the sales manager in the console already.'],
+  ['Follow up with rep: sold?', 'office', 'gone', 'The contract on the link answers it.'],
+  ['Upload contract, create sales order', 'office', 'input', 'Checklist opens on signing; the contract settles itself. Input 1: the rest of the paperwork.'],
+  ['Pull permit', 'office', 'input', 'Opens when paperwork finishes. Input 2: the permit number. The customer gets the "permit is in" text.'],
+  ['Locate scheduled', 'office', 'input', 'Opens when the permit lands with the 811 ticket already written. Input 3: one paste.'],
+  ['Order materials, schedule labor', 'office', 'input', 'MATERIAL opens when material releases. Input 4: the PO number, then the start date.'],
+  ['Follow up with homeowner', 'office', 'gone', 'Their texts land on the file; the 15-minute clock watches.'],
+  ['Did it pass final inspection?', 'office', 'auto', 'Opens when the supervisor signs off. The result is the input.'],
+  ['Send invoice, collect', 'office', 'auto', 'Opens on sign-off. Invoice from the file; the number closes it; the invoice text goes out.'],
+  ['Closeout job', 'office', 'auto', 'Opens when payment lands. One tap.'],
+];
+const ROOF = [
+  ['Add your name to the project team', 'office', 'gone', 'Whoever settles the first ask holds the file.'],
+  ['Intro call, confirm colors and payment', 'office', 'auto', 'Opens with the signed contract. The note is the input.'],
+  ['Make PM folder', 'office', 'gone', 'The customer file is the folder.'],
+  ['Email material list', 'office', 'auto', 'Opens with the contract. Closes on the order.'],
+  ['Record NOC', 'office', 'input', 'On the paperwork checklist. The recorded NOC upload closes it.'],
+  ['Submit for permit', 'office', 'input', 'Opens when paperwork is complete. The permit number closes it.'],
+  ['Add supervisor to project team', 'office', 'gone', 'The schedule date pushes production; the supervisor taps Take the job.'],
+  ['Week 1 call', 'office', 'gone', 'The customer\'s texts on the file and the 15-minute clock.'],
+  ['Week 2 call', 'office', 'gone', 'Same.'],
+  ['Week 3 call', 'office', 'gone', 'Same.'],
+  ['Homeowner is on schedule', 'office', 'input', 'Jonathan: the start date. Opens when the permit lands. Sends the schedule text.'],
+  ['Confirm tear-off started', 'super', 'input', 'A photo from the roof.'],
+  ['Dry-in ordered', 'super', 'input', 'One tap.'],
+  ['Sheathing inspection', 'super', 'input', 'The result.'],
+  ['Dry-in passed', 'super', 'input', 'The result.'],
+  ['Shingling in progress', 'super', 'input', 'A photo.'],
+  ['Schedule walkthrough', 'super', 'input', 'The day.'],
+  ['Final inspection ordered', 'office', 'auto', 'One ask, opened by the walkthrough.'],
+  ['Final inspection passed', 'office', 'input', 'The result is the input.'],
+  ['Project completed', 'super', 'input', 'Three finished-work photos and the customer\'s word.'],
+  ['Send final invoice', 'office', 'input', 'Laura: invoice from the file; the number closes it. Payment and close-out follow by themselves.'],
+];
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+document.getElementById('people').innerHTML = PEOPLE.map((p) => `
+  <div class="person">
+    <div class="who"><div class="av ${p.cls}">${p.ini}<span class="hat">${p.hat}</span></div><div><b>${esc(p.name)}</b><div class="role">${esc(p.role)}</div></div></div>
+    <div class="col"><h4>Before · in Contractors Cloud</h4><div class="count">${p.before}<small>moves per job</small></div><div class="chips">${p.was.map((w) => `<span class="chip was">${esc(w)}</span>`).join('')}</div></div>
+    <div class="col"><h4>Now</h4><div class="count">${p.now}<small>${p.now === 1 ? 'input' : 'inputs'} per job <span class="arrow">←</span> the rest is the machine</small></div>
+      <div class="chips">${p.bot.map((w) => `<span class="chip bot">⚙ ${esc(w)}</span>`).join('')}${p.you.map((w) => `<span class="chip you">👤 ${esc(w)}</span>`).join('')}</div></div>
+  </div>`).join('');
+const ini = { office: 'S', super: 'L', rep: 'R', exec: 'J' };
+const ribbon = (rows) => rows.map(([t, who, kind, now], i) => `
+  <div class="step ${kind}">
+    <div class="n">STEP ${i + 1}</div>
+    <div class="t">${esc(t)}</div>
+    <div class="row"><i class="mini ${who}">${ini[who]}</i><span class="was">did it by hand</span></div>
+    <div class="row"><i class="mini ${kind === 'gone' ? 'gone' : kind === 'auto' ? 'bot' : who}">${kind === 'gone' ? '—' : kind === 'auto' ? '⚙' : ini[who]}</i><span class="now">${kind === 'gone' ? 'gone' : kind === 'auto' ? 'the machine' : 'one input'}</span></div>
+    <div class="small">${esc(now)}</div>
+  </div>`).join('');
+document.getElementById('fence').innerHTML = ribbon(FENCE);
+document.getElementById('roof').innerHTML = ribbon(ROOF);
+</script>
+</body>
+</html>
