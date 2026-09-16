@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign everything, once</title>
+<link rel="icon" href="../favicon.svg">
+<style>
+  :root { color-scheme: dark; --gold:#c9962b; --line:#2a2f37; --dim:#8a8f98; --ink:#eef0ec; --tab:#ffe15a; --ok:#6cc28b; }
+  html, body { margin:0; background:#0b0d10; color:var(--ink); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1180px; margin:0 auto; padding:18px 16px 60px; }
+  .eyebrow { color:var(--gold); font-size:11px; letter-spacing:.18em; text-transform:uppercase; font-weight:700; }
+  h1 { font-size:26px; margin:6px 0 4px; }
+  .lead { color:var(--dim); font-size:14px; line-height:1.5; max-width:820px; margin:0 0 18px; }
+  .lead b { color:var(--ink); }
+  .steps { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+  .step { flex:0 0 auto; width:300px; }
+  .step.wide { width:560px; }
+  .k { color:var(--gold); font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; margin:0 0 6px; }
+  .h { font-size:15px; font-weight:700; margin:0 0 8px; line-height:1.3; }
+  .cap { color:var(--dim); font-size:12.5px; line-height:1.45; margin:8px 0 0; }
+  .phone { width:300px; height:620px; border-radius:36px; background:#000; border:6px solid #1c1f24; box-shadow:0 20px 60px rgba(0,0,0,.6); overflow:hidden; position:relative; }
+  .scr { position:absolute; inset:0; background:#0f1115; overflow:hidden; }
+  .bar { height:34px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-size:12px; font-weight:700; color:#fff; }
+  /* the text */
+  .sms { padding:14px 12px; }
+  .bub { background:#2b2d33; color:#fff; border-radius:18px; padding:10px 12px; font-size:13px; line-height:1.4; max-width:94%; white-space:pre-wrap; }
+  .bub a { color:#5aa7e8; word-break:break-all; }
+  .from { color:var(--dim); font-size:11px; margin:0 0 6px 6px; }
+  /* the page */
+  .pg { background:#fff; color:#111; height:100%; overflow:hidden; font-size:10px; }
+  .pg img { width:100%; display:block; }
+  .sheet { padding:10px 12px; }
+  .sheet h3 { margin:0 0 4px; font-size:12px; color:#0f2a6b; letter-spacing:.08em; }
+  .spot { display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e3e3e3; padding:5px 0; font-size:10.5px; }
+  .dot { width:16px; height:16px; border-radius:50%; background:var(--ok); color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .dot.todo { background:#ffe15a; color:#5a4a00; }
+  .also { margin-top:8px; border:1.5px solid #0f2a6b; border-radius:8px; overflow:hidden; }
+  .also .hd { background:#0f2a6b; color:#fff; font-size:9.5px; letter-spacing:.08em; padding:4px 8px; font-weight:700; }
+  .doc { display:flex; justify-content:space-between; align-items:center; padding:6px 8px; border-top:1px solid #e3e3e3; font-size:10.5px; }
+  .doc small { display:block; color:#666; font-size:8.5px; }
+  .pill { background:#ffe15a; color:#5a4a00; font-weight:800; font-size:9px; padding:3px 7px; border-radius:6px; letter-spacing:.06em; }
+  .pill.done { background:var(--ok); color:#fff; }
+  .accept { margin:10px 0 0; background:#1f6f4a; color:#fff; text-align:center; border-radius:10px; padding:10px; font-weight:800; font-size:12px; letter-spacing:.06em; }
+  .accept small { display:block; font-weight:500; font-size:9px; opacity:.85; margin-top:2px; }
+  /* documents with tabs */
+  .docwrap { position:relative; width:560px; border-radius:10px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); background:#fff; }
+  .docwrap img { width:100%; display:block; }
+  .f { position:absolute; font-family:"Courier New",monospace; font-size:11px; color:#0f2a6b; font-weight:700; white-space:nowrap; }
+  .tab { position:absolute; background:var(--tab); color:#5a4a00; font-weight:800; font-size:10px; padding:3px 7px; border-radius:4px; letter-spacing:.06em; box-shadow:0 2px 6px rgba(0,0,0,.3); border-left:4px solid #e0b400; }
+  .tab.sig { font-family:"Brush Script MT","Segoe Script",cursive; font-size:15px; font-weight:400; color:#0f2a6b; background:rgba(255,225,90,.75); }
+  .x { position:absolute; background:#ff5a5a; color:#fff; font-size:9px; font-weight:800; padding:2px 6px; border-radius:4px; letter-spacing:.06em; }
+  /* what lands on the file */
+  .file { background:#14171c; border:1px solid var(--line); border-radius:12px; padding:12px 14px; width:300px; }
+  .file .k2 { color:var(--dim); font-size:10px; letter-spacing:.1em; font-weight:700; margin-bottom:6px; }
+  .row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-top:1px solid var(--line); font-size:12.5px; }
+  .row .ok { color:var(--ok); font-weight:800; font-size:11px; letter-spacing:.06em; }
+  .tile { margin-top:10px; background:rgba(201,150,43,.14); border:1px solid rgba(201,150,43,.5); border-radius:10px; padding:8px 10px; font-size:12px; }
+  .tile b { color:#f4d58d; }
+  .note { margin-top:26px; border-top:1px solid var(--line); padding-top:14px; color:var(--dim); font-size:13px; line-height:1.55; max-width:900px; }
+  .note b { color:var(--ink); }
+  @media (max-width:640px) { .step.wide, .docwrap { width:100%; } .phone { width:280px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">The 4-Touch Autopilot · the customer's phone · 16 Sep</div>
+  <h1>Sign everything, once.</h1>
+  <p class="lead">The rep taps <b>SEND TO SIGN</b>. The customer gets one link. Under the proposal and our contract sheet sit every form the job needs for that address, already filled in from the file: <b>plain sign-here and date-here spots, nothing notarized</b>. One green button at the bottom accepts the lot. Eric or Travis stands there while it happens and prints a normal copy.</p>
+
+  <div class="steps">
+
+    <div class="step">
+      <p class="k">1 · the text</p>
+      <p class="h">One link, from the company line.</p>
+      <div class="phone"><div class="scr">
+        <div class="bar"><span>4:13</span><span>Messages</span></div>
+        <div class="sms">
+          <div class="from">Pro-Tech Roofing · (321) 352-6955</div>
+          <div class="bub">Kevin, here's your roofing proposal from Pro-Tech Roofing. It opens right on your phone. Read it over, and when you're ready you can sign it right there.
+
+<a>lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/Xk29…</a>
+
+Any questions, just reply or call me.
+— Travis, Pro-Tech Roofing</div>
+        </div>
+      </div></div>
+      <p class="cap">Same text the fence side gets today. The link is tracked: the rep sees the moment it opens.</p>
+    </div>
+
+    <div class="step">
+      <p class="k">2 · the proposal</p>
+      <p class="h">What they open. Drawing, scope, price, payments.</p>
+      <div class="phone"><div class="scr"><div class="pg"><img src="img/proposal-phone.png" alt="" style="margin-top:-60px"></div></div></div>
+      <p class="cap">Exactly what Gio sent himself this afternoon. Scroll down and the contract sheet is under it.</p>
+    </div>
+
+    <div class="step">
+      <p class="k">3 · the contract sheet + everything else</p>
+      <p class="h">Seven spots, then the forms for that address. One button.</p>
+      <div class="phone"><div class="scr"><div class="pg"><div class="sheet">
+        <h3>THE CONTRACT · tap each spot</h3>
+        <div class="spot"><span>Material grade · Residential</span><span class="dot">✓</span></div>
+        <div class="spot"><span>Payment · 18 months 0% · $167/mo</span><span class="dot">✓</span></div>
+        <div class="spot"><span>Texting consent</span><span class="dot">✓</span></div>
+        <div class="spot"><span>Balance due at completion · init.</span><span class="dot">✓</span></div>
+        <div class="spot"><span>Revisions may cost more · init.</span><span class="dot">✓</span></div>
+        <div class="spot"><span>Signature</span><span class="dot todo">✎</span></div>
+        <div class="spot"><span>Date · Sep 16, 2026</span><span class="dot">✓</span></div>
+        <div class="also">
+          <div class="hd">ALSO FOR THIS JOB · 1234 MAIN ST, COCOA · BREVARD</div>
+          <div class="doc"><span>Notice of Commencement<small>Brevard County · filled in · sign + date</small></span><span class="pill">SIGN</span></div>
+          <div class="doc"><span>Hold Harmless Agreement<small>Brevard County · filled in · initial + sign</small></span><span class="pill">SIGN</span></div>
+          <div class="doc"><span>Warranty Disclosure<small>read + sign</small></span><span class="pill done">DONE</span></div>
+          <div class="doc"><span>Survey Disclosure<small>read + sign</small></span><span class="pill done">DONE</span></div>
+        </div>
+        <div class="accept">ACCEPT &amp; SIGN EVERYTHING<small>your name, once · 4 of 6 done</small></div>
+      </div></div></div></div>
+      <p class="cap">The list is whatever the address needs: county NOC, the town's Hold Harmless, the disclosures for the job. Nothing to print, nothing to scan.</p>
+    </div>
+
+    <div class="step wide">
+      <p class="k">4 · the Notice of Commencement, as they see it</p>
+      <p class="h">Filled from the file. Two yellow spots. That's it.</p>
+      <div class="docwrap">
+        <img src="img/noc-brevard.png" alt="">
+        <div class="f" style="left:11%;top:17.4%">1234 Main St, Cocoa FL 32922 · Lot 4, Blk 2, Sunrise Estates · Parcel 24-36-23-XX-00004.0</div>
+        <div class="f" style="left:27%;top:21.6%">Kevin Delaney · 1234 Main St, Cocoa FL 32922</div>
+        <div class="f" style="left:27%;top:23.2%">(321) 446-9610</div>
+        <div class="x" style="left:6%;top:70.6%">NO NOTARY BLOCK · left blank</div>
+        <div class="tab sig" style="left:44%;top:64.6%">Kevin Delaney</div>
+        <div class="tab" style="left:80%;top:64.9%">SIGN HERE</div>
+        <div class="tab" style="left:66%;top:68.6%">DATE · 09/16/2026</div>
+        <div class="tab sig" style="left:44%;top:88.8%">Kevin Delaney</div>
+        <div class="tab" style="left:80%;top:89.1%">SIGN HERE</div>
+      </div>
+      <p class="cap">The owner of record, the address and the legal description come from the county appraiser. Our block is already on the form. The customer signs twice and it's done. The notary area stays blank: Eric or Travis witnessed it and prints a normal copy for Sam to record.</p>
+    </div>
+
+    <div class="step wide">
+      <p class="k">5 · the Hold Harmless, as they see it</p>
+      <p class="h">Name and address typed in. Initial here, sign on page 2.</p>
+      <div class="docwrap">
+        <img src="img/hha-brevard.png" alt="">
+        <div class="f" style="left:6.5%;top:33.6%">6 ft privacy fence in the rear utility easement</div>
+        <div class="f" style="left:25%;top:50.3%">Kevin Delaney</div>
+        <div class="f" style="left:12%;top:56%">1234 Main St</div>
+        <div class="f" style="left:45%;top:56%">Cocoa</div>
+        <div class="f" style="left:71.5%;top:56%">FL</div>
+        <div class="f" style="left:79%;top:56%">32922</div>
+        <div class="tab sig" style="left:18.5%;top:83.4%">KD</div>
+        <div class="tab" style="left:29%;top:83.8%">INITIAL</div>
+        <div class="tab" style="left:62%;top:93%">SIGN HERE · page 2 →</div>
+      </div>
+      <p class="cap">Same on every town's version: the file knows which Hold Harmless the town wants and types the customer in.</p>
+    </div>
+
+    <div class="step">
+      <p class="k">6 · what lands on the file</p>
+      <p class="h">Every signed form, the second they tap.</p>
+      <div class="file">
+        <div class="k2">PAPERWORK · 1234 MAIN ST, COCOA</div>
+        <div class="row"><span>Contract</span><span class="ok">SIGNED 4:31 PM</span></div>
+        <div class="row"><span>Notice of Commencement · Brevard</span><span class="ok">SIGNED 4:32 PM</span></div>
+        <div class="row"><span>Hold Harmless · Brevard County</span><span class="ok">SIGNED 4:32 PM</span></div>
+        <div class="row"><span>Warranty Disclosure</span><span class="ok">SIGNED 4:32 PM</span></div>
+        <div class="row"><span>Survey Disclosure</span><span class="ok">SIGNED 4:32 PM</span></div>
+        <div class="tile"><b>Sam's tile lights: PERMIT · 5 days.</b> The signed NOC and Hold Harmless are on the file as PDFs. Travis prints the two county forms and hands them in the normal way.</div>
+      </div>
+      <p class="cap">Nobody uploads anything. Nobody drags a tab. The signature starts the chain.</p>
+    </div>
+
+  </div>
+
+  <div class="note">
+    <b>What this runs on.</b> Our own signing link, the one the fence side already uses. Nothing here needs DocuSign, and no DocuSign key for the company account has ever been made (searched your mail: only your personal DocuSign account from June, the one your Claude connector uses). To turn this on for Eric and Travis: their sales-seat links carry the packet (today it is owner-sent links only), and the NOC, Hold Harmless and permit applications are marked plain-sign instead of notary. Two settings. Then one real job with you copied.
+  </div>
+</div>
+</body>
+</html>
