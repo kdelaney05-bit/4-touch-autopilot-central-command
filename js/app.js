@@ -1,22 +1,22 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=62';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=62';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=62';
-import { BRAND_BY_CC } from './config.js?v=62';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=62';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=62';
-import { renderHome } from './home.js?v=62';
-import { renderSales } from './sales.js?v=62';
-import { renderPipeline } from './pipeline.js?v=62';
-import { renderMarketing } from './marketing.js?v=62';
-import { renderOffice } from './office.js?v=62';
-import { renderProduction } from './production.js?v=62';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=62';
-import { stopRoomPoll } from './village.js?v=62';
-import { renderFlow, stopFlow } from './flow.js?v=62';
-import { startTour, tourWanted } from './tour.js?v=62';
-import { startAlerts } from './alerts.js?v=62';
-import { renderPhotos } from './photos.js?v=62';
+import * as api from './api.js?v=63';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=63';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=63';
+import { BRAND_BY_CC } from './config.js?v=63';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=63';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=63';
+import { renderHome } from './home.js?v=63';
+import { renderSales } from './sales.js?v=63';
+import { renderPipeline } from './pipeline.js?v=63';
+import { renderMarketing } from './marketing.js?v=63';
+import { renderOffice } from './office.js?v=63';
+import { renderProduction } from './production.js?v=63';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=63';
+import { stopRoomPoll } from './village.js?v=63';
+import { renderFlow, stopFlow } from './flow.js?v=63';
+import { startTour, tourWanted } from './tour.js?v=63';
+import { startAlerts } from './alerts.js?v=63';
+import { renderPhotos } from './photos.js?v=63';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -243,10 +243,13 @@ async function boot() {
   };
   wireFind();
   window.__tour = startTour;
-  if (isDemo()) { showApp(); await reload(true); toast('Demo — a fictional book, nothing is saved'); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); return; }
+  // ?room=photos (or any room the seat has) opens there — the deck and the visuals link straight into a room
+  const wantRoom = (/[?&]room=([a-z]+)/.exec(location.search) || [])[1];
+  const openWanted = () => { if (wantRoom && rooms().includes(wantRoom)) go(wantRoom); };
+  if (isDemo()) { showApp(); await reload(true); openWanted(); toast('Demo — a fictional book, nothing is saved'); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); return; }
   // arrived from the one-time link in the welcome / reset email → choose a password first
   const fromLink = api.sessionFromHash();
   if (fromLink) { showSignIn(); card('sp-form'); $('#sp-pass').focus(); return; }
-  if (api.loadSession()) { showApp(); await reload(true); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); } else { showSignIn(); card('si-form'); }
+  if (api.loadSession()) { showApp(); await reload(true); openWanted(); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); } else { showSignIn(); card('si-form'); }
 }
 boot();
