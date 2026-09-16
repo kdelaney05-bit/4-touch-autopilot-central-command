@@ -558,3 +558,11 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .nugbody { font-size: 14px; margin-top: 2px; }
 .nrcpt { font-family: var(--mono); font-size: 10.5px; color: var(--dimmer); margin-top: 5px; letter-spacing: .02em; }
 .pick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+
+/* the find popup — closeable, and rows that breathe (16 Sep) */
+.findpop { position: absolute; right: 40px; top: 58px; width: min(480px, calc(100vw - 24px)); z-index: 9; padding: 8px; gap: 2px; box-shadow: 0 20px 50px rgba(0,0,0,.15); max-height: min(70vh, 560px); overflow-y: auto; }
+.findhead { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 6px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.findrow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; width: 100%; padding: 8px 6px; border-top: 1px solid var(--line); }
+.findrow:first-of-type { border-top: 0; }
+.findrow > span:first-child { min-width: 0; }
+@media (max-width: 700px) { .findpop { position: fixed; left: 12px; right: 12px; top: 64px; width: auto; } .findrow { grid-template-columns: minmax(0, 1fr) auto; } .findrow > .mono { display: none; } }

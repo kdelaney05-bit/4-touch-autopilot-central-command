@@ -1,22 +1,22 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=72';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=72';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=72';
-import { BRAND_BY_CC } from './config.js?v=72';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=72';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=72';
-import { renderHome } from './home.js?v=72';
-import { renderSales } from './sales.js?v=72';
-import { renderPipeline } from './pipeline.js?v=72';
-import { renderMarketing } from './marketing.js?v=72';
-import { renderOffice } from './office.js?v=72';
-import { renderProduction } from './production.js?v=72';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=72';
-import { stopRoomPoll } from './village.js?v=72';
-import { renderFlow, stopFlow } from './flow.js?v=72';
-import { startTour, tourWanted } from './tour.js?v=72';
-import { startAlerts } from './alerts.js?v=72';
-import { renderPhotos } from './photos.js?v=72';
+import * as api from './api.js?v=73';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=73';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=73';
+import { BRAND_BY_CC } from './config.js?v=73';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=73';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=73';
+import { renderHome } from './home.js?v=73';
+import { renderSales } from './sales.js?v=73';
+import { renderPipeline } from './pipeline.js?v=73';
+import { renderMarketing } from './marketing.js?v=73';
+import { renderOffice } from './office.js?v=73';
+import { renderProduction } from './production.js?v=73';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=73';
+import { stopRoomPoll } from './village.js?v=73';
+import { renderFlow, stopFlow } from './flow.js?v=73';
+import { startTour, tourWanted } from './tour.js?v=73';
+import { startAlerts } from './alerts.js?v=73';
+import { renderPhotos } from './photos.js?v=73';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -141,12 +141,12 @@ function wireFind() {
       try { rows = await searchCustomers(q); } catch (e) { toast(e.message, 'err'); return; }
       const people = searchPeople(q);   // 346: a person opens a direct line; a customer opens the file — same box
       pop = document.createElement('div');
-      pop.className = 'card';
-      pop.style.cssText = 'position:absolute;right:40px;top:58px;width:360px;z-index:9;padding:8px;gap:2px;box-shadow:0 20px 50px rgba(0,0,0,.15)';
-      pop.innerHTML = (people.length || rows.length)
+      pop.className = 'card findpop';
+      pop.innerHTML = '<div class="findhead"><span class="kicker">Find · ' + esc(q) + '</span><button class="btn sm" id="find-close" type="button">Close ✕</button></div>' + ((people.length || rows.length)
         ? people.map((p) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-person="${p.id}"><span><b>${p.name}</b></span><span class="mono dimmer">${p.role || ''}</span><span class="chip st-blue">OPEN A LINE ›</span></button>`).join('')
           + rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b><br><span class="small">${c.street || ''}${c.city ? ' · ' + c.city : ''}${c.updated_at ? ' · ' + new Date(c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('')
-        : '<div class="empty">Nobody by that name or number</div>';
+        : '<div class="empty">Nobody by that name or number</div>');
+      pop.querySelector('#find-close').onclick = () => { close(); box.value = ''; box.blur(); };
       pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__peek(b.dataset.id); }));
       pop.querySelectorAll('button[data-person]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__line(b.dataset.person); }));
       $('nav.side').appendChild(pop);
@@ -156,7 +156,10 @@ function wireFind() {
     if (e.key === 'Escape') { close(); box.blur(); }
     if (e.key === 'Enter') { const first = pop?.querySelector('button[data-id],button[data-person]'); if (first) first.click(); }   // Enter opens the top match
   });
-  document.addEventListener('click', (e) => { if (pop && !pop.contains(e.target) && e.target !== box) close(); });
+  // it closes on a tap anywhere else, on Escape from anywhere, and when the box empties (Kevin, 16 Sep: "won't let me put this screen down")
+  document.addEventListener('pointerdown', (e) => { if (pop && !pop.contains(e.target) && e.target !== box) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && pop) { close(); box.blur(); } });
+  box.addEventListener('input', () => { if (!box.value.trim()) close(); });
   // ⌘K / Ctrl+K from anywhere: the box, focused. Kevin, 15 Sep: "a quick way to message anyone".
   document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); box.focus(); box.select(); } });
 }

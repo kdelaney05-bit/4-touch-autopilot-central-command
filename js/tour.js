@@ -4,7 +4,7 @@
 // best thing and in one way better: it runs on the real screen, in the demo
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
-import { $, html, raw, esc } from './ui.js?v=72';
+import { $, html, raw, esc } from './ui.js?v=73';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the

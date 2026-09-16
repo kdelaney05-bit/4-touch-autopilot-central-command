@@ -2,15 +2,15 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=72';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=72';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=72';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=72';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=73';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=73';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=73';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=73';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=72';
-import { settleDialog } from './office.js?v=72';
-import { reload } from './app.js?v=72';
-import { relTime } from './production.js?v=72';
+import { say, thing, iconForAsk } from './words.js?v=73';
+import { settleDialog } from './office.js?v=73';
+import { reload } from './app.js?v=73';
+import { relTime } from './production.js?v=73';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
