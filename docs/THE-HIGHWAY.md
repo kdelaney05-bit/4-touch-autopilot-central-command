@@ -109,10 +109,10 @@ Files: `backend/migrations/351–354` on branch `claude/photos-app` (PR #426).
 ## v81 → v82 + migration 360 (16 Sep, launch morning, live)
 
 - **v81**: THE VILLAGE is a top tab for every seat. Kevin's first company-wide post went to the Village and nobody
-  could find it — at a laptop width the rail stacks under the whole Line.  boots there.
+  could find it — at a laptop width the rail stacks under the whole Line. `?room=village` boots there.
 - **360 THE NAG** (applied 15:2x UTC): every tag becomes an email (from kevin@, the delegation) and a text on the
   fencing line with a link back to the exact spot — file tags, direct lines, and NOW names in a room post
-  (, the Village had no name rule). Box service  (,
+  (`team_mentions`, the Village had no name rule). Box service `liberty-notify` (`backend/worker/tag-notify.mjs`,
   20 s). A tag the person already opened is not nagged. First run: 10 emails, 4 texts (the seats with a phone).
 - **v82**: the bing rings for a Village tag too; the card says Open the Village.
 
