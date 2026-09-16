@@ -52,3 +52,7 @@ There is NO DocuSign integration key for the company account and never was. Gmai
 - **The box**: `ssh root@178.156.252.178`, `/opt/liberty-command`, env `/etc/liberty-command.env` (never source it), run as `sudo -u liberty LIBERTY_ENV_FILE=/etc/liberty-command.env node …`; services `liberty-notify`, `liberty-sms`, `liberty-paperwork` (idle), timers incl. cc_incremental every 15 min.
 - **Post-as-Kevin rail** (when browser clicks die): `insert into team_messages (room, author_id, author_name, body) values ('village','fa314b31-dac6-4666-8920-e95d471f5732','Kevin Delaney','…')` — triggers fire.
 - **Gospels**: `docs/GOSPELS.md` (31, 32). Laws: language law, no failure words, never generate/type/email passwords, JS `String.replace` with `$'` corrupts files (use split/join), Bash heredocs with backticks eat code (Write scripts instead).
+
+## ✅ RULED, 16 Sep ~6:30 PM — "So this is what we're going to go with, correct? I love it."
+
+Kevin approved `docs/sign-everything.html` as THE design: one link, the proposal + our contract sheet, every form the address needs listed under it filled from the file, plain sign-here / date-here / initial spots (NOC, Hold Harmless, permit applications included, nothing notarized), one green ACCEPT & SIGN EVERYTHING, every signed PDF on the file, Sam's tile lights. Build it exactly as drawn, on our own signing link, for every seat. No DocuSign.
