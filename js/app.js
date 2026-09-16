@@ -1,26 +1,27 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=80';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=80';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=80';
-import { BRAND_BY_CC } from './config.js?v=80';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=80';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=80';
-import { renderHome } from './home.js?v=80';
-import { renderSales } from './sales.js?v=80';
-import { renderPipeline } from './pipeline.js?v=80';
-import { renderMarketing } from './marketing.js?v=80';
-import { renderOffice } from './office.js?v=80';
-import { renderProduction } from './production.js?v=80';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=80';
-import { stopRoomPoll } from './village.js?v=80';
-import { renderFlow, stopFlow } from './flow.js?v=80';
-import { startTour, tourWanted } from './tour.js?v=80';
-import { startAlerts } from './alerts.js?v=80';
-import { renderPhotos } from './photos.js?v=80';
+import * as api from './api.js?v=81';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=81';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=81';
+import { BRAND_BY_CC } from './config.js?v=81';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=81';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=81';
+import { renderHome } from './home.js?v=81';
+import { renderRoom } from './village.js?v=81';
+import { renderSales } from './sales.js?v=81';
+import { renderPipeline } from './pipeline.js?v=81';
+import { renderMarketing } from './marketing.js?v=81';
+import { renderOffice } from './office.js?v=81';
+import { renderProduction } from './production.js?v=81';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=81';
+import { stopRoomPoll } from './village.js?v=81';
+import { renderFlow, stopFlow } from './flow.js?v=81';
+import { startTour, tourWanted } from './tour.js?v=81';
+import { startAlerts } from './alerts.js?v=81';
+import { renderPhotos } from './photos.js?v=81';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
-const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files', 'file'];
+const VIEWS = ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files', 'file'];
 
 export function rooms() {
   const me = state.me;
@@ -39,6 +40,18 @@ export function go(v, arg) {
   window.scrollTo({ top: 0 });
 }
 window.__go = go;   // the tables' onclick handlers
+
+/* THE VILLAGE as a room of its own (16 Sep, launch morning). The same card the rail shows, full width:
+   every seat reads it, every post can hang on a customer, and a name in the words gets the buzz. */
+function renderVillageRoom(root) {
+  root.innerHTML = html`
+    <div class="head">
+      <div><div class="kicker">The Village · the whole company, one thread</div>
+      <h1 class="serif">Everyone in one room.</h1></div>
+    </div>
+    <div class="village-wide" id="village-room"></div>`;
+  renderRoom(root.querySelector('#village-room'), 'village', { kicker: 'The Village · everyone', note: 'all customers, all employees, one room · newest at the bottom' });
+}
 window.__reloadQuiet = () => reload(true);
 
 /* VIEW AS — Kevin, 15 Sep night: "I want to be able to just click down and, if I'm
@@ -90,6 +103,7 @@ export function render() {
   $$('#tabs button').forEach((b) => (b.onclick = () => go(b.dataset.view)));
   for (const v of VIEWS) $('#view-' + v).classList.toggle('hidden', v !== view);
   if (view === 'line') renderSwitchboard($('#view-line'));
+  if (view === 'village') renderVillageRoom($('#view-village'));
   if (view === 'home') renderHome($('#view-home'));
   if (view === 'sales') renderSales($('#view-sales'));
   if (view === 'pipeline') renderPipeline($('#view-pipeline'));

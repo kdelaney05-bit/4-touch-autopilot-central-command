@@ -54,14 +54,16 @@ export const askLabel = (a) => {
 
 /* Which rooms a role opens. RLS decides the rows either way. */
 export const ROOMS_BY_ROLE = {
-  owner:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
-  admin:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
-  manager: ['line', 'pipeline', 'photos', 'files'],   // the playground (Kevin, 15 Sep night): the highway, the pipeline ("give them the pipeline and then the line") and the files; the other rooms come one at a time
-  office:  ['line', 'pipeline', 'photos', 'files'],
-  sales:   ['line', 'photos', 'files'],
+  owner:   ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
+  admin:   ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
+  manager: ['line', 'village', 'pipeline', 'photos', 'files'],   // the playground (Kevin, 15 Sep night): the highway, the pipeline ("give them the pipeline and then the line") and the files; the other rooms come one at a time
+  office:  ['line', 'village', 'pipeline', 'photos', 'files'],
+  sales:   ['line', 'village', 'photos', 'files'],
   crew:    [],
 };
-export const ROOM_LABEL = { line: 'The Line', home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', photos: 'Photos', files: 'Files' };
+// 16 Sep, launch morning: THE VILLAGE is a top tab for every seat. Kevin's first company-wide post went there and
+// nobody could find it — at a laptop width the rail stacks under the whole Line. One tab, the whole company, one thread.
+export const ROOM_LABEL = { line: 'The Line', village: 'The Village', home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', photos: 'Photos', files: 'Files' };
 
 /* The owner console (liberty-command, GitHub Pages, same github.io origin) —
    the dashboard Kevin lived in while the app was built. Its sections route
@@ -81,8 +83,8 @@ export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732',                    
                      '9cb2ccf5-15f5-4edf-975a-75fb215727be',                        // Luis Gonzalez
                      '050dde3d-4672-4aef-9aff-921c1a26e7c0'];                       // Mike LeRoy — "runs ops and production, needs all the Luis abilities" (16 Sep)
 export const ROOMS_BY_SEAT = {
-  'c2b126ae-a182-4dca-be11-2b9bf02c1c21': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Jess — every room, like Kevin (16 Sep)
-  '9cb2ccf5-15f5-4edf-975a-75fb215727be': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Luis — every room, like Kevin (16 Sep)
-  '050dde3d-4672-4aef-9aff-921c1a26e7c0': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Mike — ops and production, like Luis (16 Sep)
-  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'photos', 'files'],   // Gio — a selling sales manager's rooms (Kevin, 16 Sep: "I don't want Gio seeing too much… player sales manager… just go sell"); never the books, never View as
+  'c2b126ae-a182-4dca-be11-2b9bf02c1c21': ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Jess — every room, like Kevin (16 Sep)
+  '9cb2ccf5-15f5-4edf-975a-75fb215727be': ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Luis — every room, like Kevin (16 Sep)
+  '050dde3d-4672-4aef-9aff-921c1a26e7c0': ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Mike — ops and production, like Luis (16 Sep)
+  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'village', 'sales', 'pipeline', 'photos', 'files'],   // Gio — a selling sales manager's rooms (Kevin, 16 Sep: "I don't want Gio seeing too much… player sales manager… just go sell"); never the books, never View as
 };
