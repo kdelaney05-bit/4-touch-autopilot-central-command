@@ -1,23 +1,23 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=82';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=82';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=82';
-import { BRAND_BY_CC } from './config.js?v=82';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=82';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=82';
-import { renderHome } from './home.js?v=82';
-import { renderRoom } from './village.js?v=82';
-import { renderSales } from './sales.js?v=82';
-import { renderPipeline } from './pipeline.js?v=82';
-import { renderMarketing } from './marketing.js?v=82';
-import { renderOffice } from './office.js?v=82';
-import { renderProduction } from './production.js?v=82';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=82';
-import { stopRoomPoll } from './village.js?v=82';
-import { renderFlow, stopFlow } from './flow.js?v=82';
-import { startTour, tourWanted } from './tour.js?v=82';
-import { startAlerts } from './alerts.js?v=82';
-import { renderPhotos } from './photos.js?v=82';
+import * as api from './api.js?v=83';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=83';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=83';
+import { BRAND_BY_CC } from './config.js?v=83';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=83';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=83';
+import { renderHome } from './home.js?v=83';
+import { renderRoom } from './village.js?v=83';
+import { renderSales } from './sales.js?v=83';
+import { renderPipeline } from './pipeline.js?v=83';
+import { renderMarketing } from './marketing.js?v=83';
+import { renderOffice } from './office.js?v=83';
+import { renderProduction } from './production.js?v=83';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=83';
+import { stopRoomPoll } from './village.js?v=83';
+import { renderFlow, stopFlow } from './flow.js?v=83';
+import { startTour, tourWanted } from './tour.js?v=83';
+import { startAlerts } from './alerts.js?v=83';
+import { renderPhotos } from './photos.js?v=83';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -40,6 +40,8 @@ export function go(v, arg) {
   window.scrollTo({ top: 0 });
 }
 window.__go = go;   // the tables' onclick handlers
+window.addEventListener('error', (e) => { try { toast('Something broke: ' + ((e.error && e.error.message) || e.message || 'unknown') + ' — tell Kevin those words', 'err'); } catch {} });
+window.addEventListener('unhandledrejection', (e) => { try { const m = (e.reason && e.reason.message) || String(e.reason || ''); if (/JWT|expired|Failed to fetch/i.test(m)) return; toast('Something broke: ' + m + ' — tell Kevin those words', 'err'); } catch {} });
 
 /* THE VILLAGE as a room of its own (16 Sep, launch morning). The same card the rail shows, full width:
    every seat reads it, every post can hang on a customer, and a name in the words gets the buzz. */

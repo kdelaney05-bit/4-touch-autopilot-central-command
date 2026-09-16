@@ -7,9 +7,9 @@
 // Every 10 seconds this asks for anything new with your name on it: an @-tag
 // on a customer's file (v_my_mentions) or a direct line to you
 // (direct_messages). The phone gets the same thing as a push (312 / 346).
-import * as api from './api.js?v=82';
-import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=82';
-import { $, esc } from './ui.js?v=82';
+import * as api from './api.js?v=83';
+import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=83';
+import { $, esc, toast } from './ui.js?v=83';
 
 let timer = null, since = null, unseen = 0;
 const seen = new Set();
@@ -145,11 +145,23 @@ export function startAlerts() {
 }
 
 /* the bell in the nav: asks the browser once, then says whether the bing is on */
+const ARMED = 'cc-bing-armed';
+const armed = () => { try { return localStorage.getItem(ARMED) === '1'; } catch { return false; } };
 function paintBell() {
   const b = $('#btn-bell'); if (!b) return;
-  const on = typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  const granted = typeof Notification !== 'undefined' && Notification.permission === 'granted';
+  const on = granted || armed();
   b.textContent = on ? '🔔 Bing on' : '🔕 Turn the bing on';
   b.classList.toggle('verify', on);
   b.title = on ? 'A bing, a card in the corner and a browser notification when somebody tags you or sends you a line' : 'Click to let the browser notify you when somebody tags you';
-  b.onclick = async () => { if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') await Notification.requestPermission(); chime(); paintBell(); };
+  b.onclick = async () => {
+    try { localStorage.setItem(ARMED, '1'); } catch {}
+    chime(); paintBell();
+    toast('Bing on. You get a sound and a card here when somebody tags you.', 'ok');
+    if (typeof Notification !== 'undefined' && Notification.permission !== 'granted') {
+      let p = 'default'; try { p = await Notification.requestPermission(); } catch {}
+      if (p !== 'granted') toast('For a pop-up outside this tab too: click the bell or lock icon at the right end of the address bar and choose Allow notifications. Not required.', 'warn');
+      paintBell();
+    }
+  };
 }

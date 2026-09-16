@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=82';
+import { $, html, raw, esc } from './ui.js?v=83';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -113,6 +113,7 @@ let i = 0, root = null, auto = null;
 const AUTO_MS = 7000;
 // ?auto=1 with ?tour=1: the tour runs itself, a step every seven seconds — the film, on the real screen
 export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = (/[?&]tour=([a-z0-9]+)/.exec(location.search) || [])[1]) {
+  if (root && root.querySelector('.tour-card') && !root.querySelector('#tour-go')) return;   // already playing
   FILM = FILMS[name] || STEPS; FILM_NAME = FILMS[name] ? name : '1';
   i = 0; clearTimeout(auto); auto = null;
   if (!root) { root = document.createElement('div'); root.id = 'tour'; document.body.appendChild(root); }
@@ -126,7 +127,19 @@ export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = 
         <div class="tour-foot"><button class="btn" id="tour-x">Not now</button><span style="flex:1"></span><button class="btn fill" id="tour-go">▶ Play</button></div>
       </div>`;
     $('#tour-x').onclick = stop;
-    $('#tour-go').onclick = () => { try { speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); } catch {} paint(autoplay); };
+    let started = false;
+    const start = (ev) => {
+      if (started) return; started = true; if (ev) ev.preventDefault();
+      try { speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); } catch {}
+      try { paint(autoplay); }
+      catch (e) {
+        started = false;
+        const card = root.querySelector('.tour-card'); const msg = (e && e.message) || String(e);
+        if (card) card.insertAdjacentHTML('beforeend', '<p class="small" style="color:var(--red)">It did not start: ' + esc(msg) + ' — tell Kevin those words. <a href="' + esc(location.pathname + location.search.replace(/&voice=1/, '')) + '">Play it without the voice</a>.</p>');
+        try { console.error('ride-along start', e); } catch {}
+      }
+    };
+    const go = $('#tour-go'); go.addEventListener('click', start); go.addEventListener('pointerup', start);
     return;
   }
   paint(autoplay);
