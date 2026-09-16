@@ -120,8 +120,17 @@ Nothing above is on. Steps 2–4 are one migration each (next free is 372 as of
 
 ## 4a. The nine questions to Luis
 
-Drafted to luis@libertyfencingfl.com in Kevin's Gmail, 16 Sep night, unsent
-(gospel 7). The roster; who holds the phone and whose phone; the login
+**Sent** to luis@libertyfencingfl.com (cc Jess) from Kevin's Gmail, 16 Sep
+~8 PM, on Kevin's word ("send all emails… get the word out"), with the
+handout links (the page, the Spanish PDF, the English PDF) and the ticket
+rule: reply to that email, the thread is the ticket. The same night the four
+supervisors (Luis, Obed, Robert, Mike, cc Jess) got "Your supervisor app: the
+two-minute film, and how it gets on your phone": the film, Central Command on
+the phone from the home screen, TestFlight in two taps once Apple's invite
+lands, the ticket rule. **Open on Kevin:** the four are not TestFlight testers
+yet (App Store Connect → TruReview Supervisor → TestFlight → an external group
+with their four addresses, or a public link), and the "Could not reach the live
+database" on his own phone (HANDOFF-16SEP) is unresolved. The questions: the roster; who holds the phone and whose phone; the login
 names; who answers each crew; whether Luis reads Spanish; what every crew
 brings back before sign-off; the three things that go wrong today; the first
 real job; anything to change on the page before Wednesday. The answers fill
