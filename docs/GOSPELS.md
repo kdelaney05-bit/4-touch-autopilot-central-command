@@ -77,6 +77,34 @@ wrong, not the gospel.
     rest gets automated. Employees who are great at their jobs love their
     jobs, and all our employees will be amazing, because the app makes the job
     doable: hit this button, pick this up.
+22. **If it is about a customer, it lives on the customer.** One file, one
+    thread; everybody inside is on it the second they are named; the customer
+    never sees the inside lane. "Show them how we are connecting all their
+    customers and key employees to each other instantly." (15 Sep)
+23. **Nobody is pushed unless named, and the sender gets the receipt.** No
+    feed. Your name on it or you never hear about it. The one who posts is
+    told who it reached and how; who opened it sits under the note "not in
+    my notifications but if I need to." (16 Sep)
+24. **The popup is obvious and easy to check off.** A tag is a task card with
+    a loud bing that stays until ✓ Got it or Open the file, for the employee
+    whose task it is. (15 Sep)
+25. **The film shows their view, never mine.** Every seat gets its own rooms;
+    a demo of Kevin's screen teaches nobody. "The one you show is mine. It's
+    not going to be that for everyone." (15 Sep)
+26. **Crews, sales and supervisors talk in pictures.** A photo is something
+    you say on the file: it can name a person, the crew and the dollar
+    amount. Crews never get a login — one link per job, in Spanish. (15 Sep)
+27. **The hard quote goes to the one who can price it, fast.** A rep's ask
+    is a checklist and pictures in one tap; the price comes back on the file
+    and buzzes the rep; the clock on it is the number to watch. "Cut this
+    down a third to a quarter." (16 Sep)
+28. **The keys are earned, and a seat is a job description.** Kevin, Jess and
+    Luis can be anyone and reach anyone. Gio gets a selling sales manager's
+    rooms and never the books. Every seat's rooms are one line in config.js,
+    and the database role is what the rows follow. (15–16 Sep)
+29. **One site, every screen.** The desktop is the cockpit and the phone on
+    the home screen is the mobile command center, for Luis on the road and
+    the admins at home. Nothing separate to build. (16 Sep)
 
 ## Where each one shows up
 
