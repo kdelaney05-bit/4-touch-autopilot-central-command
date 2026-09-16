@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=74';
-import { DEMO } from './demo.js?v=74';
+import * as api from './api.js?v=75';
+import { DEMO } from './demo.js?v=75';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -382,3 +382,6 @@ export function offerNextWord(nw) { if (!nw) return; state.nextWord = nw; if (wi
 /* 356/357: the crews and the nugget */
 export async function upsertCrew(id, name, phone, company, lang, active) { guard(); return api.rpc('crew_person_upsert', { p_id: id, p_name: name, p_phone: phone, p_company: company, p_lang: lang, p_active: active }); }
 export async function sendNugget(personId, body, bring, bringLabel, customerId, due) { guard(); return api.rpc('nugget_send', { p_person: personId, p_body: body, p_bring: bring, p_bring_label: bringLabel, p_customer: customerId, p_due: due }); }
+
+/* 358b: a word to the team room (the village) — the encourager's share */
+export async function postRoom(room, body, customerId) { guard(); return api.insert('team_messages', { room, body, customer_id: customerId ?? null }, false); }

@@ -8,8 +8,8 @@
 // someone, an ask, a nugget, a quote — with who it reached, who acknowledged, who
 // did it and how fast, and the chain that followed on that file. Language law:
 // nobody is late or failing here; a thing is done, moving, or waiting.
-import { state, isDemo, personName, firstName } from './book.js?v=74';
-import { $, html, raw, esc } from './ui.js?v=74';
+import { state, isDemo, personName, firstName, loadFile, threadForJob, postMessage, postRoom, mentionHandle } from './book.js?v=75';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=75';
 
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
 const when = (s) => s ? new Date(s).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
@@ -58,13 +58,46 @@ function row(r) {
       ${chain.map((s) => `<div class="step"><span class="mono dimmer">${esc(when(s.at))}</span><b>${esc(firstName(s.who))}</b><span>${esc(s.what)}</span></div>`).join('')}
       ${r.answer ? `<div class="step"><span class="mono dimmer">${esc(when(r.done_at))}</span><b>${esc(firstName(r.done_by || ''))}</b><span>brought back: ${esc(r.answer)}</span></div>` : ''}
       ${!chain.length && !r.done_at && !(r.to || []).some((t) => t.ack_at) ? '<div class="step"><span></span><span class="dimmer">nothing yet — it is with them</span></div>' : ''}
-      ${r.customer_id ? `<div class="step"><span></span><button class="btn sm" onclick="__peek('${esc(r.customer_id)}')">Open the file</button></div>` : ''}
+      <div class="step"><span></span><span style="display:flex;gap:6px;flex-wrap:wrap">${r.done_at ? `<button class="btn sm fill" data-thank="${esc(r.id)}">👏 Appreciate</button>` : ''}${r.customer_id ? `<button class="btn sm" onclick="__peek('${esc(r.customer_id)}')">Open the file</button>` : ''}</span></div>
     </div>` : ''}
   </div>`;
 }
 export function wireSent(root) {
+  root.querySelectorAll('[data-thank]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const r = (state.directives || []).find((x) => x.id === b.dataset.thank); if (r) appreciate(r, root); }));
   root.querySelectorAll('.dir .dirhead').forEach((h) => (h.onclick = () => {
     const id = h.parentElement.dataset.dir; if (openIds.has(id)) openIds.delete(id); else openIds.add(id);
     const card = root.querySelector('.card.sent'); if (card) { card.outerHTML = sentCard(); wireSent(root); }
   }));
+}
+
+/* THE ENCOURAGER (Kevin, 16 Sep: "hey man saw all your efforts, love the new email text program,
+   it's really paying off, gonna share with team — encourager and rewarder and appreciator all in
+   one"). One tap on a finished directive: the words pre-written from the chain, in Kevin's voice,
+   to the person who did it; they get the push; a box shares it with the team room. Cause and
+   effect, said out loud — the Showman's law, by a human this time. */
+function appreciate(r, root) {
+  const who = r.done_by || (r.to || [])[0]?.name || '';
+  const person = (state.people || []).find((p) => p.name === who) || (state.people || []).find((p) => firstName(p.name) === firstName(who));
+  const handle = person ? mentionHandle(person) : '@' + firstName(who);
+  const cust = r.customer_name ? personName(r.customer_name) : 'that one';
+  const took = r.minutes != null ? mins(r.minutes) : r.done_at ? mins((new Date(r.done_at) - new Date(r.at)) / 60000) : '';
+  const steps = (r.downline || []).length;
+  const draft = `${handle} saw the whole chain on ${cust}${took ? ' — picked it up and done in ' + took : ''}${steps > 1 ? ', ' + steps + ' steps, nothing dropped' : ''}. That is exactly how it's done. Thank you.`;
+  openModal({
+    title: `Appreciate ${esc(firstName(who))}`,
+    submitLabel: 'Send it',
+    body: `
+      <div class="field"><label>To ${esc(firstName(who))} · lands on ${esc(cust)}'s file, they get the push</label><textarea name="words" rows="3">${esc(draft)}</textarea></div>
+      <label class="tagchip"><input type="checkbox" name="share" checked> Share with the team room too (the village)</label>
+      <div class="small dimmer" style="margin-top:6px">The customer never sees this. Cause and effect, said out loud.</div>`,
+    onSubmit: async (f) => {
+      const words = f.words.value.trim(); if (!words) throw new Error('Say it');
+      if (isDemo()) { toast('Demo — on live this lands on the file, buzzes ' + firstName(who) + (f.share.checked ? ' and posts to the village' : '')); return; }
+      const file = await loadFile(r.customer_id);
+      let tid = file.thread?.id; if (!tid) { if (!file.job?.job_id) throw new Error('No job on this file'); tid = await threadForJob(file.job.job_id); }
+      await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', words);
+      if (f.share.checked) await postRoom('village', words.replace(/^@S+( [A-Z]S+)? /, firstName(who) + ' — ') , r.customer_id);
+      toast(`Sent — ${firstName(who)} got it${f.share.checked ? ', and the village saw it' : ''}`);
+    },
+  });
 }

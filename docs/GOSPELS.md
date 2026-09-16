@@ -105,6 +105,11 @@ wrong, not the gospel.
 29. **One site, every screen.** The desktop is the cockpit and the phone on
     the home screen is the mobile command center, for Luis on the road and
     the admins at home. Nothing separate to build. (16 Sep)
+30. **Appreciation, opportunity, and the right way to please you.** "That's
+    all employees really want." The chain shows the effort; the owner is the
+    encourager, rewarder and appreciator in one tap; the words say cause and
+    effect out loud, to the person and to the team. Accountability without
+    beating anyone — "make them look good." (16 Sep)
 
 ## Where each one shows up
 
