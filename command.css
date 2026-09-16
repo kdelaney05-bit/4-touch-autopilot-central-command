@@ -522,3 +522,7 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .qans input[type=text] { flex: 1; min-width: 180px; font: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card-hi); color: var(--ink); }
 .qprice { margin-top: 6px; font-size: 15px; } .qprice b { font-family: var(--mono); color: var(--verify); font-size: 17px; }
 @media (max-width: 700px) { .qrows { grid-template-columns: 1fr; } }
+
+/* 354: the receipt under a note */
+.rcpt { font-family: var(--mono); font-size: 10.5px; color: var(--dimmer); margin-top: 5px; letter-spacing: .02em; }
+.rcpt .seen { color: var(--verify); }

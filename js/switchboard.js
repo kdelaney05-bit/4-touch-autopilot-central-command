@@ -13,13 +13,13 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle } from './book.js?v=66';
-import { toast, openModal } from './ui.js?v=66';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=66';
-import { html, raw, esc } from './ui.js?v=66';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=66';
-import { renderRoom, wireAtOn } from './village.js?v=66';
-import * as api from './api.js?v=66';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords } from './book.js?v=67';
+import { toast, openModal } from './ui.js?v=67';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=67';
+import { html, raw, esc } from './ui.js?v=67';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=67';
+import { renderRoom, wireAtOn } from './village.js?v=67';
+import * as api from './api.js?v=67';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -560,8 +560,10 @@ function wireSayIt(root) {
         const person = say.to.startsWith('id:') ? (state.people || []).find((p) => p.id === say.to.slice(3)) : null;
         const handle = person ? mentionHandle(person) : say.to;
         const note = handle && !body.includes(handle) ? handle + ' ' + body : body;
-        await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', note);
-        toast(handle ? `Posted on ${personName(c.name)} · ${handle} gets a push` : `Posted on ${personName(c.name)}`);
+        const posted = await postMessage(tid, ['manager'].includes(state.me?.role) ? 'SUPER' : 'OFFICE', note);
+        const mid = Array.isArray(posted) ? posted[0]?.id : posted?.id;
+        const rc = mid ? (await threadReceipts(tid).catch(() => [])).filter((r) => r.message_id === mid) : [];   // 354: the receipt
+        toast(`Posted on ${personName(c.name)} · ${receiptWords(rc)}`, rc.length ? 'ok' : undefined);
       }
       say.text = ''; text.value = '';
       window.__peek(c.id);                    // the file opens beside you: the text with its undo, or the note where it landed

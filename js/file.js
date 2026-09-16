@@ -2,14 +2,14 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews } from './book.js?v=66';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=66';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=66';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=66';
-import { say, thing, iconForAsk } from './words.js?v=66';
-import { settleDialog } from './office.js?v=66';
-import { reload } from './app.js?v=66';
-import { relTime } from './production.js?v=66';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords } from './book.js?v=67';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=67';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=67';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=67';
+import { say, thing, iconForAsk } from './words.js?v=67';
+import { settleDialog } from './office.js?v=67';
+import { reload } from './app.js?v=67';
+import { relTime } from './production.js?v=67';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -70,6 +70,7 @@ function draw(root, ctx, compact) {
   const optOut = customer?.sms_opt_out_at || job.sms_opt_out_at;
   const estimates = ctx.data.estimates || [], estLinks = ctx.data.estLinks || [];   // 322
   const photos = ctx.data.photos || [], photoByMsg = new Map(photos.filter((p) => p.message_id).map((p) => [p.message_id, p]));   // 351
+  const rcByMsg = new Map(); for (const r of ctx.data.receipts || []) { if (!rcByMsg.has(r.message_id)) rcByMsg.set(r.message_id, []); rcByMsg.get(r.message_id).push(r); }   // 354
 
   // the stage bar: what has happened on this file, in order
   const steps = [];
@@ -99,7 +100,7 @@ function draw(root, ctx, compact) {
     items.push({ at: o.sent_at || o.queued_at, kind: 'out', pid: o.rep_id, who: (p?.name || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), line: lineLabel(o.from_number, job, p), body: o.body });
   });
   emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', pid: e.source === 'machine' ? 'machine' : job.rep_id, body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : (personOf(job.rep_id)?.name || 'the rep')} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.is_system ? say(m.body) : m.body, lane: m.lane, photo: photoByMsg.get(m.id) }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.is_system ? say(m.body) : m.body, lane: m.lane, photo: photoByMsg.get(m.id), rcpt: rcByMsg.get(m.id) }));
   // the steps and the paper, as one line each, where they happened
   const ev = (at, cls, pid, body) => { if (at) items.push({ at, kind: 'ev', cls, pid, body }); };
   attachments.forEach((f) => ev(f.created_at, 'file', f.added_by, `${f.label || f.storage_path || f.source} · on the file`));
@@ -346,7 +347,8 @@ function draw(root, ctx, compact) {
       let tid = thread?.id;
       if (!tid) { if (!job.job_id) throw new Error('No job on this file yet'); tid = await threadForJob(job.job_id); }
       const lane = ['manager'].includes(me?.role) ? 'SUPER' : 'OFFICE';
-      if (body) await postMessage(tid, lane, body);
+      let rcWords = '';
+      if (body) { const posted = await postMessage(tid, lane, body); const mid = Array.isArray(posted) ? posted[0]?.id : posted?.id; const rc = mid ? (await threadReceipts(tid).catch(() => [])).filter((r) => r.message_id === mid) : []; if (rc.length) rcWords = ' · ' + receiptWords(rc); }
       if (what) {
         const roleWords = ['@office', '@schedule', '@production', '@rep', '@invoice'];
         const seat = to.startsWith('@') && !roleWords.includes(to) ? (state.seats.find((s) => mentionHandle(s).toLowerCase() === to.toLowerCase()) || state.seats.find((s) => firstName(s.name).toLowerCase() === to.slice(1).toLowerCase())) : null;
@@ -354,7 +356,7 @@ function draw(root, ctx, compact) {
         const laneFor = ['COMPLETION_SIGNOFF', 'MATERIAL_REQUEST', 'SITE_ISSUE', 'SUPERVISOR_PING', 'SAFETY_JHA'].includes(what) ? 'SUPER' : ['CUSTOMER_REQUEST', 'SCHEDULE_QUESTION'].includes(what) ? 'CHAT' : 'OFFICE';
         await openAsk(tid, laneFor, what, body || null, toId);
       }
-      toast(what ? 'Posted · task opened with the clock running' : to ? 'Posted · they get a push' : 'Posted');
+      toast((what ? 'Posted · task opened with the clock running' : 'Posted') + rcWords);
       q('#note').value = '';
       (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
     } catch (e) { toast(e.message, 'err'); }
@@ -607,7 +609,7 @@ function bubble(i) {
   if (i.kind === 'in') return `<div class="msg in"><div class="who">${esc(i.who)} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
   const p = i.pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(i.pid);
   const cls = i.kind === 'machine' ? 'machine' : i.kind === 'chat' ? 'chat' : 'out';
-  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}</div>${esc(i.body)}${i.photo ? photoThumb(i.photo) : ''}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
+  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}</div>${esc(i.body)}${i.photo ? photoThumb(i.photo) : ''}${i.rcpt ? receiptLine(i.rcpt) : ''}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
 }
 
 function askRow(a, me) {
@@ -716,3 +718,8 @@ function photoSheet(files, ctx, customer, again) {
   });
 }
 window.__lightbox = lightbox;
+
+/* 354: under a note — who it reached (📱 phone buzzed · 🖥 waits in You're up) and ✓ who has opened it */
+function receiptLine(rows) {
+  return `<div class="rcpt">→ ${rows.map((r) => `<span class="${r.seen_at ? 'seen' : ''}" title="${esc(r.seen_at ? 'opened ' + when(r.seen_at) : (r.has_phone ? 'buzzed on the phone' : 'waits in their You\'re up — no phone signed in'))}">${esc(firstName(r.name))}${r.seen_at ? ' ✓' : r.has_phone ? ' 📱' : ' 🖥'}</span>`).join(' · ')}</div>`;
+}

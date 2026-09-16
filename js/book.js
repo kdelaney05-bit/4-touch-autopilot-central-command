@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=66';
-import { DEMO } from './demo.js?v=66';
+import * as api from './api.js?v=67';
+import { DEMO } from './demo.js?v=67';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -150,12 +150,13 @@ export async function loadFile(customerId) {
     }
   }
   // 351: every photo on this customer — ours and CompanyCam's, newest first
-  const [photos, quotes] = await Promise.all([
+  const [photos, quotes, receipts] = await Promise.all([
     api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []),
     api.page(`v_quote_requests?select=*&customer_id=eq.${customerId}&order=created_at.desc`, 20).catch(() => []),   // 353
+    thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
   ]);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [] };
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -314,3 +315,17 @@ export async function loadPhotoFeed() {
 
 /* 353: the pricer's answer — one RPC, one line on the file that @-tags the rep */
 export async function answerQuote(id, price, note) { guard(); return api.rpc('quote_request_answer', { p_id: id, p_price: Number(price), p_note: note || null }); }
+
+/* 354: THE RECEIPT (Kevin, 16 Sep, after his first push: "i didn't get a notification of who it
+   went to"). Who a note reached, how (a phone that buzzed or a You're up that waits), and who
+   has opened it. Read after a post, and on the file for every note. */
+export async function threadReceipts(threadId) { if (isDemo()) return []; return api.rpc('thread_receipts', { p_thread: threadId }); }
+export function receiptWords(rows) {
+  if (!rows || !rows.length) return 'Nobody was named — it sits on the file only.';
+  const phone = rows.filter((r) => r.has_phone).map((r) => firstName(r.name));
+  const desk = rows.filter((r) => !r.has_phone).map((r) => firstName(r.name));
+  const parts = [];
+  if (phone.length) parts.push(`buzzed ${phone.join(', ')} on the phone`);
+  if (desk.length) parts.push(`${desk.join(', ')} ${desk.length === 1 ? 'sees it' : 'see it'} in You're up (no phone signed in)`);
+  return 'Sent → ' + parts.join(' · ');
+}
