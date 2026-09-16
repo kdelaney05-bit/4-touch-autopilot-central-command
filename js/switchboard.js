@@ -13,16 +13,16 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=85';
-import { toast, openModal } from './ui.js?v=85';
-import { enterPosts, micButton } from './dictate.js?v=85';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=85';
-import { crewsCard, wireCrews } from './crews.js?v=85';
-import { sentCard, wireSent } from './sent.js?v=85';
-import { html, raw, esc } from './ui.js?v=85';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=85';
-import { renderRoom, wireAtOn } from './village.js?v=85';
-import * as api from './api.js?v=85';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=86';
+import { toast, openModal } from './ui.js?v=86';
+import { enterPosts, micButton } from './dictate.js?v=86';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=86';
+import { crewsCard, wireCrews } from './crews.js?v=86';
+import { sentCard, wireSent } from './sent.js?v=86';
+import { html, raw, esc } from './ui.js?v=86';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=86';
+import { renderRoom, wireAtOn } from './village.js?v=86';
+import * as api from './api.js?v=86';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -172,9 +172,17 @@ export function stopLinePoll() { if (dmTimer) clearInterval(dmTimer); dmTimer = 
 /* 346: open a direct line with one person, from anywhere (the top box, the rail, a push). */
 export function openLine(personId) {
   pane = 'dm:' + personId;
-  if (lastRoot && lastRoot.isConnected && !lastRoot.classList.contains('hidden')) renderSwitchboard(lastRoot);
-  else window.__go('line');
+  if (lastRoot && lastRoot.isConnected && !lastRoot.classList.contains('hidden')) { renderSwitchboard(lastRoot); showPane(lastRoot); }
+  else { window.__go('line'); setTimeout(() => lastRoot && showPane(lastRoot), 300); }
 }
+// the pane you just opened scrolls into view when the rail sits under the Line (a laptop width)
+function showPane(root) {
+  const el = root.querySelector('#line-pane'); if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (r.top < 60 || r.top > window.innerHeight - 240) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+// back to the top of The Line from a pane
+window.__lineBack = () => { pane = 'up'; if (lastRoot) renderSwitchboard(lastRoot); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 window.__line = openLine;
 
 export function renderSwitchboard(root) {
@@ -210,7 +218,7 @@ export function renderSwitchboard(root) {
       <div class="line-pane" id="line-pane"></div>
     </div>`;
 
-  root.querySelectorAll('[data-pane]').forEach((b) => (b.onclick = () => { pane = b.dataset.pane; renderSwitchboard(root); }));
+  root.querySelectorAll('[data-pane]').forEach((b) => (b.onclick = () => { pane = b.dataset.pane; renderSwitchboard(root); showPane(root); }));
   root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
   wireQuotes(root);   // 353: the pricer sends the price from the card
   wireCrews(root);    // 356: my crews, the nugget
@@ -302,7 +310,7 @@ function railHTML(upN, waiting, tagged, mine, C) {
 function paintPane(root, d) {
   const el = root.querySelector('#line-pane');
   if (!el) return;
-  if (pane.startsWith('room:')) { renderRoom(el, pane.slice(5)); return; }
+  if (pane.startsWith('room:')) { renderRoom(el, pane.slice(5)); const h = el.querySelector('.card.room .head'); if (h && !h.querySelector('[data-line-back]')) h.insertAdjacentHTML('beforeend', '<button class="btn sm" data-line-back onclick="__lineBack()">← Back to The Line</button>'); return; }
   if (pane.startsWith('dm:')) { renderLine(el, pane.slice(3)); return; }
   if (pane === 'wait') { el.innerHTML = waitHTML(d.waiting); return; }
   el.innerHTML = upHTML(d);
@@ -403,6 +411,7 @@ async function renderLine(el, otherId) {
       <div><div class="kicker">Direct line · just the two of you${['owner'].includes(me.role) ? '' : ', and Kevin'}</div>
         <h3 class="serif" style="font-size:20px;margin-top:2px">${esc(personName(other.name))} <span class="small">· ${esc(other.role || '')}</span></h3></div>
       <span class="small">About a job? Put it on the customer's file instead — then everybody has it.</span>
+      <button class="btn sm" onclick="__lineBack()">← Back to The Line</button>
     </div>
     <div class="room-list" data-dm-list><div class="empty">Opening the line…</div></div>
     <div class="composer">

@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=85';
+import { $, html, raw, esc } from './ui.js?v=86';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -113,7 +113,7 @@ let i = 0, root = null, auto = null;
 const AUTO_MS = 7000;
 // ?auto=1 with ?tour=1: the tour runs itself, a step every seven seconds — the film, on the real screen
 export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = (/[?&]tour=([a-z0-9]+)/.exec(location.search) || [])[1]) {
-  if (root && root.querySelector('.tour-card') && !root.querySelector('#tour-go')) return;   // already playing
+  if (root && root.querySelector('.tour-card') && !root.querySelector('#tour-play')) return;   // already playing
   FILM = FILMS[name] || STEPS; FILM_NAME = FILMS[name] ? name : '1';
   i = 0; clearTimeout(auto); auto = null;
   if (!root) { root = document.createElement('div'); root.id = 'tour'; document.body.appendChild(root); }
@@ -124,7 +124,7 @@ export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = 
         <div class="kicker">Ride-Along · ${FILM.length} steps · with voice</div>
         <h2 class="serif">Sound on. Tap play.</h2>
         <p>It runs itself on the real screen: every step shown, said out loud, and written under the picture. Nothing here is real and nothing is saved.</p>
-        <div class="tour-foot"><button class="btn" id="tour-x">Not now</button><span style="flex:1"></span><button class="btn fill" id="tour-go">▶ Play</button></div>
+        <div class="tour-foot"><button class="btn" id="tour-x">Not now</button><span style="flex:1"></span><button class="btn fill" id="tour-play">▶ Play</button></div>
       </div>`;
     $('#tour-x').onclick = stop;
     let started = false;
@@ -139,7 +139,7 @@ export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = 
         try { console.error('ride-along start', e); } catch {}
       }
     };
-    const go = $('#tour-go'); go.addEventListener('click', start); go.addEventListener('pointerup', start);
+    const go = root.querySelector('#tour-play'); go.addEventListener('click', start); go.addEventListener('pointerup', start);
     return;
   }
   paint(autoplay);
