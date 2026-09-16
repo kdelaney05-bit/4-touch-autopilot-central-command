@@ -82,5 +82,5 @@ export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732',                    
 export const ROOMS_BY_SEAT = {
   'c2b126ae-a182-4dca-be11-2b9bf02c1c21': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Jess — every room, like Kevin (16 Sep)
   '9cb2ccf5-15f5-4edf-975a-75fb215727be': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Luis — every room, like Kevin (16 Sep)
-  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Gio — revenue, never the books
+  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'photos', 'files'],   // Gio — a selling sales manager's rooms (Kevin, 16 Sep: "I don't want Gio seeing too much… player sales manager… just go sell"); never the books, never View as
 };
