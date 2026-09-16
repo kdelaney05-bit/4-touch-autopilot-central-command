@@ -110,6 +110,21 @@ wrong, not the gospel.
     encourager, rewarder and appreciator in one tap; the words say cause and
     effect out loud, to the person and to the team. Accountability without
     beating anyone — "make them look good." (16 Sep)
+31. **Every new thing ships with a Ride-Along.** "Short form videos with
+    subtitles and voice explaining every little step… it covers all folks:
+    listeners and readers and visuals." A Ride-Along is a two-minute film that
+    runs itself on the real screen and shows, says and writes each step, sent
+    as one link. Our changes are fast, often, small, not scary, and each one
+    solves a problem — so each one that matters gets a Ride-Along, listed at
+    docs/ride-alongs.html, newest on top. And the form is never finished:
+    every session that builds one is asked to make it easier to find, faster
+    to watch and simpler to send than the last. "Keep it hungry." (16 Sep)
+32. **The machine babysits so the people hunt.** "They get busy taking care
+    of all they've built — no time to hunt, they're babysitting. They are out
+    of capacity. We aren't. I've never been, ever." Everyone has a capacity;
+    the machine does not. The four-touch, the receipts, the nuggets, the chain
+    exist to carry what is already built so a seller can go find the next
+    one. (16 Sep)
 
 ## Where each one shows up
 
@@ -122,5 +137,6 @@ wrong, not the gospel.
 | Count once, say the source | Every county record carries source and as-of; the console badges |
 | Draft until send | Gmail drafts, posts pasted by Kevin |
 | Signing is not selling | estimate-view /sign, the accepted estimate, the NOC |
+| Every new thing ships with a Ride-Along | docs/ride-alongs.html; the films in js/tour.js (`?tour=1`, `?tour=crews`, `&voice=1`); 🎬 What's new in the header |
 
 Add to this file when Kevin says a new one. Never delete one without his word.

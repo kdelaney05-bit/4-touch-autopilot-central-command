@@ -85,6 +85,20 @@ Files: `backend/migrations/351–354` on branch `claude/photos-app` (PR #426).
   checklist as chips, pictures, SEND TO GIO; "💰 Gio priced it" comes back on the file.
 - `supervisor-app/JobFileLive.tsx`: the PHOTOS lane reads `v_file_photos` and gains TAKE.
 
+## v76 → v79 (16 Sep, before dawn)
+
+- **v76**: the demo's staged bing only plays inside a film or with `&bing=1` — Kevin heard a stray bing on his laptop.
+- **v78**: THE CREWS FILM. `js/tour.js` carries two films now: `FILMS = { '1': STEPS, 'crews': CREW_STEPS }`.
+  `?demo=1&as=manager&tour=crews&auto=1` walks Mike through the crews card, + Crew, the photo with scope and price
+  on Dave Marchetti's file, tap it → Send to a crew, the nugget already filled, the court receipt, and a link to
+  what Ramón sees (`liberty-command/c.html?demo=1`, a demo mode added the same night). `&voice=1` reads every
+  caption in the browser's own voice (speechSynthesis). Autoplay waits longer on steps that open something.
+- **v79**: 🎬 What's new in the header → `docs/ride-alongs.html`, the list of every Ride-Along, newest on top.
+  Gospels 31 (every new thing ships with a Ride-Along) and 32 (the machine babysits so the people hunt).
+- The crew page `c.html` shipped broken for a few minutes: a JS `String.replace` whose replacement held `$'`
+  spliced the file into itself. Rebuilt from the last good commit; splices are split/join now, and the inline
+  script is parsed before a push.
+
 ## Found tonight, still owed
 
 - The CompanyCam mirror (028, 106,862 photos) has 401'd every hour since 19 Aug —
