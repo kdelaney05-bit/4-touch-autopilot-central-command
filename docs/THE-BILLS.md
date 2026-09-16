@@ -217,8 +217,10 @@ reply.** Draft until Kevin presses Send (gospel 7).
 Baby spoons: one card at a time, each one live for a week before the next
 switch. Nothing below is on yet.
 
-**Built today:** the scope, the before/after page, both films, the four
-drafts, gospel 33. **Not built yet:** every row and every card below.
+**Built 16 Sep:** the scope, the before/after page, both films, the four
+drafts, gospel 33; migrations 365 and 369 on live; **both cards in the app
+(v96), every switch OFF, recording only** — that is step 7 and step 11 below,
+live for the office to see before a single bill has landed.
 
 | Step | Who | What | Waits on |
 |---|---|---|---|
@@ -226,13 +228,13 @@ drafts, gospel 33. **Not built yet:** every row and every card below.
 | 2 | Jess | The supplier list; who clicks Send on invoices today, per company. | step 1 |
 | 3 | Kevin | One `bills@` address per brand, or say "label the inboxes" and the worker reads Jess's and Kevin's Gmail by label. | nothing |
 | 4 | Kevin | The QuickBooks consent. **Three of four are done** (Liberty Fencing, Pro-Tech, Oasis connected on live, synced 16 Sep). Liberty Roofing 1537 remains: one sign-in, `backend/QB-OAUTH-WALKTHROUGH.md`. | nothing |
-| 5 | build | **DONE 16 Sep, 17:25.** Migration 365 applied on live: `supplier_bills`, `v_bills_queue`, `bill_decide`, the two switches OFF. | — |
-| 6 | build | The intake worker: reads the mailbox, parses the IIF then the PDF, matches the PO to `cc_material_orders`, lands the row and the PDF. | 3, 5 |
-| 7 | build | **Bill landed** on the file + the Office queue (Jonathan's card, Approve · Wrong job · Over the estimate). Live with every switch OFF: it only records. This is the first spoon. | 5, 6 |
-| 8 | build | The QuickBooks writer in `qb-client.mjs`: Bill create (DocNumber = invoice number, duplicate-guarded) and Invoice create for `qb_invoice_queue`. **No worker exists today for `qb_invoices` either; the switch is a promise with nothing behind it.** | 4 |
+| 5 | build | **DONE 16 Sep, 17:25.** Migration 365 applied on live: `supplier_bills`, `v_bills_queue`, `bill_decide`, the two switches OFF. **And 369, the same evening:** read policy office/manager, `wrong_job` stays on the queue, `bill_rematch`, `bill_decide` guarded like `invoice_request`. | — |
+| 6 | build | The intake worker: **written** (`backend/worker/bills-intake.mjs`, IIF parser test green, deps under `backend/`), **never run.** It runs on the box with `BILLS_IMAP_USER` / `BILLS_IMAP_PASS` in the box's env, typed by Kevin. `--dry` first. | 3, 5 |
+| 7 | build | **Bill landed** on the file + the Office queue: **BUILT 16 Sep evening, v96, every switch OFF, recording only.** Approve · Wrong job · Hold · Pick the right file · Open the PDF; red when over the estimate, no job, unreadable or past due; approved hands the office the fields in CC's order. Shows the moment step 6 lands the first row. | 6 for a real row |
+| 8 | build | The QuickBooks writer: **written** (`backend/worker/qb-bills.mjs`: Bill / VendorCredit create, DocNumber = invoice number, duplicate-guarded; Invoice create for `qb_invoice_queue`), **never run.** Runs on the box; needs `QB_BILL_EXPENSE_ACCOUNT_ID` and `QB_INVOICE_ITEM_ID` in the env. Still to add: the invoice's pay link into `qb_invoice_queue.pay_link` and the INVOICE ask settled with the QuickBooks number. | 4 |
 | 9 | Kevin | Flip `bills_to_qb`. Second spoon. Claudette stops typing bills. | 7, 8, a week of 7 |
 | 10 | build | The CC side: confirm a bill-create endpoint (the MCP is read-only for bills); until then the card gives Jonathan the fields in CC's order. Or Kevin turns on CC's own QuickBooks bill export instead. | Kevin's call |
-| 11 | build | **Invoice ready** on the office seat: opened by COMPLETION_SIGNOFF (already), typed from the signed estimate − deposit + change orders, photos and sign-off beside it, Approve · Hold. | 5 |
+| 11 | build | **Invoice ready** on the office seat: **BUILT 16 Sep evening, v96.** Opened by the sign-off or the INVOICE ask; typed from the accepted estimate or the sold amount − the deposit + signed change orders; photos against the proof rule, the sign-off, the customer's last text, the brand's "invoice sent" line. Approve = `invoice_request` + optional invoice number (settles the ask, opens Payment) + the text from the main line, one press; Hold tags the supervisor or the rep. With `qb_invoices` OFF the office still makes the invoice in Billdu / QuickBooks and types its number; the card says so. | — |
 | 12 | Kevin | Flip `qb_invoices`, then `office_machine_texts` for the invoice text. Third and fourth spoons. | 8, 11 |
 
 The order of the spoons: 7 → 9 → 11 → 12. Each one is a card that shows up

@@ -113,10 +113,40 @@ const PIPE = [
 ];
 const EST = [{ customer_id: 'cp8', amount: 7800, occurred_at: ago(28) }, { customer_id: 'cp9', amount: 12400, occurred_at: ago(70) }, { customer_id: 'cp11', amount: 18900, occurred_at: ago(140) }];
 
+/* 365: supplier bills that landed by themselves (v_bills_queue's shape). One matches the order, one is over what
+   we ordered at, one matched no job, one is a credit, one is approved and waiting to be typed into CC. Fictional
+   invoices on the fictional book; the amounts are made up. */
+const dayAgo = (h) => ago(h).slice(0, 10);
+const bill = (o) => {
+  const b = o.job ? BOARD.find((x) => x.job_id === o.job) : null;
+  const cc = o.cc || b?.cc_company_id || '1461';
+  const over = o.est != null && !o.credit && o.amount > o.est ? +(o.amount - o.est).toFixed(2) : null;
+  return { id: 'sb' + o.n, cc_company_id: cc, supplier: o.supplier, supplier_email: o.email || null, invoice_number: o.inv, po_number: o.po || null,
+    po_normalized: o.po ? o.po.replace(/^MO/, '').replace(/-\d+$/, '') : null, cc_material_order_id: o.mo ?? null,
+    job_id: b?.job_id ?? null, customer_id: b?.customer_id ?? null, customer_name: b?.customer_name ?? null, customer_address: null, cc_job_number: null, cc_project_id: b?.cc_project_id ?? null,
+    bill_date: dayAgo(o.h + 24), due_date: dayAgo(o.h - 30 * 24), amount: o.amount, is_credit: !!o.credit, lines: o.lines || [],
+    estimate_amount: o.est ?? null, over_by: over, status: o.status || (b ? 'matched' : 'landed'),
+    pdf_path: `bills/${cc}/${o.supplier.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/${o.inv}.pdf`,
+    decided_by: o.by ?? null, decided_by_name: o.by ? SEATS.find((s) => s.id === o.by)?.name : null, decided_at: o.by ? ago(o.h - 0.5) : null, decision_note: o.note ?? null,
+    qb_bill_id: null, qb_error: null, cc_bill_id: null, created_at: ago(o.h), raw: { parsed_from: 'iif', terms: 'Net 30' },
+    unmatched: !b, over_estimate: over != null, past_due: false, needs_human: o.status === 'needs_human' };
+};
+const BILLS = [
+  bill({ n: 1, job: 'j6', supplier: 'Heritage Landscape Supply', email: 'invoices@heritagelandscapesupply.example', inv: '7041522018-001', po: 'MO29371-2', mo: 29371, amount: 1573.36, est: 1573.36, h: 0.2,
+    lines: [{ account: 'Cost of Goods Sold', memo: 'Paver base and sand', amount: 1210.00, qty: 22 }, { account: 'Cost of Goods Sold', memo: 'LED path lights', amount: 363.36, qty: 6 }] }),
+  bill({ n: 2, job: 'j4', supplier: 'Havana Fence Supply', email: 'ar@havanafence.example', inv: 'HF-88213', po: 'MO29388-1', mo: 29388, amount: 1240.00, est: 1086.64, h: 1.6,
+    lines: [{ memo: "8' shadowbox panels", amount: 1000 }, { memo: '4x4 posts', amount: 240 }] }),
+  bill({ n: 3, cc: '1563', supplier: 'ABC Supply Co', email: 'noreply@billtrust.example', inv: '2014568156-001', po: 'PRO1140', amount: 758.62, h: 26,
+    lines: [{ memo: 'PRO1140 shingles and underlayment', amount: 758.62, qty: 24 }] }),
+  bill({ n: 4, job: 'j5', supplier: 'ABC Supply Co', email: 'noreply@billtrust.example', inv: 'CM-77120', po: 'PRO1133', mo: 1133, amount: 120.50, credit: true, h: 3,
+    lines: [{ memo: 'Returned bundles PRO1133', amount: 120.5, qty: -4 }] }),
+  bill({ n: 5, job: 'j8', supplier: 'Iron World', inv: 'IW-20411', po: 'MO29350-1', mo: 29350, amount: 2210.00, est: 2210.00, h: 30, status: 'approved', by: 'jon' }),
+];
+
 function book() {
   const people = [...SEATS.map((s) => ({ ...s, initials: null, sms_from: null })),
     ...[...new Map(BOARD.map((b) => [b.rep_id, b.rep_name])).entries()].map(([id, name]) => ({ id, name, role: 'sales', initials: null, sms_from: id === 'r1' ? '+13863023131' : null }))];
-  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [{ cc_company_id: '1461', stage: 'sold_office', owner_id: 'sam', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'schedule', owner_id: 'jon', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'production', owner_id: null, watcher_id: 'luis' }, { cc_company_id: '1461', stage: 'invoiced', owner_id: 'laura', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'field_complete', owner_id: 'laura', watcher_id: 'jc' }], board: BOARD, queue: QUEUE, clock: CLOCK, pipeline: PIPE, estimates: EST, direct: DIRECT,
+  return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [{ cc_company_id: '1461', stage: 'sold_office', owner_id: 'sam', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'schedule', owner_id: 'jon', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'production', owner_id: null, watcher_id: 'luis' }, { cc_company_id: '1461', stage: 'invoiced', owner_id: 'laura', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'field_complete', owner_id: 'laura', watcher_id: 'jc' }], board: BOARD, queue: QUEUE, clock: CLOCK, pipeline: PIPE, estimates: EST, direct: DIRECT, bills: BILLS.filter((x) => ['landed', 'matched', 'needs_human', 'held', 'wrong_job'].includes(x.status)),
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
     sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
@@ -175,7 +205,11 @@ function file(customerId) {
   ] : [];
   // 367: Kowalski's NOC is with the customer — emailed the day he signed, one text sent, the next one tomorrow
   const noc = b.job_id === 'j7' ? { id: 'nh1', status: 'waiting', started_at: ago(52), emailed_at: ago(52), email_to: 'jan.kowalski@example.com, travis@libertyfencingfl.com, samantha@libertyfencingfl.com', nudges_sent: 1, last_nudge_at: ago(52), last_step: 1, page_opened_at: ago(40), received_at: null, received_by: null, link: 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/noc-return/demo', switch_on: true, days: 2, next: { step: 2, day: 3, channel: 'text', in_days: 1 }, plan: [] } : null;
-  return { noc, photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  // 365: the supplier bills on this file, the deposit line (Kevin, 16 Sep: "we don't take deposits" — stock material, none), the invoice already recorded (Ana Reyes)
+  const bills = BILLS.filter((x) => x.customer_id === b.customer_id);
+  const deposit = b.job_id === 'j3' ? { deposit_required: false, deposit_amount: null, deposit_paid_at: null, deposit_method: null, deposit_paid_by: null } : null;
+  const invoiceQueue = b.job_id === 'j11' ? [{ id: 'iq1', ask_id: null, amount: 6400, memo: 'Final invoice', status: 'queued', qb_invoice_id: null, qb_doc_number: null, pay_link: null, error: null, created_at: ago(29), sent_at: null }] : [];
+  return { noc, bills, deposit, invoiceQueue, photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {

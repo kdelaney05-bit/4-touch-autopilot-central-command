@@ -2,16 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=95';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=95';
-import { enterPosts, micButton } from './dictate.js?v=95';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=95';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=95';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=96';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=96';
+import { enterPosts, micButton } from './dictate.js?v=96';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=96';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=96';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=95';
-import { settleDialog } from './office.js?v=95';
-import { reload } from './app.js?v=95';
-import { relTime } from './production.js?v=95';
+import { say, thing, iconForAsk } from './words.js?v=96';
+import { settleDialog } from './office.js?v=96';
+import { reload } from './app.js?v=96';
+import { relTime } from './production.js?v=96';
+import { billsCards, billsNext, wireBills } from './bills.js?v=96';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -170,7 +171,7 @@ function draw(root, ctx, compact) {
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
         ${journey.length ? raw(`<div class="journey" title="Who moved through this file, in order">${journey.map((j) => { const p = j.pid === 'machine' ? { name: 'The machine' } : personOf(j.pid); const c = colorFor(j.pid); return `<span style="--c:${c.c};flex-grow:${j.n}" title="${esc((p?.name || 'someone') + ' · ' + new Date(j.from).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (j.n > 1 ? ' · ' + j.n : ''))}"></span>`; }).join('')}</div><div class="journey-who">${[...new Set(journey.map((j) => j.pid))].map((pid) => { const p = pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(pid); const c = colorFor(pid); return `<span class="pill" style="--c:${c.c};--cs:${c.cs}"><i class="av">${esc(initialsOf(p))}</i>${esc(pid === 'machine' ? 'The machine' : firstName(p?.name || 'someone'))}</span>`; }).join('')}</div>`) : ''}
-        ${raw((() => { const n = fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
+        ${raw((() => { const ownerBad = ctx.data.parcel?.signer_match === 'mismatch' || ctx.data.parcel?.confidential; const n = (!ownerBad && billsNext(ctx)) || fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
         ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
@@ -189,6 +190,7 @@ function draw(root, ctx, compact) {
       </div>
     </div>
 
+    ${raw(billsCards(ctx))}
     <!-- THE CONVERSATION, HORIZONTAL (Kevin, 14 Sep: "you can't read any of the chat because it's too small… go horizontal:
          a way larger screen on one side with the texting box, and on the other side all the pre-written things to send").
          Left: the thread, big, and the box you type in. Right: the lines — tap one, it fills the box, edit, Send. -->
@@ -273,6 +275,7 @@ function draw(root, ctx, compact) {
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
+  wireBills(root, { bills: ctx.data.bills || [], ctx, after: async () => { await reload(true); again(); } });   // 365/369: the money cards' taps
   // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
   root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => { const p = (photos || []).find((x) => photoSrc(x) === (im.dataset.full || im.src)); lightbox(im.dataset.full || im.src, im.title || '', p, customer); }));
   wireQuotes(root);   // 353

@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=95';
-import { DEMO } from './demo.js?v=95';
+import * as api from './api.js?v=96';
+import { DEMO } from './demo.js?v=96';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -32,6 +32,7 @@ export const state = {
   quoteChecklist: [],  // quote_checklist (353) — the questions, from the database
   quotePhotos: [],     // the photos attached to open quote requests (for the queue card)
   touches: [],         // touches, last 90 days — the last time a rep worked a customer; the Pipeline room's worked / cooling / unworked split
+  bills: [],           // v_bills_queue (365/369) — supplier invoices waiting on a person, oldest first; the Office room's Bills tile and queue
   warnings: [],
   loadedAt: null,
 };
@@ -51,7 +52,7 @@ export async function loadAll() {
   const s = api.getSession();
   const since30 = new Date(Date.now() - 30 * 86400e3).toISOString();
   const since90 = new Date(Date.now() - 90 * 86400e3).toISOString(), since60 = new Date(Date.now() - 60 * 86400e3).toISOString();
-  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct] = await Promise.all([
+  const [me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct, bills] = await Promise.all([
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role,email&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
@@ -77,13 +78,15 @@ export async function loadAll() {
     api.page(`touches?select=customer_id,rep_id,occurred_at,channel&occurred_at=gte.${since90}&order=occurred_at.desc`, 8000).catch(() => []),
     // 346: direct lines. null (not []) when the view is not on live yet, so the rail can say so instead of reading empty.
     api.page('v_direct_lines?select=*&order=last_at.desc', 200).catch(() => null),
+    // 365/369 THE BILLS: supplier invoices waiting on a person, oldest first (RLS: office and managers read; reps never see the books)
+    api.page('v_bills_queue?select=*&order=created_at.asc', 500).catch(() => []),
   ]);
   let everyone = people;
   if ((people || []).length < 3) {
     const names = await api.page('rep_names?select=id,name&order=name.asc', 500).catch(() => []);
     if (names.length > (people || []).length) everyone = names.map((n) => (people || []).find((p) => p.id === n.id) || { id: n.id, name: n.name, initials: String(n.name || '').split(/\s+/).map((w) => w[0] || '').join('').slice(0, 2).toUpperCase(), role: null, sms_from: null });
   }
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people: everyone, pipeline, estimates, touches, direct });
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people: everyone, pipeline, estimates, touches, direct, bills: Array.isArray(bills) ? bills : [] });
   // 353: quotes to Gio — the open ones and the last 30 days, the checklist, and the photos the open ones carry
   const [quotes, quoteChecklist] = await Promise.all([
     api.page(`v_quote_requests?select=*&or=(status.eq.open,created_at.gte.${since30})&order=created_at.desc`, 300).catch(() => []),
@@ -138,7 +141,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
@@ -157,6 +160,12 @@ export async function loadFile(customerId) {
     api.page(`proofs?select=id,kind,label,signed,storage_path,mime,uploaded_at,uploaded_by&customer_id=eq.${customerId}&kind=in.(material_order,proposal,permit_packet,drawing)&order=uploaded_at.desc`, 60).catch(() => []),
     // 367: the Notice of Commencement handed to the customer to notarize — the email, the texts, the photo link, what came back
     api.rpc('noc_handoff_for', { p_customer: customerId }).catch(() => null),
+    // 365/369 THE BILLS: the supplier invoices that landed on this file (by the customer, or by the job the PO matched)
+    api.page(`supplier_bills?select=*&${job.job_id ? `or=(customer_id.eq.${customerId},job_id.eq.${job.job_id})` : `customer_id=eq.${customerId}`}&order=created_at.asc`, 200).catch(() => []),
+    // 336: the deposit the Invoice ready card subtracts from the signed estimate
+    api.one(`fence_jobs?select=deposit_required,deposit_amount,deposit_paid_at,deposit_method,deposit_paid_by&customer_id=eq.${customerId}&order=created_at.desc`).catch(() => null),
+    // 313: the invoice already recorded for QuickBooks on this job, if the office pressed Approve
+    job.job_id ? api.page(`qb_invoice_queue?select=id,ask_id,amount,memo,status,qb_invoice_id,qb_doc_number,pay_link,error,created_at,sent_at&job_id=eq.${job.job_id}&order=created_at.desc`, 20).catch(() => []) : [],
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -176,7 +185,8 @@ export async function loadFile(customerId) {
     thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
   ]);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null,
+           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -201,6 +211,10 @@ export async function textCustomer(customerId, body) { guard(); return api.rpc('
    INVOICE ask behind it when one is picked. */
 export async function adoptJob(jobId, step) { guard(); return api.rpc('job_adopt', { p_job: jobId, p_step: step }); }
 export async function invoiceRequest(jobId, amount, memo, askId) { guard(); return api.rpc('invoice_request', { p_job: jobId, p_amount: amount, p_memo: memo ?? null, p_ask: askId ?? null }); }
+/* 365/369 THE BILLS: one tap on the Bill landed card (approve · wrong_job · hold), the move to the right file, the PDF from the private bucket */
+export async function decideBill(id, decision, note) { guard(); return api.rpc('bill_decide', { p_id: id, p_decision: decision, p_note: note ?? null }); }
+export async function rematchBill(id, customerId) { guard(); return api.rpc('bill_rematch', { p_id: id, p_customer: customerId }); }
+export async function openBillPdf(path) { guard(); return api.signUrl('job-docs', path); }
 export async function linePreview(customerId) {
   if (isDemo()) return [
     { key: 'review_prompt', label: 'Review prompt · rate us 1–10', body: 'Hey Dana, This is Kevin with Liberty Fencing and I wanted to follow up on the project and ask how would you rate the staff and workmanship on a scale from 1-10 ( 10 being the BEST) ?' },

@@ -606,3 +606,20 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .room .say .at { color: var(--gold); font-weight: 600; }
 .room .msg.out .say .at { color: #f4d58d; }
 @media (max-width: 700px) { .village-wide .msg { max-width: 92%; } .village-wide .room .room-list { height: calc(100vh - 380px); } }
+
+/* ── THE BILLS (365/369): the Bill landed card, the Invoice ready card, the Office room's Bills queue ──
+   Money is visually obvious before anyone opens a file (gospel 2): the left edge is gold while a bill
+   waits, red when it is over the estimate or matched nothing, green once it is approved or the
+   invoice is recorded. The grid is the six things a person verifies, side by side. */
+.card.bill { border-left: 6px solid var(--gold); gap: 8px; }
+.card.bill.red { border-left-color: var(--red); }
+.card.bill.green { border-left-color: var(--verify); }
+.card.bill.done { border-left-color: var(--line); }
+.bill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, max-content)); gap: 10px 30px; font-size: 15px; align-items: end; }
+.bill-grid > div > .kicker { margin-bottom: 2px; }
+.bill-grid b.big { font-size: 19px; }
+.bill-text { padding: 8px 10px; border-radius: 8px; background: var(--card-hi); border: 1px solid var(--line); line-height: 1.45; color: var(--dim); }
+.billrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card-hi); font-size: 13px; margin-top: 6px; }
+.billrow.red { border-color: #ead0cb; background: #fbf1ef; }
+.billrow .who { color: var(--dim); font-size: 12px; margin-top: 3px; }
+@media (max-width: 700px) { .bill-grid { grid-template-columns: 1fr 1fr; } .billrow { grid-template-columns: 1fr; } }

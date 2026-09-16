@@ -127,8 +127,9 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | Sign everything, once: every active form on the signing link as a plain e-sign (`paperwork_forms.stage` = signing, `signing` = esign) | **366** |
 | The NOC is the customer's errand: `noc_handoffs`, `noc_nudge_plans`, `noc_handoff_start/email/send/for/view/receive`, `noc_nudge_sweep` (cron, 30 min), switch `noc_notarize` (OFF), the chain no longer waits on the NOC; edge fn `noc-return` | **367** |
 | Oasis signs the contract alone: `paperwork_forms.except_brands`; the packet honours it | **368** |
+| The bills, the two flags and the move: read policy `is_office() or is_manager()`, `wrong_job` stays on `v_bills_queue`, `bill_rematch(p_id, p_customer)`, `bill_decide` guarded like `invoice_request` | **369** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (368 applied as of 16 Sep evening; next free 369).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (369 applied as of 16 Sep evening; next free 370).
 
 ## What Kevin and Jess change without a build
 
