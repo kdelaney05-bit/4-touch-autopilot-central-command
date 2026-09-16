@@ -41,7 +41,7 @@ invoices → QuickBooks Invoice). Whatever landed is committed on that branch;
 rollback first, then applied ~17:25 local, recorded in `schema_migrations`): `supplier_bills`,
 `v_bills_queue`, `bill_decide(p_id, p_decision, p_note)`, switches `bills_to_qb` · `bills_to_cc` both OFF.
 The IIF/PDF parser (`backend/worker/bills-iif.mjs`) passes its test (`backend/scripts/test-iif-parse.mjs`).
-**No worker runs yet.**
+**No worker runs yet.** Two things the build agent flagged for the next session: the read policy on `supplier_bills` is `not is_customer()` (every seat, not office-only; tighten to `is_office() or is_manager()` if Kevin wants); `wrong_job` rows drop out of `v_bills_queue`, so a re-match needs that status added to the view. The IIF sign convention (BILL amount negative on the TRNS row) is assumed from the QuickBooks Desktop shape and must be checked on the first real ABC/SRS/Heritage file; `raw` keeps what was read. Install once: `cd backend && npm i imapflow mailparser pdf-parse@1.1.1`.
 The live credentials on this PC are in the other clone: `C:/Users/kdela/trureview-mobile/backend/.env`;
 run anything in Commercial-Desk with `LIBERTY_ENV_FILE="C:/Users/kdela/trureview-mobile/backend/.env"` in front
 (the SQL runner is `backend/scripts/run-sql-file.mjs`; dry-run inside `begin; … rollback;` first).
