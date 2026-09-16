@@ -118,6 +118,15 @@ office, no English, no second app.
 Nothing above is on. Steps 2–4 are one migration each (next free is 372 as of
 16 Sep evening; check the registry first) plus one crew-app build.
 
+## 4a. The nine questions to Luis
+
+Drafted to luis@libertyfencingfl.com in Kevin's Gmail, 16 Sep night, unsent
+(gospel 7). The roster; who holds the phone and whose phone; the login
+names; who answers each crew; whether Luis reads Spanish; what every crew
+brings back before sign-off; the three things that go wrong today; the first
+real job; anything to change on the page before Wednesday. The answers fill
+step 1 of §4 and rows 1–5 of §5.
+
 ## 5. What Kevin decides
 
 1. **The names.** `Liberty Crew 1235` (brand + number), or the crew lead's
