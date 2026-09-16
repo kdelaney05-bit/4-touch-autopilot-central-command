@@ -136,6 +136,16 @@ wrong, not the gospel.
     exist to carry what is already built so a seller can go find the next
     one. (16 Sep)
 
+33. **Nothing to learn. It comes to you.** Every rollout note, film and card
+    says it the same way: "I'm not telling you something to learn. I'm
+    telling you this is what's going to happen. It will come to you and it
+    will tell you what to do." No one memorises a step, no one studies a
+    screen, there is no test. The old way was hunting and figuring it out;
+    this is the exact opposite: the machine does the work and hands the
+    person the one decision that matters, with the button beside it. "What
+    do I need to do?" is answered by the card, never by a manual. And never
+    "I'll walk you through the first one": the card walks them. (16 Sep)
+
 ## Where each one shows up
 
 | Gospel | Where it lives today |

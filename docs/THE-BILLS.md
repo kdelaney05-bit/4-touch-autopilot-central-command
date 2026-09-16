@@ -198,8 +198,11 @@ rep on the file. Red when the photos are short of the brand rule or a change
 order is unsigned. With `qb_invoices` ON, Approve creates the QuickBooks
 invoice; PAYMENT, the reminder and CLOSEOUT follow by themselves.
 
-**Jess's Ride-Along** follows the same form as Jonathan's, once she says which
-seat and which system.
+**The film** (`films/ride-along-the-invoice.mp4`, Laura and Jess, built from the
+real demo file with the INVOICE READY card mounted) and Laura's note are
+drafted the same way as Jonathan's. Every film, note and card ends on gospel
+33: nothing to learn, it comes to you; never "I'll walk you through the first
+one", the card walks them.
 
 ## 7. The census email
 
