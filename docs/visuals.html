@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Every New Piece</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f1f0eb;--panel:#fff;--panel2:#f6f5f0;--line:#d8d6cd;--ink:#1b1f1d;--dim:#56605d;--mute:#8a938f;--gold:#b7791f;--goldsoft:#f7ecd6;--green:#2e7d4f;--greensoft:#e3f0e7;--blue:#1d5fa8;--bluesoft:#e1e8f3;--display:'Barlow Condensed','Arial Narrow',sans-serif;--body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;--mono:'IBM Plex Mono',Consolas,monospace;
+  --pink:#0d131f;--pcard:#151d2c;--pcard2:#1b2536;--pline:#26324a;--ptxt:#e8ecf4;--pdim:#8b97ad;--pgold:#e8c15a;--pgreen:#2fbf8f;--paccent:#f0834a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1b2a40}}
+:root[data-theme="dark"]{--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1b2a40}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;padding:24px 16px 60px}
+.wrap{max-width:1100px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(36px,6vw,60px);line-height:.95;margin:6px 0 10px;text-transform:uppercase}
+h2{font-family:var(--display);font-weight:600;font-size:clamp(26px,4vw,36px);line-height:1;margin:0 0 6px;text-transform:uppercase}
+p{margin:0;color:var(--dim);max-width:70ch}
+.lead{font-size:19px;color:var(--ink);max-width:60ch}
+.piece{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-top:22px}
+.piece .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.chip{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.chip.live{color:var(--green);border-color:var(--green);background:var(--greensoft)}
+.chip.next{color:var(--gold);border-color:var(--gold);background:var(--goldsoft)}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;align-items:start}
+.how{border-left:5px solid var(--gold);padding:6px 12px;font-size:15px;color:var(--ink);margin-top:12px}
+.how b{font-family:var(--display);text-transform:uppercase;font-size:16px;letter-spacing:.03em;margin-right:6px}
+/* the live demo, framed */
+.frame{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#f6f3ec;position:relative}
+.frame iframe{width:100%;height:560px;border:0;display:block}
+.frame .bar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--mute);background:var(--panel2)}
+.frame .bar a{color:var(--blue);text-decoration:none}
+/* the phone, drawn */
+.phone{width:100%;max-width:320px;margin:0 auto;background:var(--pink);color:var(--ptxt);border-radius:32px;padding:14px 12px 18px;border:6px solid #2a2f3a;font-size:12.5px}
+.phone .status{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--pdim);padding:0 6px 8px}
+.phone .head{display:flex;align-items:center;gap:8px;padding:4px 4px 10px}
+.phone .head .pct{font-family:var(--mono);font-weight:700;color:var(--pgold);background:rgba(212,177,90,.14);border:1px solid rgba(212,177,90,.4);border-radius:8px;padding:2px 7px;font-size:12px}
+.phone .name{font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:.02em}
+.pcard{background:var(--pcard);border:1px solid var(--pline);border-radius:12px;padding:10px;margin-bottom:8px}
+.pcard.hot{border-color:var(--pgold)}
+.pk{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pgold)}
+.pk.dim{color:var(--pdim)}
+.pbtns{display:flex;gap:6px}
+.pbtn{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:7px 10px;border-radius:8px;border:1px solid var(--pline);color:var(--ptxt);background:var(--pcard2)}
+.pbtn.go{background:var(--pgold);color:var(--pink);border-color:var(--pgold);font-weight:700}
+.strip{display:flex;gap:6px;margin-top:8px;overflow:hidden}
+.ph{width:76px;flex:0 0 76px}
+.ph .img{width:76px;height:76px;border-radius:8px;position:relative;overflow:hidden}
+.ph .img i{position:absolute;right:4px;bottom:4px;font:600 9.5px var(--mono);color:#f7e7b5;background:rgba(28,26,21,.85);padding:1px 4px;border-radius:4px;font-style:normal}
+.ph .img i.cc{left:4px;right:auto;color:#d7dde6}
+.ph small{display:block;color:var(--pdim);font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin{border:1px solid var(--pline);border-radius:8px;padding:8px 10px;background:var(--pcard2);color:var(--pdim);font-size:12px;margin-top:6px}
+.pin.filled{color:var(--ptxt)}
+.tagchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.tagchips span{font-size:11px;padding:3px 8px;border-radius:999px;border:1px solid var(--pline);color:var(--pdim)}
+.tagchips span.on{border-color:#5aa7e8;color:#5aa7e8;background:rgba(90,167,232,.12)}
+.lanes{display:flex;gap:6px;margin-bottom:8px}
+.lane{flex:1;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.12em;padding:8px 0;border-radius:8px;border:1px solid var(--pline);color:var(--pdim);background:var(--pcard)}
+.lane.on{border-color:var(--pgold);color:var(--pgold);background:var(--pcard2)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.grid3 .img{width:100%;aspect-ratio:1;border-radius:8px;position:relative;overflow:hidden}
+.grid3 .img i{position:absolute;right:4px;bottom:4px;font:600 9.5px var(--mono);color:#f7e7b5;background:rgba(28,26,21,.85);padding:1px 4px;border-radius:4px;font-style:normal}
+.crew{background:#f6f3ec;color:#1b1f1d;border-radius:12px;padding:12px}
+.crew .kk{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#8a938f;text-transform:uppercase}
+.crew .big{font-family:var(--display);font-size:22px;font-weight:600;text-transform:uppercase;margin:2px 0 8px}
+.crew .four{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.crew .four div{padding:16px 6px;text-align:center;border:1px solid #d8d6cd;border-radius:10px;font-family:var(--display);font-size:20px;font-weight:600;letter-spacing:.04em;background:#fff}
+.crew .four div.on{border:2px solid #b7791f;background:#f7ecd6;color:#b7791f}
+.crew .msg{margin-top:8px;border:1px solid #d8d6cd;border-radius:10px;padding:8px 10px;color:#8a938f;font-size:12px;background:#fff}
+.bubble{background:var(--pcard2);border:1px dashed #5aa7e8;border-radius:12px;padding:8px 10px;margin-top:8px;font-size:12px}
+.bubble .w{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--pdim);margin-bottom:3px}
+.sky1{background:linear-gradient(#b7c9dd 62%,#7a8a5a 62%)}.sky2{background:linear-gradient(#9fb8d3 62%,#6f7d4d 62%)}.sky3{background:linear-gradient(#c9d3de 55%,#8b7355 55%)}.sky4{background:linear-gradient(#a9c0d8 60%,#5f6f45 60%)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis · 16 Sep 2026</div>
+  <h1>Every new piece, as the guys will see it</h1>
+  <p class="lead">The green chips are live right now, and every green frame below is the real demo. You can click inside them. The gold chips are on the phone app branch and reach the reps' phones the moment you say publish.</p>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">The sales phone · the 4-Touch Autopilot app</div><h2>Photos, first thing on the customer file</h2></div><span class="chip next">Next publish · PR 426</span></div>
+    <div class="row">
+      <div class="phone">
+        <div class="status"><span>9:41</span><span>●●● 5G</span></div>
+        <div class="head"><span>←</span><span class="pct">62%</span><span class="name">Dave Marchetti</span></div>
+        <div class="pcard hot">
+          <div style="display:flex;align-items:center;gap:6px"><span class="pk" style="flex:1">Photos · 4</span><span class="pbtn go">📷 TAKE</span><span class="pbtn">PICK</span></div>
+          <div class="strip">
+            <div class="ph"><div class="img sky1"><i>$3,400</i></div><small>Mike · Oasis Nick</small></div>
+            <div class="ph"><div class="img sky2"><i>$1,150</i></div><small>Mike · Oasis Nick</small></div>
+            <div class="ph"><div class="img sky3"><i>$900</i></div><small>Nick · crew link</small></div>
+            <div class="ph"><div class="img sky4"><i class="cc">CC</i></div><small>Mike</small></div>
+          </div>
+        </div>
+        <div class="pcard"><div style="display:flex;align-items:center;gap:8px"><span style="letter-spacing:2px;color:#6cc28b">▮▮▮▮▯</span><span style="font-family:var(--mono);font-size:18px;font-weight:700">62%</span><span class="pk dim">climbing</span></div></div>
+        <div class="pcard"><div class="pk dim">They asked</div><div style="color:var(--pdim);margin-top:4px">Call Thursday after 3 about the lights.</div></div>
+      </div>
+      <div class="phone">
+        <div class="status"><span>9:42</span><span>●●● 5G</span></div>
+        <div class="head"><span>←</span><span class="name">Dave Marchetti</span></div>
+        <div class="pcard hot">
+          <div class="pk">Photos · after the shutter</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px"><div class="img sky1" style="width:64px;height:64px;border-radius:8px;flex:0 0 64px"></div><div style="color:var(--pdim);font-size:11.5px">Say it with the picture. Type @Luis or @office and they get the buzz. The customer never sees this.</div></div>
+          <div class="pin filled">Patio set and compacted, ready for lights @Luis</div>
+          <div style="display:flex;gap:6px"><div class="pin filled" style="flex:1">Oasis · Nick</div><div class="pin filled" style="width:110px">$ 3400</div></div>
+          <div class="pbtns" style="justify-content:flex-end;margin-top:8px"><span class="pbtn">CANCEL</span><span class="pbtn go">POST IT</span></div>
+        </div>
+        <div class="bubble"><div class="w">Mike · team note · 9:42 AM · on the file</div>📷 Patio set and compacted, ready for lights · crew: Oasis · Nick · $3,400.00 @Luis Gonzalez</div>
+        <div class="pcard" style="margin-top:8px"><div class="pk" style="color:#5aa7e8">Luis's phone · buzz</div><div style="margin-top:3px">Mike tagged you · Dave Marchetti: 📷 Patio set and compacted…</div></div>
+      </div>
+    </div>
+    <div class="how"><b>Same motion as CompanyCam</b> open the customer, tap the camera, shoot. <b>What's different</b> it lands on the customer's file, not in a separate app. You can name a person, the crew and the dollars on the picture. The office sees it in the Photos room the same second.</div>
+  </section>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">Central Command · the office, Luis, Jess, Sam, Gio, you</div><h2>The Photos room</h2></div><span class="chip live">Live</span></div>
+    <div class="frame"><div class="bar"><span>the real demo · a manager's view (Jessica in the demo) · click anything</span><a href="../?demo=1&as=manager&room=photos" target="_blank" rel="noopener">open full size ↗</a></div><iframe src="../?demo=1&as=manager&room=photos" title="The Photos room, live demo" loading="lazy"></iframe></div>
+    <div class="how"><b>How it's used</b> every picture on every file, newest first, the customer's name on each one, the crew and the dollars. One search box. Tap a name and the file opens. The day's dollars add up at the top of each day.</div>
+  </section>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">Central Command · the customer file</div><h2>The strip on the file, and ＋ Photo</h2></div><span class="chip live">Live</span></div>
+    <div class="frame"><div class="bar"><span>the real demo · Dave Marchetti's file · press ＋ Photo to see the sheet</span><a href="../?demo=1&as=manager&room=line&file=cj6" target="_blank" rel="noopener">open full size ↗</a></div><iframe src="../?demo=1&as=manager&room=line&file=cj6" title="A customer file with its photos, live demo" loading="lazy"></iframe></div>
+    <div class="how"><b>How it's used</b> on a laptop ＋ Photo picks a file; on a phone it opens the camera. Then the sheet: the words, tag people with chips, the crew, the dollar amount, Post it. Tap any thumbnail for full size. The same picture shows on the thread in the poster's name.</div>
+  </section>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">Central Command · The Line</div><h2>The bing</h2></div><span class="chip live">Live</span></div>
+    <div class="frame"><div class="bar"><span>the real demo · Samantha's view · a tag lands about 20 seconds in — the sound, the card, ✓ Got it</span><a href="../?demo=1&as=office" target="_blank" rel="noopener">open full size ↗</a></div><iframe src="../?demo=1&as=office" title="The Line with the bing, live demo" loading="lazy"></iframe></div>
+    <div class="how"><b>How it's used</b> when somebody tags you or sends you a line, a loud two-note bing, a card in the corner with who, which customer and the words, and two buttons: Open the file, ✓ Got it. The card stays until one is pressed. On this same screen: Say it, Where it is stuck, What they are asking with the Answer button, People for a direct line.</div>
+  </section>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">The supervisor app · Luis, Obed, Robert, Mike</div><h2>The PHOTOS lane on the job file</h2></div><span class="chip next">Next publish · PR 426</span></div>
+    <div class="row">
+      <div class="phone">
+        <div class="status"><span>7:26</span><span>●●● LTE</span></div>
+        <div class="head"><span>←</span><span class="name">Reed, Dana · Aluminum + gate</span></div>
+        <div class="lanes"><div class="lane">CHAT</div><div class="lane">SUPER</div><div class="lane">OFFICE</div><div class="lane on">PHOTOS</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="pk" style="flex:1">Live · ours + CompanyCam · newest first</span><span class="pbtn go">📷 TAKE</span></div>
+        <div class="pin">Say it with the picture — @Laura signed off, 6 photos</div>
+        <div class="grid3"><div class="img sky1"></div><div class="img sky2"></div><div class="img sky3"></div><div class="img sky4"></div><div class="img sky1"><i>$900</i></div><div class="img sky2"></div></div>
+      </div>
+      <div>
+        <div class="how" style="margin-top:0"><b>How it's used</b> Obed opens the job, taps PHOTOS, taps TAKE. The picture lands on the file's production lane in his name. Type @Laura in the box first and Laura gets the buzz: "signed off, 6 photos on the file, invoice it." The old CompanyCam photos for that job sit in the same grid, marked CC.</div>
+        <div class="how"><b>On the road</b> Luis has the same rooms on his phone: Central Command on the home screen is the mobile command center, one column, thumb-sized tabs. The desktop is the cockpit. Same login, same file.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">The crews · no login, one link per job</div><h2>El enlace · FOTOS</h2></div><span class="chip live">Live</span></div>
+    <div class="row">
+      <div class="phone" style="background:#e9e6de;border-color:#c9c4b8">
+        <div class="status" style="color:#8a938f"><span>7:26</span><span>●●● LTE</span></div>
+        <div class="crew">
+          <div class="kk">Orden de trabajo · Liberty Fencing</div>
+          <div class="big">Reed · 300 ft aluminio + portón</div>
+          <div class="four"><div>AQUÍ</div><div class="on">📷 FOTOS</div><div>LISTO</div><div>LLAMAR</div></div>
+          <div class="msg">Mensaje para Luis…</div>
+          <div class="kk" style="margin-top:10px">Del supervisor</div>
+          <div style="font-size:12px;margin-top:4px">Luis: Empiecen por el lado del cobertizo. Gracias.</div>
+        </div>
+      </div>
+      <div>
+        <div class="how" style="margin-top:0"><b>How it's used</b> the day the install is set, the crew gets one text with a link. It opens that job and only that job, in Spanish. AQUÍ when they arrive, FOTOS to send pictures, LISTO when done, LLAMAR to call the supervisor. No app, no password, no CompanyCam login.</div>
+        <div class="how"><b>What we see</b> every tap and photo lands on the customer's file in the crew's color, and in the Photos room. Nobody has to ask where they are.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="piece">
+    <div class="top"><div><div class="eyebrow">You · View as, and the film</div><h2>See what any seat sees</h2></div><span class="chip live">Live</span></div>
+    <div class="frame"><div class="bar"><span>the real demo · your view · pick a person in "View as…" at the top</span><a href="../?demo=1" target="_blank" rel="noopener">open full size ↗</a></div><iframe src="../?demo=1" title="The owner's view with View as, live demo" loading="lazy"></iframe></div>
+    <div class="how"><b>How it's used</b> pick anyone in View as and you are looking through their eyes, their rooms, their name. <b>The film</b> <a href="../?demo=1&as=office&tour=1&auto=1" target="_blank" rel="noopener">runs by itself on Samantha's screen</a>, eight steps, about a minute. <b>The deck</b> <a href="highway-deck.html" target="_blank" rel="noopener">twelve slides</a> for the wave-one meeting.</div>
+  </section>
+</div>
+</body>
+</html>
