@@ -1,0 +1,120 @@
+# THE BILLS — every supplier invoice lands on the file by itself
+
+Kevin, 16 Sep 2026, on Jess's forward of the ABC Supply email: "how we can
+integrate all these payables and bills… I have a login to everything. So if
+we could set up an API… pull that in to automate that."
+
+Lane label: **BILLS**. Built beside Contractors Cloud and QuickBooks, every
+switch OFF until Kevin flips it (gospel 6). Takes the paper off Jess,
+Jonathan and Claudette; takes no conversation off anyone (gospel 20).
+
+## 1. What happens today (Jess, 16 Sep, 8:19 AM)
+
+> "So I get emails like this and I forward them to Jonathan to input into
+> contractors cloud. Claudette takes invoices from the portals and inputs
+> them into quickbooks."
+
+Read against the live rows, that is:
+
+| Step | Who | Where it goes | What it costs |
+|---|---|---|---|
+| The supplier emails the invoice (ABC Supply via Billtrust, to jessica@libertyroofinggrp.com; SRS the same; Heritage Landscape Supply to Kevin's inbox) | the supplier | Gmail | nothing, but it lands in one person's inbox |
+| Jess forwards it | Jess | Jonathan's inbox | a read and a forward per email |
+| Jonathan keys the bill into CC: vendor, amount, the material order it pays | Jonathan | CC bills | a retype per invoice line |
+| Claudette logs into each supplier portal, pulls the same invoices, keys them into QuickBooks | Claudette | QuickBooks Online | a second retype of the same invoice, from a different copy |
+| Nothing links the CC bill to the QuickBooks bill | — | — | month-end reconciling by hand |
+
+**What the rows say (CC bills report, 16 Sep):**
+
+- Today's ABC Supply email carried five lines on two POs (PRO1133: 121.77,
+  −94.16, 20.81, 758.62; PRO1129: −19.26). CC got two bills today for
+  ABC Supply / Pro-Tech: **$807.04** (the four PRO1133 lines netted into one)
+  and **$19.26** (the PRO1129 *credit*, entered as a bill). The supplier's
+  invoice numbers were not typed.
+- **Ref # is blank on every recent bill.** CC's own doc says the Ref # is how
+  QuickBooks recognises a bill, and how CC catches a duplicate. Without it,
+  nothing can match CC to QuickBooks to the supplier.
+- **QB sync date is null on every recent bill.** CC's own QuickBooks Online
+  integration (vendors + bills export) is not running for bills.
+- 13,183 bills in CC all-time; the last 90 days by vendor are in §3.
+
+## 2. Three doors, and which one is an API
+
+| Door | Is there an API? | What we have |
+|---|---|---|
+| **The supplier** | Mostly no. Distributors on Billtrust (ABC Supply, SRS, Heritage) already email the invoice with a PDF **and an IIF file** — QuickBooks' own import format: vendor, invoice number, PO, date, due date, amount, per line. That attachment *is* the API. Suppliers that only offer a portal (Home Depot commercial via Citi, the fence yards) have no customer API; the first move is to ask each one to turn on email invoicing, which most do in one call. Scraping a portal with Kevin's login is the last resort: brittle, and against most portals' terms. | Gmail, already connected. The IIF needs no OCR. |
+| **Contractors Cloud** | Yes. CC has a bill entity (vendor, Ref #, date, terms, expense lines attached to a material order or work order). It also has its own **QuickBooks Online export for vendors and bills** — the fastest end to Claudette's retype, but it is a switch inside CC (account manager enables it, the QB admin connects, accounts and vendors imported, a start date so history is not duplicated). | The hourly copy (343) already holds `cc_material_orders` with the PO reference (`MOPRO1133-3` ↔ the invoice's `PRO1133`), so a bill can find its job. A CC *bill-create* endpoint is not confirmed yet; the MCP exposes bills read-only. |
+| **QuickBooks Online** | Yes, OAuth 2.0. `Bill` with `VendorRef`, `DocNumber` (= the supplier's invoice number), `DueDate`, lines with the expense account and `CustomerRef` (the job). | `qb_connections` (018), `qb-client.mjs`, `qb-add-company.mjs`, `qb-status.mjs` in trureview-mobile/backend, designed 20 Jul for the console's money section. Needs Kevin's one-time consent per company — `backend/QB-OAUTH-WALKTHROUGH.md`. This clone has no `.env`, so whether any of the four companies is connected on live could not be checked here. |
+
+## 3. Who we buy from (last 90 days, from CC bills + the inboxes)
+
+Filled from the CC bills report and the supplier emails in Kevin's and Jess's
+inboxes. The census email (§6) asks the office to correct and complete it.
+
+| Supplier | Brand | How the invoice arrives today | Who keys it |
+|---|---|---|---|
+| ABC Supply | Pro-Tech · Liberty Roofing | Billtrust email → jessica@libertyroofinggrp.com, PDF + IIF, PO on every line | Jonathan (CC), Claudette (QB from the portal) |
+| SRS Building Products | Liberty Roofing | Billtrust email → Jess + Kevin, PDF + IIF, plus a monthly statement | same |
+| Heritage Landscape Supply | Oasis | Billtrust email → Kevin's inbox, PDF + IIF, plus a monthly statement | ? |
+| Home Depot (commercial account) | Liberty Fencing | Citi portal; statements by email possible | ? |
+| Warehouse | Liberty Fencing | our own stock pulled to a job (the biggest "vendor" by count) | Jonathan |
+| Iron World · Havana Fence Supply · Merchant Metals · Stephens Pipe & Steel · iDeal | Liberty Fencing | ? (portal / paper / on the truck) | ? |
+| Bello Fencing · La Fence · MK Fencing · Pro-Tech Crew · Komodo Roofing · Kicking Grass (Rayce) | all | installers' invoices, not suppliers | Jonathan |
+| Southern Dumpsters | Pro-Tech | ? | ? |
+
+_(The 90-day roll-up by vendor with counts and totals is appended in §3a when
+the report finishes.)_
+
+## 4. The build — beside, switches OFF
+
+**4a. The intake door.** One address per brand that suppliers email
+(`bills@` on each domain, or a Gmail filter that labels supplier invoices
+where they already land). A worker reads the label through the Gmail API,
+saves the PDF to the private bucket, parses the IIF when there is one, the
+PDF's text layer when there is not, and writes one row per invoice line to
+`supplier_bills`: brand, supplier, invoice number, PO, date, due date, amount,
+credit flag, the file, and the job it found by PO in `cc_material_orders`.
+Status: `landed → matched → approved → in_cc → in_qb → paid`. No IIF and no
+text layer = `needs_a_human`, on the Office queue.
+
+**4b. On the customer file** (gospel 4): a **Bill landed** card. "ABC Supply ·
+inv 2014568156-001 · PO PRO1133 · $758.62 · due 16 Oct · NEXT: Jonathan
+approves." Red when the invoice is over the material order's estimated cost
+or the PO matches nothing (gospel 2). One tap approves; a credit shows as a
+credit.
+
+**4c. Two switches, both OFF** (Office room, `automation_switches`):
+
+- `bills_to_cc` — write the approved bill into CC with the Ref # filled and
+  the line attached to the material order. Until a CC bill-create endpoint is
+  confirmed, the card hands Jonathan the fields to paste, in CC's order.
+- `bills_to_qb` — create the QuickBooks Bill through our own connection:
+  `DocNumber` = invoice number, vendor, job, AP account; duplicate-guarded on
+  vendor + DocNumber so a bill Claudette already keyed is never doubled.
+
+**4d. The Office room's Bills queue.** Oldest first (like the asks): unmatched
+PO · over estimate · past due · duplicate · needs a human. Every number says
+its source and its as-of (gospel 5).
+
+**4e. Later.** Statement reconciliation (the monthly Billtrust statement
+against `supplier_bills`), and the payables line on The Business room.
+
+## 5. What Kevin decides
+
+1. **Turn on CC's own QuickBooks bill export, or not.** It ends Claudette's
+   retype fastest, but it is a change inside CC and QuickBooks. If yes: the
+   Ref # has to be typed on every bill from that day, credits as credits, and
+   the start date set so nothing already in QuickBooks is duplicated.
+2. **Do the QuickBooks consent for our own door** — the four companies, one
+   browser sign-in each, the walkthrough exists. Fifteen minutes.
+3. **Where supplier email lands** — one `bills@` address per brand, or keep
+   Jess's and Kevin's inboxes and label them.
+4. **Send the census** (§6) — drafted in Gmail, not sent.
+
+## 6. The census email
+
+Drafted to Jess, cc Jonathan, Sam, Laura (Claudette has no address on file;
+Jess forwards). It lists the table in §3 and asks, per supplier: which company,
+how the invoice reaches us, who pulls it, where it gets typed, and whether
+the PO goes on the order. It says in so many words: **no passwords in the
+reply.** Draft until Kevin presses Send (gospel 7).
