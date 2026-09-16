@@ -29,15 +29,16 @@ Every one opens on gospel 33. Kevin presses Send.
 ## In progress when the account ran out
 
 **The backend for the bills** was being written by a build agent in the
-Commercial-Desk clone when the session closed: `backend/migrations/350_supplier_bills.sql`
-(numbered 350 because 346–349 exist and live could not be checked), the
+Commercial-Desk clone when the session closed: `backend/migrations/365_supplier_bills.sql`
+(live is at 364; checked at close), the
 `bill_decide` RPC, the view `v_bills_queue`, the two switches `bills_to_qb` ·
 `bills_to_cc` (OFF), `backend/worker/bills-intake.mjs` (IMAP → IIF/PDF → the
 row), `backend/worker/qb-bills.mjs` (approved bills → QuickBooks Bill; queued
 invoices → QuickBooks Invoice). Whatever landed is committed on that branch;
-`docs/LANES.md` says which files exist. **Nothing is applied and nothing runs**:
-this machine has no `backend/.env`. Kevin applies with `node backend/scripts/apply.mjs`
-from a machine that has it.
+`docs/LANES.md` says which files exist. **Nothing is applied and nothing runs.**
+The live credentials on this PC are in the other clone: `C:Userskdela	rureview-mobileackend.env`;
+run anything in Commercial-Desk with `LIBERTY_ENV_FILE="C:/Users/kdela/trureview-mobile/backend/.env"` in front
+(the SQL runner is `backend/scripts/run-sql-file.mjs`; dry-run inside `begin; … rollback;` first).
 
 **The front end is not started.** The plan: a new module `js/bills.js` with
 the Bill landed card (reads `supplier_bills` by customer, calls `bill_decide`
@@ -52,14 +53,23 @@ the compose box; Hold = a note to @supers), an Office tile reading
 ## What only Kevin can do (unchanged)
 
 1. Send the five drafts.
-2. The QuickBooks consent: one browser sign-in per company, four companies,
-   `backend/QB-OAUTH-WALKTHROUGH.md`. Without it neither QuickBooks switch has
-   anywhere to write, and the existing `qb_invoices` switch has no worker
-   behind it either until `qb-bills.mjs` runs.
+2. QuickBooks: **three of four companies are already connected on live**
+   (`qb_connections`: Liberty Fencing 1461, Pro-Tech 1563, Oasis 1560, all
+   active, synced 16 Sep 20:32 UTC). Only Liberty Roofing 1537 still needs the
+   consent (`backend/QB-OAUTH-WALKTHROUGH.md`). The `qb_invoices` switch still
+   has no worker behind it until `qb-bills.mjs` runs.
 3. A `bills@` address per brand (or say "label the inboxes") and a Google app
    password for the intake worker's IMAP login.
 4. Decide on Contractors Cloud's own QuickBooks bill export.
 5. Apply 350 and run the two workers with `--dry` first.
+
+## Live at close (read-only check)
+
+Switches: text_clock ON, esign_packet ON, crew_link_text OFF, qb_invoices OFF,
+appt_confirm OFF, after_hours_reply OFF, office_machine_texts OFF.
+`qb_invoice_queue` empty. `cc_material_orders` columns: `reference` ("MO29381-1"),
+`est_cost`, `actual_cost`, `job_id`, `supplier_id`. Thread messages: `thread_messages`
+(thread_id, author_id, body, is_system, lane, author_name). Buckets: job-docs, job-photos.
 
 ## The spoons, in order
 
