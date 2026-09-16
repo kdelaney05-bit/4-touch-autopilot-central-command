@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=73';
-import { DEMO } from './demo.js?v=73';
+import * as api from './api.js?v=74';
+import { DEMO } from './demo.js?v=74';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -25,6 +25,7 @@ export const state = {
   pipeline: [],        // jobs on the selling side (appointment in 90 days, or signed in 60) with the customer embedded — the Pipeline room
   estimates: [],       // estimates, last 90 days — a price on file puts a customer in Estimate out
   direct: null,        // v_direct_lines (346) — my direct lines; null until the migration is on live
+  directives: [],      // my_directives (358) — what I sent out, who picked it up, the chain
   crews: [],           // crew_people (356) — the seat's crews: a name, a phone, a language
   nuggets: [],         // v_crew_nuggets (356/357) — in their court, and what came back
   quotes: [],          // v_quote_requests (353) — the pricer's queue + the reps' answers, last 30 days
@@ -41,7 +42,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) {
     Object.assign(state, DEMO.book());
-    Object.assign(state, { quotes: DEMO.quotes(), quoteChecklist: DEMO.checklist(), quotePhotos: DEMO.photos(), crews: DEMO.crews(), nuggets: DEMO.nuggets() });
+    Object.assign(state, { quotes: DEMO.quotes(), quoteChecklist: DEMO.checklist(), quotePhotos: DEMO.photos(), crews: DEMO.crews(), nuggets: DEMO.nuggets(), directives: DEMO.directives() });
     state.realMe = state.me;   // View as needs the real seat in the demo too
     const as = (/[?&]as=(sales|office|manager)/.exec(location.search) || [])[1];   // see the demo as another seat
     if (as) { const seat = (state.people || []).find((p) => p.role === as) || state.me; state.me = { ...seat, role: as, manages_company_id: null }; }
@@ -86,6 +87,8 @@ export async function loadAll() {
   const qids = [...new Set(quotes.filter((q) => q.status === 'open').flatMap((q) => q.photo_ids || []))];
   const quotePhotos = qids.length ? await api.page(`v_file_photos?select=*&id=in.(${qids.join(',')})`, 400).catch(() => []) : [];
   Object.assign(state, { quotes, quoteChecklist, quotePhotos });
+  // 358: what I sent out — every seat has a downline
+  state.directives = await api.rpc('my_directives', { p_days: 7 }).then((r) => (Array.isArray(r) ? r : [])).catch(() => []);
   // 356/357: my crews and the nuggets in their court (managers)
   if (['manager', 'owner', 'admin'].includes(me?.role)) {
     const [crews, nuggets] = await Promise.all([

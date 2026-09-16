@@ -566,3 +566,19 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .findrow:first-of-type { border-top: 0; }
 .findrow > span:first-child { min-width: 0; }
 @media (max-width: 700px) { .findpop { position: fixed; left: 12px; right: 12px; top: 64px; width: auto; } .findrow { grid-template-columns: minmax(0, 1fr) auto; } .findrow > .mono { display: none; } }
+
+/* ── 358: WHAT I SENT OUT — the chain ── */
+.card.sent { border-left: 6px solid var(--office); }
+.dir { border-top: 1px solid var(--line); }
+.dir:first-of-type { border-top: 0; }
+.dirhead { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; cursor: pointer; font-size: 13.5px; }
+.dirkind { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--dimmer); }
+.dirbody { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dirto { font-size: 12.5px; color: var(--dim); white-space: nowrap; }
+.dir.done .dirbody { color: var(--dim); }
+.chain { margin: 0 0 10px 62px; border-left: 2px solid var(--line); padding-left: 12px; display: flex; flex-direction: column; gap: 4px; }
+.step { display: grid; grid-template-columns: 96px 90px minmax(0, 1fr); gap: 8px; font-size: 13px; align-items: baseline; position: relative; }
+.step::before { content: ''; position: absolute; left: -17px; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.step.first::before { background: var(--office); }
+.chip.st-blue { color: var(--office); border-color: var(--office); background: var(--officesoft); }
+@media (max-width: 700px) { .dirhead { grid-template-columns: 1fr; gap: 3px; } .dirbody { white-space: normal; } .chain { margin-left: 8px; } .step { grid-template-columns: 1fr; gap: 1px; } }

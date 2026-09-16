@@ -194,7 +194,7 @@ const DM = {
   obed: [{ id: 4, from_id: 'k', to_id: 'obed', body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', created_at: ago(5) }],
 };
 const dm = (other) => DM[other] || [];
-export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, crews: () => CREWS, nuggets: () => NUGGETS, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
+export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, directives: () => DIRECTIVES, crews: () => CREWS, nuggets: () => NUGGETS, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
 
 /* 351: the photos on the fictional file — drawn, not fetched, so the demo never leaves the page */
 const svgPhoto = (label, sky, ground, accent) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect width="320" height="200" fill="${sky}"/><rect y="200" width="320" height="120" fill="${ground}"/><rect x="30" y="120" width="12" height="150" fill="${accent}"/><rect x="150" y="120" width="12" height="150" fill="${accent}"/><rect x="270" y="120" width="12" height="150" fill="${accent}"/><rect x="30" y="140" width="252" height="10" fill="${accent}" opacity=".8"/><rect x="30" y="230" width="252" height="10" fill="${accent}" opacity=".8"/><text x="16" y="300" font-family="monospace" font-size="20" fill="#fff" opacity=".9">${label}</text></svg>`);
@@ -260,4 +260,17 @@ const NUGGETS = [
   { id: 'ng3', person_id: 'cw3', person_name: 'Crew Ortiz', lang: 'es', cc_company_id: '1461', customer_id: 'cj3', customer_name: 'Reed, Dana', city: 'Melbourne', by_id: 'luis', by_name: 'Luis Gonzalez',
     body: 'Terminar la sección junto al cobertizo antes de las 3.', bring: 'done', bring_label: null, due_at: ago(0.5), status: 'open', answer: null, photos: [],
     created_at: ago(3), returned_at: null, minutes_to_return: null, open_min: 180, late: true, seen_at: null, received_at: null, received_by: null, sms_status: 'sent', sms_sent_at: ago(3) },
+];
+
+/* 358: what the seat sent out — the chain, as the film shows it */
+const DIRECTIVES = [
+  { kind: 'note', id: 'dr1', at: ago(2.1), customer_id: 'cj2', customer_name: 'Nguyen, Linh', body: '@Samantha the permit came back — call Linh and set the day, she asked twice.',
+    to: [{ name: 'Samantha White', ack_at: ago(2.0), has_phone: false }], done_at: ago(1.4), done_by: 'Samantha White', minutes: 42,
+    downline: [{ at: ago(1.9), who: 'Samantha White', what: 'On it — calling her now.' }, { at: ago(1.5), who: 'Samantha White', what: 'Samantha White settled schedule in 36 min · Thu Sep 18 · Crew Ortiz' }, { at: ago(1.45), who: 'Samantha White', what: 'texted the customer: Hi Linh, Samantha with Liberty Fencing. You\'re on the schedule for Thursday…' }, { at: ago(1.4), who: 'Samantha White', what: 'Done. She\'s happy — asked for the gate latch upgrade, told Ron.' }] },
+  { kind: 'nugget', id: 'dr2', at: ago(1.2), customer_id: 'cj6', customer_name: 'Marchetti, Dave', body: 'Sod goes in the BACK yard only. Front stays as it is.',
+    to: [{ name: 'Ramón', ack_at: ago(1.05), has_phone: true, seen_at: ago(1.1), texted: 'sent' }], done_at: null, done_by: null, minutes: null, state: 'open', downline: [] },
+  { kind: 'ask', id: 'dr3', at: ago(26), customer_id: 'cj7', customer_name: 'Kowalski, Jan', body: 'Property survey', state: 'OPEN',
+    to: [{ name: 'Samantha White', ack_at: null, has_phone: false }], done_at: null, done_by: null, minutes: null, downline: [{ at: ago(20), who: 'Samantha White', what: 'Customer has it — he\'s emailing it tonight.' }] },
+  { kind: 'quote', id: 'dr4', at: ago(30), customer_id: 'cj1', customer_name: 'Whitfield, Mark', body: 'Quote to Gio', state: 'priced',
+    to: [{ name: 'Gio Calderin', ack_at: null, has_phone: true }], done_at: ago(29.4), done_by: 'Gio Calderin', minutes: 38, answer: '$14,200 · Tear-out is 60 ft of wood — add a day.', downline: [] },
 ];

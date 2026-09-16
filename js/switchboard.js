@@ -13,14 +13,15 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=73';
-import { toast, openModal } from './ui.js?v=73';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=73';
-import { crewsCard, wireCrews } from './crews.js?v=73';
-import { html, raw, esc } from './ui.js?v=73';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=73';
-import { renderRoom, wireAtOn } from './village.js?v=73';
-import * as api from './api.js?v=73';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=74';
+import { toast, openModal } from './ui.js?v=74';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=74';
+import { crewsCard, wireCrews } from './crews.js?v=74';
+import { sentCard, wireSent } from './sent.js?v=74';
+import { html, raw, esc } from './ui.js?v=74';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=74';
+import { renderRoom, wireAtOn } from './village.js?v=74';
+import * as api from './api.js?v=74';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -199,6 +200,7 @@ export function renderSwitchboard(root) {
       <div class="right"><button class="btn sm" id="tour-go" title="A one-minute walk through the screen">Show me around</button> ${isDemo() ? '<span class="chip demo">DEMO · FICTIONAL BOOK</span>' : '<span class="chip">LIVE · DB</span>'}</div>
     </div>`)}
     ${raw(sayItHTML())}
+    ${raw(sentCard())}
     ${raw(quotesQueueCard())}
     ${raw(crewsCard())}
     ${rep ? '' : raw(stuckCard(C, waiting))}
@@ -211,6 +213,7 @@ export function renderSwitchboard(root) {
   root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
   wireQuotes(root);   // 353: the pricer sends the price from the card
   wireCrews(root);    // 356: my crews, the nugget
+  wireSent(root);     // 358: what I sent out, the chain
   wireSayIt(root);
   wirePeopleFind(root);
   wireAnswers(root, waiting);
