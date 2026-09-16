@@ -1,5 +1,7 @@
 # Handoff — 16 Sep 2026, end of Kevin's first account
 
+> Phones / Uvoice / texting handoff is separate: **docs/HANDOFF-UVOICE-16-SEP.md** (16 Sep evening).
+
 Kevin moved to a second Claude account (kdelaney05) mid-afternoon; this page is
 where the next session picks up. Everything below is pushed to `main` of this
 repo unless it says otherwise. Read in this order: `CLAUDE.md` → `docs/GOSPELS.md`
