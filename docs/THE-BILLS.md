@@ -211,3 +211,29 @@ Jess forwards). It lists the table in §3 and asks, per supplier: which company,
 how the invoice reaches us, who pulls it, where it gets typed, and whether
 the PO goes on the order. It says in so many words: **no passwords in the
 reply.** Draft until Kevin presses Send (gospel 7).
+
+## 8. What it takes to turn it all on (Kevin, 16 Sep, 3:45 PM: "what are we still waiting on?")
+
+Baby spoons: one card at a time, each one live for a week before the next
+switch. Nothing below is on yet.
+
+**Built today:** the scope, the before/after page, both films, the four
+drafts, gospel 33. **Not built yet:** every row and every card below.
+
+| Step | Who | What | Waits on |
+|---|---|---|---|
+| 1 | Kevin | Send the four drafts (all hands · Jonathan · Laura · the reply on Jess's thread). | nothing |
+| 2 | Jess | The supplier list; who clicks Send on invoices today, per company. | step 1 |
+| 3 | Kevin | One `bills@` address per brand, or say "label the inboxes" and the worker reads Jess's and Kevin's Gmail by label. | nothing |
+| 4 | Kevin | The QuickBooks consent: one browser sign-in per company, four companies, `backend/QB-OAUTH-WALKTHROUGH.md`. Fifteen minutes. Without it neither switch has anywhere to write. | nothing |
+| 5 | build | Migration 317 (check live first): `supplier_bills`, the two switches `bills_to_cc` · `bills_to_qb`, the `bill_approve` RPC. | nothing |
+| 6 | build | The intake worker: reads the mailbox, parses the IIF then the PDF, matches the PO to `cc_material_orders`, lands the row and the PDF. | 3, 5 |
+| 7 | build | **Bill landed** on the file + the Office queue (Jonathan's card, Approve · Wrong job · Over the estimate). Live with every switch OFF: it only records. This is the first spoon. | 5, 6 |
+| 8 | build | The QuickBooks writer in `qb-client.mjs`: Bill create (DocNumber = invoice number, duplicate-guarded) and Invoice create for `qb_invoice_queue`. **No worker exists today for `qb_invoices` either; the switch is a promise with nothing behind it.** | 4 |
+| 9 | Kevin | Flip `bills_to_qb`. Second spoon. Claudette stops typing bills. | 7, 8, a week of 7 |
+| 10 | build | The CC side: confirm a bill-create endpoint (the MCP is read-only for bills); until then the card gives Jonathan the fields in CC's order. Or Kevin turns on CC's own QuickBooks bill export instead. | Kevin's call |
+| 11 | build | **Invoice ready** on the office seat: opened by COMPLETION_SIGNOFF (already), typed from the signed estimate − deposit + change orders, photos and sign-off beside it, Approve · Hold. | 5 |
+| 12 | Kevin | Flip `qb_invoices`, then `office_machine_texts` for the invoice text. Third and fourth spoons. | 8, 11 |
+
+The order of the spoons: 7 → 9 → 11 → 12. Each one is a card that shows up
+and says what to press; nobody is told to learn anything (gospel 33).
