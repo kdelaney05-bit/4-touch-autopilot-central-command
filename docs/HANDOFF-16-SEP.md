@@ -36,7 +36,7 @@ Commercial-Desk clone when the session closed: `backend/migrations/365_supplier_
 row), `backend/worker/qb-bills.mjs` (approved bills → QuickBooks Bill; queued
 invoices → QuickBooks Invoice). Whatever landed is committed on that branch;
 `docs/LANES.md` says which files exist. **Nothing is applied and nothing runs.**
-The live credentials on this PC are in the other clone: `C:Userskdela	rureview-mobileackend.env`;
+The live credentials on this PC are in the other clone: `C:/Users/kdela/trureview-mobile/backend/.env`;
 run anything in Commercial-Desk with `LIBERTY_ENV_FILE="C:/Users/kdela/trureview-mobile/backend/.env"` in front
 (the SQL runner is `backend/scripts/run-sql-file.mjs`; dry-run inside `begin; … rollback;` first).
 
@@ -61,7 +61,7 @@ the compose box; Hold = a note to @supers), an Office tile reading
 3. A `bills@` address per brand (or say "label the inboxes") and a Google app
    password for the intake worker's IMAP login.
 4. Decide on Contractors Cloud's own QuickBooks bill export.
-5. Apply 350 and run the two workers with `--dry` first.
+5. Apply 365 and run the two workers with `--dry` first.
 
 ## Live at close (read-only check)
 
