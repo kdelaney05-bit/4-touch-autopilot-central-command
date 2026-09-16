@@ -147,6 +147,14 @@ function file(customerId) {
     { id: 'sm1', lane: 'OFFICE', author_name: 'Samantha White', body: 'Samantha White settled permit in 41 min · 26-04812', is_system: true, created_at: ago(11 * 24) },
     { id: 'sm2', lane: 'SUPER', author_name: 'Obed Santiago', body: 'took the job', is_system: true, created_at: ago(3 * 24) },
     { id: 'sm3', lane: 'SUPER', author_name: 'Obed Santiago', body: 'Obed Santiago settled completion signoff in 2.9 d', is_system: true, created_at: ago(0.3) },
+    { id: 'hm1', lane: 'SUPER', author_id: 'obed', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can. @Jonathan the shed section finishes Thursday.', is_system: false, created_at: ago(0.4) },
+    { id: 'hm2', lane: 'OFFICE', author_id: 'laura', author_name: 'Laura Schepp', body: 'Got it. Invoice goes out this afternoon. @Ron she asked about the gate latch — yours.', is_system: false, created_at: ago(0.2) },
+  ] : [];
+  // 354: who each note reached — 📱 has the app, 🖥 waits in You're up, ✓ opened it
+  const receipts = b.job_id === 'j3' ? [
+    { message_id: 'hm1', rep_id: 'laura', name: 'Laura Schepp', role: 'office', seen_at: ago(0.25), has_phone: false },
+    { message_id: 'hm1', rep_id: 'jon', name: 'Jonathan Garcia', role: 'office', seen_at: null, has_phone: false },
+    { message_id: 'hm2', rep_id: 'r1', name: 'Ron Seidel', role: 'sales', seen_at: null, has_phone: true },
   ] : [];
   const attachments = b.job_id === 'j3' ? [
     { id: 'at1', label: 'Signed contract', storage_path: '1461/Pj3/OFFICE/DOC/contract.pdf', created_at: ago(20 * 24), ask_id: 'd1' },
@@ -164,7 +172,7 @@ function file(customerId) {
     { id: 'pk2', kind: 'material_order', label: 'Liberty_MaterialOrder_Pestana_Luis_2026-09-13.pdf', signed: false, storage_path: 'cj8/2-order.pdf', mime: 'application/pdf', uploaded_at: ago(35.5) },
     { id: 'pk3', kind: 'drawing', label: 'drawing.svg', signed: false, storage_path: 'cj8/3-drawing.svg', mime: 'image/svg+xml', uploaded_at: ago(36) },
   ] : [];
-  return { photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  return { photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {

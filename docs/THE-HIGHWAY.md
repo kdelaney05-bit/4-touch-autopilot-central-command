@@ -42,7 +42,7 @@ a desktop cockpit and a mobile command center."
 
 | v | Piece | Kevin's words |
 |---|---|---|
-| 58 | The film: `?tour=1&auto=1` runs the tour a step every 7 s | "build out a video and deck" |
+| 58 · 68 | The film: `?tour=1&auto=1` runs the tour a step every 7 s — thirteen steps by v68 (the bing, the quote, Photos, the file, the receipt) | "build out a video and deck" |
 | 59 | The film runs in the SEAT'S view (`&as=office`); manager/office gain the Pipeline room | "the one you show is mine… give them the pipeline and then the line" |
 | 60 | THE BING: chime + browser notification + a task card that stays until ✓ Got it or Open the file (`js/alerts.js`, polls every 10 s) | "the popup needs to be obvious and easy to check off for the employee whose task it is" |
 | 61 | THE PHOTOS: the Photos room for every seat, the file's strip (ours + CompanyCam), ＋ Photo → the sheet (words · tag people · crew · $) | "crews, sales and supervisors communicate with pics… tag the crew and the dollar amount… Mike uses the app to manage the entire thing" |

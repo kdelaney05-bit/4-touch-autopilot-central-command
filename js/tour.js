@@ -4,19 +4,24 @@
 // best thing and in one way better: it runs on the real screen, in the demo
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
-import { $, html, raw, esc } from './ui.js?v=67';
+import { $, html, raw, esc } from './ui.js?v=68';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
 // line") — the film runs in the seat's own rooms (?demo=1&as=office), never the owner's.
 const STEPS = [
-  { room: 'line', at: null, title: 'This is The Line.', body: 'Everything with a human waiting on the other end, on one screen. Nobody has to hunt, and nothing gets to sit. Let’s walk it in a minute.' },
-  { room: 'line', at: '#sayit, .sayit, [data-tour="sayit"]', title: 'Say it — to anyone, about any customer.', body: 'Type who it is about (last name, street or phone), pick a person or the customer, say what you need, press Post. It reaches them and it lands on that customer’s file, so it is never lost.' },
+  { room: 'line', at: null, title: 'This is The Line.', body: 'Everything with a human waiting on the other end, on one screen. Nobody has to hunt, and nothing gets to sit. A minute and a half, and you will have seen all of it.' },
+  { room: 'line', at: '#sayit, .sayit, [data-tour="sayit"]', title: 'Say it — to anyone, about any customer.', body: 'Type who it is about (last name, street or phone), pick a person or the customer, say what you need, press Post. It reaches them and it lands on that customer’s file, so it is never lost. And it tells you who it reached.' },
+  { room: 'line', at: '#alerts .alert', do: 'bing', title: 'The bing.', body: 'When somebody tags you: a sound, and this card. It stays until you press ✓ Got it or Open the file. No feed to babysit — your name on it, or you never hear about it.' },
   { room: 'line', at: '[data-tour="stuck"]', title: 'Where it is stuck.', body: 'Every open ask, grouped by what it waits on. The bar is how many; the number is the oldest one. That one is the one that is actually stuck.' },
-  { room: 'line', at: '[data-tour="asking"]', title: 'What they are asking — and the file answers.', body: 'The customers waiting right now, sorted by what they asked. When the file already knows the answer, an Answer button shows what the file says and the reply in our own words. You read it, fix a word, press Send. It never sends by itself.' },
-  { room: 'line', at: '#line-rail', title: 'Your rail.', body: 'You’re up is the short list with your name on it. Nothing goes unanswered is the company board. Rooms, People (direct lines, just the two of you and Kevin), and who spoke last. You are only pinged when you are named.' },
+  { room: 'line', at: '[data-tour="asking"]', title: 'What they are asking — and the file answers.', body: 'The customers waiting right now, sorted by what they asked. When the file already knows the answer, the Answer button shows what the file says and the reply in our own words. You read it, fix a word, press Send. It never sends by itself.' },
+  { room: 'line', at: '[data-tour="quotes"]', title: 'The hard quote goes to Gio.', body: 'A rep on a hard fence job taps ASK GIO on his phone: the checklist and the pictures land here. Gio types the price and a word, presses Send the price, and the rep’s phone buzzes. The clock on each one is the number we watch.' },
+  { room: 'line', at: '#line-rail', title: 'Your rail.', body: 'You’re up is the short list with your name on it. Nothing goes unanswered is the company board. Rooms, People (direct lines, just the two of you and Kevin), and who spoke last.' },
   { room: 'pipeline', at: '.pies .pie, .pies', title: 'The Pipeline.', body: 'Every rep’s pie: what he has priced and is waiting to hear on, by when he last worked it. Tap a name for his book alone. Tap a customer and you are on their file.' },
-  { room: 'files', at: '#tabs', title: 'Files.', body: 'Every customer you can read. Tap one and the whole thing is one thread: their texts, our notes, what is waiting on who. Type @ and a name in the box and that person gets it.' },
+  { room: 'photos', at: '.photo-feed, #ph-feed', title: 'Photos.', body: 'Every picture on every file, newest first, with the customer’s name, who shot it, the crew and the dollars. One search box. Crews, sales and supervisors talk in pictures here.' },
+  { room: 'files', at: '#tabs', title: 'Files.', body: 'Every customer you can read. Tap one and the whole thing is one thread: their texts, our notes, what is waiting on who.' },
+  { room: 'files', at: '#drawer #photos-card', do: 'peek:cj3', title: 'The file — and ＋ Photo.', body: 'The photos sit first. ＋ Photo is the camera on a phone: the words, tag people, the crew, the dollar amount. It lands on the thread and everyone named gets the buzz. The customer never sees it.' },
+  { room: 'files', at: '#drawer .rcpt', title: 'The receipt.', body: 'Under every note: who it reached — 📱 buzzed on the phone, 🖥 waiting in their You’re up — and a ✓ the moment they open it. Never a notification. There when you look.' },
   { room: 'line', at: null, title: 'That’s the whole thing.', body: 'Two things to try this week: say something to one person about one customer, and answer when someone says something to you. The customer never sees our notes. Only the texts we send them.' },
 ];
 
@@ -29,6 +34,7 @@ export function startTour(autoplay = /[?&]auto=1/.test(location.search)) {
   paint(autoplay);
 }
 function stop() { clearTimeout(auto); auto = null; if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
+const AUTO_LONG = new Set(['peek:cj3']);   // the file steps get a beat more
 function paint(autoplay = false) {
   const s = STEPS[i];
   clearTimeout(auto); auto = null;
@@ -36,9 +42,12 @@ function paint(autoplay = false) {
   document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit'));
   // the step's room: switch only when the seat has it and the page is not already there
   if (s.room && window.__go && !document.querySelector(`#tabs .tab.on[data-view="${s.room}"]`) && document.querySelector(`#tabs [data-view="${s.room}"]`)) window.__go(s.room);
-  let target = null;
-  if (s.at) for (const sel of s.at.split(',')) { target = document.querySelector(sel.trim()); if (target) break; }
-  if (target) { target.classList.add('tour-lit'); target.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+  // a step can DO something first: fire the demo bing, or open a file beside the room — then light its target once it is there
+  if (s.do === 'bing' && window.__demoBing) window.__demoBing();
+  if (s.do && s.do.startsWith('peek:') && window.__peek && !document.querySelector('#drawer:not([hidden])')) window.__peek(s.do.slice(5));
+  const light = () => { let t = null; if (s.at) for (const sel of s.at.split(',')) { t = document.querySelector(sel.trim()); if (t) break; } if (t) { t.classList.add('tour-lit'); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } return t; };
+  let target = light();
+  if (!target && s.do) setTimeout(() => { const t = light(); if (t) { const card = root && root.querySelector('.tour-card'); if (card) card.classList.remove('center'); } }, 900);
   root.innerHTML = html`
     <div class="tour-card ${target ? '' : 'center'}">
       <div class="kicker">Show me around · ${i + 1} of ${STEPS.length}${autoplay ? " · playing" : ""}</div>${autoplay ? raw("<div class=\"tour-bar\"><i></i></div>") : ""}

@@ -7,9 +7,9 @@
 // Every 10 seconds this asks for anything new with your name on it: an @-tag
 // on a customer's file (v_my_mentions) or a direct line to you
 // (direct_messages). The phone gets the same thing as a push (312 / 346).
-import * as api from './api.js?v=67';
-import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=67';
-import { $, esc } from './ui.js?v=67';
+import * as api from './api.js?v=68';
+import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=68';
+import { $, esc } from './ui.js?v=68';
 
 let timer = null, since = null, unseen = 0;
 const seen = new Set();
@@ -119,7 +119,9 @@ export function startAlerts() {
   if (isDemo()) {
     // the film: one staged tag lands twenty seconds in, so the seat sees the bing and the card
     const m = (state.mentions || [])[0];
-    if (m) setTimeout(() => fire([{ id: 'demo', kind: 'mention', thread_id: m.thread_id, customer_id: m.customer_id, customer: m.customer_name, from: m.author_name, body: m.body, at: m.created_at }]), 20000);
+    const stage = () => { if (m && !document.querySelector('#alerts .alert')) fire([{ id: 'demo', kind: 'mention', thread_id: m.thread_id, customer_id: m.customer_id, customer: m.customer_name, from: m.author_name, body: m.body, at: m.created_at }]); };
+    window.__demoBing = stage;
+    if (!/[?&]tour=1/.test(location.search)) setTimeout(stage, 20000);   // the film fires it on its own step
     timer = 1; paintBell(); return;
   }
   try { since = localStorage.getItem(KEY()) || new Date().toISOString(); } catch { since = new Date().toISOString(); }

@@ -5,9 +5,9 @@
 // the checklist, the photos and a price box. His price is one line on the file
 // that @-tags the rep, so the rep's phone buzzes. Everyone else sees the card
 // on the customer's file: what was asked, what came back, how long it took.
-import { state, isDemo, personName, firstName, answerQuote, photoSrc } from './book.js?v=67';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=67';
-import { brandName } from './config.js?v=67';
+import { state, isDemo, personName, firstName, answerQuote, photoSrc } from './book.js?v=68';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=68';
+import { brandName } from './config.js?v=68';
 
 const money = (n) => '$' + Number(n).toLocaleString([], { maximumFractionDigits: 0 });
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
@@ -29,7 +29,7 @@ function photosHTML(q) {
 /* THE PRICER'S QUEUE — at the top of The Line for the seat that prices */
 export function quotesQueueCard() {
   const me = state.me || {};
-  const mine = (state.quotes || []).filter((q) => q.status === 'open' && (q.assignee_id === me.id || (isDemo() && me.role === 'owner'))).map((q) => ({ ...q, photos: state.quotePhotos })).sort((a, b) => b.open_min - a.open_min);
+  const mine = (state.quotes || []).filter((q) => q.status === 'open' && (q.assignee_id === me.id || isDemo())).map((q) => ({ ...q, photos: state.quotePhotos })).sort((a, b) => b.open_min - a.open_min);
   if (!mine.length) return '';
   return `<div class="card quotes" data-tour="quotes">
     <div class="head" style="margin-bottom:4px"><div class="kicker">Quotes to price · ${mine.length} waiting on you · oldest first</div><div class="right"><span class="chip">the reps' hard ones</span></div></div>
@@ -73,7 +73,7 @@ export function quoteFileCard(quotes, photos) {
       ${checklistHTML(q)}
       ${q.note ? `<div class="small" style="margin-top:4px">${esc(q.note)}</div>` : ''}
       ${q.status === 'priced' ? `<div class="qprice"><b>${esc(money(q.price))}</b>${q.answer_note ? ' · ' + esc(q.answer_note) : ''} <span class="dimmer">· ${esc(firstName(q.assignee_name))}</span></div>` : ''}
-      ${q.status === 'open' && (q.assignee_id === me.id || (isDemo() && me.role === 'owner')) ? `<div class="qans"><span class="mono">$</span><input type="number" min="0" step="1" inputmode="decimal" placeholder="9,900" data-price="${esc(q.id)}"><input type="text" placeholder="a word for ${esc(firstName(q.rep_name))}" data-note="${esc(q.id)}"><button class="btn sm fill" data-send="${esc(q.id)}">Send the price</button></div>` : ''}
+      ${q.status === 'open' && (q.assignee_id === me.id || isDemo()) ? `<div class="qans"><span class="mono">$</span><input type="number" min="0" step="1" inputmode="decimal" placeholder="9,900" data-price="${esc(q.id)}"><input type="text" placeholder="a word for ${esc(firstName(q.rep_name))}" data-note="${esc(q.id)}"><button class="btn sm fill" data-send="${esc(q.id)}">Send the price</button></div>` : ''}
     </div>`).join('')}
   </div>`;
 }
