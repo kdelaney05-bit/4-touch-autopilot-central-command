@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=84';
-import { DEMO } from './demo.js?v=84';
+import * as api from './api.js?v=85';
+import { DEMO } from './demo.js?v=85';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -78,7 +78,12 @@ export async function loadAll() {
     // 346: direct lines. null (not []) when the view is not on live yet, so the rail can say so instead of reading empty.
     api.page('v_direct_lines?select=*&order=last_at.desc', 200).catch(() => null),
   ]);
-  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct });
+  let everyone = people;
+  if ((people || []).length < 3) {
+    const names = await api.page('rep_names?select=id,name&order=name.asc', 500).catch(() => []);
+    if (names.length > (people || []).length) everyone = names.map((n) => (people || []).find((p) => p.id === n.id) || { id: n.id, name: n.name, initials: String(n.name || '').split(/\s+/).map((w) => w[0] || '').join('').slice(0, 2).toUpperCase(), role: null, sms_from: null });
+  }
+  Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people: everyone, pipeline, estimates, touches, direct });
   // 353: quotes to Gio — the open ones and the last 30 days, the checklist, and the photos the open ones carry
   const [quotes, quoteChecklist] = await Promise.all([
     api.page(`v_quote_requests?select=*&or=(status.eq.open,created_at.gte.${since30})&order=created_at.desc`, 300).catch(() => []),

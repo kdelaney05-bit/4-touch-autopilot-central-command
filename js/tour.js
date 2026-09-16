@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=84';
+import { $, html, raw, esc } from './ui.js?v=85';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
