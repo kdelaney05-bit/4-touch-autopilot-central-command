@@ -56,3 +56,10 @@ There is NO DocuSign integration key for the company account and never was. Gmai
 ## ✅ RULED, 16 Sep ~6:30 PM — "So this is what we're going to go with, correct? I love it."
 
 Kevin approved `docs/sign-everything.html` as THE design: one link, the proposal + our contract sheet, every form the address needs listed under it filled from the file, plain sign-here / date-here / initial spots (NOC, Hold Harmless, permit applications included, nothing notarized), one green ACCEPT & SIGN EVERYTHING, every signed PDF on the file, Sam's tile lights. Build it exactly as drawn, on our own signing link, for every seat. No DocuSign.
+
+## ✅ BUILT + LIVE, 16 Sep ~7 PM — "let's just change this for everyone… one stop shop when the customer accepts"
+
+- **Migration 366 `366_sign_everything_once` APPLIED + REGISTERED** (365 was taken live by another session as `365_supplier_bills` — **next free = 367**, verify the registry first). All 38 active `paperwork_forms` rows: `stage='signing'`, `signing='esign'`, `wet_ink_if_easement=false`; the old values kept in `signing_before_366` / `stage_before_366`.
+- **estimate-view DEPLOYED (`--no-verify-jwt`)**: `packetOn()` = the `esign_packet` switch + a sender, no seat check (every seat's link carries the packet and the contract sheet); `/packet` swaps each document's `file_url` for a 10-minute signed link to the FILLED PDF in `paperwork_filled` when the file has one (325), else the blank catalogue PDF.
+- Kevin's test file (Kevin Delaney — Laptop test (fence), Cocoa) lists: NOC Brevard · Hold Harmless City of Cocoa · Warranty Disclosure · (optional) Removal/Reinstall, Core Drill & Paver, Wood Fence, Survey — all tap-to-sign under the one signature.
+- Still owed on this: the page (`liberty-command/e.html`) lists documents with a tap each and one signature; the per-form yellow SIGN/DATE/INITIAL spots drawn in the mock are not on the real page yet (the mock is the target). The filled NOC appears only once `paperwork-fill` has run for that file.
