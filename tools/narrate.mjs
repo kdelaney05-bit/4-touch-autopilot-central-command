@@ -10,7 +10,10 @@
 // Never a real person's voice passed off as them.
 //   ELEVENLABS_API_KEY + ELEVENLABS_VOICE_ID  → ElevenLabs (the best voices; a cloned voice is a voice id too)
 //   OPENAI_API_KEY   [+ OPENAI_TTS_VOICE, default 'onyx']  → OpenAI gpt-4o-mini-tts (cheap, very good)
-// One key in the environment is enough; ElevenLabs wins when both are set. Cost: about a cent a step.
+//   (no key)  → Microsoft's neural voice through the Edge read-aloud service (`msedge-tts`, `npm i` once in this
+//                repo). EDGE_VOICE picks the voice; the default is en-US-GuyNeural — THE voice Kevin picked 16 Sep
+//                (he sent tts-en-US-GuyNeural.mp3). Free, no key, the same voice every time.
+// ElevenLabs wins when set, then OpenAI, then Guy. Cost: free for Guy, about a cent a step for the others.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,9 +29,22 @@ const pick = want === 'all' ? Object.keys(names) : [want];
 if (pick.some((n) => !names[n])) { console.error('films:', Object.keys(names).join(' ')); process.exit(2); }
 
 const EL = process.env.ELEVENLABS_API_KEY, OA = process.env.OPENAI_API_KEY;
-if (!dry && !EL && !OA) { console.error('no voice: set ELEVENLABS_API_KEY (+ELEVENLABS_VOICE_ID) or OPENAI_API_KEY'); process.exit(2); }
+const GUY = process.env.EDGE_VOICE || 'en-US-GuyNeural';
+let edge = null;
+if (!dry && !EL && !OA) {
+  try { edge = await import('msedge-tts'); } catch { console.error('no voice: npm i in this repo (msedge-tts), or set ELEVENLABS_API_KEY / OPENAI_API_KEY'); process.exit(2); }
+}
+async function recordGuy(text) {
+  const tts = new edge.MsEdgeTTS();
+  await tts.setMetadata(GUY, edge.OUTPUT_FORMAT.AUDIO_24KHZ_96KBITRATE_MONO_MP3);
+  const { audioStream } = tts.toStream(text);
+  const chunks = []; for await (const c of audioStream) chunks.push(c);
+  const buf = Buffer.concat(chunks); if (buf.length < 2000) throw new Error('edge voice returned ' + buf.length + ' bytes');
+  return buf;
+}
 
 async function record(text) {
+  if (edge) return recordGuy(text);
   if (EL) {
     const vid = process.env.ELEVENLABS_VOICE_ID || 'JBFqnCBsd6RMkjVDRZzb';   // George, the default studio narrator
     const r = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vid}?output_format=mp3_44100_128`, {
