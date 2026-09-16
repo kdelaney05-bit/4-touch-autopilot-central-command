@@ -62,8 +62,60 @@ inboxes. The census email (§6) asks the office to correct and complete it.
 | Bello Fencing · La Fence · MK Fencing · Pro-Tech Crew · Komodo Roofing · Kicking Grass (Rayce) | all | installers' invoices, not suppliers | Jonathan |
 | Southern Dumpsters | Pro-Tech | ? | ? |
 
-_(The 90-day roll-up by vendor with counts and totals is appended in §3a when
-the report finishes.)_
+### 3a. The 90-day roll-up (CC bills report, 18 Jun – 16 Sep 2026)
+
+Whole window: **1,847 bills, $1,959,191.88.** The vendor table below is the
+newest 1,250 of them (16 Sep back to 15 Jul); the 597 older bills (~$672K)
+are not broken out. Source: a private scratch report on the `bill` entity,
+run 16 Sep and deleted after.
+
+| Brand | Bills | Sum |
+|---|---:|---:|
+| Liberty Fencing | 823 | $619,357.52 |
+| Oasis Landscapes | 173 | $433,067.54 |
+| Pro-Tech Roofing | 239 | $215,200.36 |
+| Liberty Roofing | 15 | $19,607.39 |
+
+**Suppliers (materials):**
+
+| Vendor | Brand | Bills | Sum |
+|---|---|---:|---:|
+| Warehouse (our stock) | Liberty Fencing · Pro-Tech | 162 | $249,287.02 |
+| ABC Supply | Pro-Tech · Liberty Roofing | 97 | $113,413.86 |
+| Havana Fence Supply | Liberty Fencing | 56 | $78,866.25 |
+| Home Depot | Liberty Fencing · Oasis | 35 | $44,476.18 |
+| Iron World | Liberty Fencing | 15 | $38,694.90 |
+| Oasis- Material | Oasis | 33 | $30,800.57 |
+| Merchant Metals | Liberty Fencing | 10 | $15,452.19 |
+| Master Halco | Liberty Fencing | 6 | $7,273.43 |
+| Statewide Fence Wholesale | Liberty Fencing | 3 | $2,890.51 |
+| iDeal | Liberty Fencing | 4 | $2,497.86 |
+| Horizon Distributors | Oasis | 1 | $1,730.99 |
+| Stephens Pipe & Steel (two spellings) | Liberty Fencing | 3 | $1,525.73 |
+| Lowes | Oasis · Liberty Fencing | 3 | $1,175.53 |
+| The Fencing Factory | Liberty Fencing | 1 | $603.25 |
+| SRS | Pro-Tech | 1 | $294.25 |
+| ACE Hardware | Oasis | 1 | $68.86 |
+
+**Installers, crews and services (bills, not supplier invoices):** MK
+Fencing 98 · Pro-Tech Crew 82 · Kicking Grass (Rayce) 77 · La Fence 46 ·
+Hurtado Fence Works 44 · Simplifile (e-recording) 59 · Bello Fencing 37 ·
+Nick's Lawn 32 · Fence One 29 · Down Home Inspections 20 · Environmental
+Health 16 · Southern Dumpsters 13 · CG Fence 8 · ProLawn 8 · Permit 6 ·
+Vance Industries 5 · Millennia Roofing 6 · Sunrise Landscaping 4 · Owens 3 ·
+and one each of J&S Dumpsters, Tropical Dumpster, MG Transportation, Master
+Cuts, Josh Moore (Blue H2O), Maikel Excellent Fences, Komodo Roofing, YCP.
+
+**What the rows are missing:**
+
+| | Count |
+|---|---:|
+| Vendor blank or "TBD" | 218 of 1,250 (all but 16 are Liberty Fencing) |
+| Ref # (the supplier's invoice number) blank | 1,250 of 1,250 |
+| QuickBooks sync date set | 0 of 1,250 |
+
+So the machine's first job is not speed. It is the three fields nobody has
+time to type: the vendor, the invoice number, the link to QuickBooks.
 
 ## 4. The build — beside, switches OFF
 
