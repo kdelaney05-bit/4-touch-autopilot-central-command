@@ -88,3 +88,11 @@ Kevin: "We don't need the NOC to do the project anymore… nothing is held up. A
 - **Central Command v96:** the Property card has Fill the NOC before the county answers; words.js says the new rule. docs/sign-everything.html §7: who hears it, the second they sign.
 - **Drafts in Kevin's Gmail:** the note to Gio and Jess ("You're on every NOC email now — and nothing waits at signing"), unsent.
 - **Owed:** the supplier send from the MATERIAL ask (Jonathan's PO step) is a human step — "however it gets sent to the manufacturer" is not a machine's yet; the Oasis sheet initial; the SIGNED note's "Get out there today" wording that went to Kevin at 6:49 PM was the old one. **Next free = 371** (verify the registry).
+
+
+## ✅ ~11:45 PM — 371 Luis hears it; the calculator walk-through file
+
+Kevin: "send me a contract we filled out using the fence calculator that I can sign and it goes all the way to Luis, to everybody that it's coming."
+
+- **371  APPLIED:** the production watcher (Luis) is pushed "EXPECTED · {first}" at the signature and rides the SIGNED note; when the job came through Gio's calculator the SIGNED note carries the packet itself in  (proposal, material order, drawing, county packet, the signature image) and says what the job is from the takeoff. A job without a packet keeps the worker's printouts. **Next free = 372.**
+- **Walk-through file 2, a calculator job:** "Delaney calculator walk, Kevin" — customer 95c05b07-9bf6-4513-a595-9c2e8440c381, job 1a6aff77…, fence job 63f23382… (Gio's Practice 1 cloned: INSTALL 6' TALL VINYL FENCING (135 LF) WITH (1) 5' GATES, $4,032, stock, no deposit; the four packet files copied in storage under the new customer), estimate #1006, link https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/Ayz3sUgNv9S1c7b5zthzgQoMHK. On his signature: PERMIT on Sam, MATERIAL on Jonathan with the order attached (the calculator release), EXPECTED to Luis, SIGNED note with the packet to the rep, Gio, Kevin, Jess, Sam, Jonathan, Luis; the NOC fills and goes to him with the photo link; the first text on the next half-hour sweep.
