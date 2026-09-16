@@ -125,7 +125,7 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The Special Order Guide from Gio as rows: supplier, stock or special, deposit, lead time per product; gates over 5 ft are special; the material step names who to call and pushes Gio when he must approve; the day-before survey text (switch OFF until the voice pass) | **344** |
 | The bills: `supplier_bills`, `v_bills_queue`, `bill_decide`, switches `bills_to_qb` · `bills_to_cc` (OFF) — the supplier invoice lands on the file, Jonathan approves | **365** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (344 as of 15 Sep).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (live at 366, next free 367, as of 16 Sep evening).
 
 ## What Kevin and Jess change without a build
 
