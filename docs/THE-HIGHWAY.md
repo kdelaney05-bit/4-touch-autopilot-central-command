@@ -95,6 +95,13 @@ Files: `backend/migrations/351–354` on branch `claude/photos-app` (PR #426).
   caption in the browser's own voice (speechSynthesis). Autoplay waits longer on steps that open something.
 - **v79**: 🎬 What's new in the header → `docs/ride-alongs.html`, the list of every Ride-Along, newest on top.
   Gospels 31 (every new thing ships with a Ride-Along) and 32 (the machine babysits so the people hunt).
+- **v80**: THE VOICE, for real. A voiced film opens on "Sound on. Tap play." (browsers refuse to speak until one tap);
+  it reads sentence by sentence in the best English voice the device has, and autoplay moves on when the voice ends,
+  not on a timer. Two more films: `?tour=gio` (Quotes to price, 7 steps, `&as=manager`) and `?tour=keys` (Jess and
+  Luis, 12 steps, every room + View as). `tools/narrate.mjs` records a licensed narrator (ElevenLabs or OpenAI, one
+  key in the env) into `films/<film>/<n>.mp3` + `films/index.json`; the tour plays the recording when it exists.
+  Kevin asked for Steve Jobs' voice — declined (a real person's voice passed off as him); the narrator is a licensed
+  voice or Kevin's own clone with his say-so.
 - The crew page `c.html` shipped broken for a few minutes: a JS `String.replace` whose replacement held `$'`
   spliced the file into itself. Rebuilt from the last good commit; splices are split/join now, and the inline
   script is parsed before a push.

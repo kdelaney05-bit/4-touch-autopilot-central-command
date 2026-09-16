@@ -4,7 +4,8 @@
 // best thing and in one way better: it runs on the real screen, in the demo
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
-import { $, html, raw, esc } from './ui.js?v=79';
+// 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
+import { $, html, raw, esc } from './ui.js?v=80';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -40,23 +41,105 @@ const CREW_STEPS = [
   { room: 'line', at: '[data-tour="crews"] .nug', do: 'closemodal', title: 'Their court, your receipt.', body: 'Ramón gets a text with the link. Here you see: texted at 7:23, opened at 7:31, RECIBIDO Ramón at 7:32, brought back with the photo. Nothing to argue about. If it says not opened, call before a pallet moves.' },
   { room: 'line', at: null, title: 'What Ramón sees.', body: 'The customer and the address in gold. Your picture, big. Your words. The price. One button: RECIBIDO · ENTENDIDO. Then the one thing to bring back.', link: 'https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1', linkText: 'Open Ramón\'s screen' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS };
+// GIO'S FILM — ?demo=1&as=manager&tour=gio&auto=1&voice=1 (his seat: The Line · Sales · Pipeline · Photos · Files; the demo's manager rooms are the closest fit)
+const GIO_STEPS = [
+  { room: 'line', at: null, title: 'Gio, this is The Line.', body: 'One screen: every customer and every one of us waiting on the other end. Your part is one card. Two minutes and you have it.' },
+  { room: 'line', at: '[data-tour="quotes"]', title: 'Quotes to price. Your card.', body: 'A rep on a hard fence job taps ASK GIO on his phone. His checklist lands here: type, height, feet, gates, tear-out, grade, ground, HOA, survey, access, need-by. His pictures and his note with it. No phone call to get the facts.' },
+  { room: 'line', at: '[data-tour="quotes"] .qhead', title: 'The clock is the number.', body: 'Each ask shows how long it has waited and who asked. Gold past an hour, red past four. Get it under an hour and the guys sell on the spot.' },
+  { room: 'line', at: '[data-tour="quotes"] .qans', title: 'Type the price and a word. Send the price.', body: 'The price, and one line the rep should know: add a day for the tear-out, racked panels. Press Send the price. His phone buzzes with it, and it lands on the customer\'s file.' },
+  { room: 'files', at: '#drawer .quotes', do: 'peek:cj1', title: 'On the file: PRICED · 38 min.', body: 'Mark Whitfield. Ron asked, you priced it in thirty-eight minutes, your note is right there. Anyone who opens the file sees it. Nothing to repeat.' },
+  { room: 'pipeline', at: '.pies .pie, .pies', title: 'The Pipeline.', body: 'Every rep\'s pie: priced and waiting, by when he last worked it. Tap a name for his book. Yours is in there too. You are selling again.' },
+  { room: 'line', at: null, title: 'That\'s your part.', body: 'Sit on The Line. When a quote lands, price it, send it, and go sell. The rest of the room runs itself.' },
+];
+// THE KEYS' FILM — Jess and Luis: ?demo=1&tour=keys&auto=1&voice=1 (no &as=, so it runs in every room with View as)
+const KEYS_STEPS = [
+  { room: 'line', at: null, title: 'Jess, Luis: you hold the keys.', body: 'Every room, every file, and View as: be anyone and reach anyone. Two minutes for the whole place.' },
+  { room: 'line', at: '#sayit, .sayit, [data-tour="sayit"]', title: 'Say it, to anyone, about any customer.', body: 'Type who it is about, pick a person, say what you need, press Post. It reaches them, it lands on the customer\'s file, and it tells you who it reached.' },
+  { room: 'line', at: '#alerts .alert', do: 'bing', title: 'The bing.', body: 'When somebody tags you: a sound and this card. It stays until you press Got it or Open the file. Your name on it, or you never hear about it.' },
+  { room: 'line', at: '[data-tour="sent"]', title: 'What you sent out.', body: 'Every directive of yours: who it reached, who picked it up, who did it, how fast. Tap one and the chain opens, straight down until done. Look in without hovering. Tap Appreciate on the one that landed well.' },
+  { room: 'line', at: '[data-tour="stuck"]', title: 'Where it is stuck.', body: 'Every open ask, grouped by what it waits on. The number is the oldest one. That one is the one that is actually stuck.' },
+  { room: 'line', at: '#viewas', title: 'View as.', body: 'Pick a name at the top and the site becomes their rooms with their name on it. See exactly what Sam sees, then back to you. Only the keys have this.' },
+  { room: 'line', at: '[data-tour="crews"]', title: 'My crews and the nugget.', body: 'Luis: a crew is a name and a phone, no login. A nugget is one instruction, the address, the picture, the price, and the one thing to bring back. They tap RECIBIDO by name and you hold the receipt.' },
+  { room: 'line', at: '#line-rail', title: 'Your rail.', body: 'You\'re up is the short list with your name on it. Nothing goes unanswered is the company board. People is the direct lines: just the two of you and Kevin.' },
+  { room: 'files', at: '.mybook, #tabs', title: 'Files opens on My book.', body: 'Your customers, one card each: the wait in gold or red, the open tasks with who has them and how long. Everyone is the whole list.' },
+  { room: 'files', at: '#drawer #photos-card', do: 'peek:cj3', title: 'The file, and Photo.', body: 'The photos sit first. Plus Photo is the camera on a phone: the words, tag people, the crew, the dollars. It lands on the thread and everyone named gets the buzz. The customer never sees it.' },
+  { room: 'files', at: '#drawer .rcpt', title: 'The receipt.', body: 'Under every note: who it reached, buzzed on the phone or waiting in their You\'re up, and a check the moment they open it. There when you look.' },
+  { room: 'line', at: null, title: 'On the road: the same site.', body: 'Open it on your phone and add it to the home screen. Same rooms, same files, in your pocket. Luis, that is your mobile command center.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS };
+let FILM_NAME = '1';
+// THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
+// (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded
+// narration at films/<film>/<n>.mp3 (tools/narrate.mjs); when the file is not there, the browser's best voice reads it.
+const VOICE = /[?&]voice=1/.test(location.search) && ('speechSynthesis' in window || 'Audio' in window);
+let voiceSeq = 0;
+let RECORDED = null;   // films/index.json → { film: steps } for the films that have a recorded narrator
+const recordedReady = VOICE ? fetch('films/index.json', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : {})).catch(() => ({})).then((j) => { RECORDED = j || {}; }) : Promise.resolve();
+function bestVoice() {
+  let vs = []; try { vs = speechSynthesis.getVoices() || []; } catch {}
+  const want = ['Google US English', 'Samantha', 'Microsoft Aria Online (Natural)', 'Microsoft Guy Online (Natural)', 'Microsoft Ava Online (Natural)', 'Daniel', 'Alex'];
+  for (const w of want) { const v = vs.find((x) => x.name === w || x.name.startsWith(w)); if (v) return v; }
+  return vs.find((x) => /^en[-_]US/i.test(x.lang)) || vs.find((x) => /^en/i.test(x.lang)) || null;
+}
+// speak a step; done() fires when the last word has been said (used by autoplay to move on)
+function narrate(s, done) {
+  const my = ++voiceSeq;
+  try { speechSynthesis.cancel(); } catch {}
+  if (window.__narr) { try { window.__narr.pause(); } catch {} window.__narr = null; }
+  const finish = () => { if (my === voiceSeq && done) done(); };
+  const synth = () => {
+    if (!('speechSynthesis' in window)) return finish();
+    const parts = [s.title, ...(s.body.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [s.body])].map((x) => x.trim()).filter(Boolean);
+    const v = bestVoice();
+    parts.forEach((txt, k) => {
+      const u = new SpeechSynthesisUtterance(txt); u.rate = 1.0; u.pitch = 1; if (v) u.voice = v; u.lang = (v && v.lang) || 'en-US';
+      if (k === parts.length - 1) { u.onend = finish; u.onerror = finish; }
+      try { speechSynthesis.speak(u); } catch { if (k === parts.length - 1) finish(); }
+    });
+  };
+  // a recorded narration first, if the film has one
+  recordedReady.then(() => {
+    if (my !== voiceSeq) return;
+    if (!RECORDED || !(RECORDED[FILM_NAME] >= i + 1)) return synth();
+    const a = new Audio(`films/${FILM_NAME}/${i + 1}.mp3`);
+    window.__narr = a;
+    a.onended = finish; a.onerror = () => { if (my === voiceSeq) synth(); };
+    a.play().catch(() => { if (my === voiceSeq) synth(); });
+  });
+}
+const wordsMs = (s) => 900 + ((s.title + ' ' + s.body).split(/\s+/).length * 400);
 let FILM = STEPS;
 let i = 0, root = null, auto = null;
 const AUTO_MS = 7000;
 // ?auto=1 with ?tour=1: the tour runs itself, a step every seven seconds — the film, on the real screen
 export function startTour(autoplay = /[?&]auto=1/.test(location.search), name = (/[?&]tour=([a-z0-9]+)/.exec(location.search) || [])[1]) {
-  FILM = FILMS[name] || STEPS;
+  FILM = FILMS[name] || STEPS; FILM_NAME = FILMS[name] ? name : '1';
   i = 0; clearTimeout(auto); auto = null;
   if (!root) { root = document.createElement('div'); root.id = 'tour'; document.body.appendChild(root); }
+  if (VOICE) {
+    try { speechSynthesis.getVoices(); } catch {}
+    root.innerHTML = html`
+      <div class="tour-card center">
+        <div class="kicker">Ride-Along · ${FILM.length} steps · with voice</div>
+        <h2 class="serif">Sound on. Tap play.</h2>
+        <p>It runs itself on the real screen: every step shown, said out loud, and written under the picture. Nothing here is real and nothing is saved.</p>
+        <div class="tour-foot"><button class="btn" id="tour-x">Not now</button><span style="flex:1"></span><button class="btn fill" id="tour-go">▶ Play</button></div>
+      </div>`;
+    $('#tour-x').onclick = stop;
+    $('#tour-go').onclick = () => { try { speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); } catch {} paint(autoplay); };
+    return;
+  }
   paint(autoplay);
 }
-function stop() { clearTimeout(auto); auto = null; try { speechSynthesis.cancel(); } catch {} if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
+function stop() { clearTimeout(auto); auto = null; voiceSeq++; try { speechSynthesis.cancel(); } catch {} if (window.__narr) { try { window.__narr.pause(); } catch {} window.__narr = null; } if (root) { root.remove(); root = null; } document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit')); }
 const AUTO_LONG = new Set(['peek:cj3']);   // the file steps get a beat more
 function paint(autoplay = false) {
   const s = FILM[i];
   clearTimeout(auto); auto = null;
-  if (autoplay && i < FILM.length - 1) auto = setTimeout(() => { i++; paint(true); }, AUTO_MS + (s.do ? 2500 : 0) + Math.max(0, (s.body.length - 160) * 25));
+  const stepMs = VOICE ? wordsMs(s) + (s.do ? 1500 : 0) : AUTO_MS + (s.do ? 2500 : 0) + Math.max(0, (s.body.length - 160) * 25);
+  const next = () => { clearTimeout(auto); auto = null; if (i < FILM.length - 1) { i++; paint(true); } };
+  // with voice the step ends when the voice does (plus a breath); the timer is only the safety net
+  if (autoplay && i < FILM.length - 1) auto = setTimeout(next, VOICE ? stepMs + 15000 : stepMs);
   document.querySelectorAll('.tour-lit').forEach((e) => e.classList.remove('tour-lit'));
   // the step's room: switch only when the seat has it and the page is not already there
   if (s.room && window.__go && !document.querySelector(`#tabs .tab.on[data-view="${s.room}"]`) && document.querySelector(`#tabs [data-view="${s.room}"]`)) window.__go(s.room);
@@ -67,13 +150,13 @@ function paint(autoplay = false) {
   if (s.do === 'lbcrew') { document.querySelector('#lb-crew')?.click(); }
   if (s.do === 'closemodal') { document.querySelector('#modal-cancel')?.click(); const lb = document.querySelector('#lightbox'); if (lb) lb.hidden = true; }
   // the voice: &voice=1 reads the caption in the browser's own voice (Kevin: "commentate our instructions")
-  if (/[?&]voice=1/.test(location.search) && 'speechSynthesis' in window) { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(s.title + ' ' + s.body); u.rate = 1.02; speechSynthesis.speak(u); } catch {} }
+  if (VOICE) narrate(s, autoplay && i < FILM.length - 1 ? () => setTimeout(next, 1400) : null);
   const light = () => { let t = null; if (s.at) for (const sel of s.at.split(',')) { t = document.querySelector(sel.trim()); if (t) break; } if (t) { t.classList.add('tour-lit'); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } return t; };
   let target = light();
   if (!target && s.do) setTimeout(() => { const t = light(); if (t) { const card = root && root.querySelector('.tour-card'); if (card) card.classList.remove('center'); } }, 900);
   root.innerHTML = html`
     <div class="tour-card ${target ? '' : 'center'}">
-      <div class="kicker">Show me around · ${i + 1} of ${FILM.length}${autoplay ? " · playing" : ""}</div>${autoplay ? raw("<div class=\"tour-bar\"><i></i></div>") : ""}
+      <div class="kicker">Show me around · ${i + 1} of ${FILM.length}${autoplay ? " · playing" : ""}</div>${autoplay ? raw(`<div class="tour-bar"><i style="animation-duration:${stepMs}ms"></i></div>`) : ""}
       <h2 class="serif">${s.title}</h2>
       <p>${s.body}</p>${s.link ? raw(`<p><a class="btn sm fill" href="${esc(s.link)}" target="_blank" rel="noopener">${esc(s.linkText || 'Open')}</a></p>`) : ''}
       <div class="tour-foot">
@@ -87,4 +170,4 @@ function paint(autoplay = false) {
   const b = $('#tour-b'); if (b) b.onclick = () => { i--; paint(autoplay); };
   $('#tour-n').onclick = () => { if (i >= FILM.length - 1) stop(); else { i++; paint(autoplay); } };
 }
-export const tourWanted = () => /[?&]tour=(1|crews)\b/.test(location.search);
+export const tourWanted = () => { const m = /[?&]tour=([a-z0-9]+)/.exec(location.search); return !!(m && FILMS[m[1]]); };

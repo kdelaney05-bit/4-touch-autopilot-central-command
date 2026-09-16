@@ -13,15 +13,15 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=79';
-import { toast, openModal } from './ui.js?v=79';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=79';
-import { crewsCard, wireCrews } from './crews.js?v=79';
-import { sentCard, wireSent } from './sent.js?v=79';
-import { html, raw, esc } from './ui.js?v=79';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=79';
-import { renderRoom, wireAtOn } from './village.js?v=79';
-import * as api from './api.js?v=79';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=80';
+import { toast, openModal } from './ui.js?v=80';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=80';
+import { crewsCard, wireCrews } from './crews.js?v=80';
+import { sentCard, wireSent } from './sent.js?v=80';
+import { html, raw, esc } from './ui.js?v=80';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=80';
+import { renderRoom, wireAtOn } from './village.js?v=80';
+import * as api from './api.js?v=80';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */

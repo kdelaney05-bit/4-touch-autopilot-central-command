@@ -118,7 +118,15 @@ wrong, not the gospel.
     solves a problem — so each one that matters gets a Ride-Along, listed at
     docs/ride-alongs.html, newest on top. And the form is never finished:
     every session that builds one is asked to make it easier to find, faster
-    to watch and simpler to send than the last. "Keep it hungry." (16 Sep)
+    to watch and simpler to send than the last. "Keep it hungry." Why all
+    three at once: "me reading, seeing and then hearing is such a deeper
+    level — like reading a book in stereo… smart people, it's another layer.
+    So we need them all." The rule reaches the WHOLE ROLLOUT: any time a
+    change ends, the person it goes to gets the film — the new step shown,
+    the text on how to use it, and the voice. He calls the rulings we bake
+    into the code "little programming notes." The voice is a narrator we
+    have the right to use (a licensed voice, or Kevin's own with his say-so);
+    never a real person's voice passed off as them. (16 Sep)
 32. **The machine babysits so the people hunt.** "They get busy taking care
     of all they've built — no time to hunt, they're babysitting. They are out
     of capacity. We aren't. I've never been, ever." Everyone has a capacity;
