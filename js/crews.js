@@ -6,9 +6,9 @@
 // to point fingers… they need to know we told them next time." So every nugget is
 // a receipt: texted (when), opened (when), RECIBIDO by name (when), brought back
 // (what, when). Not to fight. So there is nothing to argue.
-import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=71';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=71';
-import { brandName } from './config.js?v=71';
+import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=72';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=72';
+import { brandName } from './config.js?v=72';
 
 const BRING = { done: 'Just tell me it is done', photo: 'A photo', number: 'A number', yesno: 'Yes or no', text: 'A few words' };
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
@@ -19,7 +19,7 @@ const PUB = 'https://lzegjjbkfuecrhdvlvay.supabase.co/storage/v1/object/public/j
 export function crewsCard() {
   const me = state.me || {};
   const mine = (state.crews || []).filter((c) => c.active !== false && (c.manager_id === me.id || isDemo()));
-  const canManage = ['manager', 'owner', 'admin'].includes(me.role);
+  const canManage = ['manager', 'owner', 'admin'].includes(me.role) || isDemo();   // the film runs as an office seat; the demo shows the card to everyone
   if (!canManage) return '';
   const court = (state.nuggets || []).filter((n) => n.status === 'open' && (n.by_id === me.id || isDemo())).sort((a, b) => (b.late - a.late) || (b.open_min - a.open_min));
   const back = (state.nuggets || []).filter((n) => n.status === 'returned' && (n.by_id === me.id || isDemo())).sort((a, b) => new Date(b.returned_at) - new Date(a.returned_at)).slice(0, 6);
