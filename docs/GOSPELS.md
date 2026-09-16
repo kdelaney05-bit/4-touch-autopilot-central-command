@@ -94,6 +94,11 @@ wrong, not the gospel.
 26. **Crews, sales and supervisors talk in pictures.** A photo is something
     you say on the file: it can name a person, the crew and the dollar
     amount. Crews never get a login — one link per job, in Spanish. (15 Sep)
+    *16 Sep, evening, Kevin: "one login per crew… someone has to just log in
+    and then we can communicate with that person on the job site." So: one
+    login per crew, never per man; the link per job stays for whoever holds
+    the phone; Spanish or English on their say, and the machine carries the
+    other side. `docs/THE-CREWS.md`.*
 27. **The hard quote goes to the one who can price it, fast.** A rep's ask
     is a checklist and pictures in one tap; the price comes back on the file
     and buzzes the rep; the clock on it is the number to watch. "Cut this

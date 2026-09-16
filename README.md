@@ -128,8 +128,11 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The NOC is the customer's errand: `noc_handoffs`, `noc_nudge_plans`, `noc_handoff_start/email/send/for/view/receive`, `noc_nudge_sweep` (cron, 30 min), switch `noc_notarize` (OFF), the chain no longer waits on the NOC; edge fn `noc-return` | **367** |
 | Oasis signs the contract alone: `paperwork_forms.except_brands`; the packet honours it | **368** |
 | The bills, the two flags and the move: read policy `is_office() or is_manager()`, `wrong_job` stays on `v_bills_queue`, `bill_rematch(p_id, p_customer)`, `bill_decide` guarded like `invoice_request` | **369** |
+| Nothing waits at signing (a sibling session, the same evening, the same number): the contract settling opens PERMIT on Sam and MATERIAL on Jonathan at once, every brand; a calculator job releases its material at the signature; `machine_email_watchers` ride every machine email; the SIGNED note says what opened on whom | **369** (`369_nothing_waits_at_signing`) |
+| The NOC handoff opens at the signature and the form rides in when the fill lands; the office nagged at 30 minutes; parcel-lookup fills the NOC without a county match | **370** |
+| Luis hears it at the signature: the production watcher is pushed EXPECTED and rides the SIGNED note; a calculator job's SIGNED note carries its packet | **371** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (369 applied as of 16 Sep evening; next free 370).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (371 applied as of 16 Sep ~7:20 PM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 372).
 
 ## What Kevin and Jess change without a build
 

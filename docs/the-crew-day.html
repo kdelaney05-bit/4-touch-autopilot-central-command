@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>Tu día con Liberty · Your day with Liberty</title>
+<!--
+  THE CREW DAY — the page Luis shows the crews on Wed 17 Sep 2026 (docs/THE-CREWS.md).
+  Kevin, 16 Sep: "one login per crew… we can communicate with that person on the job
+  site… if they're in Spanish it translates." Spanish first, English one tap. Six steps,
+  the real button words from the real order page (w.html). Nothing to learn: it comes
+  to you (gospel 33). Print it, or hand the phone around.
+-->
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--line:#e3ddd0;--ink:#1c1a15;--dim:#5a544a;--dimmer:#8a8377;--gold:#b8860b;--goldsoft:#fbf0d0;--green:#2f8f5b;--greensoft:#e6f2e9;--navy:#1c3055;--red:#b4574a;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system,'Segoe UI',system-ui,sans-serif;padding:14px 12px 40px}
+.wrap{max-width:720px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.k{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer)}
+h1{font-size:26px;line-height:1.15;margin:4px 0 0}
+.lead{font-size:17px;color:var(--dim);margin:8px 0 14px}
+.lang{font:700 13px var(--mono);border:1px solid var(--line);border-radius:999px;padding:8px 12px;background:#fff;cursor:pointer;white-space:nowrap}
+.rule{background:var(--goldsoft);border-left:6px solid var(--gold);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:18px;font-weight:700;line-height:1.35}
+.rule small{display:block;font-weight:400;font-size:14px;color:var(--dim);margin-top:4px}
+.step{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--gold);border-radius:14px;padding:14px 14px 12px;margin-bottom:12px}
+.step .n{font:700 12px var(--mono);letter-spacing:.14em;color:var(--gold);text-transform:uppercase}
+.step h2{font-size:22px;margin:2px 0 6px;line-height:1.2}
+.step p{margin:0 0 8px;color:var(--dim);font-size:16px}
+.step p b{color:var(--ink)}
+.phone{background:#f4f2ec;border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px}
+.big4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.big4 button{font:800 15px var(--mono);letter-spacing:.04em;padding:12px 4px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);pointer-events:none}
+.big4 button small{display:block;font:400 10px var(--mono);color:var(--dimmer);margin-top:2px;letter-spacing:.06em}
+.big4 .here{background:var(--navy);border-color:var(--navy);color:#fff}.big4 .here small{color:#cdd6e6}
+.big4 .done{background:var(--green);border-color:var(--green);color:#fff}.big4 .done small{color:#d8efe1}
+.big4 .on{outline:3px solid var(--gold);outline-offset:2px}
+.verify{background:var(--green);color:#fff;border-radius:12px;padding:10px 12px}
+.verify label{display:block;font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;opacity:.9;margin-bottom:5px}
+.verify .in{background:#fff;color:var(--dimmer);border-radius:9px;padding:9px 12px;margin-bottom:7px;font-size:15px}
+.verify .go{background:#fff;color:var(--green);font:800 16px var(--mono);letter-spacing:.06em;border-radius:10px;padding:12px;text-align:center}
+.say{display:flex;gap:8px;margin-top:8px}
+.say .in{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--dimmer);font-size:15px}
+.say .b{background:var(--navy);color:#fff;border-radius:10px;padding:0 14px;display:flex;align-items:center;font:800 13px var(--mono)}
+.msg{max-width:92%;border-radius:14px;padding:8px 11px;font-size:15px;line-height:1.35;border:1px solid var(--line);background:#fbf4e6;border-left:4px solid #b45309;margin-top:6px}
+.msg.me{background:#efe6d6;border-left:1px solid var(--line);border-right:4px solid #6e5a3a;margin-left:auto}
+.msg .w{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dimmer);margin-bottom:3px}
+.msg .tr{display:block;font-size:13px;color:var(--dimmer);margin-top:3px;font-style:italic}
+.login{background:#0c1322;color:#e8ecf4;border-radius:14px;padding:14px;margin-top:8px;font-family:var(--mono)}
+.login .l{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8fa0ba;margin-bottom:6px}
+.login .f{background:#121e35;border:1px solid #1c2a44;border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:16px}
+.login .go{background:#34d399;color:#0c1322;border-radius:10px;padding:12px;text-align:center;font-weight:800;font-size:15px}
+.shots{display:flex;gap:6px;margin-top:8px}.shots span{flex:1;aspect-ratio:1;border-radius:8px;background:linear-gradient(180deg,#c9d7e6 0 55%,#8ea07a 55% 100%);border:1px solid var(--line);position:relative}
+.shots span:after{content:"✓";position:absolute;right:6px;bottom:4px;font:800 14px var(--mono);color:#fff;background:var(--green);border-radius:999px;width:20px;height:20px;line-height:20px;text-align:center}
+.never{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.never h2{font-size:20px;margin:0 0 6px}
+.never ul{margin:0;padding-left:20px;color:var(--dim);font-size:16px}
+.never li{margin:4px 0}
+table{border-collapse:collapse;width:100%;font-size:15px;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th{text-align:left;font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer);padding:10px 10px 6px;border-bottom:1px solid var(--line);background:#faf8f3}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim)}
+td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.close{background:var(--ink);color:#fff;border-radius:14px;padding:16px;margin-top:16px}
+.close b{display:block;font-size:22px;line-height:1.2;margin-bottom:6px}
+.close p{margin:0;color:#cfc9bd;font-size:15px}
+.foot{margin-top:14px;font-size:12px;color:var(--dimmer);font-family:var(--mono);line-height:1.5}
+.foot a{color:var(--navy)}
+.soon{display:inline-block;font:700 10px var(--mono);letter-spacing:.1em;color:var(--gold);background:var(--goldsoft);border-radius:999px;padding:3px 8px;vertical-align:middle;margin-left:6px}
+@media print{.lang{display:none}body{padding:0}.step,.never{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><div class="k" data-i="k">Liberty · Oasis · Pro-Tech · la cuadrilla</div><h1 data-i="h1">Tu día con Liberty.</h1></div><button class="lang" id="lang">EN</button></div>
+  <p class="lead" data-i="lead">Una cuenta por cuadrilla. Un teléfono. Seis toques en el día. Todo lo demás lo hace la máquina.</p>
+  <div class="rule"><span data-i="rule">Nada que aprender. Te llega.</span><small data-i="ruleS">Tu trabajo aparece en el teléfono y el teléfono te dice qué tocar. Si algo no se entiende, la pantalla está mal, no tú. Díselo a Luis.</small></div>
+
+  <div class="step">
+    <div class="n" data-i="s1n">1 · Entra una vez</div>
+    <h2 data-i="s1h">Una cuenta por cuadrilla, no por persona.</h2>
+    <p data-i="s1p">La cuadrilla tiene <b>una</b> cuenta: <b>Liberty Cuadrilla 1235</b>, por ejemplo. El que lleva el teléfono ese día es la cuadrilla. Entra una vez y ya. Nadie más tiene que entrar. Kevin pone la contraseña.</p>
+    <div class="login"><div class="l" data-i="s1l">4-Touch · cuadrilla</div><div class="f">Liberty Cuadrilla 1235</div><div class="f">••••••••</div><div class="go" data-i="s1go">ENTRAR</div></div>
+  </div>
+
+  <div class="step">
+    <div class="n" data-i="s2n">2 · AQUÍ</div>
+    <h2 data-i="s2h">Llegas. El teléfono lo marca solo.</h2>
+    <p data-i="s2p">Cuando entras al terreno, el teléfono marca la hora <b>solo</b>. No tienes que tocar nada. El botón <b>AQUÍ</b> es para el día que el mapa esté mal. Luis ve en su pantalla que llegaste, sin llamarte.</p>
+    <div class="phone"><div class="big4"><button class="here on">AQUÍ<small>HERE</small></button><button>FOTOS<small>PHOTOS</small></button><button class="done">LISTO<small>DONE</small></button><button>LLAMAR<small>CALL</small></button></div></div>
+  </div>
+
+  <div class="step">
+    <div class="n" data-i="s3n">3 · La orden</div>
+    <h2 data-i="s3h">Lee la orden. Toca RECIBIDO con tu nombre.</h2>
+    <p data-i="s3p">El trabajo del día está en tu teléfono: el cliente, la dirección, el dibujo, la lista de material, qué se va a hacer. En español, con el inglés debajo. Escribe tu nombre y toca <b>RECIBIDO · ENTENDIDO</b>. Con eso Luis sabe que lo viste y quién lo recibió.</p>
+    <div class="phone"><div class="verify"><label data-i="s3l">Tu nombre / Your name</label><div class="in" data-i="s3in">Nombre de quien recibe</div><div class="go">RECIBIDO · ENTENDIDO</div></div></div>
+  </div>
+
+  <div class="step">
+    <div class="n" data-i="s4n">4 · FOTOS</div>
+    <h2 data-i="s4h">Dilo con una foto.</h2>
+    <p data-i="s4p">Toca <b>FOTOS</b>, toma la foto, listo. La foto cae en el expediente del cliente con el nombre de tu cuadrilla. Falta material: una foto y dos palabras, y Luis lo ve con el reloj corriendo. Nada se pierde en un texto.</p>
+    <div class="phone"><div class="big4"><button class="here">AQUÍ<small>HERE</small></button><button class="on">FOTOS<small>PHOTOS</small></button><button class="done">LISTO<small>DONE</small></button><button>LLAMAR<small>CALL</small></button></div><div class="shots"><span></span><span></span><span></span></div></div>
+  </div>
+
+  <div class="step">
+    <div class="n" data-i="s5n">5 · Pregunta</div>
+    <h2 data-i="s5h">Escríbele a Luis en tu idioma.</h2>
+    <p data-i="s5p">Abajo de la orden hay una línea al supervisor. Escribe en español. Luis lo lee en inglés si quiere, y lo que él te contesta te llega en español. <b>Tus palabras se quedan como las escribiste</b>; la traducción va al lado, marcada. <span class="soon" data-i="soon">PRÓXIMAMENTE</span></p>
+    <div class="phone"><div class="msg me"><div class="w">Ramón · 9:40</div>Faltan 2 postes de 5x5 para la esquina del fondo.<span class="tr" data-i="s5tr">traducido: Short 2 5x5 posts for the back corner.</span></div><div class="msg"><div class="w">Luis · 9:44</div><span data-i="s5r">Van en camino, 40 minutos. Sigan con el frente.</span><span class="tr" data-i="s5tr2">translated from: On the way, 40 minutes. Keep going on the front.</span></div><div class="say"><div class="in" data-i="s5in">Mensaje al supervisor…</div><div class="b">ENVIAR</div></div></div>
+  </div>
+
+  <div class="step">
+    <div class="n" data-i="s6n">6 · LISTO</div>
+    <h2 data-i="s6h">Terminaste. Tres fotos o más, y LISTO.</h2>
+    <p data-i="s6p">Toma <b>tres fotos o más</b> del trabajo terminado y toca <b>LISTO</b>. La pantalla te dice cuántas van. Con eso Luis firma el trabajo y la oficina manda la factura, sin llamarte a ti. Tu día terminó.</p>
+    <div class="phone"><div class="big4"><button class="here">AQUÍ<small>HERE</small></button><button>FOTOS<small>PHOTOS</small></button><button class="done on">LISTO<small>DONE</small></button><button>LLAMAR<small>CALL</small></button></div></div>
+  </div>
+
+  <div class="never">
+    <h2 data-i="nh">Lo que nunca tienes que hacer</h2>
+    <ul>
+      <li data-i="n1">Escribir reportes.</li>
+      <li data-i="n2">Mandarle textos a la oficina. La oficina nunca te escribe a ti; hablas con Luis.</li>
+      <li data-i="n3">Hablar inglés. Todo te llega en tu idioma.</li>
+      <li data-i="n4">Abrir otra aplicación. Es una sola pantalla: tu trabajo de hoy.</li>
+      <li data-i="n5">Recordar nada. Si hay algo que hacer, aparece en el teléfono.</li>
+    </ul>
+  </div>
+
+  <table>
+    <thead><tr><th data-i="t1">Quién</th><th data-i="t2">Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td data-i="r1a">Los muchachos</td><td data-i="r1b">Nada en el teléfono. Llegar, trabajar, salir en las fotos.</td></tr>
+      <tr><td data-i="r2a">El que lleva el teléfono</td><td data-i="r2b">Entra una vez. RECIBIDO con su nombre. Fotos. Falta material. LISTO. Le contesta a Luis.</td></tr>
+      <tr><td data-i="r3a">Luis · Obed · Robert · Mike</td><td data-i="r3b">Ponen la cuadrilla en el trabajo. Ven AQUÍ y las fotos. Contestan en su idioma. Firman el trabajo con las fotos de LISTO. Mandan un encargo cuando algo tiene que volver.</td></tr>
+      <tr><td data-i="r4a">La oficina</td><td data-i="r4b">Nunca le escribe a una cuadrilla. El material de Jonathan viene en la orden. La factura de Laura sale de la firma de Luis.</td></tr>
+      <tr><td data-i="r5a">La máquina</td><td data-i="r5b">Escribe la orden, la manda, traduce, marca las llegadas, cuenta las fotos, guarda el recibo de todo. No molesta a nadie que hizo su parte.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="close"><b data-i="ch">Nada que aprender. Te llega.</b><p data-i="cp">Esto no es algo que memorizar. Es lo que va a pasar. La pantalla te dice qué tocar. Si una pantalla confunde, la pantalla está mal, no tú. Díselo a Luis y Kevin la arregla.</p></div>
+  <p class="foot"><span data-i="f1">Así se ve el encargo en tu teléfono hoy:</span> <a href="https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1" target="_blank" rel="noopener">c.html?demo=1</a> · <span data-i="f2">el modelo completo:</span> <a href="https://github.com/kdelaney05-bit/4-touch-autopilot-central-command/blob/main/docs/THE-CREWS.md" target="_blank" rel="noopener">THE-CREWS.md</a> · 16 Sep 2026</p>
+</div>
+<script>
+(function(){
+  var EN = {
+    k:'Liberty · Oasis · Pro-Tech · the crew', h1:'Your day with Liberty.',
+    lead:'One login per crew. One phone. Six taps in a day. The machine does everything else.',
+    rule:'Nothing to learn. It comes to you.', ruleS:'Your job shows up on the phone and the phone tells you what to tap. If something is confusing, the screen is wrong, not you. Tell Luis.',
+    s1n:'1 · Log in once', s1h:'One login per crew, not per person.', s1p:'The crew has <b>one</b> login: <b>Liberty Crew 1235</b>, for example. Whoever carries the phone that day is the crew. Log in once and you are done. Nobody else has to log in. Kevin sets the password.', s1l:'4-Touch · crew', s1go:'SIGN IN',
+    s2n:'2 · HERE', s2h:'You arrive. The phone stamps it by itself.', s2p:'When you drive onto the site, the phone stamps the time <b>by itself</b>. You touch nothing. The <b>AQUÍ</b> button is for the day the map is wrong. Luis sees you arrived on his screen, without calling you.',
+    s3n:'3 · The order', s3h:'Read the order. Tap RECEIVED with your name.', s3p:'The day\'s job is on your phone: the customer, the address, the drawing, the material list, what gets done. Spanish, with the English under it. Type your name and tap <b>RECIBIDO · ENTENDIDO</b>. That tells Luis you saw it and who received it.', s3l:'Your name / Tu nombre', s3in:'Name of who receives it',
+    s4n:'4 · PHOTOS', s4h:'Say it with a picture.', s4p:'Tap <b>FOTOS</b>, take the picture, done. It lands on the customer\'s file with your crew\'s name. Short on material: one photo and two words, and Luis sees it with the clock running. Nothing gets lost in a text.',
+    s5n:'5 · Ask', s5h:'Write to Luis in your language.', s5p:'Under the order there is a line to the supervisor. Write in Spanish. Luis reads it in English if he wants, and what he answers reaches you in Spanish. <b>Your words stay exactly as you wrote them</b>; the translation sits beside them, marked. <span class="soon">COMING</span>', soon:'COMING', s5tr:'translated: Short 2 5x5 posts for the back corner.', s5r:'On the way, 40 minutes. Keep going on the front.', s5tr2:'traducido: Van en camino, 40 minutos. Sigan con el frente.', s5in:'Message the supervisor…',
+    s6n:'6 · DONE', s6h:'You finished. Three photos or more, and DONE.', s6p:'Take <b>three or more photos</b> of the finished work and tap <b>LISTO</b>. The screen tells you how many are in. With that, Luis signs the job off and the office sends the invoice, without calling you. Your day is over.',
+    nh:'What you never have to do', n1:'Write reports.', n2:'Text the office. The office never writes to you; you talk to Luis.', n3:'Speak English. Everything reaches you in your language.', n4:'Open another app. It is one screen: today\'s job.', n5:'Remember anything. If there is something to do, it shows up on the phone.',
+    t1:'Who', t2:'What they do',
+    r1a:'The guys', r1b:'Nothing on the phone. Arrive, work, be in the photos.',
+    r2a:'Whoever carries the phone', r2b:'Logs in once. RECEIVED with his name. Photos. Short on material. DONE. Answers Luis.',
+    r3a:'Luis · Obed · Robert · Mike', r3b:'Put the crew on the job. See HERE and the photos. Answer in their language. Sign the job off on the DONE photos. Send a nugget when something has to come back.',
+    r4a:'The office', r4b:'Never writes to a crew. Jonathan\'s material rides the order. Laura\'s invoice opens off Luis\'s sign-off.',
+    r5a:'The machine', r5b:'Writes the order, sends it, translates, stamps the arrivals, counts the photos, keeps the receipt on everything. Nags nobody who did their part.',
+    ch:'Nothing to learn. It comes to you.', cp:'This is not something to memorize. It is what is going to happen. The screen tells you what to tap. If a screen is confusing, the screen is wrong, not you. Tell Luis and Kevin fixes the screen.',
+    f1:'What the nugget looks like on your phone today:', f2:'the whole model:'
+  };
+  var ES = {};
+  document.querySelectorAll('[data-i]').forEach(function(el){ ES[el.dataset.i] = el.innerHTML; });
+  var L = 'es'; try { L = localStorage.getItem('crew-day-lang') || 'es'; } catch (e) {}
+  function apply(){
+    var D = L === 'en' ? EN : ES;
+    document.querySelectorAll('[data-i]').forEach(function(el){ if (D[el.dataset.i] != null) el.innerHTML = D[el.dataset.i]; });
+    document.documentElement.lang = L; document.getElementById('lang').textContent = L === 'es' ? 'EN' : 'ES';
+    document.title = L === 'es' ? 'Tu día con Liberty · Your day with Liberty' : 'Your day with Liberty · Tu día con Liberty';
+  }
+  document.getElementById('lang').onclick = function(){ L = L === 'es' ? 'en' : 'es'; try { localStorage.setItem('crew-day-lang', L); } catch (e) {} apply(); };
+  if (L === 'en') apply();
+})();
+</script>
+</body>
+</html>
