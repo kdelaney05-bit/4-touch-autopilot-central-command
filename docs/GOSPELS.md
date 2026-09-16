@@ -126,7 +126,9 @@ wrong, not the gospel.
     the text on how to use it, and the voice. He calls the rulings we bake
     into the code "little programming notes." The voice is a narrator we
     have the right to use (a licensed voice, or Kevin's own with his say-so);
-    never a real person's voice passed off as them. (16 Sep)
+    never a real person's voice passed off as them. The narrator is GUY,
+    Microsoft's en-US-GuyNeural, Kevin's pick the same night; tools/narrate.mjs
+    records him into films/ and the film plays the recording. (16 Sep)
 32. **The machine babysits so the people hunt.** "They get busy taking care
     of all they've built — no time to hunt, they're babysitting. They are out
     of capacity. We aren't. I've never been, ever." Everyone has a capacity;
