@@ -6,9 +6,9 @@
 // to point fingers… they need to know we told them next time." So every nugget is
 // a receipt: texted (when), opened (when), RECIBIDO by name (when), brought back
 // (what, when). Not to fight. So there is nothing to argue.
-import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=76';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=76';
-import { brandName } from './config.js?v=76';
+import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=77';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=77';
+import { brandName } from './config.js?v=77';
 
 const BRING = { done: 'Just tell me it is done', photo: 'A photo', number: 'A number', yesno: 'Yes or no', text: 'A few words' };
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
@@ -79,16 +79,22 @@ function crewDialog(c, root) {
   });
 }
 
-function nuggetDialog(root) {
+export function nuggetDialog(root, pre = {}) {
   const mine = (state.crews || []).filter((c) => c.active !== false);
-  let cust = null;
+  if (!mine.length) { toast('Add a crew first — + Crew on The Line', 'err'); return; }
+  let cust = pre.customer ? { id: pre.customer.id, name: pre.customer.name } : null;
+  const shots = (pre.photos || []).slice(0, 6);
   openModal({
     title: 'Send a nugget',
     submitLabel: 'Send it',
     body: `
       <div class="field"><label>To</label><select name="person">${mine.map((c) => `<option value="${esc(c.id)}">${esc(c.name)} · ${c.lang === 'es' ? 'español' : 'English'}</option>`).join('')}</select></div>
-      <div class="field"><label>The instruction · one thing, plain</label><textarea name="body" rows="2" placeholder="Sod goes on 1420 Palm Ave, the BACK yard only. Front stays." required></textarea></div>
-      <div class="field"><label>Which customer (optional) · the address goes on the nugget</label><input name="cust" placeholder="Last name, street or phone" autocomplete="off"><div id="nug-cust-pick" class="pick"></div></div>
+      ${shots.length ? `<div class="field"><label>The picture goes with it · the scope, on the yard</label><div class="photo-grid">${shots.map((p) => `<div class="pt"><img class="pthumb grid" src="${esc(photoSrc(p, true))}" alt=""></div>`).join('')}</div></div>` : ''}
+      <div class="field"><label>The instruction · one thing, plain</label><textarea name="body" rows="2" placeholder="Sod goes on 1420 Palm Ave, the BACK yard only. Front stays." required>${esc(pre.body || '')}</textarea></div>
+      <div class="two-up">
+        <div class="field"><label>Which customer (optional) · the address goes on the nugget</label><input name="cust" placeholder="Last name, street or phone" autocomplete="off" value="${esc(cust ? personName(cust.name) : '')}"><div id="nug-cust-pick" class="pick"></div></div>
+        <div class="field"><label>Price on this piece ($)</label><input name="amount" type="number" min="0" step="1" inputmode="decimal" placeholder="3400" value="${pre.amount != null ? esc(String(pre.amount)) : ''}"></div>
+      </div>
       <div class="two-up">
         <div class="field"><label>Bring back</label><select name="bring">${Object.entries(BRING).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('')}</select></div>
         <div class="field"><label>What exactly</label><input name="bring_label" placeholder="a photo of the finished back yard"></div>
@@ -107,9 +113,13 @@ function nuggetDialog(root) {
       const body = f.body.value.trim(); if (!body) throw new Error('Say the one thing');
       if (isDemo()) { toast('Demo — on live this texts them the link and it lands in their court'); return; }
       const due = f.due.value ? new Date(f.due.value).toISOString() : null;
-      const r = await sendNugget(f.person.value, body, f.bring.value, f.bring_label.value.trim() || null, cust?.id || null, due);
+      const amt = f.amount.value.trim() === '' ? null : Number(f.amount.value);
+      const r = await sendNugget(f.person.value, body, f.bring.value, f.bring_label.value.trim() || null, cust?.id || null, due, shots.map((p) => p.id), Number.isFinite(amt) ? amt : null);
       toast(r?.texted ? 'Sent — they got the text with the link' : 'Saved, but no line to text from — send them the link yourself', r?.texted ? '' : 'err');
       window.__reloadQuiet && window.__reloadQuiet();
     },
   });
 }
+
+/* the door from any photo tile: this picture, these words, this price → a crew (Kevin, 16 Sep: "post the pic to the crew when he assigns it… locks in scope and price in pic") */
+window.__nuggetFromPhoto = (photo, customer) => nuggetDialog(document.querySelector('main') || document.body, { photos: [photo], customer, body: photo.caption || '', amount: photo.amount });

@@ -4,8 +4,8 @@
 // grouped by day — ours (351) and CompanyCam's (028) in one feed. Each tile
 // carries the customer (tap → the file), who shot it, the crew and the dollars
 // (352). One search box: a customer, a person, a crew, or a word in the caption.
-import { state, isDemo, loadPhotoFeed, personName, firstName, photoSrc } from './book.js?v=76';
-import { $, html, raw, esc, toast } from './ui.js?v=76';
+import { state, isDemo, loadPhotoFeed, personName, firstName, photoSrc } from './book.js?v=77';
+import { $, html, raw, esc, toast } from './ui.js?v=77';
 
 let feed = null, q = '';
 const money = (n) => '$' + Number(n).toLocaleString([], { maximumFractionDigits: 0 });
@@ -43,7 +43,7 @@ function paint(root) {
   host.innerHTML = rows.length
     ? days.map((g) => `<div class="kicker" style="margin:14px 0 6px">${esc(g.d)} · ${g.list.length}${g.list.some((p) => p.amount) ? ' · <span class="mono">' + esc(money(g.list.reduce((a, p) => a + Number(p.amount || 0), 0))) + '</span> on the pictures' : ''}</div><div class="photo-feed">${g.list.map(tile).join('')}</div>`).join('')
     : '<div class="empty">No pictures yet. Open a customer\'s file and press ＋ Photo.</div>';
-  host.querySelectorAll('.ptile img').forEach((im) => (im.onclick = () => window.__lightbox && window.__lightbox(im.dataset.full, im.title || '')));
+  host.querySelectorAll('.ptile img').forEach((im) => (im.onclick = () => { const r = rows.find((x) => photoSrc(x) === im.dataset.full); window.__lightbox && window.__lightbox(im.dataset.full, im.title || '', r, r ? { id: r.customer_id, name: r.customer_name } : null); }));
   host.querySelectorAll('.ptile .pname').forEach((b) => (b.onclick = () => window.__peek(b.dataset.cust)));
 }
 

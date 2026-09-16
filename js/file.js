@@ -2,15 +2,15 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=76';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=76';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=76';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=76';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=77';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=77';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=77';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=77';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=76';
-import { settleDialog } from './office.js?v=76';
-import { reload } from './app.js?v=76';
-import { relTime } from './production.js?v=76';
+import { say, thing, iconForAsk } from './words.js?v=77';
+import { settleDialog } from './office.js?v=77';
+import { reload } from './app.js?v=77';
+import { relTime } from './production.js?v=77';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -272,7 +272,7 @@ function draw(root, ctx, compact) {
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
   // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
-  root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => lightbox(im.dataset.full || im.src, im.title || '')));
+  root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => { const p = (photos || []).find((x) => photoSrc(x) === (im.dataset.full || im.src)); lightbox(im.dataset.full || im.src, im.title || '', p, customer); }));
   wireQuotes(root);   // 353
   const pin = q('#photo-in');
   if (pin) pin.onchange = () => { const files = [...pin.files]; pin.value = ''; if (files.length) photoSheet(files, ctx, customer, again); };
@@ -719,12 +719,13 @@ function photosCard(photos) {
 function photoThumb(p) {
   return `<div><img class="pthumb" src="${esc(photoSrc(p, true))}" data-full="${esc(photoSrc(p))}" title="${esc([p.by_name, p.caption].filter(Boolean).join(' · '))}" alt=""></div>`;
 }
-function lightbox(url, caption) {
+function lightbox(url, caption, photo, customer) {
   let box = $('#lightbox');
   if (!box) { box = document.createElement('div'); box.id = 'lightbox'; box.className = 'lightbox'; document.body.appendChild(box); }
-  box.innerHTML = `<img src="${esc(url)}" alt=""><div class="cap">${esc(caption)} <span class="dimmer">· tap to close · <a href="${esc(url)}" target="_blank" rel="noopener">open the original</a></span></div>`;
+  const canCrew = photo && photo.kind === 'ours' && ['manager', 'owner', 'admin'].includes(state.me?.role || '');
+  box.innerHTML = `<img src="${esc(url)}" alt=""><div class="cap">${esc(caption)} <span class="dimmer">· tap to close · <a href="${esc(url)}" target="_blank" rel="noopener">open the original</a></span>${canCrew ? ' <button class="btn sm fill" id="lb-crew">→ Send to a crew</button>' : ''}</div>`;
   box.hidden = false;
-  box.onclick = (e) => { if (e.target.tagName !== 'A') box.hidden = true; };
+  box.onclick = (e) => { if (e.target.id === 'lb-crew') { box.hidden = true; window.__nuggetFromPhoto && window.__nuggetFromPhoto(photo, customer); return; } if (e.target.tagName !== 'A') box.hidden = true; };
 }
 
 /* 352: the sheet after the shutter — the words, who it is for, which crew, how much.
