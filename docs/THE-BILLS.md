@@ -51,7 +51,7 @@ Read against the live rows, that is:
 ## 3. Who we buy from (last 90 days, from CC bills + the inboxes)
 
 Filled from the CC bills report and the supplier emails in Kevin's and Jess's
-inboxes. The census email (§6) asks the office to correct and complete it.
+inboxes. The census email (§7) asks the office to correct and complete it.
 
 | Supplier | Brand | How the invoice arrives today | Who keys it |
 |---|---|---|---|
@@ -163,9 +163,45 @@ against `supplier_bills`), and the payables line on The Business room.
    browser sign-in each, the walkthrough exists. Fifteen minutes.
 3. **Where supplier email lands** — one `bills@` address per brand, or keep
    Jess's and Kevin's inboxes and label them.
-4. **Send the census** (§6) — drafted in Gmail, not sent.
+4. **Send the census** (§7) — drafted in Gmail, not sent.
 
-## 6. The census email
+## 6. The other direction: the customer's invoice (Kevin, 16 Sep, afternoon)
+
+> "do we know how jess currently sends out invoices… will she just approve
+> based on crew inputs, and supervisor inputs… we make everything binary."
+
+**What we know about today.** Invoices are made by hand in Billdu (fence,
+Oasis) and QuickBooks, then sent. CC's own task "Send invoice / collect" sits
+on **Laura's** seat (median 4 h after sign-off, per the audit); the "your
+invoice is attached" line is Laura's. Whether Jess or Laura clicks Send today,
+and in which system per company, is one of the three questions in the reply
+drafted on Jess's thread. Nothing in our data says Jess does it; Kevin thinks
+she does. The card goes on whichever seat she names.
+
+**What already runs (313 · 316 · 340).** The chain opens the INVOICE ask by
+itself when COMPLETION_SIGNOFF settles (Luis's three-or-more finished-work
+photos plus the customer's word). The file's **Invoice** button opens a modal
+already typed with the sold amount and queues it through `invoice_request`
+into `qb_invoice_queue`; the `qb_invoices` switch is OFF, so the row records
+the intent and nothing reaches QuickBooks. The invoice number settles the ask
+and opens PAYMENT with its 30-day clock; the "invoice sent" and "past due"
+lines are drafts from the main line; **Collect** puts the pay link in the box.
+
+**The binary card (to build).** When the sign-off lands, the file opens
+**INVOICE READY** on the invoicing seat, already typed: the signed estimate's
+price, minus the deposit taken (336), plus any signed CHANGE_ORDER on the
+file; the crew's finished photos (their one link per job, gospel 26) and the
+supervisor's sign-off beside it. Two moves only: **Approve** = `invoice_request`
+with that amount + the "invoice attached" text in the box from the main line
+(one press of Send, gospel 7), or **Hold** with a reason, which tags Luis or the
+rep on the file. Red when the photos are short of the brand rule or a change
+order is unsigned. With `qb_invoices` ON, Approve creates the QuickBooks
+invoice; PAYMENT, the reminder and CLOSEOUT follow by themselves.
+
+**Jess's Ride-Along** follows the same form as Jonathan's, once she says which
+seat and which system.
+
+## 7. The census email
 
 Drafted to Jess, cc Jonathan, Sam, Laura (Claudette has no address on file;
 Jess forwards). It lists the table in §3 and asks, per supplier: which company,
