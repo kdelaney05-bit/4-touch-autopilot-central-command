@@ -2,13 +2,13 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews } from './book.js?v=61';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=61';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=61';
-import { say, thing, iconForAsk } from './words.js?v=61';
-import { settleDialog } from './office.js?v=61';
-import { reload } from './app.js?v=61';
-import { relTime } from './production.js?v=61';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews } from './book.js?v=62';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=62';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=62';
+import { say, thing, iconForAsk } from './words.js?v=62';
+import { settleDialog } from './office.js?v=62';
+import { reload } from './app.js?v=62';
+import { relTime } from './production.js?v=62';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }

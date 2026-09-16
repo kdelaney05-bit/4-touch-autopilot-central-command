@@ -13,12 +13,12 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle } from './book.js?v=61';
-import { toast, openModal } from './ui.js?v=61';
-import { html, raw, esc } from './ui.js?v=61';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=61';
-import { renderRoom, wireAtOn } from './village.js?v=61';
-import * as api from './api.js?v=61';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle } from './book.js?v=62';
+import { toast, openModal } from './ui.js?v=62';
+import { html, raw, esc } from './ui.js?v=62';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=62';
+import { renderRoom, wireAtOn } from './village.js?v=62';
+import * as api from './api.js?v=62';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
