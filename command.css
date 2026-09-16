@@ -588,23 +588,21 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .chip.st-blue { color: var(--office); border-color: var(--office); background: var(--officesoft); }
 @media (max-width: 700px) { .dirhead { grid-template-columns: 1fr; gap: 3px; } .dirbody { white-space: normal; } .chain { margin-left: 8px; } .step { grid-template-columns: 1fr; gap: 1px; } }
 
-/* THE VILLAGE, DENSE (Kevin, 16 Sep 1:35 PM, off his screenshot: "I only can see one or two people at a time…
-   they need to be way more condensed, so you can see and get caught up on every conversation in two seconds").
-   The Village tab drops the bubbles for a log: one line per post — initials, who · when, the words, the reactions
-   on the right — no left/right dance, the list fills the screen. The rail rooms keep the bubbles. */
+/* THE VILLAGE, DENSE BUT STILL A CONVERSATION (Kevin, 16 Sep 1:55 PM: "make it more like it was before, but these
+   are all little smaller conversations… more color and the back and forth… I like this amount of stuff, but the UI
+   of the previous one"). Small bubbles, mine on the right in gold, theirs on the left, who · when on the same line as
+   the words, @names lit up, reactions tiny. The list fills the screen. */
 .village-wide { max-width: none; }
-.village-wide .room .room-list { max-height: none; height: calc(100vh - 340px); min-height: 380px; gap: 0; padding: 4px 0 2px; }
-.village-wide .roomrow, .village-wide .roomrow.out { flex-direction: row; align-items: flex-start; gap: 8px; padding: 4px 8px; border-radius: 8px; border-bottom: 1px solid var(--line); }
-.village-wide .roomrow:last-child { border-bottom: 0; }
-.village-wide .roomrow:hover { background: var(--card-hi); }
-.village-wide .ini, .village-wide .roomrow.out .ini { width: 22px; height: 22px; font-size: 9px; margin: 2px 0 0; }
-.village-wide .msg, .village-wide .msg.out, .village-wide .msg.in { max-width: none; flex: 1 1 auto; min-width: 0; background: transparent; border: 0; box-shadow: none; padding: 0; color: var(--ink); font-size: 13.5px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
-.village-wide .msg .who { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--mute); flex: 0 0 auto; min-width: 128px; }
-.village-wide .msg.out .who { color: var(--gold); }
-.village-wide .msg .say { flex: 1 1 60%; min-width: 220px; line-height: 1.35; margin: 0; }
-.village-wide .msg .chip.cust { margin-top: 0; }
-.village-wide .room-reacts { margin-top: 0; flex: 0 0 auto; gap: 2px; opacity: .5; margin-left: auto; }
+.village-wide .room .room-list { max-height: none; height: calc(100vh - 340px); min-height: 380px; gap: 3px; padding: 4px 4px 2px 0; }
+.village-wide .roomrow { gap: 6px; }
+.village-wide .ini, .village-wide .roomrow.out .ini { width: 22px; height: 22px; font-size: 9px; margin-bottom: 0; }
+.village-wide .msg { max-width: 80%; font-size: 13px; padding: 5px 10px 4px; border-radius: 12px; line-height: 1.35; }
+.village-wide .msg .who { display: inline; font-size: 10px; margin: 0 8px 0 0; }
+.village-wide .msg .say { display: inline; }
+.village-wide .msg .chip.cust { margin: 2px 0 0 6px; font-size: 10px; padding: 0 6px; }
+.village-wide .room-reacts { margin-top: 2px; gap: 2px; opacity: .55; }
 .village-wide .roomrow:hover .room-reacts { opacity: 1; }
-.village-wide .react, .village-wide .msg.out .react { padding: 0 5px; font-size: 10.5px; line-height: 1.4; background: #fff; border-color: var(--line); color: var(--dim); }
-.village-wide .react.on, .village-wide .msg.out .react.on { background: var(--goldsoft); border-color: var(--goldbtn); color: var(--gold); }
-@media (max-width: 700px) { .village-wide .msg .who { min-width: 0; width: 100%; } .village-wide .room .room-list { height: calc(100vh - 380px); } }
+.village-wide .react { padding: 0 5px; font-size: 10px; line-height: 1.4; }
+.room .say .at { color: var(--gold); font-weight: 600; }
+.room .msg.out .say .at { color: #f4d58d; }
+@media (max-width: 700px) { .village-wide .msg { max-width: 92%; } .village-wide .room .room-list { height: calc(100vh - 380px); } }

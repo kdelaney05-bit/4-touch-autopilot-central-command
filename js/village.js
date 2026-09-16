@@ -5,11 +5,11 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=89';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=89';
-import { DEMO } from './demo.js?v=89';
-import { html, raw, esc, toast } from './ui.js?v=89';
-import { enterPosts, micButton } from './dictate.js?v=89';
+import * as api from './api.js?v=90';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=90';
+import { DEMO } from './demo.js?v=90';
+import { html, raw, esc, toast } from './ui.js?v=90';
+import { enterPosts, micButton } from './dictate.js?v=90';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -82,8 +82,11 @@ function bubble(m, room) {
   const img = m.image ? `<div><a href="${esc(m.image)}" target="_blank" rel="noopener">photo</a></div>` : '';
   return `<div class="roomrow ${mine ? 'out' : ''}"><span class="ini" title="${esc(personName(m.name))}">${esc(m.initials)}</span>`
     + `<div class="msg ${mine ? 'out' : 'in'}"><div class="who">${esc(m.first)} · ${esc(relTime(m.at))}</div>`
-    + `<div class="say">${esc(m.body)}</div>${img}${on}${reacts}</div></div>`;
+    + `<div class="say">${lit(esc(m.body))}</div>${img}${on}${reacts}</div></div>`;
 }
+
+// the @names light up in the bubble (Kevin, 16 Sep: "it doesn't really say who it's to, who's tagged")
+const lit = (s) => s.replace(/@([A-Z][A-Za-z]+(?: [A-Z][a-z]+)?|[a-z]+)/g, (m0) => '<span class="at">' + m0 + '</span>');
 
 // ── mounting: one live room per view, polled while it is on the screen ───────
 const mounts = new Map();     // room -> ctx
