@@ -116,6 +116,12 @@ Files: `backend/migrations/351–354` on branch `claude/photos-app` (PR #426).
   20 s). A tag the person already opened is not nagged. First run: 10 emails, 4 texts (the seats with a phone).
 - **v82**: the bing rings for a Village tag too; the card says Open the Village.
 
+## v84 → v92 + 360–364 (16 Sep, launch day, afternoon)
+
+- v84 Enter posts + the 🎤 (js/dictate.js) · v85 the @ picker for office seats (rep_names) · v86 a rail pane scrolls into view + Back, the film Play id fixed · v87 the tab mark (favicon.svg) · v88 the find box always closes, group handles · v89/v90 the Village: small bubbles, lit @names, the list fills the screen · v91 phone search · v92 THE OFFICE FILM (?tour=office) and the Office room for office seats.
+- 360 the nag · 361 email-only seats · 362 group tags (@sales @supers @office @everyone) · 363 stay on the file (the Jetstream rule) · 364 the office reads the whole book.
+- The CC documents: pull-cc-files.mjs running on the box overnight (live → sold → all), landing under the OFFICE lane of each file.
+
 ## Found tonight, still owed
 
 - The CompanyCam mirror (028, 106,862 photos) has 401'd every hour since 19 Aug —
