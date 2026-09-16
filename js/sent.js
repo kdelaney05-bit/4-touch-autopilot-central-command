@@ -8,8 +8,8 @@
 // someone, an ask, a nugget, a quote — with who it reached, who acknowledged, who
 // did it and how fast, and the chain that followed on that file. Language law:
 // nobody is late or failing here; a thing is done, moving, or waiting.
-import { state, isDemo, personName, firstName, loadFile, threadForJob, postMessage, postRoom, mentionHandle } from './book.js?v=88';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=88';
+import { state, isDemo, personName, firstName, loadFile, threadForJob, postMessage, postRoom, mentionHandle } from './book.js?v=89';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=89';
 
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
 const when = (s) => s ? new Date(s).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
