@@ -1,7 +1,7 @@
 // Liberty Command — Supabase over plain fetch, the desk's rails verbatim (desk/js/api.js). Every call
 // carries the publishable key plus the rep's own JWT, so RLS decides what
 // comes back. Nothing here knows about the desk's screens.
-import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=60';
+import { SUPA_URL, SUPA_KEY, SESSION_KEY } from './config.js?v=61';
 
 // ── session ───────────────────────────────────────────────────────────────────
 let session = null;               // { token, refresh, repId, email, expiresAt }
@@ -245,3 +245,6 @@ export async function uploadPublic(bucket, path, blob, contentType) {
   if (!r.ok) await fail(r, 'storage/' + bucket);
   return `${SUPA_URL}/storage/v1/object/public/${bucket}/${path}`;
 }
+
+/* 351: a public object's address (job-photos — uuid paths nobody can guess, rendered with a plain <img>) */
+export const publicUrl = (bucket, path) => `${SUPA_URL}/storage/v1/object/public/${bucket}/${path}`;

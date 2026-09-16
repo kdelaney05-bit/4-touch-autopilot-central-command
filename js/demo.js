@@ -164,7 +164,7 @@ function file(customerId) {
     { id: 'pk2', kind: 'material_order', label: 'Liberty_MaterialOrder_Pestana_Luis_2026-09-13.pdf', signed: false, storage_path: 'cj8/2-order.pdf', mime: 'application/pdf', uploaded_at: ago(35.5) },
     { id: 'pk3', kind: 'drawing', label: 'drawing.svg', signed: false, storage_path: 'cj8/3-drawing.svg', mime: 'image/svg+xml', uploaded_at: ago(36) },
   ] : [];
-  return { job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  return { photos: demoPhotos(b), job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {
@@ -186,4 +186,27 @@ const DM = {
   obed: [{ id: 4, from_id: 'k', to_id: 'obed', body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', created_at: ago(5) }],
 };
 const dm = (other) => DM[other] || [];
-export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm };
+export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
+
+/* 351: the photos on the fictional file — drawn, not fetched, so the demo never leaves the page */
+const svgPhoto = (label, sky, ground, accent) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect width="320" height="200" fill="${sky}"/><rect y="200" width="320" height="120" fill="${ground}"/><rect x="30" y="120" width="12" height="150" fill="${accent}"/><rect x="150" y="120" width="12" height="150" fill="${accent}"/><rect x="270" y="120" width="12" height="150" fill="${accent}"/><rect x="30" y="140" width="252" height="10" fill="${accent}" opacity=".8"/><rect x="30" y="230" width="252" height="10" fill="${accent}" opacity=".8"/><text x="16" y="300" font-family="monospace" font-size="20" fill="#fff" opacity=".9">${label}</text></svg>`);
+function demoPhotos(b) {
+  const mk = (i, label, by, h, caption, kind = 'ours', src = 'web', extra = {}) => ({ id: 'dp' + b.job_id + i, kind, customer_id: b.customer_id, job_id: b.job_id, message_id: null, path: null, thumb_path: null, tagged: [], crew: null, amount: null, ...extra,
+    url: svgPhoto(label, kind === 'companycam' ? '#9fb8d3' : '#b7c9dd', '#7a8a5a', '#e9e2cf'), thumb_url: svgPhoto(label, kind === 'companycam' ? '#9fb8d3' : '#b7c9dd', '#7a8a5a', '#e9e2cf'),
+    taken_at: ago(h), by_name: by, caption, for_customer: false, source: src });
+  // Mike's Oasis file: the crew and the dollars ride the picture (Kevin, 15 Sep night)
+  if (b.job_id === 'j6') return [
+    mk(1, 'PAVERS · DONE', 'Mike LeRoy', 2, '@Luis patio set and compacted', 'ours', 'app', { crew: 'Oasis · Nick', amount: 3400, tagged: ['luis'] }),
+    mk(2, 'LIGHTS', 'Mike LeRoy', 2.2, 'Path lights wired, 8 fixtures', 'ours', 'app', { crew: 'Oasis · Nick', amount: 1150 }),
+    mk(3, 'BASE', 'Nick C', 28, 'Base rock in, 4 inches', 'ours', 'crew_link', { crew: 'Oasis · Nick', amount: 900 }),
+    mk(4, 'CC · BEFORE', 'Mike LeRoy', 6 * 24, null, 'companycam', 'companycam'),
+  ];
+  if (b.job_id !== 'j3') return [];
+  return [
+    mk(1, 'LISTO 1/6', 'Crew Ortiz', 0.3, 'TERMINADO · done', 'ours', 'crew_link'), mk(2, 'LISTO 2/6', 'Crew Ortiz', 0.3, null, 'ours', 'crew_link'), mk(3, 'LISTO 3/6', 'Crew Ortiz', 0.31, null, 'ours', 'crew_link'),
+    mk(4, 'POSTES', 'Obed Santiago', 26, '@Laura posts set, panels tomorrow', 'ours', 'supervisor'),
+    mk(5, 'EN SITIO', 'Crew Ortiz', 30, 'AQUÍ · on site', 'ours', 'crew_link'),
+    mk(6, 'BEFORE', 'Ron Seidel', 22 * 24, 'Old chain link comes out, 300 ft', 'ours', 'app'),
+    mk(7, 'CC · YARD', 'Ron Seidel', 22 * 24, null, 'companycam', 'companycam'), mk(8, 'CC · GATE', 'Ron Seidel', 22 * 24, null, 'companycam', 'companycam'),
+  ];
+}

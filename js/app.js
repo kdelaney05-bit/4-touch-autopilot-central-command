@@ -1,25 +1,26 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=60';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=60';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=60';
-import { BRAND_BY_CC } from './config.js?v=60';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=60';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=60';
-import { renderHome } from './home.js?v=60';
-import { renderSales } from './sales.js?v=60';
-import { renderPipeline } from './pipeline.js?v=60';
-import { renderMarketing } from './marketing.js?v=60';
-import { renderOffice } from './office.js?v=60';
-import { renderProduction } from './production.js?v=60';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=60';
-import { stopRoomPoll } from './village.js?v=60';
-import { renderFlow, stopFlow } from './flow.js?v=60';
-import { startTour, tourWanted } from './tour.js?v=60';
-import { startAlerts } from './alerts.js?v=60';
+import * as api from './api.js?v=61';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=61';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=61';
+import { BRAND_BY_CC } from './config.js?v=61';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=61';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=61';
+import { renderHome } from './home.js?v=61';
+import { renderSales } from './sales.js?v=61';
+import { renderPipeline } from './pipeline.js?v=61';
+import { renderMarketing } from './marketing.js?v=61';
+import { renderOffice } from './office.js?v=61';
+import { renderProduction } from './production.js?v=61';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=61';
+import { stopRoomPoll } from './village.js?v=61';
+import { renderFlow, stopFlow } from './flow.js?v=61';
+import { startTour, tourWanted } from './tour.js?v=61';
+import { startAlerts } from './alerts.js?v=61';
+import { renderPhotos } from './photos.js?v=61';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
-const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
+const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files', 'file'];
 
 export function rooms() {
   const me = state.me;
@@ -95,6 +96,7 @@ export function render() {
   if (view === 'office') renderOffice($('#view-office'));
   if (view === 'production') renderProduction($('#view-production'));
   if (view === 'flow') renderFlow($('#view-flow'));
+  if (view === 'photos') renderPhotos($('#view-photos'));
   if (view === 'files') renderFiles($('#view-files'));
   document.title = `${counts.home ? counts.home + ' waiting · ' : ''}Central Command · 4-Touch Autopilot`;
 }

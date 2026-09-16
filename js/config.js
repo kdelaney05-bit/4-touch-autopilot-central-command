@@ -54,14 +54,14 @@ export const askLabel = (a) => {
 
 /* Which rooms a role opens. RLS decides the rows either way. */
 export const ROOMS_BY_ROLE = {
-  owner:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
-  admin:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],
-  manager: ['line', 'pipeline', 'files'],   // the playground (Kevin, 15 Sep night): the highway, the pipeline ("give them the pipeline and then the line") and the files; the other rooms come one at a time
-  office:  ['line', 'pipeline', 'files'],
-  sales:   ['line', 'files'],
+  owner:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
+  admin:   ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
+  manager: ['line', 'pipeline', 'photos', 'files'],   // the playground (Kevin, 15 Sep night): the highway, the pipeline ("give them the pipeline and then the line") and the files; the other rooms come one at a time
+  office:  ['line', 'pipeline', 'photos', 'files'],
+  sales:   ['line', 'photos', 'files'],
   crew:    [],
 };
-export const ROOM_LABEL = { line: 'The Line', home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', files: 'Files' };
+export const ROOM_LABEL = { line: 'The Line', home: 'The Business', sales: 'Sales', pipeline: 'Pipeline', marketing: 'Marketing', office: 'Office', production: 'Production', flow: 'Job Board', photos: 'Photos', files: 'Files' };
 
 /* The owner console (liberty-command, GitHub Pages, same github.io origin) —
    the dashboard Kevin lived in while the app was built. Its sections route
@@ -77,5 +77,5 @@ export const CONSOLE_SECTION = { sales: 'sales', marketing: 'marketing', home: '
    Business (page one, the P&L, collected). View as is the keys' too. */
 export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732'];                       // Kevin
 export const ROOMS_BY_SEAT = {
-  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files'],   // Gio — revenue, never the books
+  '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Gio — revenue, never the books
 };
