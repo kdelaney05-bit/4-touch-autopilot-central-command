@@ -2,13 +2,13 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile } from './book.js?v=59';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=59';
-import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=59';
-import { say, thing, iconForAsk } from './words.js?v=59';
-import { settleDialog } from './office.js?v=59';
-import { reload } from './app.js?v=59';
-import { relTime } from './production.js?v=59';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews } from './book.js?v=63';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=63';
+import { STAGES, stageLabel, brandName, brandFullName, askLabel, ASK_LABEL } from './config.js?v=63';
+import { say, thing, iconForAsk } from './words.js?v=63';
+import { settleDialog } from './office.js?v=63';
+import { reload } from './app.js?v=63';
+import { relTime } from './production.js?v=63';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -70,6 +70,7 @@ function draw(root, ctx, compact) {
   const line = state.lines.find((l) => l.cc_company_id === (job.cc_company_id || '1461')) || state.lines[0];
   const optOut = customer?.sms_opt_out_at || job.sms_opt_out_at;
   const estimates = ctx.data.estimates || [], estLinks = ctx.data.estLinks || [];   // 322
+  const photos = ctx.data.photos || [], photoByMsg = new Map(photos.filter((p) => p.message_id).map((p) => [p.message_id, p]));   // 351
 
   // the stage bar: what has happened on this file, in order
   const steps = [];
@@ -99,7 +100,7 @@ function draw(root, ctx, compact) {
     items.push({ at: o.sent_at || o.queued_at, kind: 'out', pid: o.rep_id, who: (p?.name || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), line: lineLabel(o.from_number, job, p), body: o.body });
   });
   emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', pid: e.source === 'machine' ? 'machine' : job.rep_id, body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : (personOf(job.rep_id)?.name || 'the rep')} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.is_system ? say(m.body) : m.body, lane: m.lane }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.is_system ? say(m.body) : m.body, lane: m.lane, photo: photoByMsg.get(m.id) }));
   // the steps and the paper, as one line each, where they happened
   const ev = (at, cls, pid, body) => { if (at) items.push({ at, kind: 'ev', cls, pid, body }); };
   attachments.forEach((f) => ev(f.created_at, 'file', f.added_by, `${f.label || f.storage_path || f.source} · on the file`));
@@ -189,6 +190,7 @@ function draw(root, ctx, compact) {
         ${raw(fenceCard(ctx.data.fence, ctx.data.packet || [], estimates))}
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
+        ${raw(photosCard(photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -227,6 +229,10 @@ function draw(root, ctx, compact) {
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
+  // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
+  root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => lightbox(im.dataset.full || im.src, im.title || '')));
+  const pin = q('#photo-in');
+  if (pin) pin.onchange = () => { const files = [...pin.files]; pin.value = ''; if (files.length) photoSheet(files, ctx, customer, again); };
   // the Estimate button opens pre-typed from the calculator when the rep drew one; the fence card's own button does the same
   const seed = estimateSeedFromTakeoff(ctx.data.fence);
   if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
@@ -718,10 +724,10 @@ function bubble(i) {
   if (i.kind === 'env') return `<div class="env" ${sty}>✉ ${esc(i.body)} · ${esc(when(i.at))}</div>`;
   if (i.kind === 'sys') return `<div class="msg sys">${esc(i.who)} ${esc(i.body)} · ${esc(when(i.at))}</div>`;
   if (i.kind === 'ev') return `<div class="ev ${esc(i.cls || '')}" ${sty}>${esc(i.body)} · ${esc(when(i.at))}</div>`;
-  if (i.kind === 'in') return `<div class="msg in"><div class="who">${esc(i.who)} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><a href="${esc(i.media)}" target="_blank" rel="noopener">photo</a></div>` : ''}</div>`;
+  if (i.kind === 'in') return `<div class="msg in"><div class="who">${esc(i.who)} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
   const p = i.pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(i.pid);
   const cls = i.kind === 'machine' ? 'machine' : i.kind === 'chat' ? 'chat' : 'out';
-  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><a href="${esc(i.media)}" target="_blank" rel="noopener">photo</a></div>` : ''}</div>`;
+  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}</div>${esc(i.body)}${i.photo ? photoThumb(i.photo) : ''}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
 }
 
 function askRow(a, me) {
@@ -765,3 +771,68 @@ function newAsk(thread, job, ctx, compact) {
     <div class="field"><label>Note</label><input name="note" placeholder="what they need to do"/></div>`,
     onSubmit: async (f) => { await openAsk(thread.id, f.lane.value, f.type.value, f.note.value.trim() || null, f.to.value); toast('Opened'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
 }
+
+/* ── 351: THE PHOTOS on the file ──────────────────────────────────────────
+   One strip, newest first, grouped by day: our pictures (job_photos) and the
+   CompanyCam ones the 028 mirror matched to this job. ＋ Photo is the camera on
+   a phone and a picker on a laptop; the caption is said on the thread, so
+   "@Luis posts set" pings Luis the same as any note. Tap = full size. */
+function photosCard(photos) {
+  const n = photos.length;
+  const days = []; let last = null;
+  for (const p of photos.slice(0, 60)) {
+    const d = new Date(p.taken_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
+    if (d !== last) { days.push({ d, list: [] }); last = d; }
+    days[days.length - 1].list.push(p);
+  }
+  const cam = photos.some((p) => p.kind === 'companycam');
+  return `<div class="card" id="photos-card">
+    <div class="head" style="margin-bottom:4px"><div class="kicker">Photos · ${n}${n ? (cam ? ' · ours and CompanyCam' : '') : ''}</div>
+      <div class="right"><label class="btn sm fill" for="photo-in" title="Take one on the phone, or pick one on the laptop">＋ Photo</label><input id="photo-in" type="file" accept="image/*" capture="environment" multiple hidden></div></div>
+    ${n ? days.map((g) => `<div class="kicker" style="margin:8px 0 4px">${esc(g.d)}</div><div class="photo-grid">${g.list.map((p) => `<div class="pt"><img class="pthumb grid" src="${esc(photoSrc(p, true))}" data-full="${esc(photoSrc(p))}" title="${esc([p.by_name, p.crew ? 'crew ' + p.crew : '', p.caption].filter(Boolean).join(' · '))}" loading="lazy" alt="">${p.amount ? `<span class="pbadge">$${esc(Number(p.amount).toLocaleString([], { maximumFractionDigits: 0 }))}</span>` : ''}${p.kind === 'companycam' ? '<span class="pbadge cc">CC</span>' : ''}</div>`).join('')}</div>`).join('') : '<div class="empty">No photos on this file yet. The first one goes here, and on the thread.</div>'}
+    ${n > 60 ? `<div class="small dimmer" style="margin-top:6px">${n - 60} more, older</div>` : ''}
+  </div>`;
+}
+function photoThumb(p) {
+  return `<div><img class="pthumb" src="${esc(photoSrc(p, true))}" data-full="${esc(photoSrc(p))}" title="${esc([p.by_name, p.caption].filter(Boolean).join(' · '))}" alt=""></div>`;
+}
+function lightbox(url, caption) {
+  let box = $('#lightbox');
+  if (!box) { box = document.createElement('div'); box.id = 'lightbox'; box.className = 'lightbox'; document.body.appendChild(box); }
+  box.innerHTML = `<img src="${esc(url)}" alt=""><div class="cap">${esc(caption)} <span class="dimmer">· tap to close · <a href="${esc(url)}" target="_blank" rel="noopener">open the original</a></span></div>`;
+  box.hidden = false;
+  box.onclick = (e) => { if (e.target.tagName !== 'A') box.hidden = true; };
+}
+
+/* 352: the sheet after the shutter — the words, who it is for, which crew, how much.
+   Kevin, 15 Sep night: "can we tag people on each photo… if [Mike] could tag the
+   crew and the dollar amount in each photo… he uses the app to manage the entire
+   thing." Everyone named gets the push; the crew and the dollars ride the row. */
+function photoSheet(files, ctx, customer, again) {
+  const me = state.me || {};
+  const people = (state.people || []).filter((p) => p.id !== me.id && !['crew', 'customer'].includes(p.role)).slice().sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  const n = files.length;
+  openModal({
+    title: `${n} photo${n > 1 ? 's' : ''} on ${personName(customer?.name || 'the file')}`,
+    submitLabel: n > 1 ? `Post ${n} photos` : 'Post it',
+    body: `
+      <div class="field"><label>Say it with the picture</label><textarea name="caption" rows="2" placeholder="Posts set, ready for panels · Base rock in, 4 inches"></textarea></div>
+      <div class="field"><label>Tag people · they get the buzz and it lands in their You're up</label>
+        <div class="tagrow">${people.map((p) => `<label class="tagchip"><input type="checkbox" name="tag" value="${esc(p.id)}"> ${esc(p.name)}</label>`).join('')}</div></div>
+      <div class="two-up">
+        <div class="field"><label>Crew</label><input name="crew" list="crews-list" placeholder="Oasis · Nick" autocomplete="off"><datalist id="crews-list"></datalist></div>
+        <div class="field"><label>Dollar amount on this picture</label><input name="amount" type="number" min="0" step="1" inputmode="decimal" placeholder="3400"></div>
+      </div>
+      <div class="small dimmer">The customer never sees this. It goes on the file's thread in your name.</div>`,
+    onOpen: async () => { const crews = await loadCrews().catch(() => []); const dl = $('#crews-list'); if (dl) dl.innerHTML = crews.map((c) => `<option value="${esc(c)}">`).join(''); },
+    onSubmit: async (f) => {
+      const o = { caption: f.caption.value.trim(), tagged: [...f.querySelectorAll('input[name="tag"]:checked')].map((x) => x.value), crew: f.crew.value.trim(), amount: f.amount.value };
+      if (isDemo()) { toast('Demo — nothing is saved. On live this lands on the file and buzzes everyone you tagged.'); return; }
+      toast(`Sending ${n} photo${n > 1 ? 's' : ''}…`);
+      for (const file of files) await postPhoto(ctx.customerId, file, o);
+      toast(`On the file${o.tagged.length ? ' — ' + o.tagged.length + ' tagged' : ''}`);
+      again();
+    },
+  });
+}
+window.__lightbox = lightbox;

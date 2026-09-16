@@ -1,24 +1,26 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=59';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=59';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=59';
-import { BRAND_BY_CC } from './config.js?v=59';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=59';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=59';
-import { renderHome } from './home.js?v=59';
-import { renderSales } from './sales.js?v=59';
-import { renderPipeline } from './pipeline.js?v=59';
-import { renderMarketing } from './marketing.js?v=59';
-import { renderOffice } from './office.js?v=59';
-import { renderProduction } from './production.js?v=59';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=59';
-import { stopRoomPoll } from './village.js?v=59';
-import { renderFlow, stopFlow } from './flow.js?v=59';
-import { startTour, tourWanted } from './tour.js?v=59';
+import * as api from './api.js?v=63';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=63';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=63';
+import { BRAND_BY_CC } from './config.js?v=63';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=63';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=63';
+import { renderHome } from './home.js?v=63';
+import { renderSales } from './sales.js?v=63';
+import { renderPipeline } from './pipeline.js?v=63';
+import { renderMarketing } from './marketing.js?v=63';
+import { renderOffice } from './office.js?v=63';
+import { renderProduction } from './production.js?v=63';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=63';
+import { stopRoomPoll } from './village.js?v=63';
+import { renderFlow, stopFlow } from './flow.js?v=63';
+import { startTour, tourWanted } from './tour.js?v=63';
+import { startAlerts } from './alerts.js?v=63';
+import { renderPhotos } from './photos.js?v=63';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
-const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'files', 'file'];
+const VIEWS = ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files', 'file'];
 
 export function rooms() {
   const me = state.me;
@@ -60,7 +62,8 @@ const ROLE_ORDER = { owner: 0, admin: 1, manager: 2, office: 3, sales: 4, crew: 
 function renderViewAs() {
   const el = $('#viewas'); if (!el) return;
   const real = state.realMe || state.me;
-  if (!real || !(KEYS.includes(real.id) || real.role === 'admin' || (isDemo() && real.role === 'owner'))) { el.hidden = true; el.innerHTML = ''; return; }
+  const filmOfTheirView = isDemo() && /[?&]as=/.test(location.search);   // ?demo=1&as=office is THEIR view — Kevin's picker stays off it
+  if (filmOfTheirView || !real || !(KEYS.includes(real.id) || real.role === 'admin' || (isDemo() && real.role === 'owner'))) { el.hidden = true; el.innerHTML = ''; return; }
   const people = (state.people || []).filter((p) => p.id !== real.id && p.role !== 'crew').slice().sort((a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9) || String(a.name).localeCompare(String(b.name)));
   const cur = state.viewAsId || '';
   el.hidden = false;
@@ -93,6 +96,7 @@ export function render() {
   if (view === 'office') renderOffice($('#view-office'));
   if (view === 'production') renderProduction($('#view-production'));
   if (view === 'flow') renderFlow($('#view-flow'));
+  if (view === 'photos') renderPhotos($('#view-photos'));
   if (view === 'files') renderFiles($('#view-files'));
   document.title = `${counts.home ? counts.home + ' waiting · ' : ''}Central Command · 4-Touch Autopilot`;
 }
@@ -234,15 +238,15 @@ async function boot() {
     if (a.length < 6) { $('#sp-err').textContent = 'Six characters or more.'; return; }
     if (a !== b) { $('#sp-err').textContent = 'Those two do not match.'; return; }
     const go = $('#sp-go'); go.disabled = true;
-    try { await api.setPassword(a); showApp(); await reload(); toast('Password saved. You are in.'); }
+    try { await api.setPassword(a); showApp(); await reload(); startAlerts(); toast('Password saved. You are in.'); }
     catch (err) { $('#sp-err').textContent = err.message || 'Could not save it'; go.disabled = false; }
   };
   wireFind();
   window.__tour = startTour;
-  if (isDemo()) { showApp(); await reload(true); toast('Demo — a fictional book, nothing is saved'); if (tourWanted()) setTimeout(startTour, 600); return; }
+  if (isDemo()) { showApp(); await reload(true); toast('Demo — a fictional book, nothing is saved'); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); return; }
   // arrived from the one-time link in the welcome / reset email → choose a password first
   const fromLink = api.sessionFromHash();
   if (fromLink) { showSignIn(); card('sp-form'); $('#sp-pass').focus(); return; }
-  if (api.loadSession()) { showApp(); await reload(true); if (tourWanted()) setTimeout(startTour, 600); } else { showSignIn(); card('si-form'); }
+  if (api.loadSession()) { showApp(); await reload(true); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); } else { showSignIn(); card('si-form'); }
 }
 boot();

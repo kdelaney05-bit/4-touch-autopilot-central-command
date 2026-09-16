@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=59';
-import { DEMO } from './demo.js?v=59';
+import * as api from './api.js?v=63';
+import { DEMO } from './demo.js?v=63';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -137,8 +137,10 @@ export async function loadFile(customerId) {
       ]);
     }
   }
+  // 351: every photo on this customer — ours and CompanyCam's, newest first
+  const photos = await api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [] };
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], photos: Array.isArray(photos) ? photos : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -239,4 +241,58 @@ export async function searchCustomers(q) {
     : words.length === 1 ? `name.ilike.*${words[0]}*,street.ilike.*${words[0]}*` : null;
   const where = filter ? `or=(${filter})` : `and=(${words.map((w) => `or(name.ilike.*${w}*,street.ilike.*${w}*)`).join(',')})`;
   return api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=20`, 20);
+}
+
+/* ── 351: THE PHOTOS — a photo is something you SAY on the file ────────────
+   Kevin, 15 Sep night: "the crews, sales and supervisors communicate with
+   pics." Shrink on the device (1600 for the file, 320 for the strip), two
+   objects in the public job-photos bucket under the customer's uuid, then one
+   RPC that writes the row AND the line on the thread — so @Luis in the caption
+   rides the same rails as any note, and the bing rides on it. */
+export async function postPhoto(customerId, file, o = {}) {
+  guard();
+  const id = (crypto.randomUUID ? crypto.randomUUID() : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) => (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)));
+  const [big, small] = await Promise.all([shrinkImage(file, 1600, 0.82), shrinkImage(file, 320, 0.72)]);
+  const path = `${customerId}/${id}-1600.jpg`, thumb = `${customerId}/${id}-320.jpg`;
+  await api.uploadPublic('job-photos', path, big, 'image/jpeg');
+  await api.uploadPublic('job-photos', thumb, small, 'image/jpeg');
+  return api.rpc('job_photo_post', { p_customer: customerId, p_path: path, p_thumb: thumb, p_caption: o.caption || null, p_source: 'web',
+    p_tagged: Array.isArray(o.tagged) ? o.tagged : [], p_crew: o.crew || null, p_amount: o.amount != null && o.amount !== '' && Number.isFinite(Number(o.amount)) ? Number(o.amount) : null });
+}
+async function shrinkImage(file, max, quality) {
+  const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => createImageBitmap(file));
+  const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(bmp.width * s)); c.height = Math.max(1, Math.round(bmp.height * s));
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('Could not read that picture'))), 'image/jpeg', quality));
+}
+/* the picture's address, for a strip thumbnail or the full size */
+export function photoSrc(p, thumb = false) {
+  if (p.kind === 'ours' && p.path) return api.publicUrl('job-photos', thumb && p.thumb_path ? p.thumb_path : p.path);
+  return (thumb && p.thumb_url) || p.url || p.thumb_url || '';
+}
+
+/* 352: the crews a photo can name — CC's subs plus every crew already typed on a photo (Mike's Oasis crews) */
+let crewsCache = null;
+export async function loadCrews() {
+  if (isDemo()) return ['Oasis · Nick', 'Crew Ortiz', 'Bello Fencing', 'CG Fence'];
+  if (crewsCache) return crewsCache;
+  const rows = await api.page('v_photo_crews?select=name&order=name.asc', 300).catch(() => []);
+  crewsCache = [...new Set(rows.map((r) => r.name).filter(Boolean))];
+  return crewsCache;
+}
+/* the Photos room: every picture the seat can read, newest first, with the customer's name on it */
+export async function loadPhotoFeed() {
+  if (isDemo()) return DEMO.photos();
+  const rows = await api.page('v_file_photos?select=*&order=taken_at.desc&limit=400', 400);
+  const names = new Map();
+  for (const x of state.board || []) names.set(x.customer_id, x.customer_name);
+  for (const j of state.pipeline || []) if (j.customers?.name) names.set(j.customer_id, j.customers.name);
+  const missing = [...new Set(rows.map((r) => r.customer_id).filter((id) => id && !names.has(id)))];
+  for (let i = 0; i < missing.length; i += 80) {
+    const chunk = missing.slice(i, i + 80);
+    const cs = await api.page('customers?select=id,name&id=in.(' + chunk.join(',') + ')', 200).catch(() => []);
+    for (const c of cs) names.set(c.id, c.name);
+  }
+  return rows.map((r) => ({ ...r, customer_name: names.get(r.customer_id) || 'A customer' }));
 }
