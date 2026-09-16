@@ -194,7 +194,7 @@ const DM = {
   obed: [{ id: 4, from_id: 'k', to_id: 'obed', body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', created_at: ago(5) }],
 };
 const dm = (other) => DM[other] || [];
-export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
+export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, crews: () => CREWS, nuggets: () => NUGGETS, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
 
 /* 351: the photos on the fictional file — drawn, not fetched, so the demo never leaves the page */
 const svgPhoto = (label, sky, ground, accent) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect width="320" height="200" fill="${sky}"/><rect y="200" width="320" height="120" fill="${ground}"/><rect x="30" y="120" width="12" height="150" fill="${accent}"/><rect x="150" y="120" width="12" height="150" fill="${accent}"/><rect x="270" y="120" width="12" height="150" fill="${accent}"/><rect x="30" y="140" width="252" height="10" fill="${accent}" opacity=".8"/><rect x="30" y="230" width="252" height="10" fill="${accent}" opacity=".8"/><text x="16" y="300" font-family="monospace" font-size="20" fill="#fff" opacity=".9">${label}</text></svg>`);
@@ -242,4 +242,22 @@ const QUOTES = [
   { id: 'q2', customer_id: 'cj1', customer_name: 'Whitfield, Mark', city: 'Melbourne', job_id: 'j1', cc_company_id: '1461', job_title: 'Vinyl privacy 6\'', rep_id: 'r1', rep_name: 'Ron Seidel', assignee_id: 'g', assignee_name: 'Gio Calderin',
     fields: { fence_type: 'Vinyl privacy', height_ft: '6 ft', linear_ft: '188', gates: '1 × 4 ft', tear_out: 'Some', grade: 'Flat', hoa: 'No', survey: 'Customer has it', access: 'Easy' },
     photo_ids: [], note: null, status: 'priced', price: 14200, answer_note: 'Tear-out is 60 ft of wood — add a day. Racked panels.', created_at: ago(30), answered_at: ago(29.4), minutes_to_answer: 38, open_min: 1800 },
+];
+
+/* 356/357: Mike's crews and the nugget — the receipt nobody can argue */
+const CREWS = [
+  { id: 'cw1', name: 'Nick', phone: '+13215550171', cc_company_id: '1560', lang: 'en', manager_id: 'luis', active: true },
+  { id: 'cw2', name: 'Ramón', phone: '+13215550172', cc_company_id: '1560', lang: 'es', manager_id: 'luis', active: true },
+  { id: 'cw3', name: 'Crew Ortiz', phone: '+13865550173', cc_company_id: '1461', lang: 'es', manager_id: 'luis', active: true },
+];
+const NUGGETS = [
+  { id: 'ng1', person_id: 'cw2', person_name: 'Ramón', lang: 'es', cc_company_id: '1560', customer_id: 'cj6', customer_name: 'Marchetti, Dave', city: 'Melbourne', by_id: 'luis', by_name: 'Luis Gonzalez',
+    body: 'Sod goes in the BACK yard only. Front stays as it is.', bring: 'photo', bring_label: 'a photo of the back yard when the sod is down', due_at: ago(-3), status: 'open', answer: null, photos: [],
+    created_at: ago(1.2), returned_at: null, minutes_to_return: null, open_min: 72, late: false, seen_at: ago(1.1), received_at: ago(1.05), received_by: 'Ramón', sms_status: 'sent', sms_sent_at: ago(1.2) },
+  { id: 'ng2', person_id: 'cw1', person_name: 'Nick', lang: 'en', cc_company_id: '1560', customer_id: 'cj6', customer_name: 'Marchetti, Dave', city: 'Melbourne', by_id: 'luis', by_name: 'Luis Gonzalez',
+    body: 'How many pallets of pavers are left on the truck?', bring: 'number', bring_label: 'the count', due_at: null, status: 'returned', answer: '3', photos: [],
+    created_at: ago(5), returned_at: ago(4.6), minutes_to_return: 24, open_min: 300, late: false, seen_at: ago(4.9), received_at: ago(4.9), received_by: 'Nick', sms_status: 'sent', sms_sent_at: ago(5) },
+  { id: 'ng3', person_id: 'cw3', person_name: 'Crew Ortiz', lang: 'es', cc_company_id: '1461', customer_id: 'cj3', customer_name: 'Reed, Dana', city: 'Melbourne', by_id: 'luis', by_name: 'Luis Gonzalez',
+    body: 'Terminar la sección junto al cobertizo antes de las 3.', bring: 'done', bring_label: null, due_at: ago(0.5), status: 'open', answer: null, photos: [],
+    created_at: ago(3), returned_at: null, minutes_to_return: null, open_min: 180, late: true, seen_at: null, received_at: null, received_by: null, sms_status: 'sent', sms_sent_at: ago(3) },
 ];

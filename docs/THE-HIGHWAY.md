@@ -52,6 +52,7 @@ a desktop cockpit and a mobile command center."
 | 66 | SEND QUOTE TO GIO: the pricer's queue at the top of The Line (checklist, pictures, price box), the file's card with the clock | "cut this down 1/3–1/4… get complicated quotes to guys" |
 | 67 | THE RECEIPT: after a post, who it reached and how; under every note, who it tagged and ✓ who opened it — never a notification | "i didn't get a notification of who it went to… who opened it etc. not in my notifications but if i need to" |
 | 69 | MY BOOK: Files opens on the seat's own customers, one card each with the wait and the open tasks as a checklist (who, how long); Everyone is the whole list | "all their customers and current open tasks in this easier to read and understand UI… we took all the best from CC… Jet Stream and the tasks were the best part… 10x easier" |
+| 71 | MY CREWS + THE NUGGET: a manager's crews (name, phone, language, no login), Send a nugget (the instruction, the customer and address, bring back a photo / number / yes-no / words / done, by when), the court with the receipt on every one — texted · opened · RECIBIDO by name · brought back. Mike gets the keys like Luis | "tag his crews who are basically his employees… an objective nugget with something you need to bring me back… it's in your court… today we put sod on the wrong yard… they need to know we told them" |
 | 70 | THE NEXT WORD (the office's and ops' gift): close the permit ask → "your permit is approved" is in the box; set the schedule → "you're on the schedule for Friday" is in the box, date filled; invoice → the invoice line; a customer asks about paying → Reply puts the pay-link line in the box. The right one of the twelve approved lines, filled from the file, lit, one tap left. Nothing sends by itself | "give the office staff and ops staff a gift like we did the sales reps — a quicker better faster way" |
 
 ## The database (trureview-mobile, all APPLIED LIVE 16 Sep)
@@ -62,6 +63,11 @@ a desktop cockpit and a mobile command center."
 | 352 `photo_tags_crew_amount` | `tagged` / `crew` / `amount` on a photo; the line rides the seat's Say-it lane (never CHAT) so 312's trigger pushes everyone tagged; `v_photo_crews` |
 | 353 `quote_to_gio` | `quote_checklist` (the questions, editable in the DB), `quote_pricer()` → Gio, `quote_requests`, `quote_request_send` / `quote_request_answer` (one @-tag line each way), `v_quote_requests` with the clock |
 | 354 `mention_receipts` | `thread_receipts(thread)` — who each note tagged, has a phone, opened it |
+| 355 `brand_signed_texts` | at the one door every text leaves through: a brand line only carries its own company's customer (raises); a text that does not name the company gets " — Company"; `text_clock` ON |
+| 356 `crew_nuggets` | `crew_people` (name · phone · language · one standing link, no login), `crew_nuggets` (one instruction + the one thing to bring back + by when), `nugget_send` (the text with the link from the company's line), `nugget_view` / `nugget_return` (the crew's page, by token), `v_crew_nuggets` (the court) |
+| 357 `nugget_received` | the receipt: `seen_at` when the link opens, RECIBIDO by name and minute (`nugget_ack`), the address on the nugget, the text's sent stamp — "so there is nothing to argue" |
+
+Edge function `crew-nugget` (deployed 16 Sep, no JWT — the token is the key) · the crew's page `c.html` in `kdelaney05-bit/liberty-command` (Spanish first).
 
 Files: `backend/migrations/351–354` on branch `claude/photos-app` (PR #426).
 

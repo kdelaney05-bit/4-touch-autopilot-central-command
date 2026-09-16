@@ -545,3 +545,16 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 
 /* THE NEXT WORD — the box lights when the right line lands in it */
 #compose.hot { box-shadow: 0 0 0 3px var(--goldsoft), 0 0 0 5px var(--gold); transition: box-shadow .3s; }
+
+/* ── 356/357: MY CREWS + THE NUGGET ── */
+.card.crews { border-left: 6px solid var(--prod); }
+.crewrow { display: flex; flex-wrap: wrap; gap: 6px; }
+.crewchip { display: inline-flex; gap: 6px; align-items: baseline; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--card-hi); cursor: pointer; font-size: 13px; }
+.nug { border-top: 1px solid var(--line); padding: 8px 0; }
+.nug.late { border-left: 4px solid var(--red); padding-left: 8px; }
+.nug.back { opacity: .9; }
+.nughead { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 14px; flex-wrap: wrap; }
+.nughead .inv { padding: 0; font-size: 14px; }
+.nugbody { font-size: 14px; margin-top: 2px; }
+.nrcpt { font-family: var(--mono); font-size: 10.5px; color: var(--dimmer); margin-top: 5px; letter-spacing: .02em; }
+.pick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }

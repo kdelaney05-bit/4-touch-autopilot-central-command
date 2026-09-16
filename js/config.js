@@ -78,9 +78,11 @@ export const CONSOLE_SECTION = { sales: 'sales', marketing: 'marketing', home: '
 // Kevin, 16 Sep: "jess and luis need a super one like me, they can be anyone and reach anyone" — the keys = View as
 export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732',                        // Kevin
                      'c2b126ae-a182-4dca-be11-2b9bf02c1c21',                        // Jessica Coley
-                     '9cb2ccf5-15f5-4edf-975a-75fb215727be'];                       // Luis Gonzalez
+                     '9cb2ccf5-15f5-4edf-975a-75fb215727be',                        // Luis Gonzalez
+                     '050dde3d-4672-4aef-9aff-921c1a26e7c0'];                       // Mike LeRoy — "runs ops and production, needs all the Luis abilities" (16 Sep)
 export const ROOMS_BY_SEAT = {
   'c2b126ae-a182-4dca-be11-2b9bf02c1c21': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Jess — every room, like Kevin (16 Sep)
   '9cb2ccf5-15f5-4edf-975a-75fb215727be': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Luis — every room, like Kevin (16 Sep)
+  '050dde3d-4672-4aef-9aff-921c1a26e7c0': ['line', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // Mike — ops and production, like Luis (16 Sep)
   '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'sales', 'pipeline', 'photos', 'files'],   // Gio — a selling sales manager's rooms (Kevin, 16 Sep: "I don't want Gio seeing too much… player sales manager… just go sell"); never the books, never View as
 };

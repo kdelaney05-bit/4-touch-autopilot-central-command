@@ -1,22 +1,22 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=70';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=70';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=70';
-import { BRAND_BY_CC } from './config.js?v=70';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=70';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=70';
-import { renderHome } from './home.js?v=70';
-import { renderSales } from './sales.js?v=70';
-import { renderPipeline } from './pipeline.js?v=70';
-import { renderMarketing } from './marketing.js?v=70';
-import { renderOffice } from './office.js?v=70';
-import { renderProduction } from './production.js?v=70';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=70';
-import { stopRoomPoll } from './village.js?v=70';
-import { renderFlow, stopFlow } from './flow.js?v=70';
-import { startTour, tourWanted } from './tour.js?v=70';
-import { startAlerts } from './alerts.js?v=70';
-import { renderPhotos } from './photos.js?v=70';
+import * as api from './api.js?v=71';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=71';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=71';
+import { BRAND_BY_CC } from './config.js?v=71';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=71';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=71';
+import { renderHome } from './home.js?v=71';
+import { renderSales } from './sales.js?v=71';
+import { renderPipeline } from './pipeline.js?v=71';
+import { renderMarketing } from './marketing.js?v=71';
+import { renderOffice } from './office.js?v=71';
+import { renderProduction } from './production.js?v=71';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=71';
+import { stopRoomPoll } from './village.js?v=71';
+import { renderFlow, stopFlow } from './flow.js?v=71';
+import { startTour, tourWanted } from './tour.js?v=71';
+import { startAlerts } from './alerts.js?v=71';
+import { renderPhotos } from './photos.js?v=71';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -39,6 +39,7 @@ export function go(v, arg) {
   window.scrollTo({ top: 0 });
 }
 window.__go = go;   // the tables' onclick handlers
+window.__reloadQuiet = () => reload(true);
 
 /* VIEW AS — Kevin, 15 Sep night: "I want to be able to just click down and, if I'm
    that person, I can be them… flip through everyone in my company and see what

@@ -13,13 +13,14 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=70';
-import { toast, openModal } from './ui.js?v=70';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=70';
-import { html, raw, esc } from './ui.js?v=70';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=70';
-import { renderRoom, wireAtOn } from './village.js?v=70';
-import * as api from './api.js?v=70';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=71';
+import { toast, openModal } from './ui.js?v=71';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=71';
+import { crewsCard, wireCrews } from './crews.js?v=71';
+import { html, raw, esc } from './ui.js?v=71';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=71';
+import { renderRoom, wireAtOn } from './village.js?v=71';
+import * as api from './api.js?v=71';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -199,6 +200,7 @@ export function renderSwitchboard(root) {
     </div>`)}
     ${raw(sayItHTML())}
     ${raw(quotesQueueCard())}
+    ${raw(crewsCard())}
     ${rep ? '' : raw(stuckCard(C, waiting))}
     <div class="line-wrap">
       <div class="line-rail" id="line-rail">${raw(railHTML(upN, waiting, tagged, mine, C))}</div>
@@ -208,6 +210,7 @@ export function renderSwitchboard(root) {
   root.querySelectorAll('[data-pane]').forEach((b) => (b.onclick = () => { pane = b.dataset.pane; renderSwitchboard(root); }));
   root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { lane = b.dataset.lane; renderSwitchboard(root); }));
   wireQuotes(root);   // 353: the pricer sends the price from the card
+  wireCrews(root);    // 356: my crews, the nugget
   wireSayIt(root);
   wirePeopleFind(root);
   wireAnswers(root, waiting);

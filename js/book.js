@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=70';
-import { DEMO } from './demo.js?v=70';
+import * as api from './api.js?v=71';
+import { DEMO } from './demo.js?v=71';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -25,6 +25,8 @@ export const state = {
   pipeline: [],        // jobs on the selling side (appointment in 90 days, or signed in 60) with the customer embedded — the Pipeline room
   estimates: [],       // estimates, last 90 days — a price on file puts a customer in Estimate out
   direct: null,        // v_direct_lines (346) — my direct lines; null until the migration is on live
+  crews: [],           // crew_people (356) — the seat's crews: a name, a phone, a language
+  nuggets: [],         // v_crew_nuggets (356/357) — in their court, and what came back
   quotes: [],          // v_quote_requests (353) — the pricer's queue + the reps' answers, last 30 days
   quoteChecklist: [],  // quote_checklist (353) — the questions, from the database
   quotePhotos: [],     // the photos attached to open quote requests (for the queue card)
@@ -39,7 +41,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) {
     Object.assign(state, DEMO.book());
-    Object.assign(state, { quotes: DEMO.quotes(), quoteChecklist: DEMO.checklist(), quotePhotos: DEMO.photos() });
+    Object.assign(state, { quotes: DEMO.quotes(), quoteChecklist: DEMO.checklist(), quotePhotos: DEMO.photos(), crews: DEMO.crews(), nuggets: DEMO.nuggets() });
     state.realMe = state.me;   // View as needs the real seat in the demo too
     const as = (/[?&]as=(sales|office|manager)/.exec(location.search) || [])[1];   // see the demo as another seat
     if (as) { const seat = (state.people || []).find((p) => p.role === as) || state.me; state.me = { ...seat, role: as, manages_company_id: null }; }
@@ -84,6 +86,14 @@ export async function loadAll() {
   const qids = [...new Set(quotes.filter((q) => q.status === 'open').flatMap((q) => q.photo_ids || []))];
   const quotePhotos = qids.length ? await api.page(`v_file_photos?select=*&id=in.(${qids.join(',')})`, 400).catch(() => []) : [];
   Object.assign(state, { quotes, quoteChecklist, quotePhotos });
+  // 356/357: my crews and the nuggets in their court (managers)
+  if (['manager', 'owner', 'admin'].includes(me?.role)) {
+    const [crews, nuggets] = await Promise.all([
+      api.page('crew_people?select=id,name,phone,cc_company_id,lang,manager_id,active&order=name.asc', 200).catch(() => []),
+      api.page(`v_crew_nuggets?select=*&or=(status.eq.open,created_at.gte.${since30})&order=created_at.desc`, 300).catch(() => []),
+    ]);
+    Object.assign(state, { crews, nuggets });
+  }
   // View as (Kevin, 15 Sep night: "flip through everyone in my company and see what they would see"): an owner or
   // admin looks through another seat — the rooms and the name are theirs; the rows are still what the owner's
   // login can read, because RLS runs on the real token. Survives a reload.
@@ -365,3 +375,7 @@ function fillExtra(body, extra) {
 }
 /* offer it: remember what the box should hold, open the file beside the room */
 export function offerNextWord(nw) { if (!nw) return; state.nextWord = nw; if (window.__peek) window.__peek(nw.customerId); }
+
+/* 356/357: the crews and the nugget */
+export async function upsertCrew(id, name, phone, company, lang, active) { guard(); return api.rpc('crew_person_upsert', { p_id: id, p_name: name, p_phone: phone, p_company: company, p_lang: lang, p_active: active }); }
+export async function sendNugget(personId, body, bring, bringLabel, customerId, due) { guard(); return api.rpc('nugget_send', { p_person: personId, p_body: body, p_bring: bring, p_bring_label: bringLabel, p_customer: customerId, p_due: due }); }
