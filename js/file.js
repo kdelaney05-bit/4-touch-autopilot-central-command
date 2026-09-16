@@ -520,7 +520,7 @@ function sendEstimateDialog(ctx, r, name, customer, cc, again) {
    whether the person who signed the estimate is that owner. */
 function propertyCard(p, customer, filled = []) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
-  if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><button class="btn sm fill" id="parcel-look">Ask the county</button></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; tap the button if they signed on paper.</div></div>`;
+  if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><span style="display:flex;gap:4px"><button class="btn sm fill" id="parcel-look">Ask the county</button><button class="btn sm" id="noc-fill" title="The statutory Notice of Commencement from the customer's own name and address — parcel and legal left as blanks for the office">Fill the NOC</button></span></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; when the county does not match the address, the NOC still fills from the file (Fill the NOC) and goes to the customer.</div></div>`;
   const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
     : p.signer_match === 'mismatch' ? '<span class="chip red">SIGNER IS NOT THE OWNER</span>'
     : p.signer_match === 'entity' ? '<span class="chip gold">OWNED BY AN ENTITY · AUTHORIZED SIGNER NEEDED</span>'
