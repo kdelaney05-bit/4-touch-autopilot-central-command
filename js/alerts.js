@@ -7,9 +7,9 @@
 // Every 10 seconds this asks for anything new with your name on it: an @-tag
 // on a customer's file (v_my_mentions) or a direct line to you
 // (direct_messages). The phone gets the same thing as a push (312 / 346).
-import * as api from './api.js?v=81';
-import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=81';
-import { $, esc } from './ui.js?v=81';
+import * as api from './api.js?v=82';
+import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=82';
+import { $, esc } from './ui.js?v=82';
 
 let timer = null, since = null, unseen = 0;
 const seen = new Set();
@@ -47,17 +47,18 @@ function card(h) {
   const el = document.createElement('div'); el.className = 'alert';
   const who = firstName(h.from) || 'Someone';
   el.innerHTML = `
-    <div class="ak">${h.kind === 'direct' ? '✉ direct line · just you two' : '@ tagged you'} · ${esc(who)}</div>
+    <div class="ak">${h.kind === 'direct' ? '✉ direct line · just you two' : h.kind === 'room' ? '@ tagged you in the ' + esc(h.room === 'village' ? 'Village' : h.room + ' room') : '@ tagged you'} · ${esc(who)}</div>
     ${h.customer ? `<div class="an">${esc(personName(h.customer))}</div>` : `<div class="an">${esc(h.from || 'A seat')}</div>`}
     <div class="ab">${esc(String(h.body || '').slice(0, 220))}</div>
     <div class="af">
-      ${h.customer_id ? '<button class="btn sm fill" data-act="open">Open the file</button>' : (h.kind === 'direct' ? '<button class="btn sm fill" data-act="line">Open the line</button>' : '')}
+      ${h.customer_id ? '<button class="btn sm fill" data-act="open">Open the file</button>' : (h.kind === 'direct' ? '<button class="btn sm fill" data-act="line">Open the line</button>' : h.kind === 'room' ? '<button class="btn sm fill" data-act="room">Open the ' + (h.room === 'village' ? 'Village' : 'room') + '</button>' : '')}
       <button class="btn sm ok" data-act="done">✓ Got it</button>
     </div>`;
   const gone = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); };
   el.querySelector('[data-act="done"]').onclick = async () => { gone(); await settle(h); };
   const open = el.querySelector('[data-act="open"]'); if (open) open.onclick = async () => { gone(); await settle(h); window.__peek(h.customer_id); };
   const line = el.querySelector('[data-act="line"]'); if (line) line.onclick = async () => { gone(); await settle(h); if (window.__go) window.__go('line'); };
+  const room = el.querySelector('[data-act="room"]'); if (room) room.onclick = async () => { gone(); await settle(h); if (window.__go) window.__go(h.room === 'village' ? 'village' : 'line'); };
   host().prepend(el);
   setTimeout(() => el.classList.add('show'), 20);
   // stack cap: the oldest card folds into You're up, where it still waits
@@ -68,6 +69,9 @@ async function settle(h) {
     await mentionSeen(h.thread_id);
     for (const m of state.mentions || []) if (m.thread_id === h.thread_id && !m.seen_at) m.seen_at = new Date().toISOString();
     badge(-1);
+  } else if (h.kind === 'room') {
+    try { await api.rpc('team_mention_seen', { p_message: h.id }); } catch {}
+    badge(-1);
   } else if (h.kind === 'direct') {
     await directSeen(h.from_id);
     const d = (state.direct || []).find((x) => x.other_id === h.from_id); if (d) { badge(-Number(d.unseen || 0)); d.unseen = 0; }
@@ -76,7 +80,7 @@ async function settle(h) {
 function notify(h) {
   if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
   try {
-    const n = new Notification(`${firstName(h.from) || 'Someone'} ${h.kind === 'direct' ? 'sent you a line' : 'tagged you' + (h.customer ? ' on ' + personName(h.customer) : '')}`, { body: String(h.body || '').slice(0, 140), tag: `cc-${h.id}` });
+    const n = new Notification(`${firstName(h.from) || 'Someone'} ${h.kind === 'direct' ? 'sent you a line' : h.kind === 'room' ? 'tagged you in the Village' : 'tagged you' + (h.customer ? ' on ' + personName(h.customer) : '')}`, { body: String(h.body || '').slice(0, 140), tag: `cc-${h.id}` });
     n.onclick = () => { window.focus(); n.close(); if (h.customer_id) window.__peek(h.customer_id); };
   } catch {}
 }
@@ -106,6 +110,14 @@ async function look() {
       const p = (state.people || []).find((x) => x.id === r.from_id);
       const d = (state.direct || []).find((x) => x.other_id === r.from_id); if (d) { d.unseen = Number(d.unseen || 0) + 1; badge(1); }
       hits.push({ id: r.id, kind: 'direct', from_id: r.from_id, from: p ? p.name : (d ? d.other_name : 'A seat'), body: r.body, at: r.created_at });
+    }
+  } catch {}
+  try {
+    const rows = await api.page(`v_my_room_mentions?select=message_id,created_at,seen_at,room,author_name,body,customer_id,customer_name&seen_at=is.null&created_at=gt.${encodeURIComponent(since)}&order=created_at.desc&limit=20`, 100);
+    for (const r of rows) {
+      const k = 'r:' + r.message_id; if (seen.has(k)) continue; seen.add(k);
+      badge(1);
+      hits.push({ id: r.message_id, kind: 'room', room: r.room, customer_id: r.customer_id, customer: r.customer_name, from: r.author_name, body: r.body, at: r.created_at });
     }
   } catch {}
   if (!hits.length) return;
