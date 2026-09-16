@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=93';
+import { $, html, raw, esc } from './ui.js?v=94';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -95,7 +95,20 @@ const CHAIN_STEPS = [
   { room: 'line', at: '[data-tour="sent"]', title: 'And you see the whole chain.', body: 'Who got it, who did it, how fast: this led to this led to this, down to done. Appreciate on the one that landed well.' },
   { room: 'line', at: null, title: 'That is the job, start to finish.', body: 'The rep: one link. The office: four inputs. The supervisor: a tap and, on a roof, seven more. The customer: texted at every turn. The machine: everything between. Nobody\'s job is taken; the hunting is.' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS };
+// THE SUPERVISOR FILM (Kevin, 16 Sep: "so they know how to communicate — that they can text through the supervisor
+// app in the customer portal"). ?demo=1&as=manager&tour=super — the supervisor's rooms; on a phone it is the phone layout.
+const SUPER_STEPS = [
+  { room: 'line', at: null, title: 'Luis, Obed, Robert: this is your phone.', body: 'Open the site on your phone and add it to the home screen. Every room, every customer, in the truck. The supervisor app opens the same file with the same three lanes; this is where the words live.' },
+  { room: 'production', at: '[data-take], [data-tour="prod-board"]', title: 'Production: your board, and Take the job.', body: 'Who has the customer right now, and for how long. When the office sets the start date, the job pushes to you. Tap Take the job and it is yours; the office sees it the same second.' },
+  { room: 'files', at: '#drawer #compose', do: 'peek:cj3', title: 'The customer: text them from the file.', body: 'The box at the top goes to the customer, from the company line, signed with the company name. We are running a day early, is Thursday morning good. It stays on the file. The customer answers and it lands right here, with a clock nobody has to watch.' },
+  { room: 'files', at: '#drawer #note', title: 'The inside note: the wall.', body: 'The tan box is us. Tag @office or @Jessica Coley and they get the bing and the email with a link to this file. The customer never sees this lane. Green is the customer. Tan is the team. You cannot mix them up.' },
+  { room: 'files', at: '#drawer #photos-card', title: 'Photos: the job, in pictures.', body: 'Plus Photo is the camera. The words, tag a person, the crew, the dollars. It lands on the file and in the Photos room, and everyone named gets the buzz. No more pictures lost in a text thread.' },
+  { room: 'line', at: '[data-tour="crews"]', title: 'Your crews and the nugget.', body: 'A crew is a name and a phone, no login. Send one instruction with the picture and the price. They tap RECIBIDO by name, bring back the photo, and you hold the receipt: texted, opened, received, done. Sod on the wrong yard never happens twice.' },
+  { room: 'line', at: '[data-tour="asking"]', title: 'What they are asking.', body: 'Your customers waiting right now, sorted by what they asked. Where the file knows the answer, Answer puts the words in the box. Read it, fix a word, Send.' },
+  { room: 'village', at: '#view-village [data-say]', title: 'The Village: the whole company.', body: 'Say it, press Enter. Tag @office, @sales, or a name. The 🎤 talks for you when your hands are busy. Answer here, not by text, so it is on the record.' },
+  { room: 'line', at: null, title: 'That is the supervisor\'s day.', body: 'Take the job. Text the customer from the file. Note the team on the file. Photo the work. Nugget the crew. The office sees all of it without a phone call, and so does Kevin.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS };
 let FILM_NAME = '1';
 // THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
 // (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded

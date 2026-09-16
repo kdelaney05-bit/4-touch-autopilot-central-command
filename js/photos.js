@@ -4,8 +4,8 @@
 // grouped by day — ours (351) and CompanyCam's (028) in one feed. Each tile
 // carries the customer (tap → the file), who shot it, the crew and the dollars
 // (352). One search box: a customer, a person, a crew, or a word in the caption.
-import { state, isDemo, loadPhotoFeed, personName, firstName, photoSrc } from './book.js?v=93';
-import { $, html, raw, esc, toast } from './ui.js?v=93';
+import { state, isDemo, loadPhotoFeed, personName, firstName, photoSrc } from './book.js?v=94';
+import { $, html, raw, esc, toast } from './ui.js?v=94';
 
 let feed = null, q = '';
 const money = (n) => '$' + Number(n).toLocaleString([], { maximumFractionDigits: 0 });
