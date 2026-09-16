@@ -1,13 +1,13 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=91';
-import * as api from './api.js?v=91';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=91';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=91';
-import { iconForAsk } from './words.js?v=91';
-import { DEMO_STEPS } from './demo-office.js?v=91';
-import { reload } from './app.js?v=91';
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=92';
+import * as api from './api.js?v=92';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=92';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=92';
+import { iconForAsk } from './words.js?v=92';
+import { DEMO_STEPS } from './demo-office.js?v=92';
+import { reload } from './app.js?v=92';
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -29,13 +29,13 @@ export function renderOffice(root) {
         <h1 class="serif">What the field is waiting on the office for, and how long.</h1></div>
       <div class="right">${isDemo() ? raw('<span class="chip demo">DEMO</span>') : ''}</div>
     </div>
-    <div class="tiles" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+    <div class="tiles" data-tour="office-tiles" style="grid-template-columns:repeat(4,minmax(0,1fr))">
       ${raw([['CONTRACT_DOC', 'Paperwork'], ['PERMIT', 'Permit'], ['INVOICE', 'Ready to invoice'], ['PAYMENT', 'Payment']].map(([t, label]) => {
         const o = oldest(t); const red = o && o.open_min > (LINE_MIN[t] || 1e9);
         return `<div class="tile"><div class="kicker">${esc(label)}</div><div class="fnum" ${t === 'INVOICE' ? 'style="color:var(--verify)"' : red ? 'style="color:var(--clock)"' : ''}>${n(t)}</div><div class="small">${o ? 'oldest <span class="mono ' + (red ? 'red' : '') + '">' + esc(mins(o.open_min)) + '</span> · ' + esc(o.assignee_name || '') : 'none open'}</div></div>`;
       }).join(''))}
     </div>
-    <div class="card">
+    <div class="card" data-tour="office-asks">
       <div class="subs" style="margin-bottom:4px">
         <button class="sub ${filter === 'all' ? 'on' : ''}" data-f="all">All · ${Q.length}</button>
         ${raw(types.filter(n).map((t) => `<button class="sub ${filter === t ? 'on' : ''}" data-f="${t}">${esc(askLabel({ ask_type: t }))} · ${n(t)}</button>`).join(''))}

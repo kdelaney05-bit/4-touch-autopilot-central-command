@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=91';
+import { $, html, raw, esc } from './ui.js?v=92';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -66,7 +66,20 @@ const KEYS_STEPS = [
   { room: 'files', at: '#drawer .rcpt', title: 'The receipt.', body: 'Under every note: who it reached, buzzed on the phone or waiting in their You\'re up, and a check the moment they open it. There when you look.' },
   { room: 'line', at: null, title: 'On the road: the same site.', body: 'Open it on your phone and add it to the home screen. Same rooms, same files, in your pocket. Luis, that is your mobile command center.' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS };
+// THE OFFICE FILM (Kevin, 16 Sep afternoon: "let's walk through the new automations… how it was and how it is… show
+// people how to use"). From docs/THE-OFFICE-DAY.md: 10 CC tasks became 4 office inputs; the rest opens itself.
+const OFFICE_STEPS = [
+  { room: 'line', at: null, title: 'Sam, Laura, Jonathan: your day, the new way.', body: 'In Contractors Cloud a job was ten tasks, assigned by hand, closed with a checkbox. Here it is four inputs from you, and the machine opens every next step by itself. Two minutes.' },
+  { room: 'office', at: '[data-tour="office-tiles"]', title: 'The Office room. Four tiles, four inputs.', body: 'Paperwork, permit, ready to invoice, payment. The number is how many are waiting on the office; the clock on each is how long. Nothing here was created by hand. When a customer signs, the paperwork ask opens itself. When the paperwork finishes, the permit ask opens itself.' },
+  { room: 'office', at: '[data-tour="office-asks"]', title: 'Oldest on top. Done asks for the input.', body: 'No task list to filter. The one that has waited longest is first. Press Done and it asks for the real thing: the permit number, the PO number, the start date, the invoice number. That input goes on the file and opens the next step. There is no checkbox to tick.' },
+  { room: 'office', at: '#cc-workflow', title: 'Every CC step, and what became of it.', body: 'This card is the whole map. Fence and Oasis: ten tasks became four inputs. Roofing: twenty-one became four for the office and seven for the supervisor. Follow up with the homeowner is gone: their texts land on the file and a fifteen-minute clock watches them. Make a PM folder is gone: the file is the folder.' },
+  { room: 'files', at: '#drawer [data-tour="paperwork"], #drawer #photos-card', do: 'peek:cj3', title: 'On the file: the paperwork checklist.', body: 'It opened the moment the customer signed on the link. The contract settled itself. What is left is the county forms for that address: the NOC, the hold harmless, filled from the file. Upload the recorded one and the permit ask opens.' },
+  { room: 'files', at: '#drawer #note', title: 'A note to the team, on the file.', body: 'Tag, then type. Tag @Jessica Coley and she gets the bing and the email with a link here. Once you have written on a file you stay on it: every later note reaches you. The customer never sees a word of this.' },
+  { room: 'files', at: '#drawer #compose', title: 'Text the customer from the file.', body: 'The box at the top goes to the customer, from the company line, signed with the company name, and stays on the file. Permit is in, you are on the schedule, the invoice is out: the lines are already written. Later those go out by themselves; today you press Send.' },
+  { room: 'line', at: '[data-tour="asking"]', title: 'What they are asking, and the file answers.', body: 'Every customer waiting right now, sorted by what they asked. Where the file already knows the answer, Answer shows it in our words. Read it, fix a word, Send.' },
+  { room: 'line', at: null, title: 'That is the whole day.', body: 'Four inputs. Everything else opens itself, and the documents from Contractors Cloud are landing on the files tonight: contracts, surveys, NOCs, permits. CC stays open beside this until Kevin says otherwise. This is where we talk, and where the job moves.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS };
 let FILM_NAME = '1';
 // THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
 // (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded

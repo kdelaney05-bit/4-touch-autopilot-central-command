@@ -57,7 +57,7 @@ export const ROOMS_BY_ROLE = {
   owner:   ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
   admin:   ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
   manager: ['line', 'village', 'pipeline', 'photos', 'files'],   // the playground (Kevin, 15 Sep night): the highway, the pipeline ("give them the pipeline and then the line") and the files; the other rooms come one at a time
-  office:  ['line', 'village', 'pipeline', 'photos', 'files'],
+  office:  ['line', 'village', 'office', 'pipeline', 'photos', 'files'],   // 16 Sep: the Office room is the office's automated day (the asks, oldest first)
   sales:   ['line', 'village', 'photos', 'files'],
   crew:    [],
 };
