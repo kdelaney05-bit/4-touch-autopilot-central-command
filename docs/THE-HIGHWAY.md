@@ -51,6 +51,7 @@ a desktop cockpit and a mobile command center."
 | 65 | Gio's rooms narrowed | "player sales manager" |
 | 66 | SEND QUOTE TO GIO: the pricer's queue at the top of The Line (checklist, pictures, price box), the file's card with the clock | "cut this down 1/3–1/4… get complicated quotes to guys" |
 | 67 | THE RECEIPT: after a post, who it reached and how; under every note, who it tagged and ✓ who opened it — never a notification | "i didn't get a notification of who it went to… who opened it etc. not in my notifications but if i need to" |
+| 69 | MY BOOK: Files opens on the seat's own customers, one card each with the wait and the open tasks as a checklist (who, how long); Everyone is the whole list | "all their customers and current open tasks in this easier to read and understand UI… we took all the best from CC… Jet Stream and the tasks were the best part… 10x easier" |
 
 ## The database (trureview-mobile, all APPLIED LIVE 16 Sep)
 
