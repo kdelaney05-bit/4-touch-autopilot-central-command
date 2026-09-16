@@ -508,3 +508,17 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
   .msg { max-width: 92%; }
   .modal { width: calc(100vw - 24px) !important; max-height: 90vh; overflow-y: auto; }
 }
+
+/* ── 353: SEND QUOTE TO GIO ── */
+.card.quotes { border-left: 6px solid var(--gold); }
+.qreq { border-top: 1px solid var(--line); padding: 10px 0 8px; }
+.qreq:first-of-type { border-top: 0; }
+.qhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; margin-bottom: 4px; flex-wrap: wrap; }
+.qhead .inv { text-align: left; }
+.qrows { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.qrows .r { font-size: 12.5px; padding: 3px 0; }
+.qans { display: flex; gap: 6px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+.qans input[type=number] { width: 110px; font: inherit; font-family: var(--mono); font-size: 14px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--card-hi); color: var(--ink); }
+.qans input[type=text] { flex: 1; min-width: 180px; font: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--card-hi); color: var(--ink); }
+.qprice { margin-top: 6px; font-size: 15px; } .qprice b { font-family: var(--mono); color: var(--verify); font-size: 17px; }
+@media (max-width: 700px) { .qrows { grid-template-columns: 1fr; } }

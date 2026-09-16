@@ -2,13 +2,14 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews } from './book.js?v=65';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=65';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=65';
-import { say, thing, iconForAsk } from './words.js?v=65';
-import { settleDialog } from './office.js?v=65';
-import { reload } from './app.js?v=65';
-import { relTime } from './production.js?v=65';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews } from './book.js?v=66';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=66';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=66';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=66';
+import { say, thing, iconForAsk } from './words.js?v=66';
+import { settleDialog } from './office.js?v=66';
+import { reload } from './app.js?v=66';
+import { relTime } from './production.js?v=66';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -189,6 +190,7 @@ function draw(root, ctx, compact) {
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         ${raw(photosCard(photos))}
+        ${raw(quoteFileCard(ctx.data.quotes, photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
@@ -229,6 +231,7 @@ function draw(root, ctx, compact) {
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
   // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
   root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => lightbox(im.dataset.full || im.src, im.title || '')));
+  wireQuotes(root);   // 353
   const pin = q('#photo-in');
   if (pin) pin.onchange = () => { const files = [...pin.files]; pin.value = ''; if (files.length) photoSheet(files, ctx, customer, again); };
   // the Estimate button opens pre-typed from the calculator when the rep drew one; the fence card's own button does the same

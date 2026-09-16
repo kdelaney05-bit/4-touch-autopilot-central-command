@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=65';
-import { DEMO } from './demo.js?v=65';
+import * as api from './api.js?v=66';
+import { DEMO } from './demo.js?v=66';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -25,6 +25,9 @@ export const state = {
   pipeline: [],        // jobs on the selling side (appointment in 90 days, or signed in 60) with the customer embedded — the Pipeline room
   estimates: [],       // estimates, last 90 days — a price on file puts a customer in Estimate out
   direct: null,        // v_direct_lines (346) — my direct lines; null until the migration is on live
+  quotes: [],          // v_quote_requests (353) — the pricer's queue + the reps' answers, last 30 days
+  quoteChecklist: [],  // quote_checklist (353) — the questions, from the database
+  quotePhotos: [],     // the photos attached to open quote requests (for the queue card)
   touches: [],         // touches, last 90 days — the last time a rep worked a customer; the Pipeline room's worked / cooling / unworked split
   warnings: [],
   loadedAt: null,
@@ -36,6 +39,7 @@ export async function loadAll() {
   state.warnings = [];
   if (isDemo()) {
     Object.assign(state, DEMO.book());
+    Object.assign(state, { quotes: DEMO.quotes(), quoteChecklist: DEMO.checklist(), quotePhotos: DEMO.photos() });
     state.realMe = state.me;   // View as needs the real seat in the demo too
     const as = (/[?&]as=(sales|office|manager)/.exec(location.search) || [])[1];   // see the demo as another seat
     if (as) { const seat = (state.people || []).find((p) => p.role === as) || state.me; state.me = { ...seat, role: as, manages_company_id: null }; }
@@ -72,6 +76,14 @@ export async function loadAll() {
     api.page('v_direct_lines?select=*&order=last_at.desc', 200).catch(() => null),
   ]);
   Object.assign(state, { me, seats, stageSeats, board, queue, clock, switches, lines, mentions, sellers, leadSources, proofRules, parcels, nocs, people, pipeline, estimates, touches, direct });
+  // 353: quotes to Gio — the open ones and the last 30 days, the checklist, and the photos the open ones carry
+  const [quotes, quoteChecklist] = await Promise.all([
+    api.page(`v_quote_requests?select=*&or=(status.eq.open,created_at.gte.${since30})&order=created_at.desc`, 300).catch(() => []),
+    api.page('quote_checklist?select=*&order=ord.asc', 50).catch(() => []),
+  ]);
+  const qids = [...new Set(quotes.filter((q) => q.status === 'open').flatMap((q) => q.photo_ids || []))];
+  const quotePhotos = qids.length ? await api.page(`v_file_photos?select=*&id=in.(${qids.join(',')})`, 400).catch(() => []) : [];
+  Object.assign(state, { quotes, quoteChecklist, quotePhotos });
   // View as (Kevin, 15 Sep night: "flip through everyone in my company and see what they would see"): an owner or
   // admin looks through another seat — the rooms and the name are theirs; the rows are still what the owner's
   // login can read, because RLS runs on the real token. Survives a reload.
@@ -138,9 +150,12 @@ export async function loadFile(customerId) {
     }
   }
   // 351: every photo on this customer — ours and CompanyCam's, newest first
-  const photos = await api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []);
+  const [photos, quotes] = await Promise.all([
+    api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []),
+    api.page(`v_quote_requests?select=*&customer_id=eq.${customerId}&order=created_at.desc`, 20).catch(() => []),   // 353
+  ]);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], photos: Array.isArray(photos) ? photos : [] };
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -296,3 +311,6 @@ export async function loadPhotoFeed() {
   }
   return rows.map((r) => ({ ...r, customer_name: names.get(r.customer_id) || 'A customer' }));
 }
+
+/* 353: the pricer's answer — one RPC, one line on the file that @-tags the rep */
+export async function answerQuote(id, price, note) { guard(); return api.rpc('quote_request_answer', { p_id: id, p_price: Number(price), p_note: note || null }); }

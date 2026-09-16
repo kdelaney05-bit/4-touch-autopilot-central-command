@@ -1,22 +1,22 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=65';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=65';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=65';
-import { BRAND_BY_CC } from './config.js?v=65';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=65';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=65';
-import { renderHome } from './home.js?v=65';
-import { renderSales } from './sales.js?v=65';
-import { renderPipeline } from './pipeline.js?v=65';
-import { renderMarketing } from './marketing.js?v=65';
-import { renderOffice } from './office.js?v=65';
-import { renderProduction } from './production.js?v=65';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=65';
-import { stopRoomPoll } from './village.js?v=65';
-import { renderFlow, stopFlow } from './flow.js?v=65';
-import { startTour, tourWanted } from './tour.js?v=65';
-import { startAlerts } from './alerts.js?v=65';
-import { renderPhotos } from './photos.js?v=65';
+import * as api from './api.js?v=66';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=66';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=66';
+import { BRAND_BY_CC } from './config.js?v=66';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=66';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=66';
+import { renderHome } from './home.js?v=66';
+import { renderSales } from './sales.js?v=66';
+import { renderPipeline } from './pipeline.js?v=66';
+import { renderMarketing } from './marketing.js?v=66';
+import { renderOffice } from './office.js?v=66';
+import { renderProduction } from './production.js?v=66';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=66';
+import { stopRoomPoll } from './village.js?v=66';
+import { renderFlow, stopFlow } from './flow.js?v=66';
+import { startTour, tourWanted } from './tour.js?v=66';
+import { startAlerts } from './alerts.js?v=66';
+import { renderPhotos } from './photos.js?v=66';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -245,7 +245,7 @@ async function boot() {
   window.__tour = startTour;
   // ?room=photos (or any room the seat has) opens there — the deck and the visuals link straight into a room
   const wantRoom = (/[?&]room=([a-z]+)/.exec(location.search) || [])[1];
-  const wantFile = (/[?&]file=([w-]+)/.exec(location.search) || [])[1];   // &file=<customer id> opens that file beside the room
+  const wantFile = (/[?&]file=([A-Za-z0-9-]+)/.exec(location.search) || [])[1];   // &file=<customer id> opens that file beside the room
   const openWanted = () => { if (wantRoom && rooms().includes(wantRoom)) go(wantRoom); if (wantFile) setTimeout(() => window.__peek && window.__peek(wantFile), 500); };
   if (isDemo()) { showApp(); await reload(true); openWanted(); toast('Demo — a fictional book, nothing is saved'); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); return; }
   // arrived from the one-time link in the welcome / reset email → choose a password first

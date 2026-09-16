@@ -164,7 +164,7 @@ function file(customerId) {
     { id: 'pk2', kind: 'material_order', label: 'Liberty_MaterialOrder_Pestana_Luis_2026-09-13.pdf', signed: false, storage_path: 'cj8/2-order.pdf', mime: 'application/pdf', uploaded_at: ago(35.5) },
     { id: 'pk3', kind: 'drawing', label: 'drawing.svg', signed: false, storage_path: 'cj8/3-drawing.svg', mime: 'image/svg+xml', uploaded_at: ago(36) },
   ] : [];
-  return { photos: demoPhotos(b), job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  return { photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {
@@ -186,7 +186,7 @@ const DM = {
   obed: [{ id: 4, from_id: 'k', to_id: 'obed', body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', created_at: ago(5) }],
 };
 const dm = (other) => DM[other] || [];
-export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
+export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
 
 /* 351: the photos on the fictional file — drawn, not fetched, so the demo never leaves the page */
 const svgPhoto = (label, sky, ground, accent) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect width="320" height="200" fill="${sky}"/><rect y="200" width="320" height="120" fill="${ground}"/><rect x="30" y="120" width="12" height="150" fill="${accent}"/><rect x="150" y="120" width="12" height="150" fill="${accent}"/><rect x="270" y="120" width="12" height="150" fill="${accent}"/><rect x="30" y="140" width="252" height="10" fill="${accent}" opacity=".8"/><rect x="30" y="230" width="252" height="10" fill="${accent}" opacity=".8"/><text x="16" y="300" font-family="monospace" font-size="20" fill="#fff" opacity=".9">${label}</text></svg>`);
@@ -210,3 +210,28 @@ function demoPhotos(b) {
     mk(7, 'CC · YARD', 'Ron Seidel', 22 * 24, null, 'companycam', 'companycam'), mk(8, 'CC · GATE', 'Ron Seidel', 22 * 24, null, 'companycam', 'companycam'),
   ];
 }
+
+/* 353: SEND QUOTE TO GIO — the demo's checklist (the live one is a table) and two asks */
+const CHECKLIST = [
+  { key: 'fence_type', ord: 10, label: 'Fence', kind: 'pick', options: ['Vinyl privacy', 'Vinyl semi-privacy', 'Aluminum', 'Wood', 'Chain link', 'Other'], required: true, hint: null },
+  { key: 'height_ft', ord: 20, label: 'Height', kind: 'pick', options: ['4 ft', '5 ft', '6 ft', '8 ft'], required: true, hint: null },
+  { key: 'linear_ft', ord: 30, label: 'Linear feet', kind: 'number', options: [], required: true, hint: 'Your measurement, not the survey\'s' },
+  { key: 'gates', ord: 40, label: 'Gates', kind: 'text', options: [], required: true, hint: '2 × 4 ft single, 1 × 10 ft double' },
+  { key: 'tear_out', ord: 50, label: 'Tear-out', kind: 'pick', options: ['None', 'Some', 'All'], required: true, hint: null },
+  { key: 'grade', ord: 60, label: 'Grade', kind: 'pick', options: ['Flat', 'Sloped', 'Steep'], required: true, hint: null },
+  { key: 'ground', ord: 70, label: 'Ground', kind: 'pick', options: ['Sand', 'Roots', 'Rock', 'Concrete to cut'], required: false, hint: null },
+  { key: 'obstacles', ord: 80, label: 'Obstacles', kind: 'text', options: [], required: false, hint: null },
+  { key: 'hoa', ord: 90, label: 'HOA', kind: 'pick', options: ['Yes', 'No', 'Unknown'], required: true, hint: null },
+  { key: 'survey', ord: 100, label: 'Survey', kind: 'pick', options: ['On the file', 'Customer has it', 'None'], required: true, hint: null },
+  { key: 'access', ord: 110, label: 'Access', kind: 'pick', options: ['Easy', 'Tight', 'Backyard by hand'], required: true, hint: null },
+  { key: 'need_by', ord: 120, label: 'Customer expects', kind: 'text', options: [], required: false, hint: null },
+  { key: 'notes', ord: 130, label: 'Anything else', kind: 'text', options: [], required: false, hint: null },
+];
+const QUOTES = [
+  { id: 'q1', customer_id: 'cj3', customer_name: 'Reed, Dana', city: 'Melbourne', job_id: 'j3', cc_company_id: '1461', job_title: 'Aluminum + gate', rep_id: 'r1', rep_name: 'Ron Seidel', assignee_id: 'g', assignee_name: 'Gio Calderin',
+    fields: { fence_type: 'Vinyl privacy', height_ft: '6 ft', linear_ft: '312', gates: '2 × 4 ft single, 1 × 10 ft double', tear_out: 'All', grade: 'Sloped', ground: 'Roots', obstacles: 'Neighbor\'s fence on the east line, AC pad, oak roots', hoa: 'Yes', survey: 'On the file', access: 'Tight', need_by: 'Thursday' },
+    photo_ids: ['dpj31', 'dpj34', 'dpj36'], note: 'He wants it racked, not stepped. HOA wants tan.', status: 'open', price: null, answer_note: null, created_at: ago(1.4), answered_at: null, minutes_to_answer: null, open_min: 84 },
+  { id: 'q2', customer_id: 'cj1', customer_name: 'Whitfield, Mark', city: 'Melbourne', job_id: 'j1', cc_company_id: '1461', job_title: 'Vinyl privacy 6\'', rep_id: 'r1', rep_name: 'Ron Seidel', assignee_id: 'g', assignee_name: 'Gio Calderin',
+    fields: { fence_type: 'Vinyl privacy', height_ft: '6 ft', linear_ft: '188', gates: '1 × 4 ft', tear_out: 'Some', grade: 'Flat', hoa: 'No', survey: 'Customer has it', access: 'Easy' },
+    photo_ids: [], note: null, status: 'priced', price: 14200, answer_note: 'Tear-out is 60 ft of wood — add a day. Racked panels.', created_at: ago(30), answered_at: ago(29.4), minutes_to_answer: 38, open_min: 1800 },
+];
