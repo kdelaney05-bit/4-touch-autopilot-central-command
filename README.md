@@ -123,6 +123,7 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The crew work order: written from the file when the install date is set, emailed to Luis and the crew in Spanish and English with the drawing, one tap RECIBIDO on w.html lands on the file | **342** |
 | Contractors Cloud production copied here hourly at :20 (work orders, material orders, contract costs, crews, suppliers) from the nested project routes | **343** |
 | The Special Order Guide from Gio as rows: supplier, stock or special, deposit, lead time per product; gates over 5 ft are special; the material step names who to call and pushes Gio when he must approve; the day-before survey text (switch OFF until the voice pass) | **344** |
+| The bills: `supplier_bills`, `v_bills_queue`, `bill_decide`, switches `bills_to_qb` · `bills_to_cc` (OFF) — the supplier invoice lands on the file, Jonathan approves | **365** |
 
 Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (344 as of 15 Sep).
 

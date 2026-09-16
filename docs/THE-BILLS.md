@@ -225,8 +225,8 @@ drafts, gospel 33. **Not built yet:** every row and every card below.
 | 1 | Kevin | Send the four drafts (all hands · Jonathan · Laura · the reply on Jess's thread). | nothing |
 | 2 | Jess | The supplier list; who clicks Send on invoices today, per company. | step 1 |
 | 3 | Kevin | One `bills@` address per brand, or say "label the inboxes" and the worker reads Jess's and Kevin's Gmail by label. | nothing |
-| 4 | Kevin | The QuickBooks consent: one browser sign-in per company, four companies, `backend/QB-OAUTH-WALKTHROUGH.md`. Fifteen minutes. Without it neither switch has anywhere to write. | nothing |
-| 5 | build | Migration 317 (check live first): `supplier_bills`, the two switches `bills_to_cc` · `bills_to_qb`, the `bill_approve` RPC. | nothing |
+| 4 | Kevin | The QuickBooks consent. **Three of four are done** (Liberty Fencing, Pro-Tech, Oasis connected on live, synced 16 Sep). Liberty Roofing 1537 remains: one sign-in, `backend/QB-OAUTH-WALKTHROUGH.md`. | nothing |
+| 5 | build | **DONE 16 Sep, 17:25.** Migration 365 applied on live: `supplier_bills`, `v_bills_queue`, `bill_decide`, the two switches OFF. | — |
 | 6 | build | The intake worker: reads the mailbox, parses the IIF then the PDF, matches the PO to `cc_material_orders`, lands the row and the PDF. | 3, 5 |
 | 7 | build | **Bill landed** on the file + the Office queue (Jonathan's card, Approve · Wrong job · Over the estimate). Live with every switch OFF: it only records. This is the first spoon. | 5, 6 |
 | 8 | build | The QuickBooks writer in `qb-client.mjs`: Bill create (DocNumber = invoice number, duplicate-guarded) and Invoice create for `qb_invoice_queue`. **No worker exists today for `qb_invoices` either; the switch is a promise with nothing behind it.** | 4 |
