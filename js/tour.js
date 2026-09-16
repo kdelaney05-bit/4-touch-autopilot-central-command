@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=94';
+import { $, html, raw, esc } from './ui.js?v=95';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -108,7 +108,17 @@ const SUPER_STEPS = [
   { room: 'village', at: '#view-village [data-say]', title: 'The Village: the whole company.', body: 'Say it, press Enter. Tag @office, @sales, or a name. The 🎤 talks for you when your hands are busy. Answer here, not by text, so it is on the record.' },
   { room: 'line', at: null, title: 'That is the supervisor\'s day.', body: 'Take the job. Text the customer from the file. Note the team on the file. Photo the work. Nugget the crew. The office sees all of it without a phone call, and so does Kevin.' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS };
+// CONTRACT SIGNING AND AUTO WORKFLOW (Kevin, 16 Sep evening): sign everything once; the NOC is the customer's errand
+const NOC_STEPS = [
+  { room: 'files', at: null, title: 'The customer signs everything, once.', body: 'One link. The proposal, our contract sheet, the disclosures, the hold harmless and the permit application, all under one signature. Nothing notarized on the link. Oasis signs the contract alone. The rep is done in the driveway: great, I can get you started now, go ahead and accept here, and we get everything moving on our end.' },
+  { room: 'files', at: '#drawer [data-tour="paperwork"]', do: 'peek:cj7', title: 'The one form that is not on the link.', body: 'The Notice of Commencement. Florida wants the owner to sign it in front of a notary. So the file hands it to the customer: emailed filled in the moment they sign, the rep and the office copied, with one link to send back a picture.' },
+  { room: 'files', at: '#drawer [data-tour="paperwork"] .next', title: 'The machine bugs them. Not you.', body: 'A text from the main line the day they sign, then day three, day seven, two weeks, three weeks. Roofing gets it harder: day one, day two, day four, day six, and the rep is pushed to call. The words and the days are rows the office can change.' },
+  { room: 'files', at: null, title: 'What the customer sees.', body: 'Three steps: print it, sign it in front of a notary, take a picture of the stamped page. One green camera button. They never bring anything in, and they never mail anything.', link: 'sign-everything.html', linkText: 'See the customer\'s phone' },
+  { room: 'files', at: '#drawer [data-tour="paperwork"]', title: 'The picture closes it.', body: 'The photo lands on the file, the NOC ask settles itself, the texts stop, and Sam and the rep get the buzz. Sam records it at the Clerk. The permit never waited on it, and neither did the material.' },
+  { room: 'office', at: '[data-tour="noc-switch"]', title: 'One switch.', body: 'The NOC to the customer, in the Office room. Kevin flips it. Off, the file still writes the handoff and a seat can press Email it.' },
+  { room: 'files', at: null, title: 'Nothing to learn. It comes to you.', body: 'The customer gets the email and the texts. The office gets the buzz when the picture lands. The rep gets nothing to do. That is the whole change.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS, 'noc': NOC_STEPS };
 let FILM_NAME = '1';
 // THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
 // (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded

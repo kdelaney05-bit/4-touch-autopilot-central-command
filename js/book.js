@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=94';
-import { DEMO } from './demo.js?v=94';
+import * as api from './api.js?v=95';
+import { DEMO } from './demo.js?v=95';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -138,7 +138,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
@@ -155,6 +155,8 @@ export async function loadFile(customerId) {
     api.rpc('fence_takeoff_for', { p_customer: customerId }).catch(() => null),
     // 328: the packet the calculator filed — material order, signed proposal, county packet, the drawing (private estimates bucket)
     api.page(`proofs?select=id,kind,label,signed,storage_path,mime,uploaded_at,uploaded_by&customer_id=eq.${customerId}&kind=in.(material_order,proposal,permit_packet,drawing)&order=uploaded_at.desc`, 60).catch(() => []),
+    // 367: the Notice of Commencement handed to the customer to notarize — the email, the texts, the photo link, what came back
+    api.rpc('noc_handoff_for', { p_customer: customerId }).catch(() => null),
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -174,7 +176,7 @@ export async function loadFile(customerId) {
     thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
   ]);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -222,6 +224,9 @@ export async function parcelLookup(customerId, signerName) { guard(); return api
 /* 325: fill the NOC (or a named county form) from the file; open a filled one with a fresh signed link. */
 export async function fillPaperwork(customerId, formKey) { guard(); return api.fn('paperwork-fill', { customer_id: customerId, form_key: formKey ?? null }); }
 export async function openPaperwork(id) { guard(); return api.fn('paperwork-fill', { open: id }); }
+/* 367: the NOC is the customer's errand — Email it (a seat pressed Send: the email goes now, the texts follow the switch), and where it stands. */
+export async function nocSend(customerId) { guard(); return api.rpc('noc_handoff_send', { p_customer: customerId }); }
+export async function nocStatus(customerId) { if (isDemo()) return null; return api.rpc('noc_handoff_for', { p_customer: customerId }).catch(() => null); }
 export async function threadForJob(jobId) { guard(); return api.rpc('file_thread_for', { p_job: jobId }); }
 export async function mentionSeen(threadId) { if (isDemo()) return 0; return api.rpc('mention_seen', { p_thread: threadId }).catch(() => 0); }
 export async function setSwitch(key, on) { guard(); return api.rpc('automation_switch_set', { p_key: key, p_on: on }); }

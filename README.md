@@ -124,8 +124,11 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | Contractors Cloud production copied here hourly at :20 (work orders, material orders, contract costs, crews, suppliers) from the nested project routes | **343** |
 | The Special Order Guide from Gio as rows: supplier, stock or special, deposit, lead time per product; gates over 5 ft are special; the material step names who to call and pushes Gio when he must approve; the day-before survey text (switch OFF until the voice pass) | **344** |
 | The bills: `supplier_bills`, `v_bills_queue`, `bill_decide`, switches `bills_to_qb` · `bills_to_cc` (OFF) — the supplier invoice lands on the file, Jonathan approves | **365** |
+| Sign everything, once: every active form on the signing link as a plain e-sign (`paperwork_forms.stage` = signing, `signing` = esign) | **366** |
+| The NOC is the customer's errand: `noc_handoffs`, `noc_nudge_plans`, `noc_handoff_start/email/send/for/view/receive`, `noc_nudge_sweep` (cron, 30 min), switch `noc_notarize` (OFF), the chain no longer waits on the NOC; edge fn `noc-return` | **367** |
+| Oasis signs the contract alone: `paperwork_forms.except_brands`; the packet honours it | **368** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (366 applied as of 16 Sep 6 PM; next free 367).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (368 applied as of 16 Sep evening; next free 369).
 
 ## What Kevin and Jess change without a build
 

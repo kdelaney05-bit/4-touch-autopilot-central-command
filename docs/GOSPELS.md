@@ -146,6 +146,19 @@ wrong, not the gospel.
     do I need to do?" is answered by the card, never by a manual. And never
     "I'll walk you through the first one": the card walks them. (16 Sep)
 
+34. **They accept now, they sign everything once, and nobody goes back for
+    paperwork.** "If the customer's ready, they'll accept now. They'll sign
+    every one of our documents, including the building permit." One link,
+    one signature, nothing notarized on it; Oasis signs the contract alone.
+    The one form Florida wants notarized, the Notice of Commencement, is the
+    customer's errand: emailed to them filled in the second they sign, the
+    rep and the office copied; they sign it in front of any notary and send a
+    picture from the link; the machine texts them until it lands, gently for
+    a fence (it is only needed for the inspection, and that is when we are
+    done), harder for a roof. "The sales guys don't need to go back at all."
+    The close is one line: great, I can get you started now, go ahead and
+    accept here, and we get everything moving on our end. (16 Sep)
+
 ## Where each one shows up
 
 | Gospel | Where it lives today |
@@ -158,5 +171,6 @@ wrong, not the gospel.
 | Draft until send | Gmail drafts, posts pasted by Kevin |
 | Signing is not selling | estimate-view /sign, the accepted estimate, the NOC |
 | Every new thing ships with a Ride-Along | docs/ride-alongs.html; the films in js/tour.js (`?tour=1`, `?tour=crews`, `&voice=1`); 🎬 What's new in the header |
+| They accept now, sign everything once, nobody goes back | The signing link (366–368); the NOC row on the file's Paperwork card; the switch The NOC to the customer; `?tour=noc` |
 
 Add to this file when Kevin says a new one. Never delete one without his word.

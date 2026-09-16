@@ -6,6 +6,18 @@ a build. The things that need you are at the bottom.
 **The app:** https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/
 **The demo (fake customers, nothing saves):** add `?demo=1` to that link.
 
+## New tonight, 16 Sep — CONTRACT SIGNING AND AUTO WORKFLOW
+
+The customer accepts now and signs everything once on the link: the contract,
+the disclosures, the hold harmless, the permit application. Nothing notarized
+on it. Oasis signs the contract alone. The Notice of Commencement goes to the
+customer by email the second they sign, filled in, with a link to send back a
+picture of the notarized page; the machine texts them until it lands. Nobody
+goes back for paperwork. **Two things are yours:** flip **The NOC to the
+customer** in the Office room, and press Send on the draft to the sales team
+in your Gmail ("New rule on contracts"). Walk it first on the file "Delaney
+NOC walk, Kevin" — the link is in the session's last message.
+
 Sign in with the same email and password as the phone app. The database
 decides what you see, not the page.
 

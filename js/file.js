@@ -2,16 +2,16 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=94';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=94';
-import { enterPosts, micButton } from './dictate.js?v=94';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=94';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=94';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=95';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=95';
+import { enterPosts, micButton } from './dictate.js?v=95';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=95';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=95';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=94';
-import { settleDialog } from './office.js?v=94';
-import { reload } from './app.js?v=94';
-import { relTime } from './production.js?v=94';
+import { say, thing, iconForAsk } from './words.js?v=95';
+import { settleDialog } from './office.js?v=95';
+import { reload } from './app.js?v=95';
+import { relTime } from './production.js?v=95';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -234,7 +234,7 @@ function draw(root, ctx, compact) {
         ${raw(photosCard(photos))}
         ${raw(quoteFileCard(ctx.data.quotes, photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
-        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
+        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
           <div class="kicker">On the file</div>
           <div class="rows">
@@ -282,6 +282,22 @@ function draw(root, ctx, compact) {
   const seed = estimateSeedFromTakeoff(ctx.data.fence);
   if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
   if (q('#fence-estimate')) q('#fence-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
+  // 367: hand the NOC to the customer — fill it first when the file has none, then the email (the trigger on the fill may already have sent it when the switch is ON)
+  if (q('#noc-send')) q('#noc-send').onclick = async () => {
+    const b = q('#noc-send'); b.disabled = true; b.textContent = 'Sending…';
+    try {
+      if (!(ctx.data.filled || []).some((f) => f.kind === 'noc')) {
+        await fillPaperwork(ctx.customerId, null);
+        const h = await nocStatus(ctx.customerId);
+        if (h?.emailed_at) { toast('NOC filled and emailed to the customer, the rep and the office'); again(); return; }
+      }
+      await nocSend(ctx.customerId);
+      toast('Emailed to the customer, the rep and the office · the photo link is in it'); again();
+    } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = 'Email it'; }
+  };
+  root.querySelectorAll('[data-copy-link]').forEach((b) => (b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copyLink); toast('Photo link copied — paste it in a text'); } catch { prompt('The photo link', b.dataset.copyLink); }
+  }));
   if (q('#noc-fill')) q('#noc-fill').onclick = async () => {
     const b = q('#noc-fill'); b.disabled = true; b.textContent = 'Filling…';
     // iPhone Safari blocks a popup opened after an await — open the tab now, point it at the PDF when it lands
@@ -514,8 +530,8 @@ function propertyCard(p, customer, filled = []) {
   const next = p.confidential ? 'Protected address: the county withholds the owner. Get the deed from the customer before anything prints.'
     : p.signer_match === 'mismatch' ? 'The person who signed is not the owner of record. Get the owner of record to sign before the NOC or the permit goes anywhere.'
     : p.signer_match === 'entity' ? 'The owner is a company or trust. Get the name and title of the officer who can sign, then fill the NOC with it.'
-    : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online).'
-    : 'NOC is on the file. Office: type the permit number and the blanks, notarize, record at the Clerk, upload to the permit portal.';
+    : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online, and goes to them by email to sign before a notary).'
+    : 'NOC is filled. It goes to the customer to sign before a notary; the picture comes back on the Paperwork card. Office: type the permit number, record it at the Clerk when it lands.';
   return `<div class="card">
     <div class="head" style="margin-bottom:4px"><div class="kicker">Property · owner of record · ${esc(p.county)} County</div>${chip}</div>
     <div class="next ${p.signer_match === 'mismatch' || p.confidential ? 'bad' : hasNoc && p.signer_match === 'match' ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
@@ -530,6 +546,35 @@ function propertyCard(p, customer, filled = []) {
       ${filled.length ? `<div class="kicker" style="margin-top:8px">Filled from the file</div>` + filled.map((f) => `<div class="r"><span>${esc(FORM_LABEL[f.form_key] || f.form_key)} · ${esc(f.method === 'acroform' ? 'county form' : 'statutory form')}${f.county ? ' · ' + esc(f.county) : ''} · ${esc(new Date(f.filled_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}${f.filled_by ? ' · ' + esc(firstName(f.filled_by)) : ''}${(f.blanks || []).length ? ' · <span class="dimmer">' + esc(String((f.blanks || []).length)) + ' blanks for the office</span>' : ''}</span><button class="btn sm" data-open-doc="${esc(f.id)}">Open</button></div>`).join('') : ''}
     </div>
   </div>`;
+}
+/* ── THE NOC IS THE CUSTOMER'S ERRAND (367, CONTRACT SIGNING AND AUTO WORKFLOW) ──
+   Kevin, 16 Sep: the customer signs every form on the link — the permit
+   application included — except the Notice of Commencement. That one is
+   emailed to them filled in (the rep and the office copied), they sign it in
+   front of a notary, and a picture from the link closes it. The machine texts
+   them until it lands; the rep never goes back for it. This row says where
+   that stands and gives the office the two buttons it may need. */
+function nocRow(a, h, hasFilled) {
+  const day = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const open = a.state === 'OPEN';
+  const upload = open ? `<button class="btn sm" data-settle="${esc(a.id)}" title="The recorded copy, or a photo the customer sent another way">Upload</button>` : '<span class="mono verify">on file</span>';
+  let line = '', next = '', btn = '';
+  if (!open) {
+    line = h?.received_by === 'customer' ? ` · <span class="verify">photo from the customer · ${esc(day(h.received_at))}</span>` : a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : '';
+  } else if (!h) {
+    next = hasFilled ? 'Email the filled NOC to the customer to sign before a notary. Nobody goes out for it.' : 'Fill the NOC (Property card), then email it to the customer to sign before a notary.';
+    btn = `<button class="btn sm ok" id="noc-send">${hasFilled ? 'Email it to the customer' : 'Fill + email it'}</button>`;
+  } else if (h.status === 'waiting') {
+    const texts = h.nudges_sent ? `${h.nudges_sent} text${h.nudges_sent === 1 ? '' : 's'} sent` : 'no texts yet';
+    const coming = h.next ? (h.next.channel === 'text' ? `next text ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}` : `${h.next.channel === 'push_rep' ? 'the rep' : 'the office'} is pushed ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}`) : 'the plan ran out — call them';
+    line = ` · <span class="dimmer">${h.emailed_at ? 'emailed ' + esc(day(h.emailed_at)) : 'not emailed yet'} · ${esc(texts)} · ${h.switch_on ? esc(coming) : 'texts OFF (Office room)'}${h.page_opened_at ? ' · they opened the link' : ''}</span>`;
+    next = h.emailed_at ? `With the customer since ${day(h.started_at)}: they sign it in front of a notary and send a picture from the link. The permit does not wait on it.` : (h.switch_on ? 'The email goes on the next sweep, or press Email it.' : 'The switch is OFF: press Email it, or flip "The NOC to the customer" in the Office room.');
+    btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button><button class="btn sm ${h.emailed_at ? '' : 'ok'}" id="noc-send">${h.emailed_at ? 'Resend' : 'Email it'}</button>`;
+  } else if (h.status === 'stopped') {
+    line = ` · <span class="dimmer">texts stopped · ${esc(h.stop_reason || '')}</span>`;
+    btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button>`;
+  }
+  return `<div class="ask ${open ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${open ? '' : 'done'}"></span><span>${esc(askLabel(a))}${line}${next ? `<div class="next" style="margin-top:4px"><b>NEXT</b> ${esc(next)}</div>` : ''}</span><span style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${btn}${upload}</span></div>`;
 }
 const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
 
