@@ -5,10 +5,11 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=83';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=83';
-import { DEMO } from './demo.js?v=83';
-import { html, raw, esc, toast } from './ui.js?v=83';
+import * as api from './api.js?v=84';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=84';
+import { DEMO } from './demo.js?v=84';
+import { html, raw, esc, toast } from './ui.js?v=84';
+import { enterPosts, micButton } from './dictate.js?v=84';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -130,12 +131,13 @@ export function renderRoom(root, room, opts = {}) {
         <div class="line-find-pop at-pop" data-at-pop hidden></div>
       </div>
       ${room === 'sales' ? '' : raw('<div class="lanes at-lanes" data-lanes hidden><button class="lanebtn on" data-room-lane="inside">Inside</button><button class="lanebtn" data-room-lane="text">Text the customer</button><span class="small" data-lane-law></span></div>')}
-      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}Ctrl+Enter posts.</div>
+      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}Enter posts · Shift+Enter for a new line · 🎤 talks into the box.</div>
     </div>`;
 
   const say = root.querySelector('[data-say]');
   root.querySelector('[data-post]').onclick = () => post(root, room, ctx);
-  say.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post(root, room, ctx); });
+  enterPosts(say, () => post(root, room, ctx), () => { const p = root.querySelector('[data-at-pop]'); return !!(p && !p.hidden); });
+  { const m = micButton(say); const pb = root.querySelector('[data-post]'); if (m && pb) pb.parentElement.insertBefore(m, pb); }
   wireFind(root, ctx);
   if (room !== 'sales') wireAt(root, ctx);
   paintPick(root, ctx);

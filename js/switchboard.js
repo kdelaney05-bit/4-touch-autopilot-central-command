@@ -13,15 +13,16 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=83';
-import { toast, openModal } from './ui.js?v=83';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=83';
-import { crewsCard, wireCrews } from './crews.js?v=83';
-import { sentCard, wireSent } from './sent.js?v=83';
-import { html, raw, esc } from './ui.js?v=83';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=83';
-import { renderRoom, wireAtOn } from './village.js?v=83';
-import * as api from './api.js?v=83';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=84';
+import { toast, openModal } from './ui.js?v=84';
+import { enterPosts, micButton } from './dictate.js?v=84';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=84';
+import { crewsCard, wireCrews } from './crews.js?v=84';
+import { sentCard, wireSent } from './sent.js?v=84';
+import { html, raw, esc } from './ui.js?v=84';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=84';
+import { renderRoom, wireAtOn } from './village.js?v=84';
+import * as api from './api.js?v=84';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -446,7 +447,8 @@ async function renderLine(el, otherId) {
     finally { busy = false; send.disabled = false; }
   };
   send.onclick = post;
-  say.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') post(); });
+  enterPosts(say, post);
+  { const m = micButton(say); if (m && send.parentElement) send.parentElement.insertBefore(m, send); }
   stopLinePoll();
   dmTimer = setInterval(() => { if (!el.isConnected) { stopLinePoll(); return; } paintThread(true); }, 15000);
 }
@@ -498,7 +500,7 @@ function sayItHTML() {
       <textarea data-say-text placeholder="${say.lane === 'customer' ? 'The text…' : (rep ? '@Jess this customer called me, the crew missed the gate latch. Can you get with @Obed to fix it? @ the customer by name, street or phone…' : 'permit is in, ready to schedule · take this one · customer asked for you')}">${esc(say.text)}</textarea>
       <button class="btn ${say.lane === 'customer' ? 'fill' : ''}" data-say-send ${(c || say.lane !== 'customer') ? '' : 'disabled'}>${say.lane === 'customer' ? 'Send the text' : 'Post it'}</button>
     </div>
-    <div class="small">${law} Type <b>@</b> in the words for more people — everyone named gets the push. Ctrl+Enter sends.</div>
+    <div class="small">${law} Type <b>@</b> in the words for more people — everyone named gets the push. Enter sends · Shift+Enter for a new line · 🎤 talks into the box.</div>
   </div>`;
 }
 
@@ -579,5 +581,6 @@ function wireSayIt(root) {
     finally { busy = false; btn.disabled = false; }
   };
   box.querySelector('[data-say-send]').onclick = send;
-  text.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send(); });
+  enterPosts(text, send, () => { const p = box.querySelector('[data-say-at-pop]'); return !!(p && !p.hidden); });
+  { const m = micButton(text); const sb = box.querySelector('[data-say-send]'); if (m && sb) sb.parentElement.insertBefore(m, sb); }
 }
