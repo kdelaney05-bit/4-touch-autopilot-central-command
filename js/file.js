@@ -2,14 +2,15 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords } from './book.js?v=68';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=68';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=68';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=68';
-import { say, thing, iconForAsk } from './words.js?v=68';
-import { settleDialog } from './office.js?v=68';
-import { reload } from './app.js?v=68';
-import { relTime } from './production.js?v=68';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords } from './book.js?v=69';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=69';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=69';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=69';
+const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
+import { say, thing, iconForAsk } from './words.js?v=69';
+import { settleDialog } from './office.js?v=69';
+import { reload } from './app.js?v=69';
+import { relTime } from './production.js?v=69';
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -18,13 +19,52 @@ const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : 
 const when = (iso) => { const d = new Date(iso); const today = new Date().toDateString() === d.toDateString(); return (today ? 'today' : d.toLocaleDateString([], { month: 'short', day: 'numeric' })) + ' · ' + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
 const chev = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>';
 
+/* MY BOOK (Kevin, 16 Sep: "would be cool if they saw all their customers and current
+   open tasks in this easier to read and understand UI"). Files opens on MINE: every
+   customer this seat holds, sells, supervises, or has a task on — one card each, the
+   open tasks as a checklist with who has them and how long, the last customer text
+   and how long they have waited. EVERYONE is the whole list the seat can read. */
+let filesView = 'mine';
 export function renderFiles(root) {
-  const B = state.board.filter((b) => !b.stale).sort((a, b) => new Date(b.last_inbound_at || 0) - new Date(a.last_inbound_at || 0)).slice(0, 40);
+  const me = state.me || {};
+  const byCust = new Map();
+  for (const q of state.queue || []) { if (!byCust.has(q.customer_id)) byCust.set(q.customer_id, []); byCust.get(q.customer_id).push(q); }
+  const mineIds = new Set();
+  for (const b of state.board || []) if (!b.stale && (b.owner_id === me.id || b.supervisor_id === me.id || b.rep_id === me.id)) mineIds.add(b.customer_id);
+  for (const q of state.queue || []) if (q.assignee_id === me.id) mineIds.add(q.customer_id);
+  for (const j of state.pipeline || []) if (j.rep_id === me.id && !j.contract_signed_at && j.customer_id) mineIds.add(j.customer_id);
+  const boardBy = new Map((state.board || []).filter((b) => !b.stale).map((b) => [b.customer_id, b]));
+  const pipeBy = new Map((state.pipeline || []).map((j) => [j.customer_id, j]));
+  const mine = [...mineIds].map((id) => {
+    const b = boardBy.get(id), j = pipeBy.get(id);
+    const asks = (byCust.get(id) || []).filter((q) => q.state === 'OPEN' || !q.state);
+    return { id, b, j, asks, name: b?.customer_name || j?.customers?.name || 'A customer', title: b?.title || j?.title || '', cc: b?.cc_company_id || j?.cc_company_id,
+      waiting: b?.waiting_min || 0, lastBody: b?.last_inbound_body, lastAt: b?.last_inbound_at, stage: b?.stage || (j ? (j.appt_starts_at && new Date(j.appt_starts_at) > new Date() ? 'booked' : 'selling') : null), days: b?.days_in_stage || 0, hold: b?.owner_name || b?.rep_name || '' };
+  }).sort((a, b) => (b.waiting - a.waiting) || (b.asks.length - a.asks.length) || (b.days - a.days));
+  if (filesView === 'mine' && !mine.length) filesView = 'all';
+  const B = (state.board || []).filter((b) => !b.stale).sort((a, b) => new Date(b.last_inbound_at || 0) - new Date(a.last_inbound_at || 0)).slice(0, 40);
+  const waitWord = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
+  const askRow = (q) => `<div class="task ${q.assignee_id === me.id ? 'mine' : ''}"><span class="check"></span><span>${esc(askLabel(q))}</span><span class="who">${esc(firstName(q.assignee_name) || 'nobody')}</span><span class="mono ${q.open_min > 4320 ? 'red' : q.open_min > 1440 ? 'clock' : 'dimmer'}">${esc(waitWord(q.open_min || 0))}</span></div>`;
   root.innerHTML = html`
-    <div class="head"><div><div class="kicker">Files · every customer the seat can read</div><h1 class="serif">Find a customer above, or pick one who texted last.</h1></div></div>
+    <div class="head">
+      <div><div class="kicker">Files · ${filesView === 'mine' ? 'your customers and what is open on each' : 'every customer the seat can read'}</div>
+        <h1 class="serif">${filesView === 'mine' ? `${mine.length} customer${mine.length === 1 ? '' : 's'} on you, ${mine.reduce((a, c) => a + c.asks.length, 0)} open task${mine.reduce((a, c) => a + c.asks.length, 0) === 1 ? '' : 's'}.` : 'Find a customer above, or pick one who texted last.'}</h1></div>
+      <div class="right subs"><button class="sub ${filesView === 'mine' ? 'on' : ''}" data-fv="mine">Mine · ${mine.length}</button><button class="sub ${filesView === 'all' ? 'on' : ''}" data-fv="all">Everyone</button></div>
+    </div>
+    ${filesView === 'mine' ? raw(`<div class="mybook">${mine.map((c) => `
+      <div class="card mb" data-cust="${esc(c.id)}">
+        <div class="mbhead"><div><b>${esc(personName(c.name))}</b><span class="small dimmer"> · ${esc(c.title)} · ${esc(brandName(c.cc))}</span></div>
+          <div class="right">${c.stage ? `<span class="chip ${STAGE_CLS[c.stage] || ''}">${esc(stageLabel(c.stage))}${c.days ? ' · ' + Math.round(c.days) + ' d' : ''}</span>` : ''}</div></div>
+        ${c.waiting >= 15 ? `<div class="mbwait"><span class="mono ${c.waiting > 240 ? 'red' : 'clock'}">Waiting ${esc(waitWord(c.waiting))}</span> "${esc(String(c.lastBody || '').slice(0, 90))}"</div>` : (c.lastBody ? `<div class="mblast small dimmer">Last from them: "${esc(String(c.lastBody).slice(0, 90))}"</div>` : '')}
+        ${c.asks.length ? `<div class="tasks">${c.asks.sort((a, b) => (b.assignee_id === me.id) - (a.assignee_id === me.id) || b.open_min - a.open_min).map(askRow).join('')}</div>` : '<div class="small dimmer" style="margin-top:4px">Nothing open. Moving along.</div>'}
+        <div class="mbfoot"><span class="small dimmer">${esc(c.hold ? 'Holds it: ' + firstName(c.hold) : '')}</span><button class="btn sm fill" data-open="${esc(c.id)}">Open the file</button></div>
+      </div>`).join('')}</div>`) : raw(`
     <div class="card"><div class="wrap"><table><thead><tr><th>Customer</th><th>Brand</th><th>Stage</th><th>Who holds it</th><th>Last customer text</th></tr></thead><tbody>
-      ${raw(B.map((b) => `<tr class="link" onclick="__peek('${esc(b.customer_id)}')"><td><b>${esc(personName(b.customer_name))}</b> · ${esc(b.title || '')}</td><td><span class="chip">${esc(brandName(b.cc_company_id))}</span></td><td><span class="chip ${STAGES[b.stage]?.cls || 'st-ink'}">${esc(stageLabel(b.stage))}</span></td><td>${esc(b.owner_name || 'nobody')}</td><td>${b.last_inbound_body ? '"' + esc(String(b.last_inbound_body).slice(0, 70)) + '" · ' + esc(relTime(b.last_inbound_at)) : '<span class="dimmer">—</span>'}</td></tr>`).join(''))}
-    </tbody></table></div></div>`;
+      ${B.map((b) => `<tr class="link" onclick="__peek('${esc(b.customer_id)}')"><td><b>${esc(personName(b.customer_name))}</b> · ${esc(b.title || '')}</td><td><span class="chip">${esc(brandName(b.cc_company_id))}</span></td><td><span class="chip ${STAGE_CLS[b.stage] || ''}">${esc(stageLabel(b.stage))}</span></td><td>${esc(b.owner_name || b.rep_name || '—')}</td><td class="small">${b.last_inbound_body ? esc(String(b.last_inbound_body).slice(0, 70)) : '<span class="dimmer">—</span>'}</td></tr>`).join('')}
+    </tbody></table></div></div>`)}`;
+  root.querySelectorAll('[data-fv]').forEach((b) => (b.onclick = () => { filesView = b.dataset.fv; renderFiles(root); }));
+  root.querySelectorAll('[data-open]').forEach((b) => (b.onclick = () => window.__peek(b.dataset.open)));
+  root.querySelectorAll('.card.mb .mbhead').forEach((h) => (h.onclick = () => window.__peek(h.closest('.card').dataset.cust)));
 }
 
 export async function openFile(customerId) {

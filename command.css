@@ -526,3 +526,19 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 /* 354: the receipt under a note */
 .rcpt { font-family: var(--mono); font-size: 10.5px; color: var(--dimmer); margin-top: 5px; letter-spacing: .02em; }
 .rcpt .seen { color: var(--verify); }
+
+/* MY BOOK — Files opens on your customers and what is open on each (16 Sep) */
+.mybook { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.card.mb { gap: 6px; }
+.mbhead { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; cursor: pointer; flex-wrap: wrap; }
+.mbhead b { font-size: 16px; }
+.mbwait { font-size: 13px; margin-top: 2px; } .mbwait .mono { margin-right: 6px; font-weight: 600; }
+.mblast { margin-top: 2px; }
+.tasks { display: flex; flex-direction: column; margin-top: 4px; }
+.task { display: grid; grid-template-columns: 16px 1fr auto auto; gap: 8px; align-items: center; font-size: 13px; padding: 5px 0; border-top: 1px solid var(--line); }
+.task:first-child { border-top: 0; }
+.task .check { width: 12px; height: 12px; border: 1.5px solid var(--dimmer); border-radius: 4px; }
+.task.mine { font-weight: 600; } .task.mine .check { border-color: var(--gold); }
+.task .who { font-size: 12px; color: var(--dim); }
+.mbfoot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+@media (max-width: 700px) { .mybook { grid-template-columns: 1fr; } }
