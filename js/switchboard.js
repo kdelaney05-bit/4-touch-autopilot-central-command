@@ -13,16 +13,16 @@
 //
 // The escalation ladder is a READ, not a job: a question's tier is a function
 // of how long it has sat, so nothing has to run for the board to be right.
-import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=87';
-import { toast, openModal } from './ui.js?v=87';
-import { enterPosts, micButton } from './dictate.js?v=87';
-import { quotesQueueCard, wireQuotes } from './quotes.js?v=87';
-import { crewsCard, wireCrews } from './crews.js?v=87';
-import { sentCard, wireSent } from './sent.js?v=87';
-import { html, raw, esc } from './ui.js?v=87';
-import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=87';
-import { renderRoom, wireAtOn } from './village.js?v=87';
-import * as api from './api.js?v=87';
+import { state, isDemo, personName, firstName, seatName, directThread, sendDirect, directSeen, searchPeople, searchCustomers, loadFile, threadForJob, postMessage, textCustomer, cancelText, linePreview, mentionHandle, threadReceipts, receiptWords, offerNextWord, NEXT_WORD_FOR_QUESTION } from './book.js?v=88';
+import { toast, openModal } from './ui.js?v=88';
+import { enterPosts, micButton } from './dictate.js?v=88';
+import { quotesQueueCard, wireQuotes } from './quotes.js?v=88';
+import { crewsCard, wireCrews } from './crews.js?v=88';
+import { sentCard, wireSent } from './sent.js?v=88';
+import { html, raw, esc } from './ui.js?v=88';
+import { brandName, askLabel, stageLabel, STAGES } from './config.js?v=88';
+import { renderRoom, wireAtOn } from './village.js?v=88';
+import * as api from './api.js?v=88';
 
 /* The three stops. Minutes, business-naive on purpose for v1 — an overnight
    text reads as "everyone" by morning, which is the honest answer. */
@@ -482,7 +482,7 @@ let say = { cust: null, lane: 'person', to: '', text: '', lines: [] };
 function sayItHTML() {
   const me = state.me || {};
   const people = (state.people || []).filter((p) => p.id !== me.id);
-  const roles = [['@office', '@office · the office seat'], ['@schedule', '@schedule · scheduling'], ['@production', '@production · the supervisor'], ['@rep', '@rep · who sold it'], ['@invoice', '@invoice · billing']];
+  const roles = [['@office', '@office · the office seat'], ['@schedule', '@schedule · scheduling'], ['@production', '@production · the supervisor'], ['@rep', '@rep · who sold it'], ['@invoice', '@invoice · billing'], ['@sales', '@sales · every rep'], ['@supers', '@supers · every supervisor'], ['@everyone', '@everyone · the whole company']];
   const c = say.cust;
   const rep = me.role === 'sales';
   const who = c ? `<span class="chip cust">on ${esc(personName(c.name))}${c.street ? ' · ' + esc(c.street) : ''}${c.city ? ', ' + esc(c.city) : ''}</span><button class="btn sm" data-say-clear>Change</button>`

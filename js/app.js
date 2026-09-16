@@ -1,23 +1,23 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=87';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=87';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=87';
-import { BRAND_BY_CC } from './config.js?v=87';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=87';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=87';
-import { renderHome } from './home.js?v=87';
-import { renderRoom } from './village.js?v=87';
-import { renderSales } from './sales.js?v=87';
-import { renderPipeline } from './pipeline.js?v=87';
-import { renderMarketing } from './marketing.js?v=87';
-import { renderOffice } from './office.js?v=87';
-import { renderProduction } from './production.js?v=87';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=87';
-import { stopRoomPoll } from './village.js?v=87';
-import { renderFlow, stopFlow } from './flow.js?v=87';
-import { startTour, tourWanted } from './tour.js?v=87';
-import { startAlerts } from './alerts.js?v=87';
-import { renderPhotos } from './photos.js?v=87';
+import * as api from './api.js?v=88';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=88';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=88';
+import { BRAND_BY_CC } from './config.js?v=88';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=88';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=88';
+import { renderHome } from './home.js?v=88';
+import { renderRoom } from './village.js?v=88';
+import { renderSales } from './sales.js?v=88';
+import { renderPipeline } from './pipeline.js?v=88';
+import { renderMarketing } from './marketing.js?v=88';
+import { renderOffice } from './office.js?v=88';
+import { renderProduction } from './production.js?v=88';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=88';
+import { stopRoomPoll } from './village.js?v=88';
+import { renderFlow, stopFlow } from './flow.js?v=88';
+import { startTour, tourWanted } from './tour.js?v=88';
+import { startAlerts } from './alerts.js?v=88';
+import { renderPhotos } from './photos.js?v=88';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -146,15 +146,19 @@ let findTimer = null;
 function wireFind() {
   const box = $('#find');
   let pop = null;
-  const close = () => { pop?.remove(); pop = null; };
+  let seq = 0;
+  const close = () => { document.querySelectorAll('.findpop').forEach((p) => p.remove()); pop = null; };
   box.addEventListener('input', () => {
     clearTimeout(findTimer);
     findTimer = setTimeout(async () => {
+      const my = ++seq;
       const q = box.value.trim();
       close();
       if (q.length < 2) return;
       let rows = [];
       try { rows = await searchCustomers(q); } catch (e) { toast(e.message, 'err'); return; }
+      if (my !== seq) return;   // a newer search is on its way — this one never lands
+      close();
       const people = searchPeople(q);   // 346: a person opens a direct line; a customer opens the file — same box
       pop = document.createElement('div');
       pop.className = 'card findpop';
@@ -162,7 +166,7 @@ function wireFind() {
         ? people.map((p) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-person="${p.id}"><span><b>${p.name}</b></span><span class="mono dimmer">${p.role || ''}</span><span class="chip st-blue">OPEN A LINE ›</span></button>`).join('')
           + rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b><br><span class="small">${c.street || ''}${c.city ? ' · ' + c.city : ''}${c.updated_at ? ' · ' + new Date(c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('')
         : '<div class="empty">Nobody by that name or number</div>');
-      pop.querySelector('#find-close').onclick = () => { close(); box.value = ''; box.blur(); };
+      const mine = pop; pop.querySelector('#find-close').onclick = () => { mine.remove(); close(); box.value = ''; box.blur(); };
       pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__peek(b.dataset.id); }));
       pop.querySelectorAll('button[data-person]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__line(b.dataset.person); }));
       $('nav.side').appendChild(pop);
