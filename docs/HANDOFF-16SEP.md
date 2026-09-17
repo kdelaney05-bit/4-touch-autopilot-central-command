@@ -213,3 +213,13 @@ Kevin: "Every one of the videos you send is in a format no one can use — like 
 - **YouTube Uploads** on Kevin's desktop: 01–05 his originals, 06 the sign film (+ text size), 07–14 the ride-alongs, numbered his way, for unlisted YouTube links.
 - **The rule for every session:** `C:\Users\kdela\.claude\CLAUDE.md` (user-level, read by every session on this PC) + a section in this repo's, trureview-mobile's and liberty-command's `CLAUDE.md`, + memory `every-change-ships-its-note`: a plain MP4 at a direct link under `films/`, listed on `docs/films.html`, a copy in YouTube Uploads, the direct link in the note; never a Claude file card, a page-only or a GIF-only.
 - Kevin got the full list by email at 2:05 PM.
+
+## ✅ 17 Sep ~8:20 PM — THE EMAIL AUDIT (Kevin at dinner: "read Sam's and Gio's emails, check all emails, email what is due")
+
+- **P0 fixed, v115:** Sam's 6:26 PM calendar error "more than one relationship was found for 'jobs' and 'reps'" — 380 added `jobs.lost_by` (a second FK to reps) and the file's job query said `reps(name)`; now `reps!jobs_rep_id_fkey(name)` in `js/book.js`. Any other `jobs…reps(...)` embed a session writes must name the FK.
+- **403 one Hold Harmless on the SIGNED note (applied live 8:10 PM):** Sam, 6:51 PM — the county sees only the stamped taxing-district HHA the customer signed; the calculator's `Liberty_SupportingDocs.pdf` (`proofs.kind = 'permit_packet'`) was a second blank copy on the email. `signed_note_files` no longer lists it (the packet stays on the file). Verified on the final-walk file: contract · HHA · NOC · material order.
+- **Luis's roster** (crew_people): Gregorio +1 321-914-9982; Millenia's lead is Francisco +1 352-933-0099 (Milton off); CG Fence confirmed.
+- **Gio's Property box:** already removed by a sibling (trureview-mobile f479e1b) and on tonight's production OTA — nothing left here.
+- **Replies sent as Kevin:** Sam ×2 (SIGNED thread; leads thread), Jess ×3 (SIGNED follow-up; office lines; Havana), Luis, Travis. The "what is due" email to Kevin (8:15 PM) lists the five things only he can do: the Monday switch day (Jess), the `cc_mirror` switch (Jess), Dwayne's call re ext 150 + the 1 MB MMS cap (Travis), the OneDrive deletion alert, Walgreens.
+- **Promised to Sam, not built yet (LEADS lane, another session's UI):** AM/PM on the appointment time picker; the house number on the leads list line (she sees street + zip). Also still owed: the Resend-the-SIGNED-note button; Pro-Tech wood disclosure/warranty blanks; the per-form yellow spots; Oasis/Pro-Tech 10DLC.
+- **Next free = 404** (verify on live).
