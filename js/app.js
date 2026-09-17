@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=115';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=115';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=115';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=115';
-import { addressPicker, addressSource } from './address.js?v=115';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=115';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=115';
-import { renderHome } from './home.js?v=115';
-import { renderRoom } from './village.js?v=115';
-import { renderSales } from './sales.js?v=115';
-import { renderPipeline } from './pipeline.js?v=115';
-import { renderMarketing } from './marketing.js?v=115';
-import { renderOffice } from './office.js?v=115';
-import { renderProduction } from './production.js?v=115';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=115';
-import { stopRoomPoll } from './village.js?v=115';
-import { renderFlow, stopFlow } from './flow.js?v=115';
-import { startTour, tourWanted } from './tour.js?v=115';
-import { startAlerts } from './alerts.js?v=115';
-import { renderPhotos } from './photos.js?v=115';
+import * as api from './api.js?v=116';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=116';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=116';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=116';
+import { addressPicker, addressSource } from './address.js?v=116';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=116';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=116';
+import { renderHome } from './home.js?v=116';
+import { renderRoom } from './village.js?v=116';
+import { renderSales } from './sales.js?v=116';
+import { renderPipeline } from './pipeline.js?v=116';
+import { renderMarketing } from './marketing.js?v=116';
+import { renderOffice } from './office.js?v=116';
+import { renderProduction } from './production.js?v=116';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=116';
+import { stopRoomPoll } from './village.js?v=116';
+import { renderFlow, stopFlow } from './flow.js?v=116';
+import { startTour, tourWanted } from './tour.js?v=116';
+import { startAlerts } from './alerts.js?v=116';
+import { renderPhotos } from './photos.js?v=116';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -185,6 +185,10 @@ function wireFind() {
   document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); box.focus(); box.select(); } });
 }
 
+/* the time list on the New lead form: 7:00 AM to 7:30 PM by the half hour, said the way the office says it (Sam, 17 Sep) */
+const clock12 = (hm) => { const [h, m] = hm.split(':').map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; };
+function timeOpts() { const out = []; for (let h = 7; h <= 19; h++) for (const m of [0, 30]) { const v = `${String(h).padStart(2, '0')}:${m ? '30' : '00'}`; out.push(`<option value="${v}">${clock12(v)}</option>`); } return out.join(''); }
+
 /* THE NEW LEAD DOOR — customer + job (+ appointment, + signing) in one call (313, 381).
    Kevin, 17 Sep: "Jess starting on Monday scheduling all leads in the new app… we have to start
    here, we're not going to do the first redundancy." So from Mon 21 Sep this is the FIRST door a
@@ -205,7 +209,7 @@ function newJob(prefill) {
   // the rep's day: what they already have booked on the day you picked, so nobody is double-booked
   const dayStrip = async (f) => {
     const box = f.querySelector('#nj-day'); if (!box) return;
-    const rep = canPickRep ? f.rep.value : me.id, day = f.appt.value ? f.appt.value.slice(0, 10) : '';
+    const rep = canPickRep ? f.rep.value : me.id, day = (f.day && f.day.value) || (f.appt.value ? f.appt.value.slice(0, 10) : '');
     if (!rep || !day) { box.innerHTML = '<div class="small dimmer">Pick the rep and the day and this shows what they already have that day.</div>'; return; }
     box.innerHTML = '<div class="small dimmer">Reading the rep\'s day…</div>';
     try {
@@ -236,7 +240,7 @@ function newJob(prefill) {
     </div>
     <div class="two">
       <div class="field"><label>Rep</label>${canPickRep ? `<select name="rep">${repOpts(cc0)}</select>` : `<input value="${esc(me.name || '')}" disabled/>`}</div>
-      <div class="field"><label>Estimate appointment · leave blank if they still need a time</label><div style="display:flex;gap:6px"><input name="appt" type="datetime-local" style="flex:1"/><select name="mins" style="width:96px"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1½ h</option><option value="120">2 h</option></select></div></div>
+      <div class="field"><label>Estimate appointment · leave blank if they still need a time</label><div style="display:flex;gap:6px"><input name="day" type="date" style="flex:1"/><select name="time" style="width:112px"><option value="">time</option>${timeOpts()}</select><input name="appt" type="hidden"/><select name="mins" style="width:96px"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1½ h</option><option value="120">2 h</option></select></div></div>
     </div>
     <div class="rows" id="nj-day" style="margin:2px 0 8px"><div class="small dimmer">Pick the rep and the day and this shows what they already have that day.</div></div>
     <div class="two">
@@ -247,13 +251,16 @@ function newJob(prefill) {
     onOpen: (f) => {
       f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); if (f.rep) f.rep.innerHTML = repOpts(f.cc.value); dayStrip(f); };
       if (f.rep) f.rep.onchange = () => dayStrip(f);
-      f.appt.onchange = () => dayStrip(f);
+      // Sam, 17 Sep: the day and a time list that reads 8:00 AM — one pick, no AM/PM segment to tab into; the hidden appt carries both as before
+      const joinAppt = () => { f.appt.value = f.day.value && f.time.value ? f.day.value + 'T' + f.time.value : ''; dayStrip(f); };
+      f.day.onchange = joinAppt; f.time.onchange = joinAppt;
       // Samantha's first (17 Sep): the street suggests as she types; a pick fills street, city and zip and moves her on
-      addressPicker(f.street, f.querySelector('#nj-addr-pick'), (a) => { if (a.street) f.street.value = a.street; if (a.city) f.city.value = a.city; if (a.zip) f.zip.value = a.zip; (a.zip ? (f.rep || f.appt) : f.city).focus(); });
+      addressPicker(f.street, f.querySelector('#nj-addr-pick'), (a) => { if (a.street) f.street.value = a.street; if (a.city) f.city.value = a.city; if (a.zip) f.zip.value = a.zip; (a.zip ? (f.rep || f.day) : f.city).focus(); });
       if (prefill) {   // the Ride-Along opens it typed; nothing is saved in the demo
         for (const [k, v] of Object.entries(prefill)) { const el = f.elements[k]; if (el && k !== 'cc') el.value = v; }
         if (prefill.src) f.src.value = prefill.src;
         if (prefill.rep && f.rep) f.rep.value = prefill.rep;
+        if (prefill.appt) { f.day.value = String(prefill.appt).slice(0, 10); const t = String(prefill.appt).slice(11, 16); if (t && ![...f.time.options].some((o) => o.value === t)) f.time.add(new Option(clock12(t), t)); f.time.value = t; }
         dayStrip(f);
       }
     },
