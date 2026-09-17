@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=101';
-import { DEMO } from './demo.js?v=101';
+import * as api from './api.js?v=102';
+import { DEMO } from './demo.js?v=102';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -141,7 +141,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, counter] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, counter] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
@@ -166,6 +166,8 @@ export async function loadFile(customerId) {
     api.one(`fence_jobs?select=deposit_required,deposit_amount,deposit_paid_at,deposit_method,deposit_paid_by&customer_id=eq.${customerId}&order=created_at.desc`).catch(() => null),
     // 313: the invoice already recorded for QuickBooks on this job, if the office pressed Approve
     job.job_id ? api.page(`qb_invoice_queue?select=id,ask_id,amount,memo,status,qb_invoice_id,qb_doc_number,pay_link,error,created_at,sent_at&job_id=eq.${job.job_id}&order=created_at.desc`, 20).catch(() => []) : [],
+    // 381 THE INVOICE: one read — the math from the file, the invoice's row and diary, the next reminder, the call card, the plan, the switches
+    job.job_id ? api.rpc('invoice_state', { p_job: job.job_id }).catch(() => null) : null,
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -187,7 +189,7 @@ export async function loadFile(customerId) {
   ]);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
            fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null,
-           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
+           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -212,6 +214,11 @@ export async function textCustomer(customerId, body) { guard(); return api.rpc('
    INVOICE ask behind it when one is picked. */
 export async function adoptJob(jobId, step) { guard(); return api.rpc('job_adopt', { p_job: jobId, p_step: step }); }
 export async function invoiceRequest(jobId, amount, memo, askId) { guard(); return api.rpc('invoice_request', { p_job: jobId, p_amount: amount, p_memo: memo ?? null, p_ask: askId ?? null }); }
+// 381 THE INVOICE: the card's doors — a person's Approve (with a reason past the problems), Hold (pulls a queued one back, tags who fixes it), Paid by hand, the reminders on/off
+export async function invoiceApprove(jobId, amount, memo, forceNote) { guard(); return api.rpc('invoice_approve', { p_job: jobId, p_amount: amount ?? null, p_memo: memo ?? null, p_force_note: forceNote ?? null }); }
+export async function invoiceHold(jobId, note, to) { guard(); return api.rpc('invoice_hold', { p_job: jobId, p_note: note, p_to: to ?? '@office' }); }
+export async function invoicePaidByHand(queueId, how) { guard(); return api.rpc('invoice_paid_by_hand', { p_queue: queueId, p_how: how }); }
+export async function invoiceNudgesSet(queueId, on, reason) { guard(); return api.rpc('invoice_nudges_set', { p_queue: queueId, p_on: !!on, p_reason: reason ?? null }); }
 /* 365/369 THE BILLS: one tap on the Bill landed card (approve · wrong_job · hold), the move to the right file, the PDF from the private bucket */
 export async function decideBill(id, decision, note) { guard(); return api.rpc('bill_decide', { p_id: id, p_decision: decision, p_note: note ?? null }); }
 export async function rematchBill(id, customerId) { guard(); return api.rpc('bill_rematch', { p_id: id, p_customer: customerId }); }

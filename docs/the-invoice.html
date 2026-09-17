@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Invoice, Old and New</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#f1f0eb;--panel:#fff;--panel2:#f6f5f0;--line:#d8d6cd;--ink:#1b1f1d;--dim:#56605d;--mute:#8a938f;--gold:#b7791f;--goldsoft:#f7ecd6;--green:#2e7d4f;--greensoft:#e3f0e7;--blue:#1d5fa8;--bluesoft:#e1e8f3;--red:#b3261e;--redsoft:#f6e1df;--display:'Barlow Condensed','Arial Narrow',sans-serif;--body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1b2a40;--red:#f08b84;--redsoft:#3d201e}}
+:root[data-theme="dark"]{--bg:#171a19;--panel:#202423;--panel2:#282d2b;--line:#3a413e;--ink:#eef0ec;--dim:#b6bdb9;--mute:#7f8884;--gold:#e0b45c;--goldsoft:#3b2f14;--green:#7cc79a;--greensoft:#1f3a2a;--blue:#8db4ee;--bluesoft:#1b2a40;--red:#f08b84;--redsoft:#3d201e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;padding:16px 16px 60px}
+.page{max-width:1040px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(40px,6vw,66px);line-height:.95;margin:6px 0 14px;text-transform:uppercase;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.5vw,44px);line-height:1;margin:0 0 6px;text-transform:uppercase}
+h3{font-family:var(--display);font-weight:700;font-size:22px;line-height:1;margin:14px 0 6px;text-transform:uppercase}
+p{margin:0;color:var(--dim);max-width:64ch;font-size:17px}
+.big{font-size:20px;color:var(--ink);max-width:58ch}
+section{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px 32px;margin-top:18px}
+@media(max-width:760px){section{padding:20px 16px}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.col{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.col.new{border-top:5px solid var(--gold)}
+.col.old{border-top:5px solid var(--mute)}
+.col h3{margin-top:0}
+.tl{list-style:none;margin:10px 0 0;padding:0}
+.tl li{display:grid;grid-template-columns:82px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink)}
+.tl li:first-child{border-top:0}
+.tl .t{font-family:var(--mono);font-size:12px;color:var(--mute);padding-top:3px}
+.tl .who{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:1px 7px;border-radius:999px;margin-right:6px;vertical-align:middle;border:1px solid var(--line)}
+.who.m{background:var(--goldsoft);border-color:var(--gold);color:var(--gold)}
+.who.p{background:var(--greensoft);border-color:var(--green);color:var(--green)}
+.who.c{background:var(--bluesoft);border-color:var(--blue);color:var(--blue)}
+.who.x{color:var(--mute)}
+.tally{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:10px}
+.tally b{color:var(--ink);font-size:14px}
+.rule{border-left:5px solid var(--gold);padding:8px 14px;margin-top:14px;font-size:17px;color:var(--ink);max-width:70ch}
+.rule.red{border-color:var(--red)}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:14px;border-left:6px solid var(--green)}
+.card.red{border-left-color:var(--red)}
+.card .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--green)}
+.card.red .k{color:var(--red)}
+.chip{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mute);vertical-align:middle;margin-left:8px}
+.chip.g{color:var(--green);border-color:var(--green);background:var(--greensoft)}
+.chip.r{color:var(--red);border-color:var(--red);background:var(--redsoft)}
+.chip.b{color:var(--blue);border-color:var(--blue);background:var(--bluesoft)}
+.chip.off{color:var(--red);border-color:var(--red);background:var(--redsoft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
+.grid div{font-size:14px}
+.grid .kk{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.grid b{display:block;font-size:17px}
+.grid b.big{font-size:26px;font-family:var(--display)}
+.lines{margin-top:10px;border-top:1px solid var(--line)}
+.lines div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.lines .mono{font-family:var(--mono)}
+.next{margin-top:10px;padding:8px 12px;border-radius:10px;background:var(--greensoft);color:var(--ink);font-size:15px}
+.next b{font-family:var(--mono);font-size:11px;letter-spacing:.1em;margin-right:8px}
+.card.red .next{background:var(--redsoft)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.btn{display:inline-block;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 12px;font-size:14px;color:var(--ink)}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.step{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:6px 12px 6px 6px;font-size:14.5px;color:var(--ink)}
+.step i{font-style:normal;font-family:var(--mono);font-size:11px;width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--bg);display:inline-flex;align-items:center;justify-content:center}
+.step.m{background:var(--goldsoft);border-color:var(--gold)}
+.step.m i{background:var(--gold);color:#fff}
+.step.k{background:var(--greensoft);border-color:var(--green);font-weight:600}
+.step.k i{background:var(--green)}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:14px}
+.plan div{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 10px;text-align:center}
+.plan .h{font-family:var(--display);font-size:26px;line-height:1;font-weight:700}
+.plan .c{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.plan .c.call{color:var(--red)}
+.plan .c.text{color:var(--green)}
+.plan .c.email{color:var(--blue)}
+.plan span{display:block;font-size:12.5px;color:var(--dim);margin-top:4px;line-height:1.3}
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.keep{background:var(--panel2);border:1px solid var(--line);border-top:5px solid var(--gold);border-radius:12px;padding:12px 14px}
+.keep b{display:block;font-family:var(--display);font-size:22px;text-transform:uppercase}
+.keep span{font-size:14px;color:var(--dim);display:block;line-height:1.45}
+.sw{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:15px}
+.sw:first-of-type{border-top:0}
+.sw b{display:block}
+.sw small{color:var(--dim)}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .n{font-family:var(--display);font-size:46px;line-height:1;font-weight:700}
+.tile .n small{font-size:22px;color:var(--mute);font-weight:600}
+.tile .n .arrow{color:var(--mute);font-size:30px;margin:0 6px}
+.tile .n .after{color:var(--green)}
+.tile span{display:block;font-size:13.5px;color:var(--dim);margin-top:4px}
+.foot{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.06em;text-transform:uppercase;margin-top:22px;line-height:1.7}
+.foot a{color:var(--blue)}
+code{font-family:var(--mono);font-size:13px}
+</style>
+
+<div class="page">
+
+<div class="eyebrow">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis · the invoice · 17 Sep 2026</div>
+<h1>The invoice. The old way, the new way.</h1>
+<p class="big">One fence, one invoice, one day. Today Jess or Laura types it into QuickBooks. From now on the machine types it the moment Luis signs the job off, sends it by text and email with the pay link, bugs the customer politely, and hands the office one thing to do: the phone call. Nothing to learn. It comes to you.</p>
+
+<section>
+  <h2>One invoice, one day</h2>
+  <p>Dana Reed's aluminum fence, 5601 Jamaica Rd. The crew finishes Thursday morning.</p>
+  <div class="two">
+    <div class="col old">
+      <h3>The old way <span class="chip">how it went out yesterday</span></h3>
+      <ul class="tl">
+        <li><span class="t">9:40 AM</span><span><span class="who p">Luis</span>signs the job off in the app: six photos, the customer said "looks great"</span></li>
+        <li><span class="t">9:41 AM</span><span><span class="who p">Laura</span>sees the sign-off, or the Contractors Cloud task "Send invoice / collect"</span></li>
+        <li><span class="t">10:15 AM</span><span><span class="who p">Laura</span>opens the job for the contract price; checks whether a deposit came in</span></li>
+        <li><span class="t">10:20 AM</span><span><span class="who p">Laura</span>opens QuickBooks · New customer "29314 - 5601 Jamaica Rd" · New invoice · one line "New Fence Installation" · types the amount · saves</span></li>
+        <li><span class="t">10:30 AM</span><span><span class="who p">Laura</span>texts Dana "Thank you for choosing Liberty Fencing… your invoice is attached" · attaches it, or sends the CC envelope</span></li>
+        <li><span class="t">10:31 AM</span><span><span class="who x">nobody</span>the email on the QuickBooks customer is blank, so QuickBooks never sends it; no pay link goes out</span></li>
+        <li><span class="t">Day 3</span><span><span class="who p">Laura</span>remembers, maybe, to ask; the QuickBooks reminder is sent by hand, if at all</span></li>
+        <li><span class="t">Day 12</span><span><span class="who p">Laura</span>the check comes; types the payment into QuickBooks; closes the CC task</span></li>
+        <li><span class="t">Day 30</span><span><span class="who p">Laura</span>the past-due text, for the ones that never paid</span></li>
+      </ul>
+      <div class="tally"><b>8</b> touches by a person · for money we already know the amount of · median 4 hours from sign-off to invoice</div>
+    </div>
+    <div class="col new">
+      <h3>The new way <span class="chip g">the same Thursday</span></h3>
+      <ul class="tl">
+        <li><span class="t">9:40 AM</span><span><span class="who p">Luis</span>signs the job off: six photos, the customer said "looks great". <b>That is the last human step.</b></span></li>
+        <li><span class="t">9:45 AM</span><span><span class="who m">the machine</span>reads the file: the signed estimate $14,200 − no deposit + one signed change order $850 = <b>$15,050</b>. Six photos against the rule of three. Clean. The Invoice card is on Laura's file, green, and her phone says "built, goes out by itself in 15 minutes, press Hold if anything is wrong."</span></li>
+        <li><span class="t">10:00 AM</span><span><span class="who m">the machine</span>QuickBooks makes invoice <b>#29388</b>: customer "29388 - 5601 Jamaica Rd" (Jess's naming), the lines, due on receipt, the item the books already use. The pay link comes back; the PDF lands on Dana's file; <b>QuickBooks emails Dana</b> (Review & Pay).</span></li>
+        <li><span class="t">10:00 AM</span><span><span class="who m">the machine</span>Dana's phone: "Thank you for choosing Liberty Fencing… your invoice… <b>[pay link]</b>" from the main line. The Payment clock starts.</span></li>
+        <li><span class="t">12:00 PM</span><span><span class="who m">the machine</span>"Hi Dana, Laura with Liberty Fencing. Just making sure your invoice came through — [link]."</span></li>
+        <li><span class="t">2:00 PM</span><span><span class="who c">Laura</span><b>a call card</b> lands on her: "Call Dana: invoice #29388 for $15,050 went out today by text and email, nothing back yet." She calls. Done on the card with what Dana said.</span></li>
+        <li><span class="t">3:12 PM</span><span><span class="who m">the machine</span>Dana pays on the link. The balance hits 0 in QuickBooks; Payment settles "paid online"; close-out opens; the review prompt goes; Laura and Ron are told: <b>"Dana paid $15,050 · 5.5 h after the invoice · 1 reminder."</b></span></li>
+        <li><span class="t">if not</span><span><span class="who m">the machine</span>day 1 text · day 3 email + call card · day 7 text + call card · day 14 text + call card · day 21 email · day 30 the past-due text. Stops the second the money lands, or the second Dana writes back — then it is a conversation, and the office has it.</span></li>
+      </ul>
+      <div class="tally"><b>1</b> touch by a person · the phone call, and only when the money is late · <b>0</b> amounts typed</div>
+    </div>
+  </div>
+  <div class="rule"><b>Nobody types an amount, ever.</b> The signed estimate is the invoice. The change order the customer signed is a line. The deposit is a minus. If it is not on the file, it is not on the invoice, and the card says exactly what is missing.</div>
+</section>
+
+<section>
+  <h2>The card, on the file</h2>
+  <p>This is what Laura and Jess see. Green: nothing to press. Red: one decision. The math is always in full.</p>
+  <div class="card">
+    <div class="k">INVOICE · opened by Obed's sign-off, Sep 17 · typed from the file · Fencing <span class="chip g">CLEAN · THE MACHINE SENDS IT ON THE NEXT PASS</span></div>
+    <div class="grid">
+      <div><div class="kk">Signed</div><b>$14,200.00</b><small>estimate #4481 · accepted Aug 26</small></div>
+      <div><div class="kk">Deposit taken</div><b>$0.00</b><small>none taken</small></div>
+      <div><div class="kk">Change orders</div><b>$850.00</b> <span class="chip g">1 SIGNED</span></div>
+      <div><div class="kk">Invoice</div><b class="big">$15,050.00</b></div>
+      <div><div class="kk">Finished photos</div><b>6 of 3</b> <span class="chip g">ON THE FILE</span></div>
+      <div><div class="kk">Goes to</div><b>dana.reed@…</b><small>text (321) 555-0103</small></div>
+    </div>
+    <div class="lines">
+      <div><span>Aluminum + gate <small style="color:var(--mute)">· estimate #4481 · accepted Aug 26</small></span><span class="mono">$14,200.00</span></div>
+      <div><span>Change order · Add one 4' gate on the east side <small style="color:var(--mute)">· accepted Sep 12</small></span><span class="mono">$850.00</span></div>
+    </div>
+    <div class="next"><b>NEXT</b> Nothing for you. The machine builds it on the next pass (within 15 minutes), QuickBooks makes it, and it goes to Dana by email and text with the pay link. Press Hold if anything is wrong.</div>
+    <div class="btns"><span class="btn ok">Send it now</span><span class="btn">Hold · say why</span><span class="btn">+ Change order</span><span class="btn">Open the photos</span><span class="btn">Open the estimate</span></div>
+  </div>
+  <div class="card red">
+    <div class="k">INVOICE · opened by Gerardo's sign-off, Sep 16 · typed from the file · Pro-Tech <span class="chip r">PHOTOS SHORT · 2 OF 3</span></div>
+    <div class="grid">
+      <div><div class="kk">Signed</div><b>$18,900.00</b><small>sold amount on the job · signed Aug 12</small></div>
+      <div><div class="kk">Deposit taken</div><b>$0.00</b><small>none taken</small></div>
+      <div><div class="kk">Change orders</div><b>$0.00</b> <span class="chip r">1 UNSIGNED</span></div>
+      <div><div class="kk">Invoice</div><b class="big">$18,900.00</b></div>
+      <div><div class="kk">Finished photos</div><b>2 of 3</b> <span class="chip r">1 SHORT</span></div>
+      <div><div class="kk">Goes to</div><b>sam.okafor@…</b><small>text (321) 555-0105</small></div>
+    </div>
+    <div class="next"><b>NEXT</b> photos short · 2 of 3 · 1 change order unsigned · Ridge vent add $850.00. Fix it on the file (the photos, the change order, the amount) and the machine sends it — or Approve anyway with a reason, or Hold and tag Gerardo.</div>
+    <div class="btns"><span class="btn ok">Approve anyway · say why</span><span class="btn">Hold · tag who fixes it</span><span class="btn">+ Change order</span><span class="btn">Open the photos</span></div>
+  </div>
+  <div class="card" style="border-left-color:var(--blue)">
+    <div class="k" style="color:var(--blue)">INVOICE · opened by Obed's sign-off, Sep 16 · typed from the file · Fencing · built by the machine <span class="chip r">CALL ANA · CARD ON LAURA · 25.7 H</span></div>
+    <div class="grid">
+      <div><div class="kk">Invoice #29334</div><b class="big">$6,400.00</b></div>
+      <div><div class="kk">Sent</div><b>Sep 16 · 10:02 AM</b><small>email ✓ · text ✓ · pay link</small></div>
+      <div><div class="kk">Balance</div><b>$6,400.00</b><small>QuickBooks, checked 12 min ago</small></div>
+      <div><div class="kk">Call card</div><b>on Laura · 25.7 h</b><small>2 reminders sent</small></div>
+    </div>
+    <div class="next" style="background:var(--redsoft)"><b>NEXT</b> Call Ana. Invoice #29334 for $6,400 went out Sep 16 by text and email, nothing back yet. Ask if it came through and how they'd like to pay — card or bank on the link, or a check. The card is on Laura; when you have talked, press Done on it with what she said, or Paid here.</div>
+    <div class="btns"><span class="btn ok">Paid · by check, cash or card</span><span class="btn">Call Ana</span><span class="btn">Text Ana the link again</span><span class="btn">Stop the reminders</span><span class="btn">Open the PDF</span></div>
+    <div class="tally" style="margin-top:8px">The invoice's diary · built 10:00 · in QuickBooks #29334 10:02 · emailed · texted · reminder text 12:02 · call card on Laura 2:02 PM · reminder text Sep 17 10:02 · every line says who and when</div>
+  </div>
+</section>
+
+<section>
+  <h2>Where the change orders go</h2>
+  <p>Kevin: "where do we put any change orders? I want to make sure that we don't miss anything." Here.</p>
+  <div class="steps">
+    <span class="step k"><i>1</i>On the file, next to Estimate: <b>Change order</b>. Only what changed — the extra gate, the longer run, a credit as a negative price.</span>
+    <span class="step k"><i>2</i>The customer taps ACCEPT on the same kind of link they signed the estimate on.</span>
+    <span class="step m"><i>3</i>Signed = a line on the invoice, with its own amount and date. Unsigned = the invoice waits, red: "1 change order unsigned · Add one 4' gate $850."</span>
+    <span class="step m"><i>4</i>A change order signed on paper still counts: the office puts the signed sheet on the file with the amount typed. No amount typed = red, it says so.</span>
+  </div>
+  <div class="rule">Nothing is missed because the machine does not read anyone's memory. It reads the file: the accepted estimate, every signed change order, the deposit, the sign-off's photos. What is not on the file is not on the invoice, and the card names it.</div>
+</section>
+
+<section>
+  <h2>The polite bugging</h2>
+  <p>Kevin: "we'll just politely bug them there, and if they don't within a few hours, we'll call them." The plan, from the moment the invoice goes out. Every step is a row Kevin and Jess can change; the machine reads the rows.</p>
+  <div class="plan">
+    <div><div class="h">0 h</div><div class="c text">text + email</div><span>the invoice, with the pay link</span></div>
+    <div><div class="h">2 h</div><div class="c text">text</div><span>"just making sure it came through"</span></div>
+    <div><div class="h">4 h</div><div class="c call">call card</div><span>on the office, with a clock</span></div>
+    <div><div class="h">1 d</div><div class="c text">text</div><span>friendly reminder</span></div>
+    <div><div class="h">3 d</div><div class="c email">email</div><span>+ a call card</span></div>
+    <div><div class="h">7 d</div><div class="c text">text</div><span>+ a call card</span></div>
+    <div><div class="h">14 d</div><div class="c text">text</div><span>+ a call card</span></div>
+    <div><div class="h">21 d</div><div class="c email">email</div><span>last reminder</span></div>
+    <div><div class="h">30 d</div><div class="c">past due</div><span>the text that goes today</span></div>
+  </div>
+  <div class="keeps" style="margin-top:14px">
+    <div class="keep"><b>It stops itself</b><span>The second the money lands. The second the customer writes back — then it is a conversation and the office has it; the reminders wait until the office has answered. And on Stop the reminders, with a reason.</span></div>
+    <div class="keep"><b>It keeps the hours</b><span>Texts 9 AM–7:30 PM only. Call cards and pushes 8 AM–7:30 PM. Nothing overnight, ever (the quiet-hours rule). A step more than three days late is skipped, not fired late.</span></div>
+    <div class="keep"><b>It knows who said STOP</b><span>No texts to a customer who opted out; the email and the call still go. No email on file: the text carries the link. Neither: the card is red before anything goes out.</span></div>
+    <div class="keep"><b>The phone stays human</b><span>The machine never calls anyone. It puts a card on Laura or Jess that says who, why, and what to ask, with a clock. That is the one touch.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>What Jess and Laura still do</h2>
+  <p>Nobody's job goes to the machine. The typing does. The part that needs a person gets the whole person.</p>
+  <div class="keeps">
+    <div class="keep"><b>The call</b><span>The card lands, with the number, the amount, the date and what to ask. Call. Done on the card with what they said.</span></div>
+    <div class="keep"><b>The red card</b><span>Photos short, a change order unsigned, no signed amount. Fix the file, or Approve anyway with one line of reason, or Hold and tag Luis. One decision.</span></div>
+    <div class="keep"><b>The check</b><span>Paid on the card: how, and a note. Close-out opens by itself. (Recording the check in QuickBooks stays Claudette's, for now.)</span></div>
+    <div class="keep"><b>The conversation</b><span>When the customer writes back, answer them. The text clock already pings; the reminders wait for you.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>The three switches <span class="chip off">all off until Kevin flips them</span></h2>
+  <p>Built beside QuickBooks and Contractors Cloud. Nothing changes until each one is on, and Kevin flips them one at a time, in this order, in the Office room.</p>
+  <div class="sw"><span><b>QuickBooks makes the customer's invoice</b><small>Every recorded invoice becomes the real QuickBooks invoice within 15 minutes; the pay link, the PDF on the file, QuickBooks' own email; the balance read back so paid happens by itself. First: Laura presses Approve on one real job and checks the invoice and the email.</small></span><span class="chip off">OFF</span></div>
+  <div class="sw"><span><b>The invoice builds and sends itself</b><small>The moment the sign-off lands and the file is clean, the row is written by the machine; the seat has 15 minutes to press Hold.</small></span><span class="chip off">OFF</span></div>
+  <div class="sw"><span><b>The chain's texts</b><small>The "invoice sent" text with the pay link, the reminder texts, the review prompt on payment. From the main line, Jess's wording. Oasis and Pro-Tech wait on their 10DLC lines; their invoices go by email.</small></span><span class="chip off">OFF</span></div>
+  <p style="margin-top:12px">With all three off, the Invoice card still works exactly as it did on 16 Sep: Approve records the math, the office makes the invoice in QuickBooks and types the number.</p>
+</section>
+
+<section>
+  <h2>The count</h2>
+  <div class="score">
+    <div class="tile"><div class="n">8<span class="arrow">→</span><span class="after">1</span></div><span>touches by a person per invoice · the one is the phone call, and only when the money is late</span></div>
+    <div class="tile"><div class="n">4 h<span class="arrow">→</span><span class="after">15 min</span></div><span>from the sign-off to the invoice in the customer's hands</span></div>
+    <div class="tile"><div class="n">0<span class="arrow">→</span><span class="after">100<small>%</small></span></div><span>invoices that go out with a pay link, by text and email</span></div>
+    <div class="tile"><div class="n">119</div><span>invoices in 30 days on the fence company alone, $474,345, 18 unpaid today — every one typed by hand (QuickBooks, 17 Sep)</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Nothing to learn. It comes to you.</h2>
+  <p class="big">None of this is something to memorize. It is what is going to happen. The card shows up on your screen and says what it is and what, if anything, to press. Your job is the one decision only you can make: the call, the hold, the check.</p>
+</section>
+
+<div class="foot">
+  Source: QuickBooks, Liberty Fencing Group, the twelve newest invoices and the last 30 days, read 17 Sep · Contractors Cloud's task "Send invoice / collect" (3,212 closed, median 4 h) · <a href="THE-INVOICE.md">docs/THE-INVOICE.md</a> · migration 381<br>
+  Built beside Contractors Cloud and QuickBooks. Every switch OFF until Kevin flips it. Take the paper off the humans, never the conversation.
+</div>
+
+</div>
+</html>

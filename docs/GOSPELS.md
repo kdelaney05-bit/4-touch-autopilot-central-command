@@ -201,6 +201,7 @@ wrong, not the gospel.
 | Signing is not selling | estimate-view /sign, the accepted estimate, the NOC |
 | Every new thing ships with a Ride-Along | docs/ride-alongs.html; the films in js/tour.js (`?tour=1`, `?tour=crews`, `&voice=1`); 🎬 What's new in the header |
 | They accept now, sign everything once, nobody goes back | The signing link (366–368); the NOC row on the file's Paperwork card; the switch The NOC to the customer; `?tour=noc` |
-| Leave people alone 7:30 PM–8 AM | `backend/worker/quiet-hours.mjs` (one clock, one rule) gates every engine that sends; the app's Send holds until 8 AM in the window (next spoon) |
+| Leave people alone 7:30 PM–8 AM | `backend/worker/quiet-hours.mjs` (one clock, one rule) gates every engine that sends; the app's Send holds until 8 AM in the window (next spoon); the invoice sweep (381) keeps the same hours for its texts, emails, call cards and pushes |
+| The machine babysits so the people hunt · the phone is human | The invoice (381, 17 Sep): built from the file on the sign-off, sent by text and email with the pay link, chased on a plan of rows, paid by itself — and the one human touch is a call card on the office seat, never a machine on the phone. `docs/the-invoice.html` |
 
 Add to this file when Kevin says a new one. Never delete one without his word.

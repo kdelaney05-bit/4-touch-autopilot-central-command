@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=101';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=101';
-import { enterPosts, micButton } from './dictate.js?v=101';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=101';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=101';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=102';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=102';
+import { enterPosts, micButton } from './dictate.js?v=102';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=102';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=102';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=101';
-import { settleDialog } from './office.js?v=101';
-import { reload } from './app.js?v=101';
-import { relTime } from './production.js?v=101';
-import { billsCards, billsNext, wireBills } from './bills.js?v=101';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=102';
+import { settleDialog } from './office.js?v=102';
+import { reload } from './app.js?v=102';
+import { relTime } from './production.js?v=102';
+import { billsCards, billsNext, wireBills } from './bills.js?v=102';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -181,6 +181,7 @@ function draw(root, ctx, compact) {
         <button class="btn" id="file-text" title="Text the customer from the main line">Text</button>
         <button class="btn" id="file-tag" title="Note to the team · tag the next person">Tag</button>
         ${customer ? raw('<button class="btn" id="file-estimate" title="Build the itemized estimate · one link · they tap ACCEPT">Estimate</button>') : ''}
+        ${customer && job.job_id && job.contract_signed_at && (staff || (job.rep_id && job.rep_id === me?.id)) ? raw('<button class="btn" id="file-change-order" title="381: a change order is an estimate the customer signs on the same link. Signed, it is a line on the invoice; unsigned, the invoice waits.">Change order</button>') : ''}
         ${job.job_id ? raw('<button class="btn" id="file-doc" title="Put a document on the file">+ Document</button>') : ''}
         ${staff && job.job_id ? raw('<button class="btn" id="file-send" title="Hand this file to a seat">Send to…</button>') : ''}
         ${staff && job.job_id ? raw('<button class="btn" id="file-invoice" title="Queue this job\'s invoice for QuickBooks">Invoice</button>') : ''}
@@ -306,6 +307,7 @@ function draw(root, ctx, compact) {
   const seed = estimateSeedFromTakeoff(ctx.data.fence);
   if (q('#file-estimate')) q('#file-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
   if (q('#fence-estimate')) q('#fence-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
+  if (q('#file-change-order')) q('#file-change-order').onclick = () => estimateDialog(ctx, job, customer, name, again, null, { kind: 'change_order' });   // 381: signed on the same link, a line on the invoice
   // 367: hand the NOC to the customer — fill it first when the file has none, then the email (the trigger on the fill may already have sent it when the switch is ON)
   if (q('#noc-send')) q('#noc-send').onclick = async () => {
     const b = q('#noc-send'); b.disabled = true; b.textContent = 'Sending…';
@@ -485,8 +487,9 @@ function estimateSeedFromTakeoff(f) {
   return { title: `${mat} fence · ${f.linear_ft} ft${gates.length ? ' · ' + gates.length + ' gate' + (gates.length > 1 ? 's' : '') : ''}`, items,
            note: `Priced in the fence calculator${quote ? ' at ' + fmtMoney(quote) : ''}. Gates, hardware and site work are in the price.` };
 }
-function estimateDialog(ctx, job, customer, name, again, seed) {
+function estimateDialog(ctx, job, customer, name, again, seed, opts = {}) {
   const cc = job.cc_company_id || state.me?.manages_company_id || '1461';
+  const co = opts.kind === 'change_order';   // 381: the same builder, the same link; signed = a line on the invoice
   const rowHtml = (it) => `<div class="est-row" style="display:grid;grid-template-columns:1.5fr 64px 70px 110px 32px;gap:6px;align-items:start;margin-top:6px">
       <div><input name="label" placeholder="Pavers · 6' privacy fence · shingle roof" value="${esc(it?.label || '')}" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px">${esc(it?.desc || '')}</textarea></div>
       <input name="qty" type="number" step="0.01" min="0" value="${esc(String(it?.qty ?? 1))}" title="Qty"/>
@@ -494,8 +497,9 @@ function estimateDialog(ctx, job, customer, name, again, seed) {
       <input name="price" type="number" step="0.01" min="0" placeholder="0.00" value="${it && it.price != null ? esc(String(it.price)) : ''}" title="Unit price" required/>
       <button class="btn sm" type="button" data-del title="Remove this item">×</button>
     </div>`;
-  openModal({ title: `Estimate for ${name}`, submitLabel: 'Create the estimate', wide: true, body: `
-      <div class="field"><label>Title · what the job is</label><input name="title" placeholder="Backyard paver installation" value="${esc(seed?.title || '')}"/></div>
+  openModal({ title: co ? `Change order for ${name}` : `Estimate for ${name}`, submitLabel: co ? 'Create the change order' : 'Create the estimate', wide: true, body: `
+      ${co ? '<div class="next good" style="margin-bottom:6px"><b>CHANGE ORDER</b> Only what changed: the extra gate, the longer run, the credit. They sign it on the same link; signed, it is a line on the invoice; unsigned, the invoice waits and the card says so. A credit is a negative price.</div>' : ''}
+      <div class="field"><label>Title · what ${co ? 'changed' : 'the job is'}</label><input name="title" placeholder="${co ? 'Add one 4\' gate on the east side' : 'Backyard paver installation'}" value="${esc(seed?.title || '')}"/></div>
       ${seed ? '<div class="next good" style="margin-bottom:6px"><b>FROM THE CALCULATOR</b> The items below are what the rep drew and priced. Read them, change what you want, then Create.</div>' : ''}
       <div class="kicker" style="margin-top:6px">Items · what it is and the scope · qty · unit · unit price</div>
       <div id="est-rows">${seed ? seed.items.map(rowHtml).join('') : rowHtml()}</div>
@@ -517,15 +521,16 @@ function estimateDialog(ctx, job, customer, name, again, seed) {
       })).filter((i) => i.label);
       if (!items.length) throw new Error('Put at least one item in');
       if (!items.some((i) => i.unit_price > 0)) throw new Error('Put a price on it');
-      const r = await createEstimate({ customer_id: ctx.customerId, cc_company_id: fm.cc.value, title: fm.title.value.trim() || null, note: fm.note.value.trim() || null, valid_days: Number(fm.valid.value), channel: 'sms', items });
-      toast(`Estimate #${r.serial} · ${fmtMoney(r.total)}`);
-      setTimeout(() => sendEstimateDialog(ctx, r, name, customer, fm.cc.value, again), 0);
+      const r = await createEstimate({ customer_id: ctx.customerId, cc_company_id: fm.cc.value, title: fm.title.value.trim() || null, note: fm.note.value.trim() || null, valid_days: Number(fm.valid.value), channel: 'sms', items, ...(co ? { kind: 'change_order' } : {}) });
+      toast(`${co ? 'Change order' : 'Estimate'} #${r.serial} · ${fmtMoney(r.total)}`);
+      setTimeout(() => sendEstimateDialog(ctx, r, name, customer, fm.cc.value, again, co), 0);
     } });
 }
-function sendEstimateDialog(ctx, r, name, customer, cc, again) {
+function sendEstimateDialog(ctx, r, name, customer, cc, again, co = false) {
   const url = r.url;
-  const tpl = `Hi ${firstName(name)}, ${firstName(state.me?.name || '')} with ${brandName(cc)}. Your estimate #${r.serial} is ready — tap to view and accept: ${url}`;
-  openModal({ title: `Estimate #${r.serial} · ${fmtMoney(r.total)} · send it`, submitLabel: customer?.phone ? `Text it to ${firstName(name)}` : 'Done', body: `
+  const tpl = co ? `Hi ${firstName(name)}, ${firstName(state.me?.name || '')} with ${brandName(cc)}. Here is the change order we talked about (#${r.serial}, ${fmtMoney(r.total)}) — tap to view and accept, and we keep moving: ${url}`
+                 : `Hi ${firstName(name)}, ${firstName(state.me?.name || '')} with ${brandName(cc)}. Your estimate #${r.serial} is ready — tap to view and accept: ${url}`;
+  openModal({ title: `${co ? 'Change order' : 'Estimate'} #${r.serial} · ${fmtMoney(r.total)} · send it`, submitLabel: customer?.phone ? `Text it to ${firstName(name)}` : 'Done', body: `
       <div class="field"><label>The link</label><div style="display:flex;gap:6px"><input name="link" value="${esc(url)}" readonly style="flex:1"/><button class="btn sm" type="button" id="est-copy">Copy</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">Open</a></div></div>
       <div class="field"><label>The text</label><textarea name="msg" style="min-height:90px">${esc(tpl)}</textarea></div>
       <div class="note">Goes out on the brand's main line, credited to you. Opening the link yourself counts as a view and pings your own phone.</div>`,

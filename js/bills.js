@@ -13,23 +13,16 @@
 //                  bills_to_cc OFF the approved card hands the office the
 //                  fields to type into Contractors Cloud, in CC's order. With
 //                  bills_to_qb OFF nothing reaches QuickBooks: recorded only.
-//   INVOICE READY  the customer's invoice, typed from the signed estimate
-//                  minus the deposit taken plus the signed change orders,
-//                  with the crew's finished photos and the supervisor's
-//                  sign-off beside it. Approve = invoice_request (the row the
-//                  qb_invoices switch reads) + the "invoice sent" line to the
-//                  customer from the main line, one press; Hold = a tag on the
-//                  file with the reason. Kevin, 16 Sep: "however they send
-//                  them out of Contractors Cloud, it needs to be just as easy
-//                  through here." CC's invoice is: number, date, the lines
-//                  imported from the estimate, Save, the envelope button.
-//                  Ours is: the card, already typed, one tap.
+//   THE INVOICE    moved to js/invoice.js (381, 17 Sep): built by the machine on
+//                  the sign-off, QuickBooks makes it, email + text with the pay
+//                  link, the reminders, the call card, paid by itself.
 //
 // Every number says its source (gospel 5); the next step is one line with the
 // button beside it (gospel 3); nothing to learn, it comes to you (gospel 33).
-import { state, isDemo, firstName, personName, seatName, mentionHandle, decideBill, rematchBill, openBillPdf, invoiceRequest, settleAsk, textCustomer, postMessage, threadForJob, renderLine, searchCustomers } from './book.js?v=101';
-import { raw, esc, toast, openModal } from './ui.js?v=101';
-import { brandName } from './config.js?v=101';
+import { state, isDemo, firstName, personName, seatName, decideBill, rematchBill, openBillPdf, searchCustomers } from './book.js?v=102';
+import { invoiceCard, invoiceNext, wireInvoice } from './invoice.js?v=102';   // 381: the customer's invoice, from the sign-off to the money
+import { raw, esc, toast, openModal } from './ui.js?v=102';
+import { brandName } from './config.js?v=102';
 
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmt = (n) => (n == null || n === '' ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
@@ -179,96 +172,13 @@ export function billsQueueCard() {
   </div>`;
 }
 
-/* ── INVOICE READY — the customer's invoice, typed from the file ───────────── */
-export function invoiceModel(ctx) {
-  const { job, customer } = ctx.data;
-  if (!job?.job_id) return null;
-  const asks = ctx.data.asks || [], estimates = ctx.data.estimates || [], texts = ctx.data.texts || [];
-  const open = asks.find((a) => a.ask_type === 'INVOICE' && a.state === 'OPEN') || null;
-  const signoff = asks.filter((a) => a.ask_type === 'COMPLETION_SIGNOFF' && a.state !== 'OPEN' && a.state !== 'VOID').sort((x, y) => new Date(y.closed_at || 0) - new Date(x.closed_at || 0))[0] || null;
-  const queue = (ctx.data.invoiceQueue || []).slice().sort((x, y) => new Date(y.created_at) - new Date(x.created_at));
-  const queued = queue[0] || null;
-  const stage = job.stage;
-  if (stage === 'paid' && !open) return null;
-  const ready = !!open || stage === 'field_complete' || (!!signoff && !['invoiced', 'booked', 'selling'].includes(stage));
-  if (!ready && !queued) return null;
-  const accepted = estimates.filter((e) => e.status === 'accepted').sort((x, y) => new Date(y.accepted_at || 0) - new Date(x.accepted_at || 0))[0] || null;
-  const signed = accepted ? num(accepted.total) : num(job.fin_sold_amount);
-  const signedSrc = accepted ? `estimate #${accepted.serial_number} · accepted ${day(accepted.accepted_at)}` : signed != null ? `sold amount on the job${job.contract_signed_at ? ' · signed ' + day(job.contract_signed_at) : ''}` : 'no signed amount on the file';
-  const dep = ctx.data.deposit || null;
-  const depositTaken = dep?.deposit_paid_at ? (num(dep.deposit_amount) || 0) : 0;
-  const depositSrc = dep?.deposit_paid_at ? `taken ${day(dep.deposit_paid_at)}${dep.deposit_method ? ' · ' + dep.deposit_method : ''}` : dep?.deposit_required ? 'required, not taken' : 'none taken';
-  const cos = asks.filter((a) => a.ask_type === 'CHANGE_ORDER');
-  const coSigned = cos.filter((a) => a.state !== 'OPEN' && a.state !== 'VOID' && !a.proof?.waived);
-  const coOpen = cos.filter((a) => a.state === 'OPEN');
-  const coAmount = coSigned.reduce((s, a) => s + (num(a.proof?.amount) ?? num(a.proof?.value) ?? 0), 0);
-  const coSrc = coOpen.length ? `${coOpen.length} unsigned` : coSigned.length ? `${coSigned.length} signed${coSigned.some((a) => num(a.proof?.amount) == null && num(a.proof?.value) == null) ? ' · amount not on the file' : ''}` : 'none';
-  const rule = num((state.proofRules || []).find((r) => r.ask_type === 'COMPLETION_SIGNOFF' && (r.doc_kind || '') === '')?.min_count) ?? 3;
-  const proofPhotos = Array.isArray(signoff?.proof?.files) ? signoff.proof.files.length : 0;
-  const attached = signoff ? (ctx.data.attachments || []).filter((f) => f.ask_id === signoff.id).length : 0;
-  const filePhotos = (ctx.data.photos || []).length;
-  const photos = proofPhotos || attached || (signoff ? filePhotos : 0);
-  const invoice = signed == null ? null : Math.round((signed - depositTaken + coAmount) * 100) / 100;
-  const problems = [];
-  if (signed == null) problems.push('no signed amount on the file');
-  if (!signoff) problems.push('no sign-off on the file yet');
-  else if (photos < rule) problems.push(`photos short · ${photos} of ${rule}`);
-  if (coOpen.length) problems.push(`${coOpen.length} change order${coOpen.length > 1 ? 's' : ''} unsigned`);
-  if (dep?.deposit_required && !dep.deposit_paid_at) problems.push('deposit required, never taken');
-  const lastIn = texts.filter((t) => t.direction === 'inbound' && t.body).slice(-1)[0] || null;
-  const ss = (state.stageSeats || []).find((s) => String(s.cc_company_id) === String(job.cc_company_id) && s.stage === 'invoiced');
-  const seat = open?.assignee_name || seatName(ss?.owner_id) || 'the office';
-  const supervisor = job.supervisor_id ? (state.seats.find((s) => s.id === job.supervisor_id) || state.people.find((p) => p.id === job.supervisor_id) || null) : null;
-  const rep = job.rep_id ? (state.people.find((p) => p.id === job.rep_id) || null) : null;
-  return { open, signoff, queued, signed, signedSrc, depositTaken, depositSrc, coAmount, coSrc, coOpen, coSigned, photos, rule, invoice, problems, lastIn, seat, accepted, supervisor, rep, customer };
-}
-
-export function invoiceCard(ctx) {
-  const m = invoiceModel(ctx); if (!m) return '';
-  const { job, customer } = ctx.data;
-  const name = personName(customer?.name || job.customer_name);
-  const q = m.queued, qbOn = sw('qb_invoices');
-  const red = m.problems.length > 0 && !q;
-  const tone = q ? 'green' : red ? 'red' : 'green';
-  const chip = q ? (q.status === 'sent' ? `<span class="chip st-green">IN QUICKBOOKS · #${esc(q.qb_doc_number || q.qb_invoice_id || '')}</span>` : q.status === 'failed' ? '<span class="chip warn">QUICKBOOKS REFUSED IT</span>' : `<span class="chip st-green">RECORDED ${esc(day(q.created_at).toUpperCase())}${qbOn ? ' · WAITING ON QUICKBOOKS' : ' · QB SWITCH OFF'}</span>`)
-    : red ? `<span class="chip warn">${esc(m.problems[0].toUpperCase())}</span>` : `<span class="chip st-green">WAITING ON ${esc(firstName(m.seat).toUpperCase())}${m.open ? ' · ' + esc(clock(m.open.opened_at)) : ''}</span>`;
-  const openedBy = m.signoff ? `opened by ${firstName(m.signoff.assignee_name || 'the supervisor')}'s sign-off, ${day(m.signoff.closed_at)}` : m.open ? `opened ${day(m.open.opened_at)} by ${m.open.opened_by_name || 'the file'}` : 'field complete';
-  const supName = m.supervisor ? firstName(m.supervisor.name) : 'the supervisor';
-  const next = q ? (q.status === 'sent' ? `Invoice #${q.qb_doc_number || q.qb_invoice_id} is in QuickBooks. Payment runs its 30-day clock; Collect texts the pay link.`
-      : q.status === 'failed' ? `QuickBooks refused it: ${q.error || 'no reason given'}. Fix it in QuickBooks or tell Kevin.`
-      : qbOn ? 'Recorded. QuickBooks makes the invoice within the hour and the pay link rides the next text.'
-      : `Recorded${m.open ? ', the ask is still open' : ''}. The qb_invoices switch is OFF, so make the invoice in Billdu or QuickBooks as today and press Done on the ask with its number; Payment opens with its clock.`)
-    : red ? `${m.problems.join(' · ')}. Hold with the reason and it tags ${supName} on the file, or Approve if you know it is right.`
-    : `${firstName(m.seat)} checks it: right amount, the work is done. One tap records the invoice and texts ${firstName(name)} from the main line.`;
-  const canAct = staffSeat();
-  const estUrl = m.accepted?.link_id ? (ctx.data.estLinks || []).find((l) => l.id === m.accepted.link_id)?.token : null;
-  const buttons = !canAct ? '' : q
-    ? `${m.open ? `<button class="btn ok" data-inv-done="${esc(m.open.id)}">Done · with the invoice number</button>` : ''}<button class="btn" data-inv-text="1">Text ${esc(firstName(name))} the invoice line</button>${estUrl ? `<a class="btn sm" href="${esc(ESTIMATE_VIEW + estUrl)}" target="_blank" rel="noopener">Open the estimate</a>` : ''}`
-    : `<button class="btn ok" data-inv-approve="1">✓ Approve · send the invoice</button><button class="btn" data-inv-hold="1">Hold · say why</button><button class="btn sm" data-inv-photos="1">Open the photos</button>${estUrl ? `<a class="btn sm" href="${esc(ESTIMATE_VIEW + estUrl)}" target="_blank" rel="noopener">Open the estimate</a>` : ''}`;
-  return `<div class="card bill ${tone}" data-invoice-card="1">
-    <div class="head" style="margin-bottom:2px"><div class="kicker" style="font-size:11px;color:${red ? 'var(--red)' : 'var(--verify)'}">INVOICE READY · ${esc(openedBy)} · typed from the signed estimate · ${esc(brandName(job.cc_company_id))}</div>${chip}</div>
-    <div class="bill-grid">
-      <div><div class="kicker">Signed estimate</div><b>${esc(fmt(m.signed))}</b> <span class="small">· ${esc(m.signedSrc)}</span></div>
-      <div><div class="kicker">Deposit taken</div><b>${m.depositTaken ? '−' : ''}${esc(fmt(m.depositTaken))}</b> <span class="small">· ${esc(m.depositSrc)}</span></div>
-      <div><div class="kicker">Change orders</div><b>${esc(fmt(m.coAmount))}</b> ${m.coOpen.length ? `<span class="chip warn">${esc(m.coSrc.toUpperCase())}</span>` : `<span class="small">· ${esc(m.coSrc)}</span>`}</div>
-      <div><div class="kicker">Invoice</div><b class="big">${esc(q ? fmt(q.amount) : fmt(m.invoice))}</b>${q && m.invoice != null && Math.abs(num(q.amount) - m.invoice) > 0.005 ? ` <span class="small">· the file says ${esc(fmt(m.invoice))}</span>` : ''}</div>
-      <div><div class="kicker">Finished photos</div><b>${m.photos} of ${m.rule}</b> ${m.signoff ? (m.photos >= m.rule ? '<span class="chip st-green">CREW · ON THE FILE</span>' : `<span class="chip warn">${esc(String(m.rule - m.photos))} SHORT</span>`) : '<span class="chip warn">NO SIGN-OFF YET</span>'}</div>
-      <div><div class="kicker">Sign-off</div><b>${esc(m.signoff ? (m.signoff.assignee_name || 'the supervisor') : '—')}</b>${m.lastIn ? ` <span class="small">· customer said "${esc(String(m.lastIn.body).slice(0, 70))}${String(m.lastIn.body).length > 70 ? '…' : ''}"</span>` : ''}</div>
-    </div>
-    ${q?.memo ? `<div class="small">Memo on it: "${esc(q.memo)}"</div>` : ''}
-    <div class="bill-text small" data-inv-line="1">The text that goes out · from the main line · loading the line…</div>
-    <div class="next ${red ? 'bad' : 'good'}"><b>NEXT</b> ${esc(next)}</div>
-    ${buttons ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px">${buttons}</div>` : ''}
-  </div>`;
-}
-
 /* the file's NEXT line when money is waiting (gospel 3: worst news first) */
 export function billsNext(ctx) {
   const bills = (ctx.data.bills || []).filter(isBillWaiting);
-  const m = invoiceModel(ctx);
   const red = bills.find(isBillRed);
   if (red) return { tone: 'bad', text: `A ${red.supplier} bill for ${fmt(red.amount)} landed ${Number(red.over_by || 0) > 0 ? 'over what we ordered at' : !red.job_id ? 'with no job matched' : red.status === 'needs_human' ? 'and the machine could not read it' : 'past due'}. It is on the card below.` };
-  if (m && !m.queued) return m.problems.length ? { tone: 'bad', text: `Invoice ready, but ${m.problems.join(' and ')}. Hold with the reason, or Approve if you know it is right.` } : { tone: 'good', text: `Invoice ready: ${fmt(m.invoice)}, typed from the signed estimate. ${firstName(m.seat)} taps Approve and it goes.` };
+  const inv = invoiceNext(ctx);   // 381: the invoice's own line — held, ready, sent, the call card
+  if (inv && (inv.tone === 'bad' || inv.tone === 'good')) return inv;
   if (bills.length) return { tone: '', text: `${bills.length} supplier bill${bills.length > 1 ? 's' : ''} waiting on ${approverName(bills[0])}: right job, right amount. One tap on the card below.` };
   return null;
 }
@@ -306,25 +216,8 @@ export function wireBills(root, { bills = [], ctx = null, after = () => {} }) {
     if (d === 'wrong_job') return rematchDialog(b, after, true);
   }));
   root.querySelectorAll('[data-bill-rematch]').forEach((el) => (el.onclick = () => { const b = find(el.dataset.billRematch); if (b) rematchDialog(b, after, false); }));
-  if (!ctx) return;
-  // the invoice card
-  const m = invoiceModel(ctx);
-  const lineBox = root.querySelector('[data-inv-line]');
-  if (m && lineBox) {
-    renderLine('invoice_sent', ctx.customerId, {}).then((line) => { lineBox.innerHTML = `<span class="kicker">The text that goes out · from the main line</span><div style="margin-top:3px">${line ? esc(fill(line, m)) : 'No "invoice sent" line for this brand yet. Kevin and Jess add it as a row in the Office room; the text is typed by hand until then.'}</div>`; }).catch(() => { lineBox.textContent = 'The line could not load.'; });
-  }
-  const q = (s) => root.querySelector(s);
-  if (q('[data-inv-approve]')) q('[data-inv-approve]').onclick = () => approveInvoice(ctx, m, after);
-  if (q('[data-inv-hold]')) q('[data-inv-hold]').onclick = () => holdInvoice(ctx, m, after);
-  if (q('[data-inv-photos]')) q('[data-inv-photos]').onclick = () => { const card = root.querySelector('.pthumb')?.closest('.card') || root.querySelector('#photo-in')?.closest('.card'); if (card) card.scrollIntoView({ block: 'center', behavior: 'smooth' }); else toast('No photos on this file yet', 'err'); };
-  if (q('[data-inv-done]')) q('[data-inv-done]').onclick = () => { const b = root.querySelector(`[data-settle="${q('[data-inv-done]').dataset.invDone}"]`); if (b) b.click(); else toast('Settle it in the Asks card', 'err'); };
-  if (q('[data-inv-text]')) q('[data-inv-text]').onclick = async () => {
-    const box = root.querySelector('#compose'); if (!box || box.disabled) return toast('This customer cannot be texted from here', 'err');
-    const line = await renderLine('invoice_sent', ctx.customerId, {}).catch(() => '');
-    box.value = fill(line, m, m.queued?.pay_link || ''); box.scrollIntoView({ block: 'center', behavior: 'smooth' }); box.focus();
-  };
+  if (ctx) wireInvoice(root, ctx, after);   // 381: the invoice card's taps
 }
-const fill = (line, m, link = '') => String(line || '').replace(/\{\{amount\}\}/g, fmt(m?.queued?.amount ?? m?.invoice)).replace(/\{\{link\}\}/g, link).replace(/\s{2,}/g, ' ').trim();
 
 async function approveBill(b, el, after) {
   el.disabled = true;
@@ -365,59 +258,5 @@ function rematchDialog(b, after, markOnly) {
       const note = f.note.value.trim();
       if (!note && !markOnly) throw new Error('Pick the file, or leave a note');
       await decideBill(b.id, 'wrong_job', note || null); toast('Marked wrong job · it stays on the Office queue'); after();
-    } });
-}
-
-/* Approve = the invoice recorded + the text in one press. A number typed here
-   settles the Invoice ask (proof: number) and opens Payment with its clock —
-   the same move as Done on the ask, with the text beside it. */
-function approveInvoice(ctx, m, after) {
-  const { job, customer } = ctx.data;
-  const name = personName(customer?.name || job.customer_name);
-  const machineTexts = sw('office_machine_texts'), qbOn = sw('qb_invoices');
-  const canText = !!customer?.phone && !(customer?.sms_opt_out_at || job.sms_opt_out_at);
-  const memo = `Final invoice${m.depositTaken ? ' · balance after the ' + fmt(m.depositTaken) + ' deposit' : ''}${m.coSigned.length ? ' · ' + m.coSigned.length + ' change order' + (m.coSigned.length > 1 ? 's' : '') : ''}`;
-  renderLine('invoice_sent', ctx.customerId, {}).then((line) => {
-    const tpl = line || `Thank you for choosing ${brandName(job.cc_company_id)}. Your invoice for {{amount}} is ready. {{link}}`;
-    openModal({ title: `Invoice ${name}`, submitLabel: '✓ Approve · send the invoice', wide: true, body: `
-      <div class="two">
-        <div class="field"><label>Invoice amount · from the file</label><input name="amount" type="number" step="0.01" min="0" value="${esc(m.invoice ?? '')}" required/></div>
-        <div class="field"><label>Invoice number · if you already made it in Billdu / QuickBooks (optional)</label><input name="number" placeholder="blank = press Done on the ask later"/></div>
-      </div>
-      <div class="field"><label>Memo · what the customer reads on it</label><input name="memo" value="${esc(memo)}"/></div>
-      <div class="field"><label>Pay link (optional) · drops into the text</label><input name="link" type="url" placeholder="https://…"/></div>
-      <div class="field"><label>The text to ${esc(firstName(name))} · from the ${esc(brandName(job.cc_company_id))} line · edit it before you send</label><textarea name="msg" style="min-height:96px">${esc(fill(tpl, m, '{{link}}'))}</textarea></div>
-      <label style="display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:13px;cursor:pointer"><input type="checkbox" name="text" style="width:auto;margin:0" ${canText && !machineTexts ? 'checked' : ''} ${canText ? '' : 'disabled'}/> <span>Text ${esc(firstName(name))} now from the main line, credited to you${!canText ? ' · no phone on file, or they said STOP' : machineTexts ? ' · the machine sends this line itself when the ask settles' : ''}</span></label>
-      <div class="note">${qbOn ? 'Approve creates the QuickBooks invoice within the hour.' : 'Approve records the invoice for QuickBooks. The qb_invoices switch is OFF tonight, so nothing leaves: make it in Billdu or QuickBooks as today.'} A number here settles the Invoice ask and opens Payment with its 30-day clock. ${m.problems.length ? 'Heads up: ' + m.problems.join(' · ') + '.' : ''}</div>`,
-      onOpen: (f) => { f.link.oninput = () => { f.msg.value = fill(tpl, m, f.link.value.trim() || '{{link}}'); }; },
-      onSubmit: async (f) => {
-        const amount = Number(f.amount.value);
-        if (!Number.isFinite(amount) || amount <= 0) throw new Error('Put the amount in');
-        const number = f.number.value.trim(), link = f.link.value.trim();
-        await invoiceRequest(job.job_id, amount, f.memo.value.trim() || null, m.open?.id || null);
-        let settled = false;
-        if (number && m.open) { await settleAsk(m.open.id, { value: number, ...(link ? { link } : {}) }); settled = true; }
-        let sent = false;
-        if (f.text.checked) { const body = f.msg.value.trim().replace(/\{\{link\}\}/g, link).replace(/\s{2,}/g, ' ').trim(); if (body) { await textCustomer(ctx.customerId, body); sent = true; } }
-        toast(`Invoice recorded${settled ? ' · the ask settled, Payment opened' : ''}${sent ? ' · ' + firstName(name) + ' was texted' : ''}${qbOn ? '' : ' · QuickBooks switch is off'}`);
-        after();
-      } });
-  });
-}
-function holdInvoice(ctx, m, after) {
-  const { job, customer, thread } = ctx.data;
-  const name = personName(customer?.name || job.customer_name);
-  const who = [];
-  if (m.supervisor) who.push([mentionHandle(m.supervisor), `${firstName(m.supervisor.name)} · the supervisor`]);
-  if (m.rep) who.push([mentionHandle(m.rep), `${firstName(m.rep.name)} · sold it`]);
-  who.push(['@supers', '@supers · every supervisor'], ['@office', '@office · the office']);
-  openModal({ title: `Hold the invoice · ${name}`, submitLabel: 'Hold · tag them', body: `
-    <div class="field"><label>Why · what is missing or wrong</label><input name="note" placeholder="${esc(m.problems[0] || 'photos of the back run · the gate is not on the estimate')}" required/></div>
-    <div class="field"><label>Who fixes it</label><select name="to">${who.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select></div>
-    <div class="note">It goes on the file as a note with their name on it: they get the push, the invoice waits here. Nothing is sent to the customer.</div>`,
-    onSubmit: async (f) => {
-      let tid = thread?.id; if (!tid) tid = await threadForJob(job.job_id);
-      await postMessage(tid, 'OFFICE', `${f.to.value} Hold on the invoice for ${firstName(name)}: ${f.note.value.trim()}`);
-      toast('On hold · they were tagged on the file'); after();
     } });
 }

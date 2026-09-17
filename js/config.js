@@ -30,7 +30,7 @@ export const STAGE_LINE_DAYS = { sold_office: 3, production: 14, field_complete:
 
 export const ASK_LABEL = {
   CONTRACT_DOC: 'Paperwork', PERMIT: 'Permit', SURVEY: 'Locate', SCHEDULE: 'Schedule', MATERIAL: 'Materials',
-  INVOICE: 'Invoice', PAYMENT: 'Payment', CHANGE_ORDER: 'Change order', COMPLETION_SIGNOFF: 'Sign-off',
+  INVOICE: 'Invoice', PAYMENT: 'Payment', CHANGE_ORDER: 'Change order', COMPLETION_SIGNOFF: 'Sign-off', COLLECT_CALL: 'Call · invoice',
   MATERIAL_REQUEST: 'Material run', SITE_ISSUE: 'Site issue', SUPERVISOR_PING: 'Supervisor', SAFETY_JHA: 'Safety',
   CUSTOMER_REQUEST: 'Customer request', SCHEDULE_QUESTION: 'Schedule question',
   /* Contractors Cloud's own steps, become asks here (cc_workflow_steps). */

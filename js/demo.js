@@ -30,8 +30,8 @@ const BOARD = [
 const ask = (id, jobId, lane, type, note, assignee, state, openedH, doc, closedH, mins) => ({ ask_id: id, id, thread_id: 't' + jobId, lane, ask_type: type, doc_kind: doc ?? null, note, state, opened_at: ago(openedH), closed_at: closedH != null ? ago(closedH) : null, minutes_to_close: mins ?? null,
   assignee_id: assignee, assignee_name: SEATS.find((s) => s.id === assignee)?.name, opened_by_name: 'Ron Seidel', open_min: Math.round(openedH * 60),
   cc_project_id: 'P' + jobId, cc_company_id: BOARD.find((b) => b.job_id === jobId)?.cc_company_id, customer_id: 'c' + jobId, customer_name: BOARD.find((b) => b.job_id === jobId)?.customer_name, job_value: BOARD.find((b) => b.job_id === jobId)?.fin_sold_amount, job_id: jobId, stage: BOARD.find((b) => b.job_id === jobId)?.stage,
-  proof_label: ({ PERMIT: 'Permit number (attach the permit if you have it)', INVOICE: 'Billdu / QuickBooks invoice number', SURVEY: 'Locate ticket number, or why none is needed', PAYMENT: 'How it was paid', CONTRACT_DOC: 'The document', SCHEDULE: 'Start date — and the crew, in the note', COMPLETION_SIGNOFF: 'Finished-work photos (3 or more)', MATERIAL: 'PO / order confirmation number' })[type] || 'Tap to close',
-  proof_kind: ({ PERMIT: 'number', INVOICE: 'number', SURVEY: 'text', PAYMENT: 'text', CONTRACT_DOC: 'file', SCHEDULE: 'date', COMPLETION_SIGNOFF: 'photos', MATERIAL: 'text' })[type] || 'tap', proof_min: type === 'COMPLETION_SIGNOFF' ? 3 : 1, waivable: type === 'CONTRACT_DOC' || type === 'SURVEY' });
+  proof_label: ({ PERMIT: 'Permit number (attach the permit if you have it)', INVOICE: 'Billdu / QuickBooks invoice number', SURVEY: 'Locate ticket number, or why none is needed', PAYMENT: 'How it was paid', CONTRACT_DOC: 'The document', SCHEDULE: 'Start date — and the crew, in the note', COMPLETION_SIGNOFF: 'Finished-work photos (3 or more)', MATERIAL: 'PO / order confirmation number', COLLECT_CALL: 'What they said · when they will pay, or how' })[type] || 'Tap to close',
+  proof_kind: ({ PERMIT: 'number', INVOICE: 'number', SURVEY: 'text', PAYMENT: 'text', CONTRACT_DOC: 'file', SCHEDULE: 'date', COMPLETION_SIGNOFF: 'photos', MATERIAL: 'text', COLLECT_CALL: 'text' })[type] || 'tap', proof_min: type === 'COMPLETION_SIGNOFF' ? 3 : 1, waivable: type === 'CONTRACT_DOC' || type === 'SURVEY' });
 
 const QUEUE = [
   ask('a1', 'j2', 'OFFICE', 'PERMIT', 'Paperwork complete — pull the permit', 'sam', 'OPEN', 76),
@@ -43,6 +43,8 @@ const QUEUE = [
   ask('a6', 'j9', 'OFFICE', 'CONTRACT_DOC', 'HOA approval', 'laura', 'OPEN', 4.4, 'hoa'),
   ask('a7', 'j5', 'OFFICE', 'INVOICE', 'Field complete, photos on the file — invoice it', 'laura', 'OPEN', 25),
   ask('a8', 'j1', 'OFFICE', 'SCHEDULE', 'Locate done — call the customer and set the day', 'jon', 'OPEN', 96),
+  // 381: the call card the invoice's plan opened on Laura — Ana's invoice went out by text and email, nothing back at 4 h
+  ask('a12', 'j11', 'OFFICE', 'COLLECT_CALL', "Call Ana: invoice #29334 for $6,400.00 went out Sep 16 by text and email, nothing back yet. Ask if it came through and how they'd like to pay — card or bank on the link, or a check.", 'laura', 'OPEN', 25.7),
 ];
 
 const CLOCK = BOARD.filter((b) => b.waiting_min).map((b) => ({ text_id: 'tx' + b.job_id, customer_id: b.customer_id, customer_name: b.customer_name, phone: b.customer_phone, occurred_at: b.last_inbound_at, body: b.last_inbound_body, waiting_min: b.waiting_min, job_id: b.job_id, cc_company_id: b.cc_company_id, stage: b.stage, owner_id: b.owner_id, owner_name: b.owner_name, watcher_id: 'jc' }));
@@ -214,8 +216,8 @@ function file(customerId) {
   // 365: the supplier bills on this file, the deposit line (Kevin, 16 Sep: "we don't take deposits" — stock material, none), the invoice already recorded (Ana Reyes)
   const bills = BILLS.filter((x) => x.customer_id === b.customer_id);
   const deposit = b.job_id === 'j3' ? { deposit_required: false, deposit_amount: null, deposit_paid_at: null, deposit_method: null, deposit_paid_by: null } : null;
-  const invoiceQueue = b.job_id === 'j11' ? [{ id: 'iq1', ask_id: null, amount: 6400, memo: 'Final invoice', status: 'queued', qb_invoice_id: null, qb_doc_number: null, pay_link: null, error: null, created_at: ago(29), sent_at: null }] : [];
-  return { noc, bills, deposit, invoiceQueue, photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  const invoiceQueue = b.job_id === 'j11' ? [{ id: 'iq1', ask_id: null, amount: 6400, memo: 'Final invoice', status: 'sent', qb_invoice_id: '27915', qb_doc_number: '29334', pay_link: 'https://connect.intuit.com/portal/app/CommerceNetwork/view/demo', error: null, created_at: ago(30), sent_at: ago(29.7) }] : [];
+  return { noc, bills, deposit, invoiceQueue, invoiceState: demoInvoice(b), photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {
@@ -241,6 +243,42 @@ export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, directiv
 
 /* 351: the photos on the fictional file — drawn, not fetched, so the demo never leaves the page */
 const svgPhoto = (label, sky, ground, accent) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect width="320" height="200" fill="${sky}"/><rect y="200" width="320" height="120" fill="${ground}"/><rect x="30" y="120" width="12" height="150" fill="${accent}"/><rect x="150" y="120" width="12" height="150" fill="${accent}"/><rect x="270" y="120" width="12" height="150" fill="${accent}"/><rect x="30" y="140" width="252" height="10" fill="${accent}" opacity=".8"/><rect x="30" y="230" width="252" height="10" fill="${accent}" opacity=".8"/><text x="16" y="300" font-family="monospace" font-size="20" fill="#fff" opacity=".9">${label}</text></svg>`);
+/* 381 THE INVOICE — what invoice_state(job) returns, on three fictional files, every switch ON so the
+   film shows the machine's day: Dana Reed is clean and about to go by itself; Ana Reyes went out
+   yesterday, two reminders in, the call card is on Laura; Sam Okafor is red (photos short, a change
+   order unsigned) and waits for a person. */
+const PLAN = [[1, 2, 'text'], [2, 4, 'call'], [3, 24, 'text'], [4, 72, 'email'], [5, 72, 'call'], [6, 168, 'text'], [7, 168, 'call'], [8, 336, 'text'], [9, 336, 'call'], [10, 504, 'email']].map(([step, hours, channel]) => ({ step, hours, channel }));
+const PAY_LINE = "Thank you for choosing {{brand}}. We sincerely appreciate your business. Please find your invoice attached for your records. If you have any questions or need any additional information, please don't hesitate to reach out. {{link}}";
+function demoInvoice(b) {
+  const sw = { invoice_auto: true, qb_invoices: true, office_machine_texts: true };
+  const cust = (email) => ({ name: b.customer_name, phone: b.customer_phone, email, sms_opt_out: false, email_opt_out: false });
+  const base = { job_id: b.job_id, customer_id: b.customer_id, cc_company_id: b.cc_company_id, doc_number: null, deposit: 0, deposit_src: 'none taken', change_orders: 0, change_orders_n: 0, change_orders_unsigned: 0, rule: 3, existing: null, notes: [], seat: 'laura' };
+  if (b.job_id === 'j3') return { switches: sw, plan: PLAN, pay_line: PAY_LINE, row: null, log: [], next: null, call: null,
+    build: { ...base, ok: true, doc_number: 29388, amount: 14200, signed: 14200, signed_src: 'estimate #4481 · accepted Aug 26', lines: [{ kind: 'contract', label: 'Aluminum + gate', description: 'estimate #4481 · accepted Aug 26', amount: 14200 }],
+             photos: 6, signoff_at: ago(0.3), signoff_by: 'Obed Santiago', signoff_ask: 'd5', ask_id: 'a3', ask_assignee: 'Laura Schepp', ask_opened_at: ago(0.3), problems: [], customer: cust('dana.reed@example.com') } };
+  if (b.job_id === 'j11') return { switches: sw, plan: PLAN, pay_line: PAY_LINE,
+    build: { ...base, ok: true, doc_number: 29334, amount: 6400, signed: 6400, signed_src: 'estimate #4402 · accepted Aug 19', lines: [{ kind: 'contract', label: 'Vinyl privacy', description: 'estimate #4402 · accepted Aug 19', amount: 6400 }],
+             photos: 4, signoff_at: ago(30.2), signoff_by: 'Obed Santiago', signoff_ask: 'd9', ask_id: null, ask_assignee: null, ask_opened_at: null, problems: [], customer: cust('ana.reyes@example.com') },
+    row: { id: 'iq1', ask_id: 'a11', job_id: 'j11', customer_id: 'cj11', cc_company_id: '1461', amount: 6400, memo: 'Final invoice', status: 'sent', auto: true, qb_invoice_id: '27915', qb_doc_number: '29334', pay_link: 'https://connect.intuit.com/portal/app/CommerceNetwork/view/demo', pdf_path: '1461/Pj11/OFFICE/DOC/invoice-29334.pdf',
+           lines: [{ kind: 'contract', label: 'Vinyl privacy', description: 'estimate #4402 · accepted Aug 19', amount: 6400 }], created_at: ago(30), sent_at: ago(29.7), emailed_at: ago(29.7), email_to: 'ana.reyes@example.com', texted_at: ago(29.7), balance: 6400, balance_checked_at: ago(0.2), last_step: 3, nudges_sent: 2, last_nudge_at: ago(5.7), nudges_stopped_at: null, paid_at: null, error: null },
+    log: [
+      { kind: 'built', at: ago(30), by: 'Laura', body: 'Invoice $6,400.00 typed from the file: $6,400.00 · built by the machine. QuickBooks makes it on the next pass (within 15 minutes), then it goes to Ana by email and text with the pay link.' },
+      { kind: 'in_qb', at: ago(29.7), by: 'Laura', body: 'In QuickBooks as invoice #29334 · $6,400.00 · pay link https://connect.intuit.com/…' },
+      { kind: 'emailed', at: ago(29.7), by: 'Laura', body: 'QuickBooks emailed it to ana.reyes@example.com (Review & Pay)' },
+      { kind: 'texted', at: ago(29.7), by: 'Laura', body: 'The "invoice sent" text with the pay link went from the main line' },
+      { kind: 'nudge_text', at: ago(27.7), by: 'Laura', body: 'Reminder text 1 from the main line: "Hi Ana, Laura with Liberty Fencing. Just making sure your invoice came through — you can view it and pay online here: https://connect.intuit.com/… Thank you again for choosing us!"' },
+      { kind: 'call_opened', at: ago(25.7), by: 'Laura', body: "Call card 2 on Laura: Call Ana: invoice #29334 for $6,400.00 went out Sep 16 by text and email, nothing back yet." },
+      { kind: 'nudge_text', at: ago(5.7), by: 'Laura', body: 'Reminder text 3 from the main line: "Hi Ana, Liberty Fencing here. A friendly reminder that your invoice for $6,400.00 is open — the link is https://connect.intuit.com/… Reply here with any questions."' },
+    ],
+    next: { step: 4, channel: 'email', at: ago(-42.3), in_hours: 42.3, body: 'Your invoice from Liberty Fencing for $6,400.00 is still open…' },
+    call: { id: 'a12', note: "Call Ana: invoice #29334 for $6,400.00 went out Sep 16 by text and email, nothing back yet. Ask if it came through and how they'd like to pay — card or bank on the link, or a check.", opened_at: ago(25.7), assignee: 'Laura Schepp' } };
+  if (b.job_id === 'j5') return { switches: sw, plan: PLAN, pay_line: PAY_LINE, row: null, next: null, call: null,
+    build: { ...base, ok: false, cc_company_id: '1563', doc_number: 31120, amount: 18900, signed: 18900, signed_src: 'sold amount on the job · signed Aug 12', lines: [{ kind: 'contract', label: 'Shingle re-roof', description: 'sold amount on the job · signed Aug 12', amount: 18900 }],
+             change_orders_unsigned: 1, photos: 2, signoff_at: ago(26), signoff_by: 'Gerardo Costas', signoff_ask: 'd7', ask_id: 'a7', ask_assignee: 'Laura Schepp', ask_opened_at: ago(25), problems: ['photos short · 2 of 3', '1 change order unsigned · Ridge vent add $850.00'], customer: cust('sam.okafor@example.com') },
+    log: [{ kind: 'nag', at: ago(24.5), by: 'Laura', body: 'Invoice waiting on Sam: photos short · 2 of 3 · 1 change order unsigned · Ridge vent add $850.00. Fix it on the file (photos, the change order, the amount) and the machine sends it, or Approve it yourself with a reason.' }] };
+  return null;
+}
+
 function demoPhotos(b) {
   const mk = (i, label, by, h, caption, kind = 'ours', src = 'web', extra = {}) => ({ id: 'dp' + b.job_id + i, kind, customer_id: b.customer_id, job_id: b.job_id, message_id: null, path: null, thumb_path: null, tagged: [], crew: null, amount: null, ...extra,
     url: svgPhoto(label, kind === 'companycam' ? '#9fb8d3' : '#b7c9dd', '#7a8a5a', '#e9e2cf'), thumb_url: svgPhoto(label, kind === 'companycam' ? '#9fb8d3' : '#b7c9dd', '#7a8a5a', '#e9e2cf'),
