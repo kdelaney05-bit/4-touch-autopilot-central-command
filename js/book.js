@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=108';
-import { DEMO } from './demo.js?v=108';
+import * as api from './api.js?v=109';
+import { DEMO } from './demo.js?v=109';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -184,7 +184,7 @@ export async function loadFile(customerId) {
     }
   }
   // 351: every photo on this customer — ours and CompanyCam's, newest first
-  const [photos, quotes, receipts, deed, counter, appt, mirror] = await Promise.all([
+  const [photos, quotes, receipts, deed, counter, appt, mirror, subLocks] = await Promise.all([
     api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []),
     api.page(`v_quote_requests?select=*&customer_id=eq.${customerId}&order=created_at.desc`, 20).catch(() => []),   // 353
     thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
@@ -193,12 +193,14 @@ export async function loadFile(customerId) {
     // 381 THE FIRST PIECE: the estimate appointment on this customer (the newest job that has one), and the lead's copy for Contractors Cloud
     api.one(`jobs?select=id,appt_starts_at,rep_id&customer_id=eq.${customerId}&appt_starts_at=not.is.null&order=appt_starts_at.desc`).catch(() => null),
     api.one(`v_cc_mirror_queue?select=*&customer_id=eq.${customerId}&order=created_at.desc`).catch(() => null),
+    // 397: the subs locked on this job — who is doing the work, for how much, the receipt on the text, the office's mark
+    api.page(`v_job_sub_locks?select=*&customer_id=eq.${customerId}&order=locked_at.desc`, 50).catch(() => []),
   ]);
   if (!job.appt_starts_at && appt?.appt_starts_at) job.appt_starts_at = appt.appt_starts_at;
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
            appt: appt || null, mirror: mirror || null,
            fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null, deed: deed || null,
-           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
+           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [], subLocks: Array.isArray(subLocks) ? subLocks : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
@@ -446,3 +448,24 @@ export async function sendNugget(personId, body, bring, bringLabel, customerId, 
 
 /* 358b: a word to the team room (the village) — the encourager's share */
 export async function postRoom(room, body, customerId) { guard(); return api.insert('team_messages', { room, body, customer_id: customerId ?? null }, false); }
+
+/* ── 397 THE SUB LOCKED IN (Kevin + Jess, 17 Sep: "lock in that sub to that price, so the sub knows
+   and we know and Mike doesn't have to remember it… an input when he uploads the contract").
+   One door: the line on the file (the office seat tagged — the email Mike used to write), the text
+   to the sub with the contract picture and the price (the nugget, RECIBIDO), and the row the office
+   flips to TYPED INTO CC. Oasis has no work orders in CC, so what Jess types is her own entry. */
+export async function subOptions(customerId) {
+  if (isDemo()) return [{ name: "Nick's Lawn", person_id: 'cw1', texts: true, src: 'crew', last4: '0171' }, { name: 'Kicking Grass', person_id: null, texts: false, src: 'payee' }, { name: 'ProLawn', person_id: null, texts: false, src: 'payee' }, { name: 'Sunrise Landscaping', person_id: null, texts: false, src: 'payee' }];
+  const rows = await api.rpc('sub_options', { p_customer: customerId }).catch(() => []);
+  return Array.isArray(rows) ? rows : [];
+}
+export async function subLock(customerId, o = {}) {
+  guard();
+  return api.rpc('sub_lock', { p_customer: customerId, p_sub_name: o.name, p_amount: Number(o.amount), p_photo: o.photoId || null, p_person: o.personId || null, p_phone: o.phone || null, p_note: o.note || null, p_text: o.text !== false });
+}
+export async function subLockMark(lockId, status, note) { guard(); return api.rpc('sub_lock_mark', { p_lock: lockId, p_status: status, p_note: note ?? null }); }
+/* the Office room's list: every lock nobody has typed into Contractors Cloud yet, oldest first */
+export async function loadSubLocksWaiting() {
+  if (isDemo()) return DEMO.subLocksWaiting();
+  return api.page('v_job_sub_locks?select=*&status=eq.locked&order=locked_at.asc', 200).catch(() => []);
+}

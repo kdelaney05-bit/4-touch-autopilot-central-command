@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=108';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=108';
-import { enterPosts, micButton } from './dictate.js?v=108';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=108';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=108';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=109';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=109';
+import { enterPosts, micButton } from './dictate.js?v=109';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=109';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=109';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=108';
-import { settleDialog } from './office.js?v=108';
-import { reload } from './app.js?v=108';
-import { relTime } from './production.js?v=108';
-import { billsCards, billsNext, wireBills } from './bills.js?v=108';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=109';
+import { settleDialog } from './office.js?v=109';
+import { reload } from './app.js?v=109';
+import { relTime } from './production.js?v=109';
+import { billsCards, billsNext, wireBills } from './bills.js?v=109';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -172,7 +172,7 @@ function draw(root, ctx, compact) {
         ${raw(leadLine(job, ctx.data.appt, ctx.data.mirror))}
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
         ${journey.length ? raw(`<div class="journey" title="Who moved through this file, in order">${journey.map((j) => { const p = j.pid === 'machine' ? { name: 'The machine' } : personOf(j.pid); const c = colorFor(j.pid); return `<span style="--c:${c.c};flex-grow:${j.n}" title="${esc((p?.name || 'someone') + ' · ' + new Date(j.from).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (j.n > 1 ? ' · ' + j.n : ''))}"></span>`; }).join('')}</div><div class="journey-who">${[...new Set(journey.map((j) => j.pid))].map((pid) => { const p = pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(pid); const c = colorFor(pid); return `<span class="pill" style="--c:${c.c};--cs:${c.cs}"><i class="av">${esc(initialsOf(p))}</i>${esc(pid === 'machine' ? 'The machine' : firstName(p?.name || 'someone'))}</span>`; }).join('')}</div>`) : ''}
-        ${raw((() => { const ownerBad = ctx.data.parcel?.signer_match === 'mismatch' || ctx.data.parcel?.confidential; const n = (!ownerBad && customer?.disposition !== 'lost' && billsNext(ctx)) || fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
+        ${raw((() => { const ownerBad = ctx.data.parcel?.signer_match === 'mismatch' || ctx.data.parcel?.confidential; const n = (!ownerBad && customer?.disposition !== 'lost' && billsNext(ctx)) || fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake, ctx.data.subLocks || []); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
         ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
@@ -239,6 +239,7 @@ function draw(root, ctx, compact) {
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         ${raw(photosCard(photos))}
+        ${raw(subLockCard(ctx.data.subLocks || [], job, customer, me, photos))}
         ${raw(quoteFileCard(ctx.data.quotes, photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
         ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : a.doc_kind === 'deed' ? deedRow(a, ctx.data.deed) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
@@ -302,6 +303,14 @@ function draw(root, ctx, compact) {
   // 381 THE FIRST PIECE: the lead's copy for Contractors Cloud — the fields in CC's order, or the seat's word that it was typed / should go again
   if (q('#mirror-copy')) q('#mirror-copy').onclick = async () => { const t = mirrorCopyText(ctx.data.mirror, customer, job); try { await navigator.clipboard.writeText(t); toast('Copied — paste into Contractors Cloud, top to bottom'); } catch { prompt('For Contractors Cloud', t); } };
   if (q('#mirror-byhand')) q('#mirror-byhand').onclick = async () => { try { await mirrorMark(ctx.data.mirror.id, 'by_hand', null); toast('Noted: typed into Contractors Cloud'); again(); } catch (e) { toast(e.message, 'err'); } };
+  // 397 THE SUB LOCKED IN: Lock the sub · Copy for CC · Typed into CC · Void — and the two doors the Ride-Along opens
+  if (q('#sub-lock')) q('#sub-lock').onclick = () => subLockDialog(ctx, customer, job, again);
+  root.querySelectorAll('[data-sub-frompic]').forEach((b) => b.onclick = () => { const p = (ctx.data.photos || []).find((x) => x.id === b.dataset.subFrompic); if (p) subLockDialog(ctx, customer, job, again, { name: p.crew, amount: Math.round(Number(p.amount)), photoId: p.id }); });
+  root.querySelectorAll('[data-sub-copy]').forEach((b) => b.onclick = async () => { const l = (ctx.data.subLocks || []).find((x) => x.id === b.dataset.subCopy); const t = subCopyText(l, customer, job); try { await navigator.clipboard.writeText(t); toast('Copied — paste onto the project in Contractors Cloud'); } catch { prompt('For Contractors Cloud', t); } });
+  root.querySelectorAll('[data-sub-typed]').forEach((b) => b.onclick = async () => { try { await subLockMark(b.dataset.subTyped, 'typed_into_cc', null); toast('Noted: typed into Contractors Cloud'); await reload(true); again(); } catch (e) { toast(e.message, 'err'); } });
+  root.querySelectorAll('[data-sub-void]').forEach((b) => b.onclick = () => openModal({ title: 'Void this lock', submitLabel: 'Void it', body: '<div class="field"><label>Why</label><input name="note" placeholder="wrong sub · the price changed" required></div><div class="note">The line stays on the file. Lock the right one after.</div>', onSubmit: async (f) => { await subLockMark(b.dataset.subVoid, 'void', f.note.value.trim()); toast('Voided'); await reload(true); again(); } }));
+  window.__subLockOpen = () => subLockDialog(ctx, customer, job, again);
+  window.__photoSheetOpen = () => photoSheet([{ name: 'contract.jpg' }], ctx, customer, again);
   if (q('#mirror-again')) q('#mirror-again').onclick = async () => { try { await mirrorMark(ctx.data.mirror.id, 'queued', null); toast('Queued again — the machine tries within the hour'); again(); } catch (e) { toast(e.message, 'err'); } };
   // 384: move, book or cancel the estimate visit from the file — the rep is buzzed, the line goes on the file, the CC copy follows its switch (or Copy for CC)
   const apptDialog = (booked) => openModal({ title: booked ? `Move ${firstName(name)}'s estimate` : `Book ${firstName(name)}'s estimate`, submitLabel: booked ? 'Move it' : 'Book it', body: `
@@ -757,11 +766,16 @@ function mirrorCopyText(m, customer, job) {
     `Sales Appointment: ${when}`, `Description: ${p.appt_description || p.title || job.title || ''}`].join('\n');
 }
 
-function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
+function fileNext(job, openAsks, estimates, parcel, customer, canTake, subLocks = []) {
   const ageMin = (iso) => iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000) : null;
   if (customer?.disposition === 'lost') return { tone: '', text: `Not going with us${customer.disposition_at ? ' since ' + new Date(customer.disposition_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ''}. Nothing opens on this file; the office marks it lost in Contractors Cloud. Revive brings it back.` };
   if (parcel?.signer_match === 'mismatch') return { tone: 'bad', text: 'The person who signed is not the owner of record. Get the owner of record to sign before any paperwork moves.' };
   if (parcel?.confidential) return { tone: 'bad', text: 'Protected address: the county withholds the owner. Get the deed from the customer before the NOC prints.' };
+  // 397: a lock the office has not typed, or a signed Oasis job with no sub locked — the next step shouts (gospel 3)
+  const locks = (subLocks || []).filter((l) => l.status !== 'void');
+  const waiting = locks.find((l) => l.status === 'locked');
+  if (waiting) return { tone: 'bad', text: `Sub locked in: ${waiting.sub_name} · ${money(waiting.amount)}. ${firstName(waiting.office_name || 'The office')}: type it into Contractors Cloud — Copy for CC on the card, then Typed into CC.` };
+  if (!locks.length && job.contract_signed_at && String(job.cc_company_id) === '1560' && !['field_complete', 'invoiced', 'paid'].includes(job.stage)) return { tone: 'bad', text: `Signed, no sub locked in. ${firstName(job.rep_name || 'Mike')}: who is doing the work and for how much? 🔒 Lock the sub, on the card below.` };
   if (openAsks.length) {
     const a = openAsks.slice().sort((x, y) => new Date(x.opened_at) - new Date(y.opened_at))[0];
     const m = ageMin(a.opened_at);
@@ -932,19 +946,128 @@ function photoSheet(files, ctx, customer, again) {
         <div class="field"><label>Crew</label><input name="crew" list="crews-list" placeholder="Oasis · Nick" autocomplete="off"><datalist id="crews-list"></datalist></div>
         <div class="field"><label>Dollar amount on this picture</label><input name="amount" type="number" min="0" step="1" inputmode="decimal" placeholder="3400"></div>
       </div>
+      <label class="tagchip" style="margin-top:6px"><input type="checkbox" name="contract" id="ps-contract"> <b>This picture is the signed contract</b> → lock the sub</label>
+      <div id="ps-sub" hidden style="margin-top:6px">
+        <div class="two-up">
+          <div class="field"><label>Who is doing the work</label><input name="sub" list="sub-list2" placeholder="Nick's Lawn" autocomplete="off"><datalist id="sub-list2"></datalist></div>
+          <div class="field"><label>Their price</label><input name="subamt" type="number" min="0" step="1" inputmode="decimal" placeholder="3400"></div>
+        </div>
+        <div class="field"><label>Their cell <span class="dimmer">· type it once, they get the text from then on</span></label><input name="subphone" inputmode="tel" placeholder="(321) 555-0171"></div>
+        <div class="small dimmer" id="ps-sub-note">They get the text with this picture and the price, and tap RECIBIDO. The office is tagged to type it into Contractors Cloud. Nothing to remember.</div>
+      </div>
       <div class="small dimmer">The customer never sees this. It goes on the file's thread in your name.</div>`,
-    onOpen: async () => { const crews = await loadCrews().catch(() => []); const dl = $('#crews-list'); if (dl) dl.innerHTML = crews.map((c) => `<option value="${esc(c)}">`).join(''); },
+    onOpen: async () => {
+      const f = $('#modal-form');
+      if (f && f.contract) f.contract.onchange = () => { const box = $('#ps-sub'); if (box) box.hidden = !f.contract.checked; if (f.contract.checked) { if (!f.caption.value.trim()) f.caption.value = 'Signed contract'; if (!f.sub.value.trim() && f.crew.value.trim()) f.sub.value = f.crew.value.trim(); if (!f.subamt.value && f.amount.value) f.subamt.value = f.amount.value; f.sub.dispatchEvent(new Event('input', { bubbles: true })); } };
+      const [crews, subs] = await Promise.all([loadCrews().catch(() => []), subOptions(ctx.customerId).catch(() => [])]);
+      const dl = $('#crews-list'); if (dl) dl.innerHTML = crews.map((c) => `<option value="${esc(c)}">`).join('');
+      const sl = $('#sub-list2'); if (sl) sl.innerHTML = subs.map((o) => `<option value="${esc(o.name)}">${o.texts ? 'texts them' : 'no phone yet'}</option>`).join('');
+      if (f && f.sub) { const sync = () => { const o = subs.find((x) => x.name.toLowerCase() === f.sub.value.trim().toLowerCase()); f.subphone.disabled = !!o?.texts; f.subphone.placeholder = o?.texts ? `on file · …${o.last4 || ''}` : '(321) 555-0171'; f.__subs = subs; }; f.sub.addEventListener('input', sync); sync(); }
+    },
     onSubmit: async (f) => {
       const o = { caption: f.caption.value.trim(), tagged: [...f.querySelectorAll('input[name="tag"]:checked')].map((x) => x.value), crew: f.crew.value.trim(), amount: f.amount.value };
-      if (isDemo()) { toast('Demo — nothing is saved. On live this lands on the file and buzzes everyone you tagged.'); return; }
+      const lock = f.contract && f.contract.checked ? { name: f.sub.value.trim(), amount: f.subamt.value, phone: f.subphone.disabled ? null : f.subphone.value.trim() || null, personId: ((f.__subs || []).find((x) => x.name.toLowerCase() === f.sub.value.trim().toLowerCase()) || {}).person_id || null } : null;
+      if (lock && (!lock.name || lock.amount === '')) throw new Error('Who is doing the work, and for how much — both boxes, or untick the contract.');
+      if (isDemo()) { toast(lock ? `Demo — nothing is saved. On live: the picture on the file, ${lock.name} texted the price, Jess tagged to type it into CC.` : 'Demo — nothing is saved. On live this lands on the file and buzzes everyone you tagged.'); return; }
       toast(`Sending ${n} photo${n > 1 ? 's' : ''}…`);
-      for (const file of files) await postPhoto(ctx.customerId, file, o);
-      toast(`On the file${o.tagged.length ? ' — ' + o.tagged.length + ' tagged' : ''}`);
+      const rows = []; for (const file of files) rows.push(await postPhoto(ctx.customerId, file, o));
+      // 397: the contract picture locks the sub — the text to the sub with this picture, the office tagged
+      if (lock) {
+        try {
+          const r = await subLock(ctx.customerId, { ...lock, photoId: rows[0]?.id || null, text: true });
+          toast(r?.texted ? `On the file · locked in · ${lock.name} texted · ${firstName(r.office || 'the office')} tagged` : `On the file · locked in · ${firstName(r?.office || 'the office')} tagged${r?.why_not_texted ? ' · not texted: ' + r.why_not_texted : ''}`);
+        } catch (e) { toast('The picture landed; the lock did not: ' + e.message + ' — press Lock the sub on the card.', 'err'); }
+      } else toast(`On the file${o.tagged.length ? ' — ' + o.tagged.length + ' tagged' : ''}`);
       again();
     },
   });
 }
 window.__lightbox = lightbox;
+
+/* ── 397 THE SUB LOCKED IN — who is doing the work, for how much ───────────
+   Kevin + Jess, 17 Sep, the Billdu handoff meeting. Mike gets the sub's number
+   before he prices the job and kept it in a CompanyCam picture; once it signed
+   he emailed Jess the Billdu link, the sub and the amount, and she typed it into
+   Contractors Cloud. Now it is one input on the contract picture (or the button
+   here): the line on the file tags the office seat (her phone, her email — the
+   email Mike used to write), the sub is texted the picture and the price and
+   taps RECIBIDO, and the office presses Typed into CC. Nobody remembers anything.
+   Oasis has no work orders in CC (2 ever, none with a labor cost), so what Jess
+   types is her own entry; the card hands her the fields. */
+function subLockCard(locks, job, customer, me, photos = []) {
+  const canLock = ['manager', 'owner', 'admin'].includes(me?.role || '') || (job.rep_id && job.rep_id === me?.id);
+  // Kevin, in the meeting: "Mike already puts the contractor cost in when he uploads the contract" — the crew and the $ on the picture (352). One tap makes it the lock.
+  const seen = new Set(locks.filter((l) => l.status !== 'void').map((l) => (l.sub_name + '|' + Math.round(Number(l.amount))).toLowerCase()));
+  const fromPics = canLock ? photos.filter((p) => p.kind === 'ours' && p.crew && p.amount != null && !seen.has((p.crew + '|' + Math.round(Number(p.amount))).toLowerCase()))
+    .filter((p, i, a) => a.findIndex((x) => x.crew === p.crew && Number(x.amount) === Number(p.amount)) === i).slice(0, 4) : [];
+  const canMark = ['manager', 'owner', 'admin', 'office'].includes(me?.role || '');
+  const live = locks.filter((l) => l.status !== 'void');
+  const rows = live.map((l) => {
+    const rc = [];
+    if (l.person_id) {
+      rc.push(`<span class="chip ${l.sms_status === 'sent' ? 'st-green' : 'st-gold'}" title="${esc(l.sms_sent_at ? 'texted ' + when(l.sms_sent_at) : 'queued — goes at 8 AM inside quiet hours')}">${l.sms_status === 'sent' ? 'TEXTED ✓' : 'TEXT QUEUED'}</span>`);
+      rc.push(l.received_at ? `<span class="chip st-green" title="${esc(when(l.received_at))}">RECIBIDO · ${esc((l.received_by || l.sub_name).toUpperCase())}</span>` : l.seen_at ? '<span class="chip st-gold">OPENED</span>' : '<span class="chip" title="Not opened yet — call before a truck rolls">NOT OPENED</span>');
+      if (l.answer) rc.push(`<span class="chip ${/^(y|s)/i.test(l.answer) ? 'st-green' : 'warn'}">SAID ${esc(String(l.answer).toUpperCase())}</span>`);
+    } else rc.push('<span class="chip" title="Type their cell on the next lock and they get the text">NO PHONE · NOT TEXTED</span>');
+    const cc = l.status === 'typed_into_cc'
+      ? `<span class="chip st-green" title="${esc((l.cc_marked_by_name || '') + (l.cc_marked_at ? ' · ' + when(l.cc_marked_at) : ''))}">TYPED INTO CC ✓ ${esc(firstName(l.cc_marked_by_name || '').toUpperCase())}</span>`
+      : `<span class="chip warn" title="Oasis has no work orders in CC — the office types the sub and the price on the project">NOT IN CONTRACTORS CLOUD YET · ${esc(mins(l.open_min))}</span>`;
+    return `<div class="r" style="flex-wrap:wrap;gap:6px;align-items:center">
+      <span><b>🔒 ${esc(l.sub_name)}</b> · <b>${money(l.amount)}</b>${l.note ? ' · ' + esc(l.note) : ''} <span class="dimmer">· ${esc(firstName(l.locked_by_name || ''))} · ${esc(when(l.locked_at))}</span></span>
+      <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${rc.join('')}${cc}
+        ${l.status === 'locked' && canMark ? `<button class="btn sm" data-sub-copy="${esc(l.id)}" title="The fields for Contractors Cloud, in order">Copy for CC</button><button class="btn sm" data-sub-typed="${esc(l.id)}" title="I typed it into Contractors Cloud myself">Typed into CC</button>` : ''}
+        ${(canLock || canMark) ? `<button class="btn sm" data-sub-void="${esc(l.id)}" title="Wrong sub or wrong price: void it and lock the right one">Void</button>` : ''}
+      </span></div>`;
+  }).join('');
+  const w = live.find((l) => l.status === 'locked');
+  const next = !live.length
+    ? (job.contract_signed_at ? 'NEXT: lock the sub — who is doing the work and for how much. One line, and the sub and the office both know.' : 'Locks the sub to the price the moment the contract is posted: the sub is texted the picture and the price, the office is tagged to type it into Contractors Cloud.')
+    : w ? `NEXT: ${esc(firstName(w.office_name || 'the office'))} types it into Contractors Cloud — Copy for CC has the fields, Typed into CC turns it green.` : 'Locked and typed. Nothing to remember.';
+  return `<div class="card" id="sub-card" data-tour="sublock">
+    <div class="head" style="margin-bottom:4px"><div class="kicker">Sub locked in · who is doing the work, for how much${live.length ? ' · ' + live.length : ''}</div>
+      <div class="right">${canLock ? '<button class="btn sm fill" id="sub-lock" title="Who is doing the work and for how much — texts the sub, tags the office">🔒 Lock the sub</button>' : ''}</div></div>
+    ${rows ? `<div class="rows">${rows}</div>` : ''}
+    ${fromPics.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${fromPics.map((p) => `<button class="btn sm" data-sub-frompic="${esc(p.id)}" title="The crew and the dollars already on this picture become the lock">🔒 Lock ${esc(p.crew)} · ${money(p.amount)} from the picture</button>`).join('')}</div>` : ''}
+    <div class="small ${(!live.length && job.contract_signed_at) || w ? 'red' : 'dimmer'}" style="margin-top:6px">${next}</div>
+    ${live.length && (live[0].fin_sold_amount || job.fin_sold_amount) ? `<div class="small dimmer" style="margin-top:4px">Sold ${money(live[0].fin_sold_amount || job.fin_sold_amount)} · subs ${money(live.reduce((a, l) => a + Number(l.amount || 0), 0))} · left ${money(Number(live[0].fin_sold_amount || job.fin_sold_amount) - live.reduce((a, l) => a + Number(l.amount || 0), 0))} <span title="Sold from Contractors Cloud's copy; subs from the locks on this file">· source: the file</span></div>` : ''}
+  </div>`;
+}
+/* the fields Jess types, in her order */
+function subCopyText(l, customer, job) {
+  if (!l) return '';
+  return [`Project: ${l.cc_job_number || job.cc_job_number || ''} · ${customer?.name || l.customer_name || ''} (${brandName(String(l.cc_company_id || job.cc_company_id || ''))})`,
+    'Expense · type: Subcontractor', `Vendor: ${l.sub_name}`, 'Amount: $' + Math.round(Number(l.amount)).toLocaleString(), l.note ? `Description: ${l.note}` : '',
+    `Locked by ${l.locked_by_name || ''} on ${new Date(l.locked_at).toLocaleDateString()}${l.received_at ? ' · sub confirmed RECIBIDO' + (l.answer ? ', said ' + l.answer : '') : ''}`].filter(Boolean).join('\n');
+}
+/* Lock the sub without a new picture: the same three boxes; the newest picture on the file rides the text when the box is ticked */
+async function subLockDialog(ctx, customer, job, again, preset = {}) {
+  const opts = await subOptions(ctx.customerId).catch(() => []);
+  const newest = (preset.photoId && (ctx.data.photos || []).find((p) => p.id === preset.photoId)) || (ctx.data.photos || []).find((p) => p.kind === 'ours');
+  openModal({
+    title: `Lock the sub on ${personName(customer?.name || 'the file')}`,
+    submitLabel: '🔒 Lock it in',
+    body: `
+      <div class="two-up">
+        <div class="field"><label>Who is doing the work</label><input name="sub" list="sub-list" placeholder="Nick's Lawn" autocomplete="off" required value="${esc(preset.name || '')}"><datalist id="sub-list">${opts.map((o) => `<option value="${esc(o.name)}">${o.texts ? 'texts them' : 'no phone yet'}</option>`).join('')}</datalist></div>
+        <div class="field"><label>Their price</label><input name="amount" type="number" min="0" step="1" inputmode="decimal" placeholder="3400" required value="${esc(preset.amount ?? '')}"></div>
+      </div>
+      <div class="two-up">
+        <div class="field"><label>Their cell <span class="dimmer">· type it once, they get the text from then on</span></label><input name="phone" inputmode="tel" placeholder="(321) 555-0171"></div>
+        <div class="field"><label>A word (optional)</label><input name="note" placeholder="pavers + sod · back yard only"></div>
+      </div>
+      <label class="tagchip"><input type="checkbox" name="text" checked> Text them the lock: the price, and "do you take it at this price? yes or no"</label>
+      ${newest ? `<label class="tagchip" style="margin-top:6px"><input type="checkbox" name="photo" checked> Send the newest picture on the file with it (${esc(newest.caption || 'the contract')}, ${esc(new Date(newest.taken_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))})</label>` : ''}
+      <div class="note">The line goes on the file in your name and tags the office to type it into Contractors Cloud. The customer never sees it.</div>`,
+    onOpen: () => { const f = $('#modal-form'); if (!f) return; const sync = () => { const o = opts.find((x) => x.name.toLowerCase() === f.sub.value.trim().toLowerCase()); f.phone.disabled = !!o?.texts; f.phone.placeholder = o?.texts ? `on file · …${o.last4 || ''}` : '(321) 555-0171'; }; f.sub.addEventListener('input', sync); sync(); },
+    onSubmit: async (f) => {
+      const o = opts.find((x) => x.name.toLowerCase() === f.sub.value.trim().toLowerCase());
+      if (isDemo()) { toast(`Demo — nothing is saved. On live: ${f.sub.value.trim()} texted the price, Jess tagged to type it into CC.`); return; }
+      const r = await subLock(ctx.customerId, { name: f.sub.value.trim(), amount: f.amount.value, personId: o?.person_id || null, phone: f.phone.disabled ? null : f.phone.value.trim() || null, note: f.note.value.trim() || null, text: f.text.checked, photoId: (f.photo && f.photo.checked && newest) ? newest.id : (preset.photoId || null) });
+      toast(r?.texted ? `Locked in · ${f.sub.value.trim()} texted · ${firstName(r.office || 'the office')} tagged` : `Locked in · ${firstName(r?.office || 'the office')} tagged${r?.why_not_texted ? ' · not texted: ' + r.why_not_texted : ''}`);
+      await reload(true); again();
+    },
+  });
+}
 
 /* 354: under a note — who it reached (📱 phone buzzed · 🖥 waits in You're up) and ✓ who has opened it */
 function receiptLine(rows) {

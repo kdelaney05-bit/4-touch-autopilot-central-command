@@ -7,5 +7,6 @@
   "chain": 11,
   "super": 9,
   "noc": 7,
-  "leads": 9
+  "leads": 9,
+  "sub": 7
 }

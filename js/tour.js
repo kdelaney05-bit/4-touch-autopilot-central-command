@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=108';
+import { $, html, raw, esc } from './ui.js?v=109';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -133,7 +133,18 @@ const LEADS_STEPS = [
   { room: 'pipeline', at: '.pies .pie, .pies', title: 'The Pipeline sees it too.', body: 'Every rep\'s book by stage: new leads with no appointment, upcoming appointments, priced and waiting, signed. Tap a name for his book alone; tap a customer and you are on the file.' },
   { room: 'files', at: null, title: 'Nothing to learn. It comes to you.', body: 'Monday: a lead comes in, you press plus New lead, you type it once, you press Open the file. The rep is told, the file is written, the customer is texted, Contractors Cloud is filled. Everything you did in there is either already here or being done for you, one piece at a time, and Kevin says when each piece moves.' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS, 'noc': NOC_STEPS, 'leads': LEADS_STEPS };
+// THE SUB LOCKED IN (Kevin + Jess, 17 Sep, the Billdu handoff meeting: "lock in that sub to that price, so the sub knows and
+// we know and Mike doesn't have to remember it… put that as an input when he uploads the contract"). ?demo=1&as=manager&tour=sub&auto=1&voice=1
+const SUB_STEPS = [
+  { room: 'files', at: '#drawer #photos-card', do: 'peek:cj6', title: 'Mike. The contract you just signed.', body: 'Same as always: the customer signs the sheet, you take the picture. Open the customer, press Plus Photo. One new question sits under the picture now.' },
+  { room: 'files', at: '#modal-form #ps-contract', do: 'photosheet', title: 'This picture is the signed contract.', body: 'Tick it. Two boxes appear: who is doing the work, and their price. The number the sub gave you on the phone, the one you used to keep in the CompanyCam picture. Type it here instead.' },
+  { room: 'files', at: '#modal-form #ps-sub', do: 'subfill', title: "Nick's Lawn. Three thousand four hundred.", body: 'The first time, their cell too. After that the name is in the list and it says texts them. Post it.' },
+  { room: 'files', at: '#drawer #sub-card', do: 'closemodal', title: 'Three things happen. You do none of them.', body: 'The picture is on the file. Nick gets a text from the Oasis line with the contract picture, the price, and one question: do you take it at this price, yes or no. And Jess is tagged: her phone buzzes, the email goes, with the sub and the price. That is the email you used to write.' },
+  { room: 'files', at: '#drawer #sub-card .rows', title: 'The receipt. Nothing to remember, nothing to argue.', body: 'Texted at 7:23. Opened. RECIBIDO, Nick, 7:32. Said yes. If it says not opened, call before a truck rolls. The price is locked to the sub on the file, for good.' },
+  { room: 'files', at: '#drawer #sub-card .btn', title: 'Jess: the same card, on the same file.', body: 'Copy for CC puts the sub and the price in your clipboard, in the order you type it. Typed into CC turns the chip green with your name on it. The Office room lists every lock that is still waiting, oldest first.' },
+  { room: 'files', at: '#drawer #sub-card', title: 'Billdu can wait. Nothing else changes today.', body: 'When you are ready, the Estimate button on the file is your Billdu shape: the customer taps ACCEPT on the link, the SIGNED email goes to Jess by itself, and you lock the sub the same way. Until then, the paper and the picture are fine. Nothing to learn. It comes to you.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS, 'noc': NOC_STEPS, 'leads': LEADS_STEPS, 'sub': SUB_STEPS };
 let FILM_NAME = '1';
 // THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
 // (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded
@@ -233,6 +244,9 @@ function paint(autoplay = false) {
   if (s.do === 'newjob' && window.__newJob && !document.querySelector('#modal-form')) window.__newJob({ cc: '1461', src: 'Google', name: 'Okonkwo, Grace', phone: '(321) 555-0177', email: 'grace.okonkwo@example.com', title: 'chain link quote needed', street: '4050 Palm Ave', city: 'Mims', zip: '32754', rep: 'r3', appt: nextMonday9(), mins: '60', note: 'gate code 2021 · dog in the yard' });
   // the address step types a street into the open door so the suggestions show for real (they come from the map; nothing is saved)
   if (s.do === 'address') { const st = document.querySelector('#modal-form [name=street]'); if (st) { st.value = '4050 Palm'; st.focus(); st.dispatchEvent(new Event('input', { bubbles: true })); } }
+  // 397: the photo sheet opens as if a contract picture were taken; the next step ticks "this is the signed contract" and types the sub and the price
+  if (s.do === 'photosheet' && window.__photoSheetOpen && !document.querySelector('#modal-form')) { window.__photoSheetOpen(); setTimeout(() => { const c = document.querySelector('#ps-contract'); if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event('change', { bubbles: true })); } }, 350); }
+  if (s.do === 'subfill') { const f = document.querySelector('#modal-form'); if (f) { const c = f.querySelector('#ps-contract'); if (c && !c.checked) { c.checked = true; c.dispatchEvent(new Event('change', { bubbles: true })); } const set = (n, v) => { const el = f.querySelector('[name=' + n + ']'); if (el) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); } }; set('sub', "Nick's Lawn"); set('subamt', '3400'); set('subphone', '(321) 555-0171'); } }
   if (s.do === 'newjobdone') { document.querySelector('#modal-cancel')?.click(); if (window.__peek && !document.querySelector('#drawer:not([hidden])')) window.__peek('cp15'); }
   // the voice: &voice=1 reads the caption in the browser's own voice (Kevin: "commentate our instructions")
   if (VOICE) narrate(s, autoplay && i < FILM.length - 1 ? () => setTimeout(next, 1400) : null);

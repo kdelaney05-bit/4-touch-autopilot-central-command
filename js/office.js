@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=108';
-import * as api from './api.js?v=108';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=108';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=108';
-import { iconForAsk } from './words.js?v=108';
-import { DEMO_STEPS } from './demo-office.js?v=108';
-import { reload } from './app.js?v=108';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=108';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=109';
+import * as api from './api.js?v=109';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=109';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=109';
+import { iconForAsk } from './words.js?v=109';
+import { DEMO_STEPS } from './demo-office.js?v=109';
+import { reload } from './app.js?v=109';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=109';   // 365/369: the Bills tile and queue
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -16,6 +16,7 @@ const money = (n) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString
 const LINE_MIN = { PERMIT: 5 * 1440, CONTRACT_DOC: 2 * 1440, SURVEY: 1440, SCHEDULE: 2 * 1440, MATERIAL: 2 * 1440, INVOICE: 240, PAYMENT: 30 * 1440, COLLECT_CALL: 240 };   // 381: a call card waits four hours, then it is red
 
 export function renderOffice(root) {
+  setTimeout(() => fillSubLocks(root), 0);   // 397: the subs waiting to be typed into CC, after the paint
   const Q = state.queue.filter((q) => q.lane === 'OFFICE');
   const types = ['CONTRACT_DOC', 'PERMIT', 'SURVEY', 'SCHEDULE', 'MATERIAL', 'INVOICE', 'COLLECT_CALL', 'PAYMENT'];
   const n = (t) => Q.filter((q) => q.ask_type === t).length;
@@ -46,6 +47,7 @@ export function renderOffice(root) {
       ${rows.length ? raw(rows.map(row).join('')) : raw('<div class="empty">Nothing open. When a job signs, its paperwork checklist lands here.</div>')}
     </div>
     ${raw(billsQueueCard())}
+    <div id="sub-locks-waiting"></div>
     ${canFlip ? raw(`<div class="card"><div class="kicker">The machine · switches (owner only)</div>
       <div class="switch"><span><b>Estimate-booked confirmation text</b> — the first text, from the brand's main line, the moment a new appointment lands. Fencing lines only until the other campaigns approve.</span><button class="btn sm ${sw('appt_confirm')?.is_on ? 'ok' : ''}" data-switch="appt_confirm">${sw('appt_confirm')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
       <div class="switch"><span><b>The answer clock</b> — 15 minutes, then the watcher is pinged; 60 minutes, the owners. Counts only texts that arrive after you flip it.</span><button class="btn sm ${sw('text_clock')?.is_on ? 'ok' : ''}" data-switch="text_clock">${sw('text_clock')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
@@ -218,4 +220,13 @@ function stepRow(s, canEdit) {
     <td class="small">${esc(s.owner_rule || '—')}</td>
     <td style="min-width:220px">${note}</td>
   </tr>`;
+}
+
+/* 397: the subs locked on a contract that nobody has typed into Contractors Cloud yet, oldest first (gospel 2: it shows on the room's door) */
+async function fillSubLocks(root) {
+  const box = root.querySelector('#sub-locks-waiting'); if (!box) return;
+  const rows = await loadSubLocksWaiting().catch(() => []);
+  if (!rows.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="card" data-tour="sublocks"><div class="kicker">Subs locked in · waiting to be typed into Contractors Cloud · ${rows.length}</div><div class="rows">${rows.map((l) => `<div class="r"><span><b>🔒 ${esc(l.sub_name)}</b> · ${money(l.amount)} · <a href="#" data-open="${esc(l.customer_id)}">${esc(l.customer_name)}</a>${l.city ? ' · ' + esc(l.city) : ''} · ${esc(brandName(String(l.cc_company_id)))} <span class="dimmer">· ${esc((l.locked_by_name || '').split(' ')[0])}${l.received_at ? ' · RECIBIDO ' + esc(l.received_by || '') : l.person_id ? ' · texted' : ' · no phone'}</span></span><span class="mono ${l.open_min > 240 ? 'red' : ''}">${esc(mins(l.open_min))}</span></div>`).join('')}</div><div class="small dimmer" style="margin-top:6px">Open the file: Copy for CC has the fields, Typed into CC turns it green.</div></div>`;
+  box.querySelectorAll('[data-open]').forEach((a) => a.onclick = (e) => { e.preventDefault(); if (window.__peek) window.__peek(a.dataset.open); });
 }

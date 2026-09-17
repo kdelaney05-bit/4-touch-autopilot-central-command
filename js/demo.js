@@ -238,7 +238,7 @@ function file(customerId) {
   const bills = BILLS.filter((x) => x.customer_id === b.customer_id);
   const deposit = b.job_id === 'j3' ? { deposit_required: false, deposit_amount: null, deposit_paid_at: null, deposit_method: null, deposit_paid_by: null } : null;
   const invoiceQueue = b.job_id === 'j11' ? [{ id: 'iq1', ask_id: null, amount: 6400, memo: 'Final invoice', status: 'sent', qb_invoice_id: '27915', qb_doc_number: '29334', pay_link: 'https://connect.intuit.com/portal/app/CommerceNetwork/view/demo', error: null, created_at: ago(30), sent_at: ago(29.7) }] : [];
-  return { noc, bills, deposit, invoiceQueue, invoiceState: demoInvoice(b), photos: demoPhotos(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  return { noc, bills, deposit, invoiceQueue, invoiceState: demoInvoice(b), photos: demoPhotos(b), subLocks: demoSubLocks(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
 }
 
 function search(q) {
@@ -260,7 +260,7 @@ const DM = {
   obed: [{ id: 4, from_id: 'k', to_id: 'obed', body: 'Ortega finishes Reed in the morning. Thursday is open if the survey lands.', created_at: ago(5) }],
 };
 const dm = (other) => DM[other] || [];
-export const DEMO = { book, file, search, rooms: ROOMS, hype: HYPE, dm, directives: () => DIRECTIVES, crews: () => CREWS, nuggets: () => NUGGETS, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
+export const DEMO = { subLocksWaiting: () => BOARD.flatMap(demoSubLocks).filter((l) => l.status === 'locked'), book, file, search, rooms: ROOMS, hype: HYPE, dm, directives: () => DIRECTIVES, crews: () => CREWS, nuggets: () => NUGGETS, quotes: () => QUOTES, checklist: () => CHECKLIST, photos: () => BOARD.flatMap((b) => demoPhotos(b).map((p) => ({ ...p, customer_name: b.customer_name }))).sort((a, b) => new Date(b.taken_at) - new Date(a.taken_at)) };
 
 /* 351: the photos on the fictional file — drawn, not fetched, so the demo never leaves the page */
 const svgPhoto = (label, sky, ground, accent) => 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><rect width="320" height="200" fill="${sky}"/><rect y="200" width="320" height="120" fill="${ground}"/><rect x="30" y="120" width="12" height="150" fill="${accent}"/><rect x="150" y="120" width="12" height="150" fill="${accent}"/><rect x="270" y="120" width="12" height="150" fill="${accent}"/><rect x="30" y="140" width="252" height="10" fill="${accent}" opacity=".8"/><rect x="30" y="230" width="252" height="10" fill="${accent}" opacity=".8"/><text x="16" y="300" font-family="monospace" font-size="20" fill="#fff" opacity=".9">${label}</text></svg>`);
@@ -300,6 +300,14 @@ function demoInvoice(b) {
   return null;
 }
 
+/* 397: the sub locked in on Mike's Oasis file — the contract picture, Nick's price, the receipt on the text, waiting on Jess */
+function demoSubLocks(b) {
+  if (b.job_id !== 'j6') return [];
+  return [{ id: 'sl1', customer_id: b.customer_id, job_id: 'j6', thread_id: 'tj6', message_id: null, sub_name: "Nick's Lawn", person_id: 'cw1', amount: 3400, note: 'pavers + sod', photo_id: 'dpj61', nugget_id: 'ng2',
+    office_id: 'jess', office_name: 'Jessica Coley', locked_by: 'r4', locked_by_name: 'Mike LeRoy', locked_at: ago(1.1), status: 'locked', cc_marked_by: null, cc_marked_by_name: null, cc_marked_at: null, cc_note: null,
+    customer_name: b.customer_name, city: 'Melbourne', street: '118 Palm Ave', cc_job_number: '31022', cc_project_id: 'p6', cc_company_id: '1560', job_title: 'Paver patio + lighting', contract_signed_at: ago(1.2),
+    person_phone: '+13215550171', person_lang: 'en', nugget_status: 'returned', seen_at: ago(1.0), received_at: ago(0.95), received_by: 'Nick', answer: 'yes', returned_at: ago(0.9), sms_status: 'sent', sms_sent_at: ago(1.1), open_min: 66 }];
+}
 function demoPhotos(b) {
   const mk = (i, label, by, h, caption, kind = 'ours', src = 'web', extra = {}) => ({ id: 'dp' + b.job_id + i, kind, customer_id: b.customer_id, job_id: b.job_id, message_id: null, path: null, thumb_path: null, tagged: [], crew: null, amount: null, ...extra,
     url: svgPhoto(label, kind === 'companycam' ? '#9fb8d3' : '#b7c9dd', '#7a8a5a', '#e9e2cf'), thumb_url: svgPhoto(label, kind === 'companycam' ? '#9fb8d3' : '#b7c9dd', '#7a8a5a', '#e9e2cf'),
