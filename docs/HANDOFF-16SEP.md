@@ -186,3 +186,11 @@ Sent from Kevin's Gmail between 11:51 AM and 12:10 PM, all on today's threads, n
 - **The signed contract for an itemized estimate** (Oasis, roofing, a photo estimate): e.html captures the accepted document with a signature footer (name, time, the drawn or typed signature) and posts it to `/contract` the same way the pad does. Not yet exercised on a real signature — Kevin's Oasis and roofing links will.
 - Liberty Fencing's warranty disclosure came off the roofing links (`except_brands` 1563, 1537); Pro-Tech's own warranty sheet and wood disclosure blanks are owed by the office.
 - 394 applied: no `.svg` on the SIGNED note (Jess: phones cannot open it). **Next free = 395** (verify).
+
+## ✅ 17 Sep ~12:35 PM — WAS AND IS, and Gospel 36
+
+Kevin: "We are not doing a good job of this at all. New law: any change we make gets an auto update to all involved… how it works, exactly and clearly. The smaller the changes, the easier the training video." And: "Reassure people… people are nervous, not that they're losing their job, that they'll do something wrong."
+
+- **`docs/was-and-is.html`** — the new way, department by department: sales, the office, production, managers; each with WAS / IS, "what you cannot get wrong," and a picture (the film's frames, the signed contract, the stamped hold harmless, the NOC, the Office room's switches under `docs/img/was-is/`); then "everything that changed, in one list," "what comes next and how you will hear," and "if you are nervous."
+- **Sent from Kevin's Gmail at 12:33 PM to everyone inside** (the seven reps, Sam, Laura, Jess, Jonathan, Luis, Obed, Gio, Mike, Robert): the same, with the film as a GIF and the signed contract picture. **The hype thread** got the film (the GIF) and the page at 12:34 PM.
+- **Gospel 36:** every change ships with its own note, the same day, to everyone it touches — the was/is section, the email, the hype thread when reps are involved, a film when the customer's side changed. Memory `every-change-ships-its-note`.
