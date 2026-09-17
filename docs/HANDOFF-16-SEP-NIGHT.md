@@ -42,10 +42,8 @@ committed and pushed: this repo on `main`, `kdelaney05-bit/trureview-mobile` on
 
 ## Owed by Kevin (the whole list)
 
-1. **Billtrust, Jess's sub-user on H021915:** "new bill available" + "attach a PDF copy" ON, to
-   jessica@oasislandscapesfl.com. (The Gmail forward was abandoned: Google's re-verification
-   blocks the side panel; the sub-user route makes it unnecessary.)
-2. **Schedule the two drafts for 8 AM.**
+1. ~~Billtrust~~ **Done 11 PM (the Chrome side panel):** Jess's sub-user JESSICA2024 lost "Change EBill Notifications", so her feed follows Kevin's login: new bill + PDF → jessica@oasislandscapesfl.com. Verified on reload. (The Gmail forward was abandoned: Google's re-verification blocks the side panel; this makes it unnecessary.)
+2. ~~Schedule the two drafts~~ **Scheduled by the Chrome side panel for 8:00 AM ET** (its own session timer, sends by draft id; the drafts were edited: plain billtrust.com link to Jess; Brian's last line says the portal has no IIF setting on our side). If the send did not fire, the two drafts are still in Kevin's Gmail — send them by hand after 8.
 3. ~~Decision~~ **Decided 10:50 PM: the office lands the crew's paper first; the supervisors' snap comes a week later.**
 4. ~~Hourly~~ **Done 10:50 PM: the timer is on.**
 5. **QuickBooks Payments on Pro-Tech and Oasis:** gear → Account and settings → Payments; card
