@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>How everything works, from your seat · Luis</title>
+<!--
+  HOW EVERYTHING WORKS, FROM LUIS'S SEAT — the ops manager's handbook, printed to PDF.
+  Kevin, 16 Sep 2026: "send Luis a PDF to print out explaining how everything works, which
+  he doesn't really know… keep pushing it out and adjust." Every line here is read from the
+  rooms and the buttons as they are tonight (v97). It will be wrong somewhere by next week;
+  that is the point: adjust, reprint. Nothing to learn, it comes to you (gospel 33).
+-->
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--line:#e3ddd0;--ink:#1c1a15;--dim:#5a544a;--dimmer:#8a8377;--gold:#b8860b;--goldsoft:#fbf0d0;--green:#2f8f5b;--greensoft:#e6f2e9;--navy:#1c3055;--blue:#1d5fa8;--red:#b4574a;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.45 -apple-system,'Segoe UI',system-ui,sans-serif;padding:14px 12px 40px}
+.wrap{max-width:760px;margin:0 auto}
+.k{font:600 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer)}
+h1{font-size:28px;line-height:1.12;margin:4px 0 6px}
+.lead{font-size:16px;color:var(--dim);margin:0 0 14px}
+.rule{background:var(--goldsoft);border-left:6px solid var(--gold);border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:17px;font-weight:700;line-height:1.35}
+.rule small{display:block;font-weight:400;font-size:13.5px;color:var(--dim);margin-top:4px}
+section{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--gold);border-radius:14px;padding:14px 16px 12px;margin-bottom:12px;break-inside:avoid}
+section.green{border-left-color:var(--green)}
+section.navy{border-left-color:var(--navy)}
+section .n{font:700 11px var(--mono);letter-spacing:.14em;color:var(--gold);text-transform:uppercase}
+section.green .n{color:var(--green)}section.navy .n{color:var(--navy)}
+section h2{font-size:21px;margin:2px 0 6px;line-height:1.2}
+section p{margin:0 0 8px;color:var(--dim)}
+section p b,section li b{color:var(--ink)}
+ul,ol{margin:0 0 8px;padding-left:20px;color:var(--dim)}
+li{margin:3px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:6px 0 8px}
+th{text-align:left;font:600 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer);padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--dim)}
+td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+.btn{font:600 12.5px var(--mono);padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);white-space:nowrap}
+.btn.fill{background:#c9962b;border-color:#c9962b;color:#1c1a15}
+.btn.ok{background:var(--green);border-color:var(--green);color:#fff}
+.chain{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:6px 0 8px;font:600 11.5px var(--mono);letter-spacing:.04em}
+.chain span{background:var(--goldsoft);color:var(--ink);border-radius:999px;padding:5px 9px}
+.chain span.you{background:var(--greensoft);color:var(--green);outline:2px solid var(--green)}
+.chain i{color:var(--dimmer);font-style:normal}
+.next{margin:6px 0 8px;padding:8px 11px;border-radius:9px;background:var(--goldsoft);font-size:13.5px;border-left:4px solid var(--gold)}
+.next b{font:700 10.5px var(--mono);letter-spacing:.14em;color:var(--gold);margin-right:6px}
+.close{background:var(--ink);color:#fff;border-radius:14px;padding:16px;margin-top:14px;break-inside:avoid}
+.close b{display:block;font-size:20px;line-height:1.2;margin-bottom:6px}
+.close p{margin:0;color:#cfc9bd;font-size:14px}
+.foot{margin-top:12px;font-size:11.5px;color:var(--dimmer);font-family:var(--mono);line-height:1.5}
+.foot a{color:var(--blue)}
+.soon{display:inline-block;font:700 10px var(--mono);letter-spacing:.1em;color:var(--gold);background:var(--goldsoft);border-radius:999px;padding:2px 7px;vertical-align:middle;margin-left:4px}
+@media print{body{padding:0;font-size:13.5px}section{margin-bottom:9px}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="k">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis · the ops manager's seat · 16 Sep 2026</div>
+  <h1>How everything works, from your seat.</h1>
+  <p class="lead">Luis, this is the whole thing on paper. Two doors, eleven rooms, one file, one chain, your crews, your phone. Read it once. After that you never look it up: the screen tells you what to press.</p>
+  <div class="rule">Nothing to learn. It comes to you.<small>Every job, every question, every photo lands on the one customer file, and the file tells you the next step. If a screen is confusing, the screen is wrong, not you. Reply to Kevin's email; that thread is the ticket.</small></div>
+
+  <section class="green">
+    <div class="n">0 · The one thing to know</div>
+    <h2>The notification is the instruction. Nobody has to think.</h2>
+    <p>You never go looking for what to do next. When something needs you, it comes to you, with your name on it, and it says what to do and gives you the button. That is the whole system, and it is the same for Sam, Jonathan, Laura, Obed, Robert, Mike and the crews.</p>
+    <table>
+      <tr><td>How it reaches you</td><td>Three ways, all at once: the <b>bing</b> and a card on the desk, the <b>buzz</b> on your phone, and an <b>email</b> with a link straight to that customer's file. Nothing reaches you unless your name is on it. No feed to read, no list to check.</td></tr>
+      <tr><td>What it says</td><td>Who, which customer, what to do, and by when. One line. "Obed signed off, 6 photos on the file, invoice when you can." "Material is short at Marchetti, 2 posts, see the photo." "Sold and waiting for a supervisor: Reed, Dana, Melbourne."</td></tr>
+      <tr><td>What you press</td><td>Every one ends in a button: <b>Got it</b>, <b>Open the file</b>, or <b>Done</b> with the proof. You press it and the next step opens on the next person by itself. You never decide the order; the last step opens the next one.</td></tr>
+      <tr><td>If nothing came</td><td>Then nothing is on you. That is the rule. Not "check just in case". When a job is quiet, it is quiet.</td></tr>
+    </table>
+    <p><b>If you ever have to think about what to do next, that is a bug.</b> Tell Kevin which screen, and he fixes the screen, not you.</p>
+  </section>
+
+  <section class="navy">
+    <div class="n">1 · Two doors, one login</div>
+    <h2>The site on any screen. The app in the truck.</h2>
+    <p><b>Central Command</b> is the site: <b>kdelaney05-bit.github.io/4-touch-autopilot-central-command</b>. On the desktop in Chrome. On your phone: open it in Safari, Share, Add to Home Screen, and it sits there like an app. Same email and password as the phone app. Forgot it: "Set my password" on the sign-in page mails you a link.</p>
+    <p><b>The supervisor app</b> (TruReview Supervisor) is the same file in the truck, through Apple's TestFlight: install TestFlight from the App Store, open Apple's invite email on your phone, Install, same login. Until that invite lands, the site on your home screen does the job.</p>
+    <p><b>You hold the keys.</b> Every room opens for you, and <b>View as</b> at the top left lets you look through anyone's seat: Obed's board, Sam's queue, a rep's book. Nothing is saved when you do.</p>
+  </section>
+
+  <section>
+    <div class="n">2 · The rooms, one line each</div>
+    <h2>Eleven tabs. You live in four of them.</h2>
+    <table>
+      <tr><td>The Line</td><td>Everything with a human waiting on the other end. <b>You're up</b>: who tagged you, your customers waiting for an answer, the asks on you, oldest first. <b>Say it</b>: a note to anyone about any customer. <b>My crews</b> and the nugget. Direct lines to one person.</td></tr>
+      <tr><td>The Village</td><td>The whole company, one thread. @ a name and they get it. Say hi there.</td></tr>
+      <tr><td>Production</td><td><b>Your room.</b> The stage board: every sold customer, who holds them, how many days. <b>My board</b>: the jobs on you. <b>Take the job</b> when it is sold and waiting for a supervisor.</td></tr>
+      <tr><td>Job Board</td><td>Every sold job, where it is, what moved, as sentences. The machine's moves are gold. Tap a card, the file opens beside you.</td></tr>
+      <tr><td>Files</td><td>Every customer. <b>Mine</b> is the ones you hold or are tagged on; <b>Everyone</b> is the whole book. The search box at the top finds anyone by name, street or phone.</td></tr>
+      <tr><td>Photos</td><td>Every picture on every file, newest first, with the crew and the dollars on it.</td></tr>
+      <tr><td>Office</td><td>The office's day: paperwork, permit, invoice, payment, oldest first; the supplier bills; the switches (Kevin's).</td></tr>
+      <tr><td>The Business · Sales · Pipeline · Marketing</td><td>Page one, the reps' side, the leads. Yours to read; not your day.</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="n">3 · The file is the hub</div>
+    <h2>One customer, one file, every seat writes on it.</h2>
+    <p>Open any customer and you see the whole story in order: their texts and ours, the emails, the team's notes, every step the office took, every photo, every document. Who moved through it, in colour. And the line that matters:</p>
+    <div class="next"><b>NEXT</b> one sentence, the loudest thing on the file: what happens next and who it is waiting on. Automatic, or a named human. Never a guess.</div>
+    <p>The buttons across the top:</p>
+    <div class="btns"><span class="btn">Call</span><span class="btn">Text</span><span class="btn">Tag</span><span class="btn">Estimate</span><span class="btn">+ Document</span><span class="btn">Send to…</span><span class="btn">Invoice</span><span class="btn">Collect</span><span class="btn fill">Take the job</span><span class="btn">Hand it back</span></div>
+    <ul>
+      <li><b>Text</b> goes to the customer from the company's main line, credited to you. Six seconds to undo. The pre-written lines on the right fill the box; edit, then Send.</li>
+      <li><b>Tag</b> is a note to the team the customer never sees. <b>@Obed</b>, <b>@Sam</b>, <b>@supers</b>, <b>@office</b>: they get the bing on the desk, the buzz on the phone, and an email with the link to this file.</li>
+      <li><b>Send to…</b> hands the file to a seat with a note. <b>Take the job</b> puts a sold job on you. <b>Hand it back</b> sends it back with why.</li>
+      <li><b>+ Document</b> puts a permit, an HOA letter, anything, on the file. <b>Estimate</b> builds the itemized estimate the customer taps ACCEPT on.</li>
+    </ul>
+    <p><b>Three lanes on every file.</b> CHAT is the homeowner's lane, write there like they are reading it. SUPER is you and the crew. OFFICE is staff only; the homeowner can never reach it, the database makes sure.</p>
+    <p><b>Asks with a clock.</b> Anything someone has to do is an ask with a name on it and a clock running: the permit, the locate, the material, the install date, your sign-off, the invoice, the payment. Done closes it with the proof (a number, a photo, a date), and the next one opens by itself.</p>
+  </section>
+
+  <section class="green">
+    <div class="n">4 · The chain</div>
+    <h2>How a job moves, and where you come in.</h2>
+    <div class="chain"><span>Signed</span><i>›</i><span>Paperwork · Sam</span><i>›</i><span>Permit</span><i>›</i><span>811 locate · Sam</span><i>›</i><span>Material · Jonathan</span><i>›</i><span>Install date · Jonathan</span><i>›</i><span class="you">Crew · you</span><i>›</i><span>Invoice · Laura</span><i>›</i><span>Payment</span><i>›</i><span>Done</span></div>
+    <p>Nobody decides the next step; the last one opens it. The customer signs, the office's checklist opens on Sam. The last paper in is paperwork official, and the material opens on Jonathan with the order attached. The date is set, and it lands on you.</p>
+    <p><b>What lands on you, and when:</b></p>
+    <ul>
+      <li><b>The job, sold and waiting.</b> Production room, "sold and waiting for a supervisor". Take it, or it is assigned to you with a note.</li>
+      <li><b>The work order.</b> The moment the install date is set, the file writes the work order and emails it to you and to the crew, Spanish and English, with the drawing and the material list. The crew taps RECIBIDO with a name; you see who received it and when.</li>
+      <li><b>From the field, on your file:</b> a material run, a site issue, a safety photo, a change order, a ping. Each one is an ask on you with the clock running.</li>
+      <li><b>Sign-off.</b> When the work is done: three or more finished photos and your word. That one tap is the trigger for everything after it.</li>
+    </ul>
+    <div class="next"><b>NEXT</b> Your sign-off opens <b>INVOICE READY</b> on the office by itself: the signed amount, the deposit, the change orders, your photos, your name, all typed. Laura checks it and taps Approve. You never call about an invoice again.</div>
+  </section>
+
+  <section class="green">
+    <div class="n">5 · Your crews</div>
+    <h2>Today: the nugget and the work order. Next: one login per crew.</h2>
+    <p><b>Today, no login.</b> On The Line, <b>My crews</b>: a crew is a name, a phone and a language. <b>Send a nugget</b>: one instruction, the customer and the address, the picture with the scope and the price, and the one thing to bring back (a photo, a number, sí/no, done). They get a text with a link, in Spanish. You hold the receipt: texted, opened, RECIBIDO by name, brought back. Nothing to argue about. Open any photo on a file, <b>Send to a crew</b>, and the nugget is already filled.</p>
+    <p><b>The work order</b> is the same page for the whole job: the order, the drawing, four big buttons (AQUÍ · FOTOS · LISTO · LLAMAR) and a line to you. Every tap lands on the customer's file with the crew's name.</p>
+    <p><b>Next, one login per crew</b> <span class="soon">COMING</span>: whoever carries the phone that day is the crew, logs in once, and gets today's job with those same buttons and your line, in his language. What he writes reaches you in yours, his words kept beside the translation. The handout you give them Wednesday says exactly that. Your nine answers on the roster are what starts it.</p>
+  </section>
+
+  <section>
+    <div class="n">6 · Tags, the bing, and photos</div>
+    <h2>Your name on it, or you never hear about it.</h2>
+    <ul>
+      <li><b>@Luis</b> anywhere (a file, the Village, Say it) is the only way anything reaches you. No feed to read. The card with the bing stays until you tap Got it or Open the file.</li>
+      <li><b>Turn the bing on</b>, once, at the top of the site. Without speakers you still get the card and the email.</li>
+      <li><b>A photo is something you say.</b> Take it on the file or in the Photos room, put the words, the crew and the dollars on it, tag whoever needs it. It lands on the file and in the Photos room the same second. Sod on the wrong yard never happens twice.</li>
+    </ul>
+  </section>
+
+  <section class="navy">
+    <div class="n">7 · The supervisor app, in the truck</div>
+    <h2>Same file. Five screens.</h2>
+    <table>
+      <tr><td>Today</td><td>The crew pilot. The crews on the fenced sites right now, arrival and departure stamped by the phone itself. Real crews, real fences, real stamps, or nothing.</td></tr>
+      <tr><td>Sites · Crews · Pay</td><td>What is fenced, who is on it, the hours the stamps add up to.</td></tr>
+      <tr><td>LIVE FILES</td><td>Every open sold job your login can see. Tap the customer: the file, four lanes (CHAT · SUPER · OFFICE · PHOTOS). TAKE shoots the job and says it with the picture, at whoever you name.</td></tr>
+    </table>
+    <p>The two-minute film of the real screens: <b>the "supervisor app" link in Kevin's email</b>. Watch it once with the sound on.</p>
+  </section>
+
+  <section>
+    <div class="n">8 · Who does what</div>
+    <h2>So you never have to ask.</h2>
+    <table>
+      <tr><td>Sam</td><td>Paperwork, the permit, the 811 locate, the inspection. The Directors of First Impressions answer the phones.</td></tr>
+      <tr><td>Jonathan</td><td>Orders the material, sets the install date with the customer, approves the supplier bills when they land on the file.</td></tr>
+      <tr><td>Laura</td><td>The invoice off your sign-off, then the payment.</td></tr>
+      <tr><td>Jess</td><td>Central Command over all three companies; every room, like Kevin.</td></tr>
+      <tr><td>Obed · Robert · Mike</td><td>Your supervisors: fence, roofing, Oasis. Same rooms as you for their jobs.</td></tr>
+      <tr><td>The reps</td><td>Sell, sign on the link, take the survey and the selections. They keep the phone app.</td></tr>
+      <tr><td>The machine</td><td>Writes the orders, opens the asks, keeps the clocks, sends the receipts, texts the customer from the main line when Kevin flips a switch. Nags nobody who did their part.</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <div class="n">9 · When something goes wrong</div>
+    <h2>Send it to Kevin. Then keep working the old way.</h2>
+    <ol>
+      <li><b>Reply to Kevin's email</b>, the one this came with. That thread is the ticket. One line is enough: which screen, the exact words on it, and a screenshot if you can. Do not start a new email; do not let it wait for a meeting.</li>
+      <li><b>If a crew is standing there waiting</b>, text or call Kevin on his cell right then. The email can follow.</li>
+      <li><b>Meanwhile, nothing stops.</b> Contractors Cloud, the phones, the crews' texts: all of it runs exactly as before. Nothing has been switched off. Do it the old way for that one job and say so on the file.</li>
+      <li><b>The three fixes that solve most of it:</b> on the site, tap Refresh at the top, or sign out and back in. In the app, close it all the way and reopen it. On the phone, one wifi bar is worse than none; turn wifi off and try again.</li>
+      <li><b>If the app says "Could not reach the live database"</b> or anything like it, that is a known one: sign out and in once, and if it says it again, send Kevin those exact words and the time. He needs the words, not "it didn't work".</li>
+      <li><b>If a crew hits something</b> (the link will not open, the photo will not send): they tell you, you send it to Kevin the same way. Crews never email Kevin; you are their line.</li>
+    </ol>
+    <p>Nothing you do on a screen can break a job. The worst case is a screen that is wrong, and that gets fixed the same day.</p>
+  </section>
+
+  <div class="close"><b>Nothing to learn. It comes to you.</b><p>This is not a manual to memorize. It is what is going to happen. The file tells you the next step, the card tells you what to press, and every change ships with a two-minute film. When a screen is confusing, the screen is wrong, not you. Reply to Kevin's email and he fixes the screen. This page gets reprinted as things change; keep the newest one.</p></div>
+  <p class="foot">The site: <a href="https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/">kdelaney05-bit.github.io/4-touch-autopilot-central-command</a> · the films: <a href="https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/docs/ride-alongs.html">docs/ride-alongs.html</a> · the crew handout: <a href="https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/docs/the-crew-day.html">the-crew-day.html</a> · printed 16 Sep 2026, v97</p>
+</div>
+</body>
+</html>
