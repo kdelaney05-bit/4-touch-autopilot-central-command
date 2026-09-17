@@ -84,15 +84,19 @@ if the crew responds it goes back to the file… this is the job file for the
 job, all texts go through here, the crew can't screw that up… is this real?"**
 Real, with four pieces still to build; each is small and none touches the crew:
 
-| It is real today | Not yet (the spoons in §4) |
+| It is real (342 · 347, and 379 the same night) | Where it stands |
 |---|---|
-| One text per job with the link, when the date is set (switch OFF tonight). | **The morning-of text.** Today the text goes when the date is set, which can be days ahead. A 7 AM sweep on the work date ("Hoy: …, the link") is one cron. |
-| The link is the job's room: the order, the drawing, the material, the supervisor's name and number on top, the SUPER lane. | **The reply by text.** If the crew answers *on the link*, it is on the file. If they reply *to the SMS itself*, today that reply lands in the raw text feed with nobody's name on it, because the crew's phone is not a customer. The build: a crew phone → the job whose link was texted to it → the SUPER lane. Until then the crew must tap the link to answer; that is the one thing they could get wrong. |
-| Everything the crew taps or writes lands on the customer's file with the crew's name, photos included, and the supervisor is pushed. | **The text back.** When Luis or the office write in the crew's lane, the crew gets a text with the words and the link, so the link is never the only door. |
-| What a manager writes on the file goes to the crew's lane and shows on their link. | **Anyone from the company, from the computer.** Tonight a manager's note lands in the crew's lane by role; the office's and Kevin's notes land in the OFFICE lane the crew never sees. v100 adds **@crew** to the note box on every file: pick it and the note goes to the crew's lane, whoever you are. |
+| One text per job with the link, when the date is set. | Behind `crew_link_text`, **OFF** until Kevin flips it in the Office room. |
+| **The morning-of text** (379): 7 AM Florida on the work date, "Hoy / Today · crew: customer, address, the link", once, unless the link was texted that same day. `crew_link_morning_sweep()`, cron 11:00 and 12:00 UTC, the function checks the local hour. | Same switch, OFF. |
+| The link is the job's room: the order, the drawing, the material, the supervisor's name and number on top, the SUPER lane. | Live. |
+| Everything the crew taps or writes on the link lands on the customer's file with the crew's name, photos included, and the supervisor is pushed. | Live. |
+| **A reply to the text itself lands on the file** (379): a text from a phone that was texted a work order → that job's SUPER lane, "Crew: … — por texto / by text", the supervisor pushed; the two feeds' duplicate dropped. The crew cannot answer in the wrong place. | Live, no switch: it only lands what comes in. |
+| **The text back** (379): when a person writes in the crew's lane on a job with a texted, unfinished work order, the crew lead is texted "Luis: … — the link" from the brand's line. The crew's own words never bounce back (a flag inside the transaction). | Same switch, OFF. |
+| **Anyone from the company, from the computer** (v100): **@crew** in the note box on every file sends the note to the crew's lane, whoever writes it; a manager's note goes there by role. | Live. |
+| **FALTA MATERIAL** (379): one red button on the link; a few words; a line on the file and a MATERIAL_REQUEST ask on the supervisor with the clock running. | Live on the page; the ask opens when a link exists. |
 | Mike's crews the same way, and his nugget page. | Oasis and Pro-Tech crews would be texted from the Fencing line until their own lines are campaign-approved. |
 
-With the four built, it is exactly what Kevin said: a job-specific chat thread that opens with the text, lives on the customer's file, and closes at LISTO, and nobody on a crew learns a thing.
+So it is exactly what Kevin said: a job-specific chat thread that opens with the text, lives on the customer's file, and closes at LISTO, and nobody on a crew learns a thing. What is left is translation both ways, the nuggets on the same page, and the Spanish film.
 
 **Spanish or English, his choice, and the machine carries the other side.**
 The app follows the phone, one tap to switch (already so). Every word the
@@ -147,9 +151,9 @@ office, no English, no second app.
 | 1 | Kevin · Luis | **The roster.** Which crews, which brand, who holds the phone, the phone number, Spanish or English. The number goes on the crew's card in Contractors Cloud (`cc_crews.phone`, copied hourly) or on the crew's seat; no phone, no text. | tomorrow's meeting |
 | 2 | Kevin | **Flip `crew_link_text`** in the Office room (added to the switch list 16 Sep night, v98). From then on the text goes out the moment an install date is set. Fence crews first: the Fencing lines are campaign-approved; Oasis and Pro-Tech crews would get it from the Fencing line until theirs are. | 1 |
 | 3 | Luis | **The first real job.** One crew, one install, Luis on the file for every tap. | 2 |
-| 4 | build | **The reply rides a text.** When Luis or the supervisor write in the SUPER lane on a job with an open work order, the crew lead gets a text "Luis: … — el link" from the brand's line, so nobody reopens a link to find an answer. Same switch. | 3 |
+| 4 | build | **DONE 16 Sep night, 379.** The text back when a person writes in the crew's lane; the morning-of text at 7; a reply to the text itself landing on the file. All behind `crew_link_text`; the reply-landing needs no switch. | — |
 | 5 | build | **Translation both ways.** `thread_messages.body_translated` + `translated_to`, filled by an edge function when the writer's language and the reader's differ; shown beside the original, marked. Switch `crew_translate`, OFF. The first ten shown to Kevin before it goes on. | 3 |
-| 6 | build | **Falta material** as one tap on the link (a photo + the words → MATERIAL_REQUEST on the supervisor with the clock), and the nuggets in their court on the same page. | 3 |
+| 6 | build | **DONE 16 Sep night, 379 + w.html.** FALTA MATERIAL as one tap on the link: the words, a line on the file, a MATERIAL_REQUEST ask on the supervisor with the clock. Still to do: the nuggets in their court on the same page. | — |
 | 7 | build | **The Spanish Ride-Along.** The crew-day film with a Spanish narrator we have the right to use (Microsoft's `es-MX-JorgeNeural` through `tools/narrate.mjs`, `EDGE_VOICE=es-MX-JorgeNeural`; GUY stays the English voice). Listed on `docs/ride-alongs.html`. | 3 |
 | 8 | build | **The customer sees the crew.** CHAT lane: "Ramón's crew arrived 7:32" from the AQUÍ stamp, in the customer's language, behind `office_machine_texts`. | 5 |
 

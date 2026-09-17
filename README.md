@@ -131,8 +131,10 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | Nothing waits at signing (a sibling session, the same evening, the same number): the contract settling opens PERMIT on Sam and MATERIAL on Jonathan at once, every brand; a calculator job releases its material at the signature; `machine_email_watchers` ride every machine email; the SIGNED note says what opened on whom | **369** (`369_nothing_waits_at_signing`) |
 | The NOC handoff opens at the signature and the form rides in when the fill lands; the office nagged at 30 minutes; parcel-lookup fills the NOC without a county match | **370** |
 | Luis hears it at the signature: the production watcher is pushed EXPECTED and rides the SIGNED note; a calculator job's SIGNED note carries its packet | **371** |
+| Sibling sessions, the same evening: 372–378 (376 hand it back, 377 nudges from the rep, 378 what the counter asks for; the registry has the rest) | **372–378** |
+| The crew thread: a reply to the work-order text lands on the job's SUPER lane (`crew_text_inbound`, no switch); the text back to the crew lead when a person writes in the crew's lane (`crew_text_back`); the morning-of text at 7 AM Florida (`crew_link_morning_sweep`, cron); FALTA MATERIAL on the link → a MATERIAL_REQUEST ask; `crew_line_for` — all outbound behind `crew_link_text` (OFF) | **379** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (371 applied as of 16 Sep ~7:20 PM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 372).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (379 applied as of 16 Sep ~10:30 PM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 380).
 
 ## What Kevin and Jess change without a build
 
