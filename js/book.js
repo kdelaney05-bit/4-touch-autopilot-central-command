@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=111';
-import { DEMO } from './demo.js?v=111';
+import * as api from './api.js?v=112';
+import { DEMO } from './demo.js?v=112';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -267,6 +267,8 @@ export async function mirrorMark(queueId, status, note) { guard(); return api.rp
 export async function apptSet(jobId, at, mins, note) { guard(); return api.rpc('job_appt_set', { p_job: jobId, p_appt_at: at ?? null, p_minutes: mins ?? 60, p_note: note ?? null }); }
 /* 322: the itemized estimate — one call mints the document, its items, the amount fact and the tracked link. */
 export async function createEstimate(p) { guard(); return api.rpc('estimate_doc_create', { p }); }
+/* 400: the brand's menu for the estimate form (PALMS · BUSHES & SHRUBS · MULCH & ROCK · FLOWERS · THE JOB · YOUR ITEMS) — rows, learning the last price */
+export async function estimateCatalog(cc) { if (isDemo()) return []; return api.rpc('estimate_catalog', { p_cc: cc }); }
 /* 324: ask the county who owns the address on this file; the row lands on the file with the signer check. */
 export async function parcelLookup(customerId, signerName) { guard(); return api.fn('parcel-lookup', { customer_id: customerId, signer_name: signerName ?? null }); }
 /* 325: fill the NOC (or a named county form) from the file; open a filled one with a fresh signed link. */

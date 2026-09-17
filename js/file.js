@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=111';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=111';
-import { enterPosts, micButton } from './dictate.js?v=111';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=111';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=111';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=112';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=112';
+import { enterPosts, micButton } from './dictate.js?v=112';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=112';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=112';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=111';
-import { settleDialog } from './office.js?v=111';
-import { reload } from './app.js?v=111';
-import { relTime } from './production.js?v=111';
-import { billsCards, billsNext, wireBills } from './bills.js?v=111';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=112';
+import { settleDialog } from './office.js?v=112';
+import { reload } from './app.js?v=112';
+import { relTime } from './production.js?v=112';
+import { billsCards, billsNext, wireBills } from './bills.js?v=112';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -530,7 +530,7 @@ function estimateDialog(ctx, job, customer, name, again, seed, opts = {}) {
   const cc = job.cc_company_id || state.me?.manages_company_id || '1461';
   const co = opts.kind === 'change_order';   // 381: the same builder, the same link; signed = a line on the invoice
   const rowHtml = (it) => `<div class="est-row">
-      <div><input name="label" placeholder="Pavers · 6' privacy fence · shingle roof" value="${esc(it?.label || '')}" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px">${esc(it?.desc || '')}</textarea></div>
+      <div><input name="label" list="est-menu" autocomplete="off" placeholder="Pavers · 6' privacy fence · shingle roof" value="${esc(it?.label || '')}" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px">${esc(it?.desc || '')}</textarea></div>
       <div class="est-cell"><span class="est-cl">Qty</span><input name="qty" type="number" step="0.01" min="0" value="${esc(String(it?.qty ?? 1))}" title="Qty"/></div>
       <div class="est-cell"><span class="est-cl">Unit</span><input name="unit" placeholder="job" value="${esc(it?.unit || '')}" title="Unit"/></div>
       <div class="est-cell"><span class="est-cl">Price each</span><input name="price" type="number" step="0.01" min="0" placeholder="0.00" value="${it && it.price != null ? esc(String(it.price)) : ''}" title="Unit price" required/></div>
@@ -542,11 +542,15 @@ function estimateDialog(ctx, job, customer, name, again, seed, opts = {}) {
       ${seed ? '<div class="next good" style="margin-bottom:6px"><b>FROM THE CALCULATOR</b> The items below are what the rep drew and priced. Read them, change what you want, then Create.</div>' : ''}
       <div class="kicker" style="margin-top:6px">Items · what it is and the scope · qty · unit · unit price</div>
       <div id="est-rows">${seed ? seed.items.map(rowHtml).join('') : rowHtml()}</div>
+      <datalist id="est-menu"></datalist>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><button class="btn sm" type="button" id="est-add">+ Item</button><div>Total <b class="mono" id="est-total">$0.00</b></div></div>
       <div class="field" style="margin-top:8px"><label>Note under the items (optional)</label><textarea name="note" placeholder="50% deposit to schedule, balance on completion.">${esc(seed?.note || '')}</textarea></div>
       <div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>Valid for</label><select name="valid"><option value="14">14 days</option><option value="7">7 days</option><option value="30">30 days</option></select></div><div class="field" style="flex:1"><label>Brand on it</label><select name="cc">${['1461', '1560', '1563', '1537'].map((c) => `<option value="${c}" ${c === String(cc) ? 'selected' : ''}>${esc(brandName(c))}</option>`).join('')}</select></div></div>
       <div class="note">Same shape as Mike's Billdu estimate: the items, the scope, the price, valid 14 days. One link goes to the customer; they tap ACCEPT; you get the push. Accepting is not selling — nothing lands on a board.</div>`,
     onOpen: (fm) => {
+      /* 400: the menu as autocomplete — type whatever you want, or pick; the option names the unit and the last price */
+      const fillMenu = async () => { try { const items = await estimateCatalog(fm.cc.value); const dl = fm.querySelector('#est-menu'); if (!dl) return; dl.innerHTML = (items || []).map((m) => `<option value="${esc(m.label)}">${esc(m.grp)}${m.unit ? ' · ' + esc(m.unit) : ''}${m.unit_price != null ? ' · ' + fmtMoney(m.unit_price) : ''}</option>`).join(''); } catch {} };
+      fillMenu(); fm.cc.addEventListener('change', fillMenu);
       const rows = fm.querySelector('#est-rows');
       const retotal = () => { let t = 0; rows.querySelectorAll('.est-row').forEach((r) => { t += Number(r.querySelector('[name=qty]').value || 0) * Number(r.querySelector('[name=price]').value || 0); }); fm.querySelector('#est-total').textContent = fmtMoney(t); };
       const wire = () => rows.querySelectorAll('[data-del]').forEach((b) => (b.onclick = () => { if (rows.querySelectorAll('.est-row').length > 1) { b.closest('.est-row').remove(); retotal(); } }));
