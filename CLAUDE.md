@@ -68,8 +68,10 @@ may see. The key in `js/config.js` is publishable and authorises nothing.
   the machine's texts stay behind `automation_switches` — `appt_confirm`,
   `text_clock`, `office_machine_texts`, `after_hours_reply`, `qb_invoices`,
   **all OFF**. Flipping one is Kevin's, from the Office room. Never from code.
-- **A seat texts only from a campaign-approved main line** (311). Oasis and
-  Pro-Tech wait on their 10DLC registrations.
+- **A seat texts only from a campaign-approved main line** (311). Fencing
+  386-276-6898 since 2 Sep; **Oasis 321-274-4268 live 17 Sep** (its
+  CloudMessage key is on the rail, one key per line). Pro-Tech is registered
+  and keyed but its lines stay OFF until Kevin says.
 - **`?demo=1`** renders `js/demo.js`'s fictional book with every write
   refused. Use it to check rendering without a login.
 - Kevin and Jess edit the office lines, the chain, the proof rules, the
