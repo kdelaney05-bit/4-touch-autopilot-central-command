@@ -78,10 +78,21 @@ manager's word, not an assumption, and one tap overrides it.
    lane; what Luis or the supervisor write on the file in that lane shows on
    the same link. The room.
 
-**Still to build on top of the link (the spoons in §4):** a text back to the
-crew when the supervisor answers (today they reopen the link to see it);
-translation both ways; Falta material as one tap (today it is a message);
-the nuggets on the same page.
+**Kevin, ~9:45 PM: "the crews don't need to do anything… we text them
+morning of… anyone from the company can communicate in this chat thread…
+if the crew responds it goes back to the file… this is the job file for the
+job, all texts go through here, the crew can't screw that up… is this real?"**
+Real, with four pieces still to build; each is small and none touches the crew:
+
+| It is real today | Not yet (the spoons in §4) |
+|---|---|
+| One text per job with the link, when the date is set (switch OFF tonight). | **The morning-of text.** Today the text goes when the date is set, which can be days ahead. A 7 AM sweep on the work date ("Hoy: …, the link") is one cron. |
+| The link is the job's room: the order, the drawing, the material, the supervisor's name and number on top, the SUPER lane. | **The reply by text.** If the crew answers *on the link*, it is on the file. If they reply *to the SMS itself*, today that reply lands in the raw text feed with nobody's name on it, because the crew's phone is not a customer. The build: a crew phone → the job whose link was texted to it → the SUPER lane. Until then the crew must tap the link to answer; that is the one thing they could get wrong. |
+| Everything the crew taps or writes lands on the customer's file with the crew's name, photos included, and the supervisor is pushed. | **The text back.** When Luis or the office write in the crew's lane, the crew gets a text with the words and the link, so the link is never the only door. |
+| What a manager writes on the file goes to the crew's lane and shows on their link. | **Anyone from the company, from the computer.** Tonight a manager's note lands in the crew's lane by role; the office's and Kevin's notes land in the OFFICE lane the crew never sees. v100 adds **@crew** to the note box on every file: pick it and the note goes to the crew's lane, whoever you are. |
+| Mike's crews the same way, and his nugget page. | Oasis and Pro-Tech crews would be texted from the Fencing line until their own lines are campaign-approved. |
+
+With the four built, it is exactly what Kevin said: a job-specific chat thread that opens with the text, lives on the customer's file, and closes at LISTO, and nobody on a crew learns a thing.
 
 **Spanish or English, his choice, and the machine carries the other side.**
 The app follows the phone, one tap to switch (already so). Every word the

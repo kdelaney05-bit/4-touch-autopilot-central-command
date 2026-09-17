@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=99';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=99';
-import { enterPosts, micButton } from './dictate.js?v=99';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=99';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=99';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=100';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=100';
+import { enterPosts, micButton } from './dictate.js?v=100';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=100';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=100';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=99';
-import { settleDialog } from './office.js?v=99';
-import { reload } from './app.js?v=99';
-import { relTime } from './production.js?v=99';
-import { billsCards, billsNext, wireBills } from './bills.js?v=99';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=100';
+import { settleDialog } from './office.js?v=100';
+import { reload } from './app.js?v=100';
+import { relTime } from './production.js?v=100';
+import { billsCards, billsNext, wireBills } from './bills.js?v=100';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -211,7 +211,7 @@ function draw(root, ctx, compact) {
         <div class="lines" id="lines"><div class="small">Loading the lines…</div></div>
         <div class="kicker" style="margin-top:14px">Note to the team · the customer never sees this · tag the next person</div>
         <div class="subs" style="margin:4px 0 6px">
-          <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@sales">@sales · every rep</option><option value="@supers">@supers · every supervisor</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option>${raw(state.seats.map((s) => `<option value="${esc(mentionHandle(s))}">${esc(mentionHandle(s))} · ${esc(s.name)}</option>`).join(''))}</select>
+          <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@sales">@sales · every rep</option><option value="@supers">@supers · every supervisor</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option><option value="@crew">@crew · the crew on this job, on their link</option>${raw(state.seats.map((s) => `<option value="${esc(mentionHandle(s))}">${esc(mentionHandle(s))} · ${esc(s.name)}</option>`).join(''))}</select>
           <select id="note-what" style="width:auto;padding:5px 8px;font-size:12px"><option value="">What: a note</option>${raw(Object.keys(ASK_LABEL).map((t) => `<option value="${t}">Task: ${esc(ASK_LABEL[t])}</option>`).join(''))}</select>
         </div>
         <div class="composer" style="background:var(--officesoft)">
@@ -414,16 +414,19 @@ function draw(root, ctx, compact) {
   q('#note-send').onclick = async () => {
     const to = q('#note-to').value, what = q('#note-what').value;
     let body = q('#note').value.trim(); if (!body && !what) return;
-    if (to && !body.includes(to)) body = to + ' ' + body;
+    // @crew (16 Sep, Kevin: "anyone from the company can communicate in this chat thread"): the note goes to the crew's lane, whoever writes it,
+    // and shows on the crew's link (crew_link_view reads the SUPER lane). No "@crew" in the words the crew reads.
+    const toCrew = to === '@crew';
+    if (to && !toCrew && !body.includes(to)) body = to + ' ' + body;
     q('#note-send').disabled = true;
     try {
       let tid = thread?.id;
       if (!tid) { if (!job.job_id) throw new Error('No job on this file yet'); tid = await threadForJob(job.job_id); }
-      const lane = ['manager'].includes(me?.role) ? 'SUPER' : 'OFFICE';
+      const lane = toCrew || ['manager'].includes(me?.role) ? 'SUPER' : 'OFFICE';
       let rcWords = '';
       if (body) { const posted = await postMessage(tid, lane, body); const mid = Array.isArray(posted) ? posted[0]?.id : posted?.id; const rc = mid ? (await threadReceipts(tid).catch(() => [])).filter((r) => r.message_id === mid) : []; if (rc.length) rcWords = ' · ' + receiptWords(rc); }
       if (what) {
-        const roleWords = ['@office', '@schedule', '@production', '@rep', '@invoice'];
+        const roleWords = ['@office', '@schedule', '@production', '@rep', '@invoice', '@crew'];
         const seat = to.startsWith('@') && !roleWords.includes(to) ? (state.seats.find((s) => mentionHandle(s).toLowerCase() === to.toLowerCase()) || state.seats.find((s) => firstName(s.name).toLowerCase() === to.slice(1).toLowerCase())) : null;
         const toId = seat?.id || (to === '@production' && job.supervisor_id) || (to === '@rep' && job.rep_id) || job.owner_id || me.id;
         const laneFor = ['COMPLETION_SIGNOFF', 'MATERIAL_REQUEST', 'SITE_ISSUE', 'SUPERVISOR_PING', 'SAFETY_JHA'].includes(what) ? 'SUPER' : ['CUSTOMER_REQUEST', 'SCHEDULE_QUESTION'].includes(what) ? 'CHAT' : 'OFFICE';
