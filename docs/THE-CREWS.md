@@ -29,32 +29,50 @@ for each nugget. Three doors, none of them "log in and we talk."
 
 ## 2. The model (Kevin's words, made concrete)
 
-**One login per crew, not per man.** A crew is a seat like any other
-(`reps.role = 'crew'`, one row per crew, named the way Kevin says it: `Liberty
-Crew 1235`, `Oasis Crew 1241`, `Pro-Tech Crew 1250`). Whoever holds the phone
-that day is the crew; he types his name once on the order (RECIBIDO by name,
-as today) so the file says who received it. No personal logins, no passwords
-for eleven men: one per crew, kept by the crew lead, set by Kevin on the box
-(passwords by Kevin's hand only). Gospel 26 keeps its first half (they talk in
-pictures) and its per-job link for the man without the phone; the login is
-the crew's door to the same pages.
+**No app. No login. A text with a link, and the link is the room.** Kevin at
+7:30 PM said "one login per crew"; at 9 PM, seeing the link again: "problem
+solved. no app… like send mini chat ecosystems." That is what 342 and 347
+already are, read from the live functions tonight:
 
-**One page: Mi obra / My job.** When the crew logs in, the app opens on
-today's job and nothing else:
+- `crew_link_text` (347): the moment the install date is set, the crew lead's
+  phone gets a text from the brand's campaign-approved line, Spanish first:
+  "Cuadrilla MK: Reed, Dana, 118 Palm Ave, Melbourne. Jue 9/18. Toda la orden
+  está aquí: …/w.html?t=… — toca AQUÍ al llegar, FOTOS y LISTO al terminar."
+  The phone comes from the crew's seat (`reps.phone`) or Contractors Cloud's
+  crew card (`cc_crews.phone`) by name. **Behind the switch `crew_link_text`,
+  OFF tonight; OFF = the link goes by email only.**
+- `crew_link_view`: the page shows the order, the drawing, the material, and
+  **the file's SUPER lane**: the supervisor's words to the crew and the crew's
+  own lines, last 40. Never the customer's texts, never the office lane.
+- `crew_link_event`: AQUÍ · FOTOS · LISTO · a message → one line on the file's
+  SUPER lane, Spanish first with English under it ("Cuadrilla MK · EN SITIO ·
+  on site — Ramón"), the photos attached to the file, and a push to the
+  production watcher (the supervisor) that says what it is: crew is on site,
+  crew sent photos, crew says done, crew message.
 
-1. **The customer and the address**, the drawing, the order, the scope — the
-   work order (342), read by the crew's session instead of a link.
-2. **AQUÍ** — the phone stamps it by itself inside the fence (119); the button
-   is for the day the fence is wrong. **FOTOS** — the camera, the pictures
-   land on the file with the crew's name. **LISTO** — done, with the finished
-   photos; three or more is Luis's sign-off rule, and the page says how many
-   are in. **LLAMAR** — the supervisor's number, one tap.
-3. **The line to the supervisor** — the SUPER lane, in the crew's language,
-   with the receipt (sent · read). A photo is something you say.
-4. **In your court** — the nuggets Luis or Mike sent, with what to bring
-   back, as today.
-5. **Falta material** — one tap, a photo, the words: opens MATERIAL_REQUEST
-   on the supervisor with the clock running (the ask type exists, 091).
+So one link per job is a mini chat for that job: the crew, Luis, the
+supervisor; the office reads it on the file. The login is shelved; the twelve
+Aug crew seats stay inactive. What the crew sees from the link, today, is the
+list below.
+
+**The link's page, today (`w.html`), and what each tap does:**
+
+1. **The customer and the address**, the drawing, the material list, the
+   scope, Spanish first with English under it (342).
+2. **RECIBIDO · ENTENDIDO** with a name: the file says who received the order
+   and when.
+3. **AQUÍ** (on site, a line on the file and a push to the supervisor),
+   **FOTOS** (the pictures land on the file with the crew's name; the
+   supervisor is pushed), **LISTO** (done, with the photos; three or more is
+   the sign-off rule), **LLAMAR** (the supervisor's number).
+4. **Mensaje al supervisor**: the crew writes, it lands on the file's SUPER
+   lane; what Luis or the supervisor write on the file in that lane shows on
+   the same link. The room.
+
+**Still to build on top of the link (the spoons in §4):** a text back to the
+crew when the supervisor answers (today they reopen the link to see it);
+translation both ways; Falta material as one tap (today it is a message);
+the nuggets on the same page.
 
 **Spanish or English, his choice, and the machine carries the other side.**
 The app follows the phone, one tap to switch (already so). Every word the
@@ -106,17 +124,17 @@ office, no English, no second app.
 
 | Step | Who | What | Waits on |
 |---|---|---|---|
-| 1 | Kevin · Luis | **The roster.** Which eleven crews, which brand, who holds the phone, Spanish or English. The login name per crew, Kevin's way (`Liberty Crew 1235`). Kevin sets the passwords on the box; nothing typed in a chat. | tomorrow's meeting |
-| 2 | build | **The crew seat as rows.** One `reps` row per crew (role `crew`), `lang`, the brand, the supervisor it answers to (`crew_people` already carries name · phone · language · manager for the nugget; the seat and the crew_people row become one). A view `v_my_job` that answers "the crew's job today" from the schedule and the work order. | 1 |
-| 3 | build | **Mi obra in the crew app.** A fourth tab, first on open: the work order by session (no link), AQUÍ · FOTOS · LISTO · LLAMAR, the SUPER thread, the court, Falta material. Same edge functions as `w.html` and `c.html`, keyed by the crew's token instead of the link's. Geofence untouched. EAS build → TestFlight. | 2 |
-| 4 | build | **Translation both ways.** `thread_messages.body_translated` + `translated_to`, filled by an edge function when the writer's language and the reader's differ; shown beside the original, marked. Switch `crew_translate`, OFF. The first ten shown to Kevin before it goes on. | 3 |
-| 5 | build | **The Spanish Ride-Along.** The crew-day film with a Spanish narrator we have the right to use (Microsoft's `es-MX-JorgeNeural` through the same `tools/narrate.mjs`, `EDGE_VOICE=es-MX-JorgeNeural`; GUY stays the English voice). Listed on `docs/ride-alongs.html`. | 3 |
-| 6 | Luis | **The first real job.** One crew, one install, Luis copied on every tap. | 3 |
-| 7 | Kevin | **Flip `crew_translate`.** | 4, a week of 3 |
-| 8 | build | **The customer sees the crew.** CHAT lane: "Ramón's crew arrived 7:32" from the AQUÍ stamp, in the customer's language, behind `office_machine_texts`. | 7 |
+| 1 | Kevin · Luis | **The roster.** Which crews, which brand, who holds the phone, the phone number, Spanish or English. The number goes on the crew's card in Contractors Cloud (`cc_crews.phone`, copied hourly) or on the crew's seat; no phone, no text. | tomorrow's meeting |
+| 2 | Kevin | **Flip `crew_link_text`** in the Office room (added to the switch list 16 Sep night, v98). From then on the text goes out the moment an install date is set. Fence crews first: the Fencing lines are campaign-approved; Oasis and Pro-Tech crews would get it from the Fencing line until theirs are. | 1 |
+| 3 | Luis | **The first real job.** One crew, one install, Luis on the file for every tap. | 2 |
+| 4 | build | **The reply rides a text.** When Luis or the supervisor write in the SUPER lane on a job with an open work order, the crew lead gets a text "Luis: … — el link" from the brand's line, so nobody reopens a link to find an answer. Same switch. | 3 |
+| 5 | build | **Translation both ways.** `thread_messages.body_translated` + `translated_to`, filled by an edge function when the writer's language and the reader's differ; shown beside the original, marked. Switch `crew_translate`, OFF. The first ten shown to Kevin before it goes on. | 3 |
+| 6 | build | **Falta material** as one tap on the link (a photo + the words → MATERIAL_REQUEST on the supervisor with the clock), and the nuggets in their court on the same page. | 3 |
+| 7 | build | **The Spanish Ride-Along.** The crew-day film with a Spanish narrator we have the right to use (Microsoft's `es-MX-JorgeNeural` through `tools/narrate.mjs`, `EDGE_VOICE=es-MX-JorgeNeural`; GUY stays the English voice). Listed on `docs/ride-alongs.html`. | 3 |
+| 8 | build | **The customer sees the crew.** CHAT lane: "Ramón's crew arrived 7:32" from the AQUÍ stamp, in the customer's language, behind `office_machine_texts`. | 5 |
 
-Nothing above is on. Steps 2–4 are one migration each (next free is 372 as of
-16 Sep evening; check the registry first) plus one crew-app build.
+Steps 1–3 need no build. Steps 4–6 are one migration each (check the registry
+first; sibling sessions number in parallel) and no app build at all.
 
 ## 4a. The nine questions to Luis
 
@@ -152,15 +170,13 @@ things change; the page says so.
 
 ## 5. What Kevin decides
 
-1. **The names.** `Liberty Crew 1235` (brand + number), or the crew lead's
-   name. Kevin's word tonight was the number.
-2. **One phone per crew, or the lead's own phone.** The app is on TestFlight;
-   a company phone per crew is the clean answer, the lead's phone is the fast
-   one.
+1. **Flip `crew_link_text`**, and when: after the roster has phones on it.
+2. **Whose phone gets the text.** The lead's own phone (fast) or a company
+   phone per crew (clean). Either way, one number per crew on the card.
 3. **Translation on or off** at the start, and whether Luis reads Spanish
    (then his side needs no translation at all).
 4. **The Spanish voice** for the film: Jorge (Microsoft, free, licensed like
    GUY) or an ElevenLabs Spanish voice.
-5. **Gospel 26.** It said "crews never get a login". Kevin's word tonight:
-   one login per crew. The gospel keeps the pictures and the per-job link and
-   adds the login, dated.
+5. **Gospel 26 stands as written**: no login. Kevin's 7:30 PM "one login per
+   crew" was withdrawn at 9 PM ("problem solved. no app."); the gospel's
+   addendum says so, dated.
