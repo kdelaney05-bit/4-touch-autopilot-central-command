@@ -136,6 +136,20 @@ brings back before sign-off; the three things that go wrong today; the first
 real job; anything to change on the page before Wednesday. The answers fill
 step 1 of §4 and rows 1–5 of §5.
 
+## 4b. Luis's handbook
+
+`docs/how-it-works-luis.html` → `docs/how-it-works-luis.pdf` (16 Sep night,
+v97): how everything works from the ops manager's seat, ten sections, the
+first one Kevin's word — "the notification will let everyone know what to
+do, they won't have to think" — and the ninth what to do when something goes
+wrong (reply to the thread, the ticket; a crew waiting → text or call Kevin;
+nothing stops, do that job the old way; refresh, sign out and in, close the
+app; the exact words of any error). **Sent** to Luis, cc Jess, as a reply in
+the same thread as the nine questions (one thread, one ticket), with the
+three PDF links. Attachments could not ride the Gmail door from this
+session; the PDFs are on Pages and Kevin has them as files. Reprint as
+things change; the page says so.
+
 ## 5. What Kevin decides
 
 1. **The names.** `Liberty Crew 1235` (brand + number), or the crew lead's
