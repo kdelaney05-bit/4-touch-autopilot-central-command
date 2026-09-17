@@ -63,8 +63,7 @@ See it as the office seat: `?demo=1&as=office&file=cj3` (the invoice),
 1. Send the five drafts.
 2. QuickBooks: **three of four companies are already connected on live**
    (`qb_connections`: Liberty Fencing 1461, Pro-Tech 1563, Oasis 1560, all
-   active, synced 16 Sep 20:32 UTC). Only Liberty Roofing 1537 still needs the
-   consent (`backend/QB-OAUTH-WALKTHROUGH.md`). The `qb_invoices` switch still
+   active, synced 16 Sep 20:32 UTC). Liberty Roofing 1537 needs NO consent: it has no QuickBooks company of its own, its books are inside Pro-Tech's file (022); qb-bills.mjs aliases 1537 → the 1563 connection (16 Sep late). The `qb_invoices` switch still
    has no worker behind it until `qb-bills.mjs` runs.
 3. A `bills@` address per brand (or say "label the inboxes") and a Google app
    password for the intake worker's IMAP login.

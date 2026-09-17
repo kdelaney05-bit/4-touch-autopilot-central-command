@@ -113,7 +113,7 @@ Each one is a card that shows up and says what to press. One at a time, a week e
 | Step | Who | What | Waits on |
 |---|---|---|---|
 | 1 | Kevin | Confirm the delegation key reaches the four mailboxes: one read-only command on the box (this PC's permission classifier refuses remote reads, so Kevin runs it; senders and subjects only). Send the draft to Brian so Heritage lands on a Workspace address. | nothing |
-| 2 | Kevin | Liberty Roofing's QuickBooks consent (the fourth company). | nothing |
+| 2 | — | ~~Liberty Roofing's QuickBooks consent~~ **Not needed.** Liberty Roofing (1537) has no QuickBooks company of its own; its books live inside Pro-Tech's file (migration 022, 20 Jul). The consent screen on 16 Sep offered a new trial company, which is the tell. The writer now sends 1537 through the 1563 connection. | — |
 | 3 | build | Copy the rewritten intake to the box and run it `--dry` first. The first real ABC (Jess's roofing inbox) and Heritage mails land. | 1 |
 | 4 | build | The supervisor app: TAKE gains "the crew's invoice" — snap the paper, type the amount, pick the crew from `payees`. Calls `bill_land_by_hand`. Ride-Along ships with it. | 376 (done) |
 | 5 | build | The PERMIT ask gains one field, "what did it cost"; Sam's tap lands the fee. | 376 (done) |
