@@ -190,10 +190,27 @@ wrong, not the gospel.
     (16 Sep, 9 PM, the night a supplier email went out at 9:05)
 
 
+36. **Every change ships with its own note, the same day, to everyone it
+    touches.** "Any change we make gets an auto update to all involved. The
+    update will show this exact thing: how it works, exactly and clearly.
+    The smaller the changes we make, the easier the training video is." And:
+    "Reassure people. That's why the visuals are so important. Help all team
+    members clearly understand how much easier this is, less redundant, and
+    their new role in it. People are nervous — not that they're losing their
+    job, that they'll do something wrong. Tell them this new process won't
+    let them do anything wrong." So a change is not shipped until its note
+    is out: a was/is section on docs/was-and-is.html (per role: what you did,
+    what you do now, what you cannot get wrong, a picture), an email from
+    Kevin to the people it touches, the hype thread when reps are involved,
+    and a short film with no words when the customer's side changed. Nobody
+    prepares; it is already working the day they read it. Keep the change
+    small so the note fits one screen. (17 Sep, after the signing rollout)
+
 ## Where each one shows up
 
 | Gospel | Where it lives today |
 |---|---|
+| Every change ships with its own note | docs/was-and-is.html, department by department, with the film and the pictures (17 Sep); the rollout email and the hype-thread post the same hour |
 | Next step shouts | The NEXT line on the Property card (13 Sep); the ask clocks; the adopt buttons on an unfiled job |
 | Visually obvious | Red mismatch chip, green accepted pill, the Office door's permit lines on the home room |
 | Anyone can step in | Central Command's rooms are role-gated for reading, not for understanding |
