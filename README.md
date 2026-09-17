@@ -133,8 +133,9 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | Luis hears it at the signature: the production watcher is pushed EXPECTED and rides the SIGNED note; a calculator job's SIGNED note carries its packet | **371** |
 | Sibling sessions, the same evening: 372–378 (376 hand it back, 377 nudges from the rep, 378 what the counter asks for; the registry has the rest) | **372–378** |
 | The crew thread: a reply to the work-order text lands on the job's SUPER lane (`crew_text_inbound`, no switch); the text back to the crew lead when a person writes in the crew's lane (`crew_text_back`); the morning-of text at 7 AM Florida (`crew_link_morning_sweep`, cron); FALTA MATERIAL on the link → a MATERIAL_REQUEST ask; `crew_line_for` — all outbound behind `crew_link_text` (OFF) | **379** |
+| Not going with us: `customer_lost(p_customer, p_reason, p_note)` marks the customer lost, drops every unfinished job off the boards and the numbers (`reporting_excluded`), stamps `jobs.lost_at / lost_by / lost_reason`, tags @office on the file to mark it in CC; `customer_revive` is the road back | **380** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (379 applied as of 16 Sep ~10:30 PM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 380).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (380 applied as of 17 Sep 7:30 AM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 381).
 
 ## What Kevin and Jess change without a build
 

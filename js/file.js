@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=100';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=100';
-import { enterPosts, micButton } from './dictate.js?v=100';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=100';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=100';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=101';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=101';
+import { enterPosts, micButton } from './dictate.js?v=101';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=101';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=101';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=100';
-import { settleDialog } from './office.js?v=100';
-import { reload } from './app.js?v=100';
-import { relTime } from './production.js?v=100';
-import { billsCards, billsNext, wireBills } from './bills.js?v=100';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=101';
+import { settleDialog } from './office.js?v=101';
+import { reload } from './app.js?v=101';
+import { relTime } from './production.js?v=101';
+import { billsCards, billsNext, wireBills } from './bills.js?v=101';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -171,7 +171,7 @@ function draw(root, ctx, compact) {
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
         ${journey.length ? raw(`<div class="journey" title="Who moved through this file, in order">${journey.map((j) => { const p = j.pid === 'machine' ? { name: 'The machine' } : personOf(j.pid); const c = colorFor(j.pid); return `<span style="--c:${c.c};flex-grow:${j.n}" title="${esc((p?.name || 'someone') + ' · ' + new Date(j.from).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (j.n > 1 ? ' · ' + j.n : ''))}"></span>`; }).join('')}</div><div class="journey-who">${[...new Set(journey.map((j) => j.pid))].map((pid) => { const p = pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(pid); const c = colorFor(pid); return `<span class="pill" style="--c:${c.c};--cs:${c.cs}"><i class="av">${esc(initialsOf(p))}</i>${esc(pid === 'machine' ? 'The machine' : firstName(p?.name || 'someone'))}</span>`; }).join('')}</div>`) : ''}
-        ${raw((() => { const ownerBad = ctx.data.parcel?.signer_match === 'mismatch' || ctx.data.parcel?.confidential; const n = (!ownerBad && billsNext(ctx)) || fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
+        ${raw((() => { const ownerBad = ctx.data.parcel?.signer_match === 'mismatch' || ctx.data.parcel?.confidential; const n = (!ownerBad && customer?.disposition !== 'lost' && billsNext(ctx)) || fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
         ${unfiled ? raw(`<div class="adopt" style="margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;background:var(--paper2, transparent)"><div class="kicker" style="color:var(--gold)">Still run in Contractors Cloud · where is it right now?</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${ADOPT.map(([k, l]) => `<button class="btn sm" data-adopt="${k}">${esc(l)}</button>`).join('')}</div><div class="small dimmer" style="margin-top:6px">One tap opens exactly that ask on the right seat, clock starting today. Nothing else opens.</div></div>`) : ''}
         ${optOut ? raw('<div class="red small" style="margin-top:6px">This customer said STOP — no texts go out.</div>') : ''}
       </div>
@@ -187,6 +187,9 @@ function draw(root, ctx, compact) {
         ${staff && customer && !optOut ? raw('<button class="btn" id="file-collect" title="Text the customer the payment link">Collect</button>') : ''}
         ${canTake ? raw('<button class="btn fill" id="file-take">Take the job</button>') : ''}
         ${isSup && job.stage === 'production' ? raw('<button class="btn" id="file-back-job">Hand it back</button>') : ''}
+        ${(staff || (job.rep_id && job.rep_id === me?.id)) && customer && job.job_id ? raw(customer.disposition === 'lost'
+          ? `<span class="chip warn" style="align-self:center" title="A no clears the board (gospel 15)">NOT GOING WITH US${customer.disposition_at ? ' · ' + esc(new Date(customer.disposition_at).toLocaleDateString([], { month: 'short', day: 'numeric' }).toUpperCase()) : ''}</span><button class="btn sm" id="file-revive" title="Back on: the file returns to the boards">Revive</button>`
+          : '<button class="btn" id="file-lost" title="A no clears the board: the customer is marked lost, the job comes off every board, the office is tagged to mark it lost in Contractors Cloud">Not going with us</button>') : ''}
       </div>
     </div>
 
@@ -287,6 +290,13 @@ function draw(root, ctx, compact) {
   if (q('#new-ask')) q('#new-ask').onclick = () => newAsk(thread, job, ctx, compact);
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
   wireBills(root, { bills: ctx.data.bills || [], ctx, after: async () => { await reload(true); again(); } });   // 365/369: the money cards' taps
+  // 380 (Kevin, 17 Sep, on Mike's "delete these three"): a no after the yes clears the board; nothing is deleted, the office is tagged to mark it in CC
+  if (q('#file-lost')) q('#file-lost').onclick = () => openModal({ title: `${name} is not going with us`, submitLabel: 'Take it off the board', body: `
+      <div class="field"><label>Why</label><select name="reason"><option value="price">Price</option><option value="financing">Financing</option><option value="competitor">Went with a competitor</option><option value="no_response">No response</option><option value="other" selected>Other · backed out after the fact</option></select></div>
+      <div class="field"><label>A word for the office (optional)</label><input name="note" placeholder="backed out after signing · moving · wants to wait until spring"/></div>
+      <div class="note">Nothing is deleted. ${esc(firstName(name))} is marked lost, the job comes off every board and every number, and the office is tagged on this file to mark it lost in Contractors Cloud. Revive brings it back.</div>`,
+    onSubmit: async (f) => { await markLost(ctx.customerId, f.reason.value, f.note.value.trim() || null); toast('Off the board · the office was tagged to mark it in CC'); await reload(true); again(); } });
+  if (q('#file-revive')) q('#file-revive').onclick = async () => { try { await reviveCustomer(ctx.customerId, null); toast(`${firstName(name)} is back on`); await reload(true); again(); } catch (e) { toast(e.message, 'err'); } };
   // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
   root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => { const p = (photos || []).find((x) => photoSrc(x) === (im.dataset.full || im.src)); lightbox(im.dataset.full || im.src, im.title || '', p, customer); }));
   wireQuotes(root);   // 353
@@ -664,6 +674,7 @@ function fenceCard(f, packet, estimates) {
    wins, worst news first. */
 function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
   const ageMin = (iso) => iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000) : null;
+  if (customer?.disposition === 'lost') return { tone: '', text: `Not going with us${customer.disposition_at ? ' since ' + new Date(customer.disposition_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ''}. Nothing opens on this file; the office marks it lost in Contractors Cloud. Revive brings it back.` };
   if (parcel?.signer_match === 'mismatch') return { tone: 'bad', text: 'The person who signed is not the owner of record. Get the owner of record to sign before any paperwork moves.' };
   if (parcel?.confidential) return { tone: 'bad', text: 'Protected address: the county withholds the owner. Get the deed from the customer before the NOC prints.' };
   if (openAsks.length) {

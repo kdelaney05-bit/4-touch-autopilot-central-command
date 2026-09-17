@@ -6,9 +6,9 @@
 // on yes or no, signed, or lost. Pick a rep, see their book by stage, tap a
 // customer and the file opens beside you. Every number comes from live rows
 // the seat can read, counted once, and says its window.
-import { state, personName, firstName } from './book.js?v=100';
-import { html, raw, esc } from './ui.js?v=100';
-import { brandName } from './config.js?v=100';
+import { state, personName, firstName } from './book.js?v=101';
+import { html, raw, esc } from './ui.js?v=101';
+import { brandName } from './config.js?v=101';
 
 let rep = 'all';
 let brand = 'all';
@@ -49,7 +49,9 @@ export function pipelineRows() {
     const e = est.get(cid);
     const apptMs = latest.appt_starts_at ? new Date(latest.appt_starts_at).getTime() : null;
     const priced = e && (apptMs == null || new Date(e.occurred_at).getTime() >= apptMs - 6 * 3600e3);
-    const stage = signed ? 'signed' : c.disposition === 'lost' ? 'lost' : priced ? 'estimate' : apptMs != null && apptMs > Date.now() ? 'appointment' : apptMs != null ? 'touches' : 'lead';
+    // 380: a no after the yes wins — a customer marked lost after they signed comes off the signed column (Kevin, 17 Sep: "if a job decides not to go with us after the fact")
+    const lostAfter = c.disposition === 'lost' && (!signed || !c.disposition_at || new Date(c.disposition_at) > new Date(signed.contract_signed_at));
+    const stage = lostAfter ? 'lost' : signed ? 'signed' : priced ? 'estimate' : apptMs != null && apptMs > Date.now() ? 'appointment' : apptMs != null ? 'touches' : 'lead';
     rows.push({ customer_id: cid, name: c.name || latest.title || 'Unnamed', city: c.city || null, rep_id: latest.rep_id, rep_name: who.get(latest.rep_id) || null,
                 cc: latest.cc_company_id, stage, title: latest.title, appt_at: latest.appt_starts_at, signed_at: signed?.contract_signed_at || null,
                 amount: signed ? Number(signed.fin_sold_amount || 0) : e ? Number(e.amount || 0) : 0, est_at: e?.occurred_at || null, clock: clock.get(cid) || null,

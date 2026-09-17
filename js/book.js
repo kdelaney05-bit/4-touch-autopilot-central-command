@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=100';
-import { DEMO } from './demo.js?v=100';
+import * as api from './api.js?v=101';
+import { DEMO } from './demo.js?v=101';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -134,7 +134,7 @@ export async function loadFile(customerId) {
   if (!job) {
     // not on the stage board (selling, or older than 30 days): read the job directly
     const j = await api.one(`jobs?select=id,cc_project_id,cc_company_id,customer_id,title,fin_sold_amount,contract_signed_at,completed_at,rep_id&customer_id=eq.${customerId}&order=created_at.desc`);
-    const c = await api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`);
+    const c = await api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`);
     job = j ? { job_id: j.id, cc_project_id: j.cc_project_id, cc_company_id: j.cc_company_id, customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone,
                 title: j.title, fin_sold_amount: j.fin_sold_amount, contract_signed_at: j.contract_signed_at, completed_at: j.completed_at, rep_id: j.rep_id,
                 stage: j.contract_signed_at ? 'sold_office' : 'selling', days_in_stage: null, owner_name: null, open_asks: 0 }
@@ -144,7 +144,7 @@ export async function loadFile(customerId) {
   const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, counter] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
-    api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
+    api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
     job.job_id ? api.page(`job_handoffs?select=*&job_id=eq.${job.job_id}&order=at.asc`) : [],
     api.page(`sms_outbox?select=id,body,status,queued_at,sent_at,from_number,rep_id,play&customer_id=eq.${customerId}&order=queued_at.asc`, 500).catch(() => []),
     // 322: the itemized estimates on this file (the rep's own, or all of them for a manager), and their links
@@ -216,6 +216,10 @@ export async function invoiceRequest(jobId, amount, memo, askId) { guard(); retu
 export async function decideBill(id, decision, note) { guard(); return api.rpc('bill_decide', { p_id: id, p_decision: decision, p_note: note ?? null }); }
 export async function rematchBill(id, customerId) { guard(); return api.rpc('bill_rematch', { p_id: id, p_customer: customerId }); }
 export async function openBillPdf(path) { guard(); return api.signUrl('job-docs', path); }
+/* 380 (Kevin, 17 Sep: "if a job decides not to go with us after the fact, they need a way to delete it"): a no after the yes clears the board.
+   Nothing is deleted — the customer is marked lost, every unfinished job comes off the boards and the numbers, the office is tagged to mark it in CC. */
+export async function markLost(customerId, reason, note) { guard(); return api.rpc('customer_lost', { p_customer: customerId, p_reason: reason ?? null, p_note: note ?? null }); }
+export async function reviveCustomer(customerId, note) { guard(); return api.rpc('customer_revive', { p_customer: customerId, p_note: note ?? null }); }
 export async function linePreview(customerId) {
   if (isDemo()) return [
     { key: 'review_prompt', label: 'Review prompt · rate us 1–10', body: 'Hey Dana, This is Kevin with Liberty Fencing and I wanted to follow up on the project and ask how would you rate the staff and workmanship on a scale from 1-10 ( 10 being the BEST) ?' },
