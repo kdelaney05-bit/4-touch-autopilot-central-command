@@ -203,5 +203,7 @@ wrong, not the gospel.
 | They accept now, sign everything once, nobody goes back | The signing link (366–368); the NOC row on the file's Paperwork card; the switch The NOC to the customer; `?tour=noc` |
 | Leave people alone 7:30 PM–8 AM | `backend/worker/quiet-hours.mjs` (one clock, one rule) gates every engine that sends; the app's Send holds until 8 AM in the window (next spoon); the invoice sweep (381) keeps the same hours for its texts, emails, call cards and pushes |
 | The machine babysits so the people hunt · the phone is human | The invoice (381, 17 Sep): built from the file on the sign-off, sent by text and email with the pay link, chased on a plan of rows, paid by itself — and the one human touch is a call card on the office seat, never a machine on the phone. `docs/the-invoice.html` |
+| Build beside, switch nothing — the first step taken | From Mon 21 Sep 2026 every new lead starts at the New lead door (381, 17 Sep): the rep buzzed, the file written, the copy into Contractors Cloud behind `cc_mirror` (OFF) or Copy for CC; invoicing, bills, work orders stay in CC. `docs/JESS-MONDAY.md`; `?tour=leads` |
+| Take the paper off the humans, never the conversation | The office types a lead once, ever: the machine tells the rep, writes the file, texts the customer (switch) and fills Contractors Cloud (switch). Jess, Laura and Sam still take the call and set the time (gospel 19) |
 
 Add to this file when Kevin says a new one. Never delete one without his word.
