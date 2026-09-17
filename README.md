@@ -68,14 +68,19 @@ office/admin/owner, production posts reach the managers, the village reaches
 every staff seat. Kevin's words: "a shared village for all customers and all
 employees… any team member can jump in and help."
 
-### The New Job door
+### The New lead door
 
-**+ New job** in the left rail opens a customer, a job, an appointment and the
-signing checklist in **one** call (`job_create`). It dedupes on the phone
-number, so the same customer keeps one file and all of their history. The lead
-source dropdown is Contractors Cloud's own list for that brand, and the job
-carries CC's `cc_lead_source_id`, so every console report keeps counting
-whichever door the job came through. Nothing is written into CC.
+**+ New lead** in the top bar opens a customer, a job, an appointment and the
+signing checklist in **one** call (`job_create`, 313 · 381). It dedupes on the
+phone number, so the same customer keeps one file and all of their history.
+The lead source dropdown is Contractors Cloud's own list for that brand, and
+the job carries CC's `cc_lead_source_id`, so every console report keeps
+counting whichever door the job came through. **From Mon 21 Sep 2026 this is
+the first door the office walks through** (Kevin, 17 Sep; `docs/JESS-MONDAY.md`):
+the rep's phone buzzes the moment the estimate is booked, the booking is the
+file's first line, the door shows the rep's day, and the machine carries the
+lead into Contractors Cloud behind the switch `cc_mirror` (OFF: the file shows
+the fields to paste, in CC's order). Nothing else is written into CC.
 
 ## The laws
 
@@ -137,6 +142,7 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The old knows: a settled ask ticks its Contractors Cloud task from the box (`cc_task_mirror`, trigger `cc_task_mirror_after_settle`, `cc_workflow_steps.mirror` tick · note · passed · skip, worker `cc-task-mirror.mjs`, switch `asks_to_cc` OFF) | **382** |
 | The PO on the supplier order (`material_order_send` says `PO <job number>`) and the bills intake matches a bill's PO to `jobs.cc_job_number` | **383** |
 | Not going with us: `customer_lost(p_customer, p_reason, p_note)` marks the customer lost, drops every unfinished job off the boards and the numbers (`reporting_excluded`), stamps `jobs.lost_at / lost_by / lost_reason`, tags @office on the file to mark it in CC; `customer_revive` is the road back | **380** |
+| THE FIRST PIECE — every new lead starts here from Mon 21 Sep: `job_create` v2 (p_appt_minutes · p_what; pushes the rep, or the office seat when no rep; the booking as the file's first line; queues the mirror), `cc_mirror_queue` + switch `cc_mirror` (OFF), `cc_mirror_payload`, `job_link_cc` (re-keys job · thread · appointment · customer onto CC's ids; `job_threads` and `no_quote_requests` FKs now cascade on update), `cc_mirror_mark`, `v_cc_mirror_queue`; `lead_create` queues the mirror too; worker `backend/worker/lead-mirror.mjs` | **381** (`381_the_first_piece_leads`, a second 381 like the two 369s) |
 
 Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (380 applied as of 17 Sep 7:30 AM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 381).
 

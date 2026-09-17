@@ -253,7 +253,7 @@ export async function createJob(args) { guard(); return api.rpc('job_create', ar
    and the office's word on the Contractors Cloud mirror: "typed into CC" · "queue it again" · "not for CC". */
 export async function repDay(repId, dayIso) {
   const start = new Date(dayIso + 'T00:00:00'), end = new Date(start.getTime() + 86400e3);
-  if (isDemo()) return (state.pipeline || []).filter((j) => j.rep_id === repId && j.appt_starts_at && new Date(j.appt_starts_at) >= start && new Date(j.appt_starts_at) < end).sort((a, b) => String(a.appt_starts_at).localeCompare(String(b.appt_starts_at)));
+  if (isDemo()) return (state.pipeline || []).filter((j) => j.rep_id === repId && j.customer_id !== 'cp15' && j.appt_starts_at && new Date(j.appt_starts_at) >= start && new Date(j.appt_starts_at) < end).sort((a, b) => String(a.appt_starts_at).localeCompare(String(b.appt_starts_at)));   // cp15 is the lead the film is typing
   return api.page(`jobs?select=id,title,appt_starts_at,customers(name,city)&rep_id=eq.${repId}&appt_starts_at=gte.${start.toISOString()}&appt_starts_at=lt.${end.toISOString()}&order=appt_starts_at.asc`, 50);
 }
 export async function mirrorMark(queueId, status, note) { guard(); return api.rpc('cc_mirror_mark', { p_queue: queueId, p_status: status, p_note: note ?? null }); }

@@ -18,7 +18,12 @@ change anything over yet… let's get it built and set and then slowly migrate
 safely." So: the office keeps typing into CC, no Zap is repointed, the
 QuickBooks worker stays off, and every door we build is a second door onto the
 same work. Do not "finish the migration" in a session; that is Kevin's call,
-one step at a time.
+one step at a time. **The first step is taken (Kevin, 17 Sep morning): from
+Mon 21 Sep 2026 the office schedules every new lead here first, through the
+New lead door, and the machine carries the copy into CC (switch `cc_mirror`,
+OFF until his word) or the office pastes it (Copy for CC on the file).
+Nothing else moves. `docs/JESS-MONDAY.md` is the honest table of what stays
+in CC.**
 
 ## What this repo is, and is not
 

@@ -6,6 +6,19 @@ a build. The things that need you are at the bottom.
 **The app:** https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/
 **The demo (fake customers, nothing saves):** add `?demo=1` to that link.
 
+## New 17 Sep — LEADS: Monday, every new lead starts here
+
+Your words this morning: Jess schedules every lead in the new app from Monday,
+no double entry, and everything she did in CC is here or done for her. Built
+and live (v103, migration 381): **+ New lead** at the top is the first door.
+The rep's phone buzzes the moment she books it, the booking is the file's
+first line, the door shows the rep's day, and the machine carries the lead
+into Contractors Cloud behind a switch (OFF: Copy for CC on the file). Her
+film: `?demo=1&as=office&tour=leads&auto=1&voice=1`. Her page:
+`docs/JESS-MONDAY.md`. Your three moves: send the Jess email in your drafts;
+say whether the box's CC token may write (then the mirror switch); flip
+`appt_confirm` for Fencing if you want the customer texted on booking.
+
 ## New tonight, 16 Sep — CONTRACT SIGNING AND AUTO WORKFLOW
 
 The customer accepts now and signs everything once on the link: the contract,
