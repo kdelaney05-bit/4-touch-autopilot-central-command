@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=112';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=112';
-import { enterPosts, micButton } from './dictate.js?v=112';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=112';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=112';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=113';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=113';
+import { enterPosts, micButton } from './dictate.js?v=113';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=113';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=113';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=112';
-import { settleDialog } from './office.js?v=112';
-import { reload } from './app.js?v=112';
-import { relTime } from './production.js?v=112';
-import { billsCards, billsNext, wireBills } from './bills.js?v=112';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=113';
+import { settleDialog } from './office.js?v=113';
+import { reload } from './app.js?v=113';
+import { relTime } from './production.js?v=113';
+import { billsCards, billsNext, wireBills } from './bills.js?v=113';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -151,6 +151,9 @@ function draw(root, ctx, compact) {
   estimates.forEach((d) => { ev(d.created_at, 'file', job.rep_id, `Estimate #${d.serial_number} · ${fmtMoney(d.total)} · one link`); ev(d.accepted_at, 'money', null, `ACCEPTED · estimate #${d.serial_number} · the customer tapped yes`); });
   if (ctx.data.fence) ev(ctx.data.fence.created_at, 'file', ctx.data.fence.rep_id, `The fence job · ${ctx.data.fence.linear_ft} ft · ${fmtMoney(ctx.data.fence.quote)} · Complete Quote in the calculator`);
   if (ctx.data.parcel) ev(ctx.data.parcel.fetched_at, ctx.data.parcel.signer_match === 'mismatch' ? 'bad' : 'file', null, `Owner of record · ${(ctx.data.parcel.owner_names || []).join(' & ') || '—'} · ${ctx.data.parcel.signer_match === 'match' ? 'matches the signer' : ctx.data.parcel.signer_match === 'mismatch' ? 'NOT the signer' : 'from the county'}`);
+  // 401: every call on the file — answered, placed, or missed — from Uvoice's hourly call records; a missed one is red
+  (ctx.data.calls || []).forEach((c) => { const p = personOf(c.rep_id); const who = p ? firstName(p.name) : (c.ext ? 'ext ' + c.ext : 'the office'); const secs = c.duration_s || 0; const len = secs >= 60 ? Math.round(secs / 60) + ' min' : secs + ' s';
+    ev(c.began_at, c.call_type === 'missed' ? 'bad' : 'step', c.rep_id, c.call_type === 'missed' ? `📞 ${name} called ${who}'s line, nobody answered · rang ${len}` : c.call_type === 'inbound' ? `📞 ${name} called · ${c.answered_by === 'core' ? 'voicemail took it' : who + ' answered'} · ${len}` : `📞 ${who} called them · ${len}`); });
   handoffs.forEach((h) => ev(h.at, 'step', h.to_seat, `${seatName(h.to_seat) || 'nobody'} ${h.kind === 'handback' ? 'handed it back' : h.kind === 'assign' ? 'was assigned by ' + (seatName(h.by_id) || '') : 'took the job'}${h.note ? ' · ' + h.note : ''}`));
   asks.filter((a) => a.state !== 'OPEN' && a.closed_at).forEach((a) => ev(a.closed_at, 'step', a.assignee_id, a.state === 'VOID' ? `${(a.assignee_name || 'someone').split(' ')[0]} took ${thing(a)} off the list${a.void_reason ? ' — ' + a.void_reason : ''}` : a.proof?.waived ? `${(a.assignee_name || 'someone').split(' ')[0]} skipped ${thing(a)}: ${a.proof.waived}` : `${(a.assignee_name || 'someone').split(' ')[0]} turned in ${thing(a)}${a.proof?.value ? ': ' + a.proof.value : ''}`));
   if (job.contract_signed_at) ev(job.contract_signed_at, 'money', job.rep_id, `SOLD · ${money(job.fin_sold_amount)} · ${job.rep_name || ''}`);
