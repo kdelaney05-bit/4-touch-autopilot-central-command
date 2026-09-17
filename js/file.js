@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=104';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=104';
-import { enterPosts, micButton } from './dictate.js?v=104';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=104';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=104';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=105';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=105';
+import { enterPosts, micButton } from './dictate.js?v=105';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=105';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=105';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=104';
-import { settleDialog } from './office.js?v=104';
-import { reload } from './app.js?v=104';
-import { relTime } from './production.js?v=104';
-import { billsCards, billsNext, wireBills } from './bills.js?v=104';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=105';
+import { settleDialog } from './office.js?v=105';
+import { reload } from './app.js?v=105';
+import { relTime } from './production.js?v=105';
+import { billsCards, billsNext, wireBills } from './bills.js?v=105';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
