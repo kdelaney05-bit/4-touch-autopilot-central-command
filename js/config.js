@@ -38,7 +38,7 @@ export const ASK_LABEL = {
   INSPECTION: 'Final inspection', CLOSEOUT: 'Close-out',
 };
 export const DOC_LABEL = {
-  contract: 'Signed contract', noc: 'Notice of Commencement', hoa: 'HOA approval', survey: 'Property survey', permit_sig: 'Permit application, signed',
+  contract: 'Signed contract', noc: 'Notice of Commencement', hoa: 'HOA approval', survey: 'Property survey', permit_sig: 'Permit application, signed', deed: 'Warranty deed',
   /* The roofing milestones — the doc_kind is which milestone it is. */
   tearoff: 'Tear-off started', dryin_ordered: 'Dry-in ordered', sheathing_inspection: 'Sheathing inspection',
   dryin_passed: 'Dry-in passed', shingling: 'Shingling', walkthrough: 'Walkthrough',

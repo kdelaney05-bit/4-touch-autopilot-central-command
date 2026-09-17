@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=105';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=105';
-import { enterPosts, micButton } from './dictate.js?v=105';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=105';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=105';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=106';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=106';
+import { enterPosts, micButton } from './dictate.js?v=106';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=106';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=106';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=105';
-import { settleDialog } from './office.js?v=105';
-import { reload } from './app.js?v=105';
-import { relTime } from './production.js?v=105';
-import { billsCards, billsNext, wireBills } from './bills.js?v=105';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=106';
+import { settleDialog } from './office.js?v=106';
+import { reload } from './app.js?v=106';
+import { relTime } from './production.js?v=106';
+import { billsCards, billsNext, wireBills } from './bills.js?v=106';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -234,14 +234,14 @@ function draw(root, ctx, compact) {
           ${openAsks.length ? raw(openAsks.map((a) => askRow(a, me)).join('')) : raw('<div class="small">No open asks.</div>')}
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
-        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], ctx.data.counter)) : ''}
+        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], ctx.data.counter, ctx.data.deed)) : ''}
         ${raw(fenceCard(ctx.data.fence, ctx.data.packet || [], estimates))}
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
         ${raw(photosCard(photos))}
         ${raw(quoteFileCard(ctx.data.quotes, photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
-        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
+        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : a.doc_kind === 'deed' ? deedRow(a, ctx.data.deed) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
         <div class="card">
           <div class="kicker">On the file</div>
           <div class="rows">
@@ -324,6 +324,15 @@ function draw(root, ctx, compact) {
   if (q('#fence-estimate')) q('#fence-estimate').onclick = () => estimateDialog(ctx, job, customer, name, again, seed);
   if (q('#file-change-order')) q('#file-change-order').onclick = () => estimateDialog(ctx, job, customer, name, again, null, { kind: 'change_order' });   // 381: signed on the same link, a line on the invoice
   // 367: hand the NOC to the customer — fill it first when the file has none, then the email (the trigger on the fill may already have sent it when the switch is ON)
+  /* 386: the warranty deed — the customer is emailed a photo link, the texts run until the picture lands */
+  root.querySelectorAll('#deed-send').forEach((b) => (b.onclick = async () => {
+    b.disabled = true; b.textContent = 'Sending…';
+    try {
+      const h = await deedSend(ctx.customerId);
+      toast(h?.emailed_at ? 'Deed request emailed to the customer, the rep and the office — the texts run until the picture lands' : 'Deed request opened on the file');
+      await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
+    } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = 'Request the deed'; }
+  }));
   if (q('#noc-send')) q('#noc-send').onclick = async () => {
     const b = q('#noc-send'); b.disabled = true; b.textContent = 'Sending…';
     try {
@@ -581,7 +590,7 @@ function counterLine(k) {
   }
   return `<div class="r"><span class="small"><b>At the counter · ${esc(where)}:</b> ${esc(bits.join(' · '))}${k.read_at ? '' : ' <span class="dimmer">· from Sam\'s tree, not read from the city yet</span>'}</span></div>`;
 }
-function propertyCard(p, customer, filled = [], counter = null) {
+function propertyCard(p, customer, filled = [], counter = null, deed = null) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
   if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><span style="display:flex;gap:4px"><button class="btn sm fill" id="parcel-look">Ask the county</button><button class="btn sm" id="noc-fill" title="The statutory Notice of Commencement from the customer's own name and address — parcel and legal left as blanks for the office">Fill the NOC</button></span></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; when the county does not match the address, the NOC still fills from the file (Fill the NOC) and goes to the customer.</div></div>`;
   const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
@@ -594,8 +603,8 @@ function propertyCard(p, customer, filled = [], counter = null) {
   const when = new Date(p.fetched_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
   const hasNoc = filled.some((f) => f.kind === 'noc');
   const next = p.confidential ? 'Protected address: the county withholds the owner. Get the deed from the customer before anything prints.'
-    : p.signer_match === 'mismatch' ? 'The person who signed is not the owner of record. Get the owner of record to sign before the NOC or the permit goes anywhere.'
-    : p.signer_match === 'entity' ? 'The owner is a company or trust. Get the name and title of the officer who can sign, then fill the NOC with it.'
+    : p.signer_match === 'mismatch' ? (deed?.status === 'received' ? 'The signer was not the owner of record; the warranty deed is in (Paperwork card). Check the name on it: on the deed, the NOC and the permit go in their name; not on it, the owner of record signs.' : deed ? `The signer is not the owner of record. The warranty deed was requested${deed.emailed_at ? ' by email ' + new Date(deed.emailed_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ''}${deed.nudges_sent ? ' · ' + deed.nudges_sent + ' text' + (deed.nudges_sent === 1 ? '' : 's') : ''}; the texts run until the picture lands. Nothing waits on it.` : 'The person who signed is not the owner of record. Press Request the deed: the customer is emailed for a picture of the warranty deed (you and the rep copied) and texted until it lands.')
+    : p.signer_match === 'entity' ? (deed?.status === 'received' ? 'Owned by a company or trust; the deed is in (Paperwork card). Fill the NOC with the officer who signs for it.' : deed ? 'Owned by a company or trust. The deed and the signer\'s name and title were requested from the customer; the texts run until they land.' : 'The owner is a company or trust. Press Request the deed: the customer is asked for the deed and the name and title of who signs for it.')
     : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online; the rep gets it signed before a notary).'
     : 'NOC is filled. It is the rep\'s: signed by the owner before a notary and uploaded on the Paperwork card. Office: record it at the Clerk when it lands. It holds nothing.';
   return `<div class="card">
@@ -609,7 +618,7 @@ function propertyCard(p, customer, filled = [], counter = null) {
       ${p.legal_description ? `<div class="r"><span class="small">${esc(p.legal_description)}</span></div>` : ''}
       ${p.deed_book ? `<div class="r"><span class="small dimmer">Last deed OR ${esc(p.deed_book)} / ${esc(p.deed_page || '')}${p.sale_date ? ' · ' + esc(new Date(p.sale_date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</span></div>` : ''}
       ${p.confidential ? '<div class="r"><span class="red">Protected address — the county withholds the owner. Nothing from this record prints.</span></div>' : ''}
-      <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><span style="display:flex;gap:4px"><button class="btn sm" id="parcel-look">Look again</button><button class="btn sm fill" id="noc-fill" title="The Notice of Commencement, filled from this record and the contractor block">Fill the NOC</button></span></div>
+      <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><span style="display:flex;gap:4px"><button class="btn sm" id="parcel-look">Look again</button><button class="btn sm fill" id="noc-fill" title="The Notice of Commencement, filled from this record and the contractor block">Fill the NOC</button>${(p.signer_match === 'mismatch' || p.signer_match === 'entity') && deed?.status !== 'received' ? `<button class="btn sm ${deed ? '' : 'ok'}" id="deed-send" title="Emails the customer for a picture of the warranty deed (a photo link; you and the rep copied) and texts them until it lands. 386.">${deed?.emailed_at ? 'Resend the deed request' : 'Request the deed'}</button>` : ''}</span></div>
       ${filled.length ? `<div class="kicker" style="margin-top:8px">Filled from the file</div>` + filled.map((f) => `<div class="r"><span>${esc(FORM_LABEL[f.form_key] || f.form_key)} · ${esc(f.method === 'acroform' ? 'county form' : 'statutory form')}${f.county ? ' · ' + esc(f.county) : ''} · ${esc(new Date(f.filled_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}${f.filled_by ? ' · ' + esc(firstName(f.filled_by)) : ''}${(f.blanks || []).length ? ' · <span class="dimmer">' + esc(String((f.blanks || []).length)) + ' blanks for the office</span>' : ''}</span><button class="btn sm" data-open-doc="${esc(f.id)}">Open</button></div>`).join('') : ''}
     </div>
   </div>`;
@@ -639,6 +648,28 @@ function nocRow(a, h, hasFilled) {
     line = ` · <span class="dimmer">${h.emailed_at ? 'emailed ' + esc(day(h.emailed_at)) : 'not emailed yet'} · ${esc(texts)} · ${h.switch_on ? esc(coming) : 'texts OFF (Office room)'}${h.page_opened_at ? ' · they opened the link' : ''}</span>`;
     next = 'The rep\'s: get it signed before a notary and upload the stamped copy here. It holds nothing.' + (h.emailed_at ? ` The customer also has it by email with a photo link (sent ${day(h.emailed_at)}).` : '');
     btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button><button class="btn sm ${h.emailed_at ? '' : 'ok'}" id="noc-send">${h.emailed_at ? 'Resend' : 'Email it'}</button>`;
+  } else if (h.status === 'stopped') {
+    line = ` · <span class="dimmer">texts stopped · ${esc(h.stop_reason || '')}</span>`;
+    btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button>`;
+  }
+  return `<div class="ask ${open ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${open ? '' : 'done'}"></span><span>${esc(askLabel(a))}${line}${next ? `<div class="next" style="margin-top:4px"><b>NEXT</b> ${esc(next)}</div>` : ''}</span><span style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${btn}${upload}</span></div>`;
+}
+/* 386: the warranty deed ask — the county lists a different owner than the signer; the customer sends a picture from the link */
+function deedRow(a, h) {
+  const day = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  const open = a.state === 'OPEN';
+  const upload = open ? `<button class="btn sm" data-settle="${esc(a.id)}" title="The deed from the county's records, or a picture the customer sent another way">Upload</button>` : '<span class="mono verify">on file</span>';
+  let line = '', next = '', btn = '';
+  if (!open) {
+    line = h?.received_by === 'customer' ? ` · <span class="verify">picture from the customer · ${esc(day(h.received_at))}</span>` : a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : '';
+  } else if (!h) {
+    next = 'Press Request the deed on the Property card: the customer is emailed a photo link and texted until the picture lands.';
+  } else if (h.status === 'waiting') {
+    const texts = h.nudges_sent ? `${h.nudges_sent} text${h.nudges_sent === 1 ? '' : 's'} sent` : 'no texts yet';
+    const coming = h.next ? (h.next.channel === 'text' ? `next text ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}` : `${h.next.channel === 'push_rep' ? 'the rep' : 'the office'} is pushed ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}`) : 'the plan ran out — pull it from the records or call them';
+    line = ` · <span class="dimmer">${h.emailed_at ? 'emailed ' + esc(day(h.emailed_at)) : 'not emailed (no address on the customer)'} · ${esc(texts)} · ${h.switch_on ? esc(coming) : 'texts OFF (Office room)'}${h.page_opened_at ? ' · they opened the link' : ''}</span>`;
+    next = 'Waiting on a picture of the deed from the customer. It holds nothing. When it lands: check the name against the signer.';
+    btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button>`;
   } else if (h.status === 'stopped') {
     line = ` · <span class="dimmer">texts stopped · ${esc(h.stop_reason || '')}</span>`;
     btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button>`;

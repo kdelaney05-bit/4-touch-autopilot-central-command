@@ -132,3 +132,14 @@ Kevin, 17 Sep ~9 AM: "everything's being signed including the hold harmless, all
 - **liberty-command e.html:** the signed receipt says "you're in: your permit is being pulled and your material is going on order; your rep will be in touch about the one county form that needs a notary."
 - **The team note:** the draft "Re: New rule on contracts — the final answer, in one place" rewritten to this; Kevin sends it after the run-through.
 - **Walk-through file 3:** "Delaney final walk, Kevin" — see the email to Kevin for the link.
+
+
+## ✅ 17 Sep ~10:30 AM — 386 THE WARRANTY DEED
+
+Kevin: "if the person on the estimate is not the person on the title, we have to get the warranty deed. Let the homeowner know, CC the office, and put a constant reminder until we get it back. The customer just has to take a picture."
+
+- It was NOT automated before this: 324 marked the signer match / mismatch / entity on the Property card and stopped there.
+- **386 applied:** `noc_handoffs.kind` (noc · deed); a mismatch or entity owner on a signed job → `deed_request_start`: a CONTRACT_DOC · deed ask on the office (holds nothing), `deed_request_email` to the customer (the rep, Sam and the watchers copied) with the photo link, texts from the rep's seat on days 1, 3, 6, 10, 15, 21 and pushes to the rep (3, 10) and the office (7, 14, 21, 28) — rows in `noc_nudge_plans` under `deed`; fires from the trigger on `parcel_lookups` (the county record after the signature) and from `fence_checklist_open` (the signature after the record); `deed_request_send` is the Property card's **Request the deed**. `noc_handoff_receive` settles the deed ask when the picture lands and tells Sam to check the name against the signer. `noc_handoff_for(customer, kind)`; `noc_nudge_sweep` knows both kinds (each behind its own switch: `deed_request` ON, `noc_notarize` OFF). The NOC and deed asks never hold a gate.
+- **noc-return deployed:** the same page with the deed's words (find it in your closing papers · a picture of each page · send), the file names and labels say warranty deed.
+- **Central Command v106:** the deed row on the Paperwork card (emailed · texts · Copy the photo link · Upload), the Property card's NEXT and Request the deed, the Office switch, words.js.
+- **Next free = 387.**
