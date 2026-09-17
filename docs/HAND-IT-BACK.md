@@ -106,6 +106,30 @@ paper"), drops the "we ordered at" comparison where there is no order, and the O
 Bills tile and queue say "suppliers · subs · crews · fees". The demo file carries one of each:
 `?demo=1&as=office&file=cj7` (the crew invoice), `&file=cj3` (the fee receipt).
 
+## 4a. The dry runs on the box (16 Sep, 9–10 PM)
+
+The intake ran on the box against the real mailboxes five times, writing nothing, and each
+run fixed something. What the last one would land, from seven days of mail:
+
+| Mailbox | Would land | Read from |
+|---|---|---|
+| jessica@libertyfencingfl.com | Iron World INV1260 $454.70 and INV1255 $913.64 (supplier, no PO on their invoice) | the NetSuite PDF |
+| jessica@libertyfencingfl.com | Heritage H044803 inv 0029347593-001, **amount unread → needs a human** (the PDF's text layer stops at page 1; no IIF came with it) | the Billtrust PDF |
+| jessica@oasislandscapesfl.com | Nick's Lawn 10001567 $190.90 and 10001545 $4,082.26 (sub) | the PDF |
+| jessica@oasislandscapesfl.com | Kicking Grass #1065 $1,750 · #1064 $1,100 · #1060 $550 · #1057 $4,050 (sub, link-only emails) | the email's subject and text |
+
+Skipped on purpose: payment confirmations (Billtrust "Your payment summary", Heritage
+"Payment Confirmation", a sub's "Payment processed"), our own Billdu reminders to customers,
+Havana's "Payments Due" replies (inline images, no PDF: Jess's draft asks Havana for PDFs),
+legal and payroll bills (Ausley & McMullen, ADP: overhead, not a payee yet), NOCs, calendar
+invites, voicemails. The two Heritage accounts: H044803 (Fencing) lands in Jess's fencing inbox;
+H021915 (Oasis, the paver account the subs buy on) still reaches only Kevin's personal Gmail
+until Brian adds Jess or Kevin forwards it. **Ask Billtrust to attach the IIF on H044803** and
+Heritage's amounts read exactly.
+
+**Not run for real yet.** The first real pass puts the cards above on the office's files
+(v97 reads `v_bills_queue`), every switch still OFF. Kevin says when.
+
 ## 5. The spoons, in order
 
 Each one is a card that shows up and says what to press. One at a time, a week each.

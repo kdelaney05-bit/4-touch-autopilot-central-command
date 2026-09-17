@@ -167,6 +167,18 @@ wrong, not the gospel.
     reason not to pay us… they are holding up themselves." The close is one
     line: great, I can get you started now, go ahead and accept here, and we
     get everything moving on our end. Still easier, just compliant. (16 Sep)
+35. **Leave people alone from 7:30 PM to 8 AM.** "Don't send any more emails
+    this late. Schedule for 8 am, always, after 7pm. New rule across the
+    board. Leave people alone from 7:30 to 8am. Spread across the board."
+    Nothing goes out in that window — no email, no text, no push — from a
+    rep, the office, or any engine (the four-touch, the autopilot, the
+    no-quote note, the machine's office texts, the invoice text, the
+    receipts). Anything that becomes ready after 7:30 PM is not dropped: it
+    is scheduled for 8:00 AM Eastern, and the sender sees "goes at 8 AM" where
+    the Send button was. One clock for all of it: America/New_York. A draft
+    written at night says "schedule for 8 AM" in its hand-off, never "send
+    now." (16 Sep, 9 PM, the night a supplier email went out at 9:05)
+
 
 ## Where each one shows up
 
@@ -181,5 +193,6 @@ wrong, not the gospel.
 | Signing is not selling | estimate-view /sign, the accepted estimate, the NOC |
 | Every new thing ships with a Ride-Along | docs/ride-alongs.html; the films in js/tour.js (`?tour=1`, `?tour=crews`, `&voice=1`); 🎬 What's new in the header |
 | They accept now, sign everything once, nobody goes back | The signing link (366–368); the NOC row on the file's Paperwork card; the switch The NOC to the customer; `?tour=noc` |
+| Leave people alone 7:30 PM–8 AM | `backend/worker/quiet-hours.mjs` (one clock, one rule) gates every engine that sends; the app's Send holds until 8 AM in the window (next spoon) |
 
 Add to this file when Kevin says a new one. Never delete one without his word.
