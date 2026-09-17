@@ -237,5 +237,7 @@ live for the office to see before a single bill has landed.
 | 11 | build | **Invoice ready** on the office seat: **BUILT 16 Sep evening, v96.** Opened by the sign-off or the INVOICE ask; typed from the accepted estimate or the sold amount − the deposit + signed change orders; photos against the proof rule, the sign-off, the customer's last text, the brand's "invoice sent" line. Approve = `invoice_request` + optional invoice number (settles the ask, opens Payment) + the text from the main line, one press; Hold tags the supervisor or the rep. With `qb_invoices` OFF the office still makes the invoice in Billdu / QuickBooks and types its number; the card says so. | — |
 | 12 | Kevin | Flip `qb_invoices`, then `office_machine_texts` for the invoice text. Third and fourth spoons. | 8, 11 |
 
+**16 Sep, late (376 HAND IT BACK):** steps 3 and 6 no longer need a mailbox address or an app password. The intake reads the office mailboxes through the Workspace delegation key (gmail.readonly — the nurture engine's key), `BILLS_MAILBOXES` + `BILLS_QUERY` in the box env; readonly cannot mark a mail seen, so the dedupe keys carry it. Kevin's personal Gmail is the one address the key cannot reach: Heritage gets re-pointed (draft to Brian). Every bill now carries a kind (supplier · sub · crew · fee) and the paper door `bill_land_by_hand` exists — see `docs/HAND-IT-BACK.md`.
+
 The order of the spoons: 7 → 9 → 11 → 12. Each one is a card that shows up
 and says what to press; nobody is told to learn anything (gospel 33).

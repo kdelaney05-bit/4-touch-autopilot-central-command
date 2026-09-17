@@ -98,7 +98,7 @@ decision and hands the office the fields in CC's order. Both switches OFF.
 
 **The intake worker** (`backend/worker/bills-intake.mjs`) now lands a mail with no
 "Your Invoice From" subject when its sender or subject matches a payee and a PDF came with it,
-as that payee's kind. Still never run; runs on the box with the mailbox login.
+as that payee's kind. **It reads the mailboxes through the Workspace delegation key** (gmail.readonly, the key the nurture engine and the ITB reader already hold): `BILLS_MAILBOXES` (default the two Jessicas, Jessica Oasis, kevin@libertyfencingfl.com) and `BILLS_QUERY` in the box env. No IMAP, no app password. A consumer Gmail (kdelaney05@) cannot be impersonated, so Heritage is re-pointed to a Workspace address (draft to Brian at Heritage/FIS in Kevin's Gmail). Still never run.
 
 **The app (v97):** the card says its kind before the name (SUPPLIER BILL · SUB INVOICE ·
 CREW INVOICE · FEE RECEIPT LANDED), says who landed it and how ("landed by Obed from the
@@ -112,9 +112,9 @@ Each one is a card that shows up and says what to press. One at a time, a week e
 
 | Step | Who | What | Waits on |
 |---|---|---|---|
-| 1 | Kevin | The mailbox login for the intake worker (a Google app password, sent the way the Supabase keys were), or a `bills@` per brand. | nothing |
+| 1 | Kevin | Confirm the delegation key reaches the four mailboxes: one read-only command on the box (this PC's permission classifier refuses remote reads, so Kevin runs it; senders and subjects only). Send the draft to Brian so Heritage lands on a Workspace address. | nothing |
 | 2 | Kevin | Liberty Roofing's QuickBooks consent (the fourth company). | nothing |
-| 3 | build | Run the intake worker on the box, `--dry` first. The first real ABC and Heritage mails land. | 1 |
+| 3 | build | Copy the rewritten intake to the box and run it `--dry` first. The first real ABC (Jess's roofing inbox) and Heritage mails land. | 1 |
 | 4 | build | The supervisor app: TAKE gains "the crew's invoice" — snap the paper, type the amount, pick the crew from `payees`. Calls `bill_land_by_hand`. Ride-Along ships with it. | 376 (done) |
 | 5 | build | The PERMIT ask gains one field, "what did it cost"; Sam's tap lands the fee. | 376 (done) |
 | 6 | Kevin | Send the three supplier asks (Havana, Home Depot, Merchant Metals): emailed invoices with our PO. Drafts. | nothing |
