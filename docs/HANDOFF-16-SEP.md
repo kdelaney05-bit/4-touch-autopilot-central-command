@@ -85,6 +85,21 @@ Bill landed card live with every switch OFF (records only) → `bills_to_qb` →
 Invoice ready card → `qb_invoices` + `office_machine_texts`. One card at a
 time; each one shows up and says what to press.
 
+## Late night, 16 Sep (the second account, 6 PM to 11 PM)
+
+Read `docs/LANES.md` rows **BILLS** and **CREWS** first; they carry the whole
+evening. In one breath: the two money cards are live and recording (v96, 369);
+the crews get no app and no login, one text with one link per job is the room
+on the customer's file (342/347 already did it; **379** added the reply-by-text
+landing, the text back, the morning-of text and FALTA MATERIAL, all behind
+`crew_link_text`, OFF); @crew in the note box (v100); never assume Spanish,
+two big language buttons on every crew page (this repo and liberty-command);
+Luis has his handbook, the crew handout in both languages and the picture page
+(`docs/the-crew-thread.html`). Emails that went out as Kevin on his word: the
+supervisors' film + app note, Luis's nine questions + handout + handbook.
+Kevin's morning list is in the 11 PM email to himself ("Tonight, 16 Sep:
+everything that shipped…"). Next free migration: **380**.
+
 ## Other sessions running today
 
 Sibling sessions shipped the supervisor app film, the paperwork film and the
