@@ -124,8 +124,7 @@ Havana's "Payments Due" replies (inline images, no PDF: Jess's draft asks Havana
 legal and payroll bills (Ausley & McMullen, ADP: overhead, not a payee yet), NOCs, calendar
 invites, voicemails. The two Heritage accounts: H044803 (Fencing) lands in Jess's fencing inbox;
 H021915 (Oasis, the paver account the subs buy on) still reaches only Kevin's personal Gmail
-until Brian adds Jess or Kevin forwards it. **Ask Billtrust to attach the IIF on H044803** and
-Heritage's amounts read exactly.
+until Brian adds Jess or Kevin forwards it. **The Billtrust customer portal (eInvoice Connect, surveyed 16 Sep 10 PM) has no IIF-by-email setting**: notifications are per login user (new bill · attach a PDF copy · payment confirmation), the QuickBooks file is an on-demand download only ("Easy Import"), and recipients are added as sub-users. Jess already has a sub-user on H021915 (jessica@oasislandscapesfl.com); H044803 sits on a separate login and already emails Jess's fencing inbox. So Heritage's amount is typed by a human on the card until either the supplier side turns the IIF attachment on (the draft to Brian) or the parser learns Heritage's page-2 totals from a PDF whose text layer carries them.
 
 **Not run for real yet.** The first real pass puts the cards above on the office's files
 (v97 reads `v_bills_queue`), every switch still OFF. Kevin says when.
