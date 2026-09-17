@@ -1,11 +1,11 @@
 [
  {
   "title": "Every rep · Say it. To anyone, about any customer.",
-  "what": "Kevin, 17 Sep, 6:40 PM: \"make a video showing how to use this little contact-other-people thing on the mobile app… I don't even know how to use it.\" The box under the money on the Today tab. Top line: who it's about (type the last name, tap the customer). Big box: say it. POST. With a customer it lands on that customer's file as a team note; @Jessica Coley or @office in the words buzzes them; the customer never sees it. Leave the name blank and it goes to the Village, where everyone with a seat reads it; @sales, @supers, @office buzzes the group. When they answer, your phone buzzes and it's on the same file.",
+  "what": "Kevin, 17 Sep, 6:40 PM: \"make a video showing how to use this little contact-other-people thing… I don't even know how to use it.\" Then he tried it: \"I did Jessica and it didn't drop down a name… no way to tell [they got it]… needs to click on all supervisors employees and crews relative to that job… needs to show in the customer chat thread.\" So the box changed the same night (402): the top line is the customer (last name, tap them); under it, TO · tap who gets it: the people on that job first (the rep, the supervisor, the office seat), then All sales · All supervisors · The office, then everyone else. A phone icon means their phone buzzes; an envelope means email and text. Type a teammate where the customer goes and it says so and fixes it in one tap. POST with nobody tagged asks first. After POST the receipt reads back: got it → Jessica ✉ · Obed 👀 seen. The note lands on the customer's file, in the thread with the texts, with the same receipt under it. The customer never sees it. No customer = the Village.",
   "film": "ride-along-say-it",
   "go": null,
   "tour": null,
-  "meta": "6 scenes · ~2 minutes · 17 Sep · the phone app, Today tab (312 · 360 · 363) · no switch",
+  "meta": "7 scenes · ~2 minutes · 17 Sep, re-shot 7:50 PM with the people chips and the receipt (402) · the phone app, Today tab · no switch",
   "links": []
  },
  {
@@ -338,7 +338,7 @@
  },
  {
   "title": "The sales team · The Hunt — the sales app",
-  "what": "A rep’s day in the 4-Touch app: Today, the Morning Line, the customer file, the four touches, the estimate on the phone.",
+  "what": "A rep's day in the 4-Touch app: Today, the Morning Line, the customer file, the four touches, the estimate on the phone.",
   "film": "the-hunt",
   "meta": "2:52 · sales",
   "go": null,
@@ -347,7 +347,7 @@
  },
  {
   "title": "Luis · the crews · The Record — the crew cut",
-  "what": "The crew’s day: the work order on the phone, Spanish first, the photos, RECIBIDO, done.",
+  "what": "The crew's day: the work order on the phone, Spanish first, the photos, RECIBIDO, done.",
   "film": "the-record",
   "meta": "2:22 · Luis, the crews",
   "go": null,
@@ -356,7 +356,7 @@
  },
  {
   "title": "Luis · Obed · Robert · The Babysitter — the supervisor cut",
-  "what": "The supervisor’s day: take the job, the crew, the site, the sign-off, hand it back to the office.",
+  "what": "The supervisor's day: take the job, the crew, the site, the sign-off, hand it back to the office.",
   "film": "the-babysitter",
   "meta": "2:31 · Luis, Obed, Robert",
   "go": null,
@@ -364,7 +364,7 @@
   "links": []
  },
  {
-  "title": "Kevin · Jess · The Blindfold Off — the owner’s cut",
+  "title": "Kevin · Jess · The Blindfold Off — the owner's cut",
   "what": "What Kevin sees: the boards, the clocks, the money, who moved and who did not.",
   "film": "the-blindfold-off",
   "meta": "2:54 · Kevin, Jess, the managers",
