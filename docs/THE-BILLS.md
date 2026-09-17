@@ -55,14 +55,14 @@ inboxes. The census email (§7) asks the office to correct and complete it.
 
 | Supplier | Brand | How the invoice arrives today | Who keys it |
 |---|---|---|---|
-| ABC Supply | Pro-Tech · Liberty Roofing | Billtrust email → jessica@libertyroofinggrp.com, PDF + IIF, PO on every line | Jonathan (CC), Claudette (QB from the portal) |
-| SRS Building Products | Liberty Roofing | Billtrust email → Jess + Kevin, PDF + IIF, plus a monthly statement | same |
-| Heritage Landscape Supply | Oasis | Billtrust email → Kevin's inbox, PDF + IIF, plus a monthly statement | ? |
-| Home Depot (commercial account) | Liberty Fencing | Citi portal; statements by email possible | ? |
+| ABC Supply | Pro-Tech · Liberty Roofing | Billtrust email → jessica@libertyfencingfl.com since 17 Sep (Jess changed both portals; the roofing address sat on a mail system the machine cannot read), PDF + IIF, some carry a PO, some an address | Jonathan (CC), Claudette (QB from the portal) |
+| SRS Building Products | Liberty Roofing | Billtrust email → jessica@libertyfencingfl.com since 17 Sep, PDF + IIF, plus a monthly statement | same |
+| Heritage Landscape Supply | Oasis | Billtrust email → Kevin's inbox (unreadable to the machine); Jess, 17 Sep: "send them to me and I can do this" — re-point to jessica@libertyfencingfl.com | nobody today; Jess from here |
+| Home Depot (commercial account) | Liberty Fencing · Oasis | Citi portal; not in QuickBooks at all; Jess is working on emailed statements ("couldn't change it directly in the portal", 17 Sep) | Jonathan job-costs in CC |
 | Warehouse | Liberty Fencing | our own stock pulled to a job (the biggest "vendor" by count) | Jonathan |
-| Iron World · Havana Fence Supply · Merchant Metals · Stephens Pipe & Steel · iDeal | Liberty Fencing | ? (portal / paper / on the truck) | ? |
-| Bello Fencing · La Fence · MK Fencing · Pro-Tech Crew · Komodo Roofing · Kicking Grass (Rayce) | all | installers' invoices, not suppliers | Jonathan |
-| Southern Dumpsters | Pro-Tech | ? | ? |
+| Iron World · Havana Fence Supply · Merchant Metals · Stephens Pipe & Steel · iDeal | Liberty Fencing | **all email Jess (Jess, 17 Sep).** Havana: one "Payments Due" email a month with every invoice PDF attached, each named by our CC job number (`LIBERTY FENCING_29187 TOWERS DANA.pdf`), paid Fridays — asked for per-invoice emails the day written; Iron World: per invoice from ar@ironworldfencing.com; Merchant Metals: "they come to me already"; Stephens, iDeal: email | Jonathan (CC), Claudette (QB); Havana paid by Jess on Fridays |
+| Bello Fencing · La Fence · MK Fencing · Pro-Tech Crew · Komodo Roofing · Kicking Grass (Rayce) | all | installers' invoices, not suppliers. Fencing crews: paper from Obed → Jess's spreadsheet → CC (Claudette) → Jess cuts the checks. Roofing crews: paper from Luis → the spreadsheet → CC (Laura) → Jess runs payroll. Oasis subs (Kicking Grass and four or five more) email Jess; she types CC and pays | Jess · Laura |
+| Southern Dumpsters | Pro-Tech | emails Jess | Jess (QB and CC) |
 
 ### 3a. The 90-day roll-up (CC bills report, 18 Jun – 16 Sep 2026)
 

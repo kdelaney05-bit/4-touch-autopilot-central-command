@@ -18,7 +18,9 @@ export function enterPosts(ta, post, isPickerOpen = () => false) {
   });
 }
 
-export function micButton(ta) {
+/* 388: langFor() says which language the recognizer listens in — a nugget to a Spanish-speaking crew
+   is dictated in Spanish even from an English browser (Luis, 17 Sep: "Uma prueba" for "Una prueba"). */
+export function micButton(ta, langFor = null) {
   if (!SR || !ta) return null;
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'btn mic'; b.title = 'Talk into the box · tap to start, tap to stop'; b.textContent = '🎤';
@@ -27,7 +29,7 @@ export function micButton(ta) {
   b.onclick = () => {
     if (rec) { stop(); return; }
     try {
-      rec = new SR(); rec.lang = /^es/i.test(navigator.language) ? 'es-US' : 'en-US'; rec.continuous = true; rec.interimResults = true;
+      rec = new SR(); rec.lang = (typeof langFor === 'function' ? langFor() : null) || (/^es/i.test(navigator.language) ? 'es-US' : 'en-US'); rec.continuous = true; rec.interimResults = true;
       base = ta.value ? ta.value.replace(/\s*$/, ' ') : '';
       rec.onresult = (ev) => {
         let final = '', interim = '';

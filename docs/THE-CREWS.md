@@ -148,7 +148,7 @@ office, no English, no second app.
 
 | Step | Who | What | Waits on |
 |---|---|---|---|
-| 1 | Kevin · Luis | **The roster.** Which crews, which brand, who holds the phone, the phone number, Spanish or English. The number goes on the crew's card in Contractors Cloud (`cc_crews.phone`, copied hourly) or on the crew's seat; no phone, no text. | tomorrow's meeting |
+| 1 | Kevin · Luis | **The roster. DONE 17 Sep (388).** Luis answered by email at 8:23 AM (§4c below): nine crews, the lead's cell on every one, Spanish for all, Robert on the roofing crews, Luis and Obed on the fencing crews. The phones are on the crew seats the work order matches (`reps.role = 'crew'`), and `crew_link_text` now reads Luis's own roster on The Line (`crew_people`) as its third source, by name, so a crew with no seat still gets its text. Two numbers differ between what he typed on The Line and the email (Gregorio, Millenia); the email won, Luis asked to confirm. | — |
 | 2 | Kevin | **Flip `crew_link_text`** in the Office room (added to the switch list 16 Sep night, v98). From then on the text goes out the moment an install date is set. Fence crews first: the Fencing lines are campaign-approved; Oasis and Pro-Tech crews would get it from the Fencing line until theirs are. | 1 |
 | 3 | Luis | **The first real job.** One crew, one install, Luis on the file for every tap. | 2 |
 | 4 | build | **DONE 16 Sep night, 379.** The text back when a person writes in the crew's lane; the morning-of text at 7; a reply to the text itself landing on the file. All behind `crew_link_text`; the reply-landing needs no switch. | — |
@@ -177,6 +177,44 @@ names; who answers each crew; whether Luis reads Spanish; what every crew
 brings back before sign-off; the three things that go wrong today; the first
 real job; anything to change on the page before Wednesday. The answers fill
 step 1 of §4 and rows 1–5 of §5.
+
+## 4c. The roster, from Luis (17 Sep, 8:23 AM, on the nine-questions thread)
+
+| Crew | Lead | Trucks | Phone | Men | Brand | Answers to |
+|---|---|---|---|---|---|---|
+| MK Fencing | Andres Cuervo | 1, 2 and 3 | (407) 627-4949 | 6–8 | Fencing | Luis · Obed |
+| LA Fence | Lazaro | 1 | (407) 724-5769 | 2 | Fencing | Luis · Obed |
+| Bello Fencing | Roberto | 1 | (407) 319-7338 | 2 | Fencing | Luis · Obed |
+| Fence One | Andres Velasquez | 1 | (407) 922-9523 | 2–3 | Fencing | Luis · Obed |
+| Hurtado Fence | Jelson | 1 | (786) 624-1874 | 2 | Fencing | Luis · Obed |
+| CG Fence (Luis wrote "GA Fencing"; the CC card says CG) | Cesar | 1 | (407) 591-1174 | 1–2 | Fencing | Luis · Obed |
+| Pro-Tech | Adrian | 1 | (321) 458-8513 | 3–5 | Roofing | Robert |
+| Pro-Tech | Gregorio | 1 | (321) 914-9932 (The Line said …9982) | 3–5 | Roofing | Robert |
+| Millenia Roofing | Milton | 1 | (407) 487-6112 (The Line said 467-6112) | 3–5 | Roofing | Robert |
+
+Language: Spanish, every crew. MK Fencing's three trucks ride Andres's phone.
+Not on the roster and left off: Mickell Fence (Michael), Danilo, Vilman.
+
+**What every crew brings back before LISTO (Luis):** photos after the job is
+done and before leaving the site — the permit posted, the company sign posted,
+the fence and the gates top to bottom, and a picture of the check if one was
+collected. (Owed: these words on the crew's page under FOTOS/LISTO, in Spanish
+first — liberty-command `w.html`.)
+
+**The three things going wrong today (Luis):** no pictures · material shortage
+· "ask before you do anything" — the crew acts before asking. The first two are
+FOTOS and FALTA MATERIAL on the link; the third goes at the top of the page in
+their words.
+
+**"Uma prueba":** the test nugget Luis sent himself at 11:08 PM on 16 Sep
+carried his own typed words; the machine did not translate anything. What it
+points at is dictation: the mic on the nugget box listened in English. From
+v107 the mic listens in the crew's language (`micButton(ta, langFor)`).
+
+**"I still haven't been able to navigate the page. A tutorial for the crews
+would be helpful with the crews present."** Kevin's call: one morning at the
+yard, one real job, the crews on their phones, Luis copied on every tap (the
+Spanish Ride-Along, step 7, is the film of that morning).
 
 ## 4b. Luis's handbook
 

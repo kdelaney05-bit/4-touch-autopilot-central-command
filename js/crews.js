@@ -6,9 +6,10 @@
 // to point fingers… they need to know we told them next time." So every nugget is
 // a receipt: texted (when), opened (when), RECIBIDO by name (when), brought back
 // (what, when). Not to fight. So there is nothing to argue.
-import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=106';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=106';
-import { brandName } from './config.js?v=106';
+import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=107';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=107';
+import { brandName } from './config.js?v=107';
+import { micButton } from './dictate.js?v=107';   // 388: dictate the nugget in the crew's language
 
 const BRING = { done: 'Just tell me it is done', photo: 'A photo', number: 'A number', yesno: 'Yes or no', text: 'A few words' };
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
@@ -102,6 +103,8 @@ export function nuggetDialog(root, pre = {}) {
       <div class="field"><label>By when (optional)</label><input name="due" type="datetime-local"></div>
       <div class="small dimmer">They get a text with the link. They tap RECIBIDO · ENTENDIDO, then bring it back. Every step is stamped on the nugget and on the customer's file.</div>`,
     onOpen: (f) => {
+      // 388: the mic listens in the crew's language (Luis, 17 Sep: "Uma prueba" — an English recognizer hearing Spanish)
+      { const m = micButton(f.body, () => ((mine.find((c) => c.id === f.person.value)?.lang || 'es') === 'es' ? 'es-US' : 'en-US')); if (m) { m.style.marginTop = '4px'; f.body.parentElement.appendChild(m); } }
       const inp = f.cust, pick = f.querySelector('#nug-cust-pick'); let t = null;
       inp.oninput = () => { clearTimeout(t); const q = inp.value.trim(); cust = null; if (q.length < 2) { pick.innerHTML = ''; return; } t = setTimeout(async () => {
         const rows = await searchCustomers(q).catch(() => []);
