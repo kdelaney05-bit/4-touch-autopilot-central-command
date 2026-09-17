@@ -114,7 +114,7 @@ it around, or prints it. The words on it:
 > El teléfono te dice qué tocar. Si algo no se entiende, la pantalla está mal,
 > no tú. Díselo a Luis.
 
-The six steps: **1 Entra** (one login per crew) · **2 AQUÍ** (the phone does it)
+The six steps: **1 Te llega un texto** (the link; no app, no login) · **2 AQUÍ** (the phone does it)
 · **3 La orden** (RECIBIDO with your name) · **4 FOTOS** (say it with a picture)
 · **5 Pregunta** (the line to Luis, in your language) · **6 LISTO** (three
 photos or more). Then *what you never have to do*: no reports, no texts to the
