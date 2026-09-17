@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=109';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=109';
-import { enterPosts, micButton } from './dictate.js?v=109';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=109';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=109';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=110';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=110';
+import { enterPosts, micButton } from './dictate.js?v=110';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=110';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=110';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=109';
-import { settleDialog } from './office.js?v=109';
-import { reload } from './app.js?v=109';
-import { relTime } from './production.js?v=109';
-import { billsCards, billsNext, wireBills } from './bills.js?v=109';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=110';
+import { settleDialog } from './office.js?v=110';
+import { reload } from './app.js?v=110';
+import { relTime } from './production.js?v=110';
+import { billsCards, billsNext, wireBills } from './bills.js?v=110';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -234,7 +234,7 @@ function draw(root, ctx, compact) {
           ${openAsks.length ? raw(openAsks.map((a) => askRow(a, me)).join('')) : raw('<div class="small">No open asks.</div>')}
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
-        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], ctx.data.counter, ctx.data.deed)) : ''}
+        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], ctx.data.counter, ctx.data.deed, ctx.data.permitRule)) : ''}
         ${raw(fenceCard(ctx.data.fence, ctx.data.packet || [], estimates))}
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
@@ -357,6 +357,12 @@ function draw(root, ctx, compact) {
   root.querySelectorAll('[data-copy-link]').forEach((b) => (b.onclick = async () => {
     try { await navigator.clipboard.writeText(b.dataset.copyLink); toast('Photo link copied — paste it in a text'); } catch { prompt('The photo link', b.dataset.copyLink); }
   }));
+  if (q('#permit-flip')) q('#permit-flip').onclick = () => {
+    const b = q('#permit-flip'); const required = b.dataset.required === '1';
+    openModal({ title: required ? 'A permit after all' : 'No permit on this job', submitLabel: required ? 'Open the permit ask' : 'Close it on this file',
+      body: `<p class="small">${required ? 'The paperwork checklist comes back and PERMIT opens on the office (the contract is signed).' : 'The permit ask closes, the NOC and permit-signature asks are waived, the reminders stop. This file only — the brand and the county rules stay as they are.'}</p><div class="field"><label>Why (goes on the file)</label><input name="note" placeholder="${required ? 'e.g. the city wants one for the wall' : 'e.g. repair under the threshold'}"></div>`,
+      onSubmit: async (f) => { const r = await filePermitSet(ctx.customerId, required, f.note.value.trim() || null); toast(r?.permit_required === false ? 'No permit on this job — closed on the file' : 'Permit ask is open'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
+  };
   if (q('#noc-fill')) q('#noc-fill').onclick = async () => {
     const b = q('#noc-fill'); b.disabled = true; b.textContent = 'Filling…';
     // iPhone Safari blocks a popup opened after an await — open the tab now, point it at the PDF when it lands
@@ -599,9 +605,16 @@ function counterLine(k) {
   }
   return `<div class="r"><span class="small"><b>At the counter · ${esc(where)}:</b> ${esc(bits.join(' · '))}${k.read_at ? '' : ' <span class="dimmer">· from Sam\'s tree, not read from the city yet</span>'}</span></div>`;
 }
-function propertyCard(p, customer, filled = [], counter = null, deed = null) {
+/* 398: the file's permit answer (the file, then the brand, then the jurisdiction) and the office's flip */
+function permitLine(r) {
+  if (!r) return '';
+  const can = ['office', 'owner', 'admin', 'manager'].includes(state.me?.role);
+  const off = r.permit_required === false;
+  return `<div class="r"><span class="small"><b>${off ? 'No permit on this job' : 'Permit needed'}</b>${r.note ? ' · ' + esc(r.note) : ''}</span>${can ? `<button class="btn sm" id="permit-flip" data-required="${off ? '1' : '0'}" title="${off ? 'Open the permit ask and the paperwork checklist on this file' : 'Close the permit ask, waive the NOC and permit-signature asks, stop the reminders — on this file only'}">${off ? 'A permit after all' : 'No permit needed'}</button>` : ''}</div>`;
+}
+function propertyCard(p, customer, filled = [], counter = null, deed = null, permitRule = null) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
-  if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><span style="display:flex;gap:4px"><button class="btn sm fill" id="parcel-look">Ask the county</button><button class="btn sm" id="noc-fill" title="The statutory Notice of Commencement from the customer's own name and address — parcel and legal left as blanks for the office">Fill the NOC</button></span></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; when the county does not match the address, the NOC still fills from the file (Fill the NOC) and goes to the customer.</div></div>`;
+  if (!p) return `<div class="card">${permitLine(permitRule)}<div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><span style="display:flex;gap:4px"><button class="btn sm fill" id="parcel-look">Ask the county</button><button class="btn sm" id="noc-fill" title="The statutory Notice of Commencement from the customer's own name and address — parcel and legal left as blanks for the office">Fill the NOC</button></span></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; when the county does not match the address, the NOC still fills from the file (Fill the NOC) and goes to the customer.</div></div>`;
   const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
     : p.signer_match === 'mismatch' ? '<span class="chip red">SIGNER IS NOT THE OWNER</span>'
     : p.signer_match === 'entity' ? '<span class="chip gold">OWNED BY AN ENTITY · AUTHORIZED SIGNER NEEDED</span>'
@@ -623,6 +636,7 @@ function propertyCard(p, customer, filled = [], counter = null, deed = null) {
       <div class="r"><span><b>${esc((p.owner_names || []).join(' & ') || '—')}</b>${p.signer_name ? ' · signed by ' + esc(p.signer_name) : ''}</span></div>
       <div class="r"><span>Owner's mail: ${esc(mail || '—')}${mail && !sameMail ? ' <span class="red">· not the job address</span>' : ''}</span></div>
       <div class="r"><span>Parcel ${esc(p.parcel_id || '—')}${p.jurisdiction ? ' · ' + esc(p.jurisdiction) : ''}${p.subdivision ? ' · ' + esc(p.subdivision) : ''}</span></div>
+      ${permitLine(permitRule)}
       ${counterLine(counter)}
       ${p.legal_description ? `<div class="r"><span class="small">${esc(p.legal_description)}</span></div>` : ''}
       ${p.deed_book ? `<div class="r"><span class="small dimmer">Last deed OR ${esc(p.deed_book)} / ${esc(p.deed_page || '')}${p.sale_date ? ' · ' + esc(new Date(p.sale_date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</span></div>` : ''}

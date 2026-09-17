@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=109';
-import { DEMO } from './demo.js?v=109';
+import * as api from './api.js?v=110';
+import { DEMO } from './demo.js?v=110';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -184,11 +184,12 @@ export async function loadFile(customerId) {
     }
   }
   // 351: every photo on this customer — ours and CompanyCam's, newest first
-  const [photos, quotes, receipts, deed, counter, appt, mirror, subLocks] = await Promise.all([
+  const [photos, quotes, receipts, deed, counter, permitRule, appt, mirror, subLocks] = await Promise.all([
     api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []),
     api.page(`v_quote_requests?select=*&customer_id=eq.${customerId}&order=created_at.desc`, 20).catch(() => []),   // 353
     thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
     api.rpc('noc_handoff_for', { p_customer: customerId, p_kind: 'deed' }).catch(() => null),   // 386: the warranty deed request (the signer is not the owner of record)
+    api.rpc('permit_rule_for', { p_customer: customerId }).catch(() => null),   // 398: is a permit needed here — the file's answer, then the brand's, then the jurisdiction's
     api.rpc('counter_rule_for', { p_customer: customerId }).catch(() => null),   // 378: what this address's counter asks for at intake (was fetched and dropped before 381)
     // 381 THE FIRST PIECE: the estimate appointment on this customer (the newest job that has one), and the lead's copy for Contractors Cloud
     api.one(`jobs?select=id,appt_starts_at,rep_id&customer_id=eq.${customerId}&appt_starts_at=not.is.null&order=appt_starts_at.desc`).catch(() => null),
@@ -199,7 +200,7 @@ export async function loadFile(customerId) {
   if (!job.appt_starts_at && appt?.appt_starts_at) job.appt_starts_at = appt.appt_starts_at;
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
            appt: appt || null, mirror: mirror || null,
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null, deed: deed || null,
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null, deed: deed || null, permitRule: Array.isArray(permitRule) ? permitRule[0] || null : permitRule || null,
            bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [], subLocks: Array.isArray(subLocks) ? subLocks : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
@@ -278,6 +279,8 @@ export async function nocStatus(customerId) { if (isDemo()) return null; return 
 export async function materialSend(customerId) { guard(); return api.rpc('material_order_send', { p_customer: customerId }); }
 /* 378: what the counter asks for at this address (permit_jurisdiction_rules) */
 /* 386: ask the customer for a picture of the warranty deed — the email with the photo link, the texts until it lands */
+/* 398: the office flips a file — no permit on this job, or a permit after all (Kevin, 17 Sep: "Jess needs the ability in any file") */
+export async function filePermitSet(customerId, required, note) { guard(); return api.rpc('file_permit_set', { p_customer: customerId, p_required: required, p_note: note ?? null }); }
 export async function deedSend(customerId) { guard(); return api.rpc('deed_request_send', { p_customer: customerId }); }
 export async function counterRule(customerId) { if (isDemo()) return null; return api.rpc('counter_rule_for', { p_customer: customerId }).catch(() => null); }
 export async function threadForJob(jobId) { guard(); return api.rpc('file_thread_for', { p_job: jobId }); }
