@@ -34,7 +34,7 @@ in CC.**
   `kdelaney05-bit/trureview-mobile`
   (`C:\Users\kdela\OneDrive\Desktop\Commercial-Desk` is the current clone).
   This app's schema is migrations **306–381** there — see the table in
-  `README.md` for which one backs which feature. **Next free = 391** (live; 389 the first name is a person and 390 the parcel says the city, both applied 17 Sep ~10:05–10:10 AM by the inbox session, files on trureview-mobile main; 382 and 383 taken 17 Sep 8:20 AM, 384 the reschedule door 17 Sep 8:45 AM,
+  `README.md` for which one backs which feature. **Next free = 392** (live; 389 the first name is a person, 390 the parcel says the city, 391 the seat that sleeps (Oasis is Jess), all applied 17 Sep ~10:05–10:55 AM by the inbox session, files on trureview-mobile main; 382 and 383 taken 17 Sep 8:20 AM, 384 the reschedule door 17 Sep 8:45 AM,
   checked 17 Sep noon; two 381s are applied on live, 381_the_invoice and 381_the_first_piece_leads, like the two 369s), but
   check `schema_migrations` on live before writing one: sibling sessions
   number in parallel.
