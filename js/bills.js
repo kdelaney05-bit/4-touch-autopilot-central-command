@@ -3,7 +3,9 @@
 // everything on." The spoons, in order: these cards live with every switch
 // OFF (they only record) → bills_to_qb → qb_invoices → office_machine_texts.
 //
-//   BILL LANDED    one card per supplier invoice the intake worker landed on
+//   BILL LANDED    one card per bill that landed on this file — a supplier's invoice the
+//                  intake worker read from the mail, a sub's, a crew's paper snapped on the job,
+//                  a fee receipt (376: kind says which; the card says it before the name) —
 //                  this file (supplier_bills). Red before anyone opens it when
 //                  the invoice is over what we ordered at, or the PO matched
 //                  nothing. One tap: bill_decide() approve · wrong_job · hold;
@@ -25,9 +27,9 @@
 //
 // Every number says its source (gospel 5); the next step is one line with the
 // button beside it (gospel 3); nothing to learn, it comes to you (gospel 33).
-import { state, isDemo, firstName, personName, seatName, mentionHandle, decideBill, rematchBill, openBillPdf, invoiceRequest, settleAsk, textCustomer, postMessage, threadForJob, renderLine, searchCustomers } from './book.js?v=96';
-import { raw, esc, toast, openModal } from './ui.js?v=96';
-import { brandName } from './config.js?v=96';
+import { state, isDemo, firstName, personName, seatName, mentionHandle, decideBill, rematchBill, openBillPdf, invoiceRequest, settleAsk, textCustomer, postMessage, threadForJob, renderLine, searchCustomers } from './book.js?v=97';
+import { raw, esc, toast, openModal } from './ui.js?v=97';
+import { brandName } from './config.js?v=97';
 
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmt = (n) => (n == null || n === '' ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
@@ -39,12 +41,19 @@ const staffSeat = () => ['manager', 'office', 'admin', 'owner'].includes(state.m
 
 /* ── the bill's words ─────────────────────────────────────────────────────── */
 export const BILL_WAITING = ['landed', 'matched', 'needs_human', 'held', 'wrong_job'];
+/* 376 HAND IT BACK: the kind of bill, in the office's words. The card says it before the name. */
+export const KIND_WORD = { supplier: 'SUPPLIER BILL', sub: 'SUB INVOICE', crew: 'CREW INVOICE', fee: 'FEE RECEIPT' };
+export const KIND_TITLE = { supplier: 'Supplier invoice', sub: 'Sub invoice', crew: 'Crew invoice', fee: 'Fee receipt' };
+export const kindWord = (b) => KIND_WORD[b.kind] || KIND_WORD.supplier;
+const kindTitle = (b) => KIND_TITLE[b.kind] || KIND_TITLE.supplier;
+const howItLanded = (b) => b.landed_by_name ? `landed by ${firstName(b.landed_by_name)} from the paper` : b.kind === 'fee' ? 'read from the receipt email' : "read from the supplier's email";
 export const isBillWaiting = (b) => BILL_WAITING.includes(b.status);
 export const isBillOnCard = (b) => isBillWaiting(b) || b.status === 'approved';   // approved stays on the card until CC / QuickBooks has it
 export const isBillRed = (b) => isBillWaiting(b) && (Number(b.over_by || 0) > 0 || !b.job_id || b.status === 'needs_human' || (b.due_date && b.due_date < new Date().toISOString().slice(0, 10)));
 
 /* who verifies a bill: whoever holds the material step for that brand (stage_seats), else the office */
 function approverName(b) {
+  if (b.kind && b.kind !== 'supplier') return 'the office';
   const ss = (state.stageSeats || []).find((s) => String(s.cc_company_id) === String(b.cc_company_id) && s.stage === 'schedule');
   return firstName(seatName(ss?.owner_id) || '') || 'the office';
 }
@@ -85,7 +94,7 @@ function billNext(b) {
     default:
       if (Number(b.over_by || 0) > 0) return `This invoice is ${fmt(b.over_by)} over what we ordered at. Open the order, decide, and say why on Hold, or Approve if the extra is right.`;
       if (!b.job_id) return 'The PO matched nothing on file. Pick the file it belongs to, or Approve it as stock with no job.';
-      return `${who} verifies it: right job, right amount, right order. One tap. The switches (OFF) are what put it in Contractors Cloud and QuickBooks; until then the tap records it.`;
+      return `${who} verifies it: right job, right amount${b.kind && b.kind !== 'supplier' ? '' : ', right order'}. One tap. The switches (OFF) are what put it in Contractors Cloud and QuickBooks; until then the tap records it.`;
   }
 }
 
@@ -99,7 +108,7 @@ function ccFields(b) {
     ['Terms / due', raw_.terms ? raw_.terms + (b.due_date ? ' · due ' + day(b.due_date) : '') : b.due_date ? 'due ' + day(b.due_date) : '—'],
     [b.is_credit ? 'Credit' : 'Amount', (b.is_credit ? '−' : '') + fmt(b.amount)],
     ['Material order', b.po_number ? (String(b.po_number).startsWith('MO') ? b.po_number : 'MO' + b.po_number) + (b.cc_material_order_id ? ' · #' + b.cc_material_order_id : '') : '—'],
-    ['Memo', `Supplier invoice ${b.invoice_number}${b.po_number ? ' · PO ' + b.po_number : ''}`],
+    ['Memo', `${kindTitle(b)} ${b.invoice_number}${b.po_number ? ' · PO ' + b.po_number : ''}`],
   ];
 }
 
@@ -109,18 +118,18 @@ export function billCard(b) {
   const tone = red ? 'red' : b.status === 'approved' || b.status === 'in_cc' || b.status === 'in_qb' ? 'green' : waiting ? '' : 'done';
   const [chipCls, chipText] = billChip(b);
   const est = num(b.estimate_amount), amt = num(b.amount), over = num(b.over_by);
-  const estChip = b.is_credit ? '' : est == null ? '<span class="chip">NO ESTIMATE ON THE ORDER</span>' : over > 0 ? `<span class="chip warn">OVER BY ${esc(fmt(over))}</span>` : Math.abs((amt ?? 0) - est) < 0.005 ? '<span class="chip st-green">MATCHES</span>' : `<span class="chip st-green">UNDER BY ${esc(fmt(est - (amt ?? 0)))}</span>`;
+  const estChip = b.is_credit || (b.kind && b.kind !== 'supplier') ? '' : est == null ? '<span class="chip">NO ESTIMATE ON THE ORDER</span>' : over > 0 ? `<span class="chip warn">OVER BY ${esc(fmt(over))}</span>` : Math.abs((amt ?? 0) - est) < 0.005 ? '<span class="chip st-green">MATCHES</span>' : `<span class="chip st-green">UNDER BY ${esc(fmt(est - (amt ?? 0)))}</span>`;
   const lines = Array.isArray(b.lines) ? b.lines : [];
   const lineWords = lines.slice(0, 2).map((l) => l.memo || l.item).filter(Boolean).join(' · ');
   const dec = firstName(deciderName(b));
   const fields = b.status === 'approved' && !sw('bills_to_cc') ? `<div class="rows" style="margin-top:2px"><div class="r" style="border-top:0;padding-top:0"><span class="kicker">For Contractors Cloud · in CC's order</span><button class="btn sm" data-bill-copy="${esc(b.id)}">Copy the fields</button></div>${ccFields(b).map(([k, v]) => `<div class="r"><span class="small dimmer">${esc(k)}</span><span class="mono" style="font-size:12px">${esc(v)}</span></div>`).join('')}</div>` : '';
   return `<div class="card bill ${tone}" data-bill-card="${esc(b.id)}">
-    <div class="head" style="margin-bottom:2px"><div class="kicker" style="font-size:11px;color:${red ? 'var(--red)' : tone === 'green' ? 'var(--verify)' : 'var(--gold)'}">BILL LANDED · ${esc(b.supplier)} · read from the supplier's email ${esc(day(b.created_at))}${b.raw?.parsed_from === 'iif' ? ' (the IIF)' : b.raw?.parsed_from === 'pdf' ? ' (the PDF)' : ''}${b.pdf_path ? ' · the PDF is on the file' : ' · no PDF came with it'} · ${esc(brandName(b.cc_company_id))}</div><span class="chip ${chipCls}">${esc(chipText)}</span></div>
+    <div class="head" style="margin-bottom:2px"><div class="kicker" style="font-size:11px;color:${red ? 'var(--red)' : tone === 'green' ? 'var(--verify)' : 'var(--gold)'}">${kindWord(b)} LANDED · ${esc(b.supplier)} · ${esc(howItLanded(b))} ${esc(day(b.created_at))}${b.raw?.parsed_from === 'iif' ? ' (the IIF)' : b.raw?.parsed_from === 'pdf' ? ' (the PDF)' : ''}${b.pdf_path ? (b.landed_by ? ' · the photo is on the file' : ' · the PDF is on the file') : b.landed_by ? '' : ' · no PDF came with it'} · ${esc(brandName(b.cc_company_id))}</div><span class="chip ${chipCls}">${esc(chipText)}</span></div>
     <div class="bill-grid">
       <div><div class="kicker">Invoice</div><b>${esc(b.invoice_number)}</b></div>
       <div><div class="kicker">PO</div><b>${esc(b.po_number || '—')}</b> <span class="small">${b.cc_material_order_id ? '· found the material order' : b.job_id ? '· matched the job' : '· matches nothing on file'}</span></div>
       <div><div class="kicker">${b.is_credit ? 'Credit' : 'Invoice amount'}</div><b class="big">${b.is_credit ? '−' : ''}${esc(fmt(amt))}</b>${b.is_credit ? ' <span class="chip st-green">COMES IN AS A CREDIT</span>' : ''}</div>
-      <div><div class="kicker">We ordered at</div><b>${esc(est == null ? '—' : fmt(est))}</b> ${estChip}</div>
+      <div><div class="kicker">${b.kind && b.kind !== 'supplier' ? 'Landed' : 'We ordered at'}</div><b>${b.kind && b.kind !== 'supplier' ? esc(b.landed_by_name ? 'by ' + firstName(b.landed_by_name) + ', on the job' : 'by email') : esc(est == null ? '—' : fmt(est))}</b> ${estChip}</div>
       <div><div class="kicker">Due</div><b>${esc(day(b.due_date))}</b>${pastDue(b) ? ' <span class="chip warn">PAST DUE</span>' : ''}</div>
       <div><div class="kicker">Lines</div><b>${lines.length}</b>${lineWords ? ` <span class="small">· ${esc(lineWords)}</span>` : ''}</div>
     </div>
@@ -149,7 +158,7 @@ function billButtons(b, compact = false) {
 export function billRow(b) {
   const red = isBillRed(b); const [cls, text] = billChip(b);
   return `<div class="billrow ${red ? 'red' : ''}" data-bill-row="${esc(b.id)}">
-    <div><b>${esc(b.supplier)}</b> · inv ${esc(b.invoice_number)} · <span class="mono">${b.is_credit ? '−' : ''}${esc(fmt(b.amount))}</span> · PO ${esc(b.po_number || '—')} · ${esc(brandName(b.cc_company_id))} · ${b.customer_id ? `<a href="#" data-bill-peek="${esc(b.customer_id)}"><b>${esc(personName(b.customer_name || 'the file'))}</b></a>` : '<span class="red">no file matched</span>'}
+    <div><span class="small">${esc(kindWord(b))}</span> · <b>${esc(b.supplier)}</b> · inv ${esc(b.invoice_number)} · <span class="mono">${b.is_credit ? '−' : ''}${esc(fmt(b.amount))}</span> · PO ${esc(b.po_number || '—')} · ${esc(brandName(b.cc_company_id))} · ${b.customer_id ? `<a href="#" data-bill-peek="${esc(b.customer_id)}"><b>${esc(personName(b.customer_name || 'the file'))}</b></a>` : '<span class="red">no file matched</span>'}
       <div class="who"><span class="chip ${cls}">${esc(text)}</span> · landed ${esc(clock(b.created_at))} ago${b.due_date ? ' · due ' + esc(day(b.due_date)) : ''}${b.estimate_amount != null ? ' · we ordered at ' + esc(fmt(b.estimate_amount)) : ''}${b.decision_note ? ' · "' + esc(b.decision_note) + '"' : ''}</div></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${b.customer_id ? `<button class="btn sm" data-bill-peek="${esc(b.customer_id)}">Open file</button>` : ''}${billButtons(b, true)}</div>
   </div>`;
@@ -159,14 +168,14 @@ export function billRow(b) {
 export function billsTile() {
   const B = (state.bills || []).filter(isBillWaiting);
   const red = B.filter(isBillRed).length; const oldest = B[0];
-  return `<div class="tile" data-tour="bills-tile"><div class="kicker">Bills · supplier invoices</div><div class="fnum" ${red ? 'style="color:var(--clock)"' : ''}>${B.length}</div><div class="small">${oldest ? 'oldest <span class="mono' + (red ? ' red' : '') + '">' + esc(clock(oldest.created_at)) + '</span>' + (red ? ' · <span class="red">' + red + ' need a look</span>' : ' · all match') : 'none waiting · they land by themselves'}</div></div>`;
+  return `<div class="tile" data-tour="bills-tile"><div class="kicker">Bills · suppliers · subs · crews · fees</div><div class="fnum" ${red ? 'style="color:var(--clock)"' : ''}>${B.length}</div><div class="small">${oldest ? 'oldest <span class="mono' + (red ? ' red' : '') + '">' + esc(clock(oldest.created_at)) + '</span>' + (red ? ' · <span class="red">' + red + ' need a look</span>' : ' · all match') : 'none waiting · they land by themselves'}</div></div>`;
 }
 export function billsQueueCard() {
   const B = (state.bills || []).filter(isBillWaiting).slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
   const asOf = state.loadedAt ? state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
   return `<div class="card" data-tour="bills-queue">
-    <div class="head" style="margin-bottom:4px"><div class="kicker">Bills · supplier invoices waiting on a person · oldest first · from the supplier emails${asOf ? ' · as of ' + esc(asOf) : ''}</div><span class="chip ${B.some(isBillRed) ? 'warn' : 'st-gold'}">${B.length} WAITING</span></div>
-    ${B.length ? B.map(billRow).join('') : '<div class="empty">No supplier bills waiting. They land here by themselves when a supplier emails an invoice: the machine reads it, finds the job by the PO, and the card asks for one tap.</div>'}
+    <div class="head" style="margin-bottom:4px"><div class="kicker">Bills · suppliers, subs, crews and fees waiting on a person · oldest first · from the emails and the paper${asOf ? ' · as of ' + esc(asOf) : ''}</div><span class="chip ${B.some(isBillRed) ? 'warn' : 'st-gold'}">${B.length} WAITING</span></div>
+    ${B.length ? B.map(billRow).join('') : '<div class="empty">No bills waiting. They land here by themselves when a supplier, a sub or Simplifile emails an invoice, or when a supervisor snaps the paper a crew handed over, on the job: the machine reads it, finds the job, and the card asks for one tap.</div>'}
   </div>`;
 }
 

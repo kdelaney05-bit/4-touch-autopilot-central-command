@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=96';
-import * as api from './api.js?v=96';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=96';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=96';
-import { iconForAsk } from './words.js?v=96';
-import { DEMO_STEPS } from './demo-office.js?v=96';
-import { reload } from './app.js?v=96';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=96';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=97';
+import * as api from './api.js?v=97';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=97';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=97';
+import { iconForAsk } from './words.js?v=97';
+import { DEMO_STEPS } from './demo-office.js?v=97';
+import { reload } from './app.js?v=97';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=97';   // 365/369: the Bills tile and queue
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';

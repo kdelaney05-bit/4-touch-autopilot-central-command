@@ -128,7 +128,8 @@ const bill = (o) => {
     estimate_amount: o.est ?? null, over_by: over, status: o.status || (b ? 'matched' : 'landed'),
     pdf_path: `bills/${cc}/${o.supplier.toLowerCase().replace(/[^a-z0-9]+/g, '-')}/${o.inv}.pdf`,
     decided_by: o.by ?? null, decided_by_name: o.by ? SEATS.find((s) => s.id === o.by)?.name : null, decided_at: o.by ? ago(o.h - 0.5) : null, decision_note: o.note ?? null,
-    qb_bill_id: null, qb_error: null, cc_bill_id: null, created_at: ago(o.h), raw: { parsed_from: 'iif', terms: 'Net 30' },
+    qb_bill_id: null, qb_error: null, cc_bill_id: null, created_at: ago(o.h), raw: o.raw || { parsed_from: 'iif', terms: 'Net 30' },
+    kind: o.kind || 'supplier', payee_id: null, landed_by: o.landedBy ?? null, landed_by_name: o.landedBy ? SEATS.find((s) => s.id === o.landedBy)?.name ?? null : null,   // 376
     unmatched: !b, over_estimate: over != null, past_due: false, needs_human: o.status === 'needs_human' };
 };
 const BILLS = [
@@ -141,6 +142,11 @@ const BILLS = [
   bill({ n: 4, job: 'j5', supplier: 'ABC Supply Co', email: 'noreply@billtrust.example', inv: 'CM-77120', po: 'PRO1133', mo: 1133, amount: 120.50, credit: true, h: 3,
     lines: [{ memo: 'Returned bundles PRO1133', amount: 120.5, qty: -4 }] }),
   bill({ n: 5, job: 'j8', supplier: 'Iron World', inv: 'IW-20411', po: 'MO29350-1', mo: 29350, amount: 2210.00, est: 2210.00, h: 30, status: 'approved', by: 'jon' }),
+  /* 376 HAND IT BACK: the crew's paper invoice, snapped on the job by Obed; Simplifile's NOC receipt, read from the email */
+  bill({ n: 6, job: 'j7', kind: 'crew', supplier: 'MK Fencing', inv: 'CREW-20260916-7Q2M', amount: 1850.00, h: 4, landedBy: 'obed',
+    raw: { parsed_from: 'by hand', note: "the crew's paper invoice, snapped on the job" }, lines: [{ memo: '142 ft shadowbox, set and stained', amount: 1850 }] }),
+  bill({ n: 7, job: 'j3', kind: 'fee', supplier: 'Simplifile', email: 'noreply@simplifile.example', inv: 'SF-118820', amount: 45.50, h: 9,
+    raw: { parsed_from: 'pdf' }, lines: [{ memo: 'NOC e-recording · Brevard County', amount: 45.5 }] }),
 ];
 
 function book() {
