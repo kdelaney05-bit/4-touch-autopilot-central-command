@@ -204,3 +204,12 @@ Kevin: "On Oasis, no permits needed; act like none are needed. The link is a dig
 - **e.html:** the photo estimate (Oasis's picture of the paper contract) signs into a contract PDF with a signature footer, like the itemized one.
 - Oasis's vendor and cost: another session's 397 (the sub locked in, on the contract picture) — not touched here.
 - **Next free = 399.**
+
+## ✅ 17 Sep ~2:05 PM — THE FILMS, as plain video; the rule for every session
+
+Kevin: "Every one of the videos you send is in a format no one can use — like a Claude format. Nobody has Claude when I send this out." Then: "Make that a rule moving forward for all code sessions… pull all the recent code sessions in… so I can send them out; I have not sent anything out."
+
+- **`docs/films.html`** — every film as a direct MP4 link: the sign film (+ text-size), the five commercials re-encoded to phone size (`films/the-full-show.mp4` 33 MB, `the-hunt`, `the-record`, `the-babysitter`, `the-blindfold-off`, 6–9 MB), the seven Ride-Alongs and the supervisor-app film that were already in `films/`. All H.264 + AAC, served as `video/mp4` by Pages, verified.
+- **YouTube Uploads** on Kevin's desktop: 01–05 his originals, 06 the sign film (+ text size), 07–14 the ride-alongs, numbered his way, for unlisted YouTube links.
+- **The rule for every session:** `C:\Users\kdela\.claude\CLAUDE.md` (user-level, read by every session on this PC) + a section in this repo's, trureview-mobile's and liberty-command's `CLAUDE.md`, + memory `every-change-ships-its-note`: a plain MP4 at a direct link under `films/`, listed on `docs/films.html`, a copy in YouTube Uploads, the direct link in the note; never a Claude file card, a page-only or a GIF-only.
+- Kevin got the full list by email at 2:05 PM.
