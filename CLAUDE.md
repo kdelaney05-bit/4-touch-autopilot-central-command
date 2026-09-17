@@ -53,6 +53,21 @@ may see. The key in `js/config.js` is publishable and authorises nothing.
 
 ## Laws
 
+- **THE FILM LAW (Kevin, 17 Sep 2026, 4:30 PM — "i see no videos. ever… nobody
+  can see them… make law across all code sessions and changes. push video
+  explanation to all impacted").** A change that touches a person is NOT DONE
+  until: (1) a real MP4 exists, about 10 MB or less, that plays from one link
+  with no sign-in, no tap-to-start and no download —
+  `films/watch.html?f=<name>&t=<title>` on this site (the repo is PUBLIC:
+  demo data only, never a real customer); (2) that link is pushed to every
+  person the change touches, on their phone (Expo push through
+  `rep_push_tokens`; a text where there is no app), inside 8 AM–7:30 PM ET,
+  and the same link is given to Kevin in the session — not by email; (3) the
+  film is listed newest-first on `docs/ride-alongs.html`. An in-page tour
+  (`?tour=`) is a rehearsal, not the film. No explanation to the team goes
+  out as an email. Maker: `Commercial-Desk/tools/ride-along/make.mjs` (Guy);
+  screenshots from `?demo=1&as=<seat>&file=<id>` at 390×844; ship the
+  "(phone)" copy. Gospel 31 carries the same words.
 - **Cache-bust together.** `index.html` references `command.css?v=N` and
   `js/app.js?v=N`, and every `import` inside `js/` carries the same `?v=N`.
   Bump all of them in one commit (`sed` over `js/*.js` + `index.html`), or a

@@ -139,6 +139,22 @@ wrong, not the gospel.
     never a real person's voice passed off as them. The narrator is GUY,
     Microsoft's en-US-GuyNeural, Kevin's pick the same night; tools/narrate.mjs
     records him into films/ and the film plays the recording. (16 Sep)
+    *17 Sep, 4:30 PM, Kevin: "i see no videos. ever… nobody can see them… the
+    contract one nobody could download… people can't take the emails any
+    longer… videos showing how it works for everything moving forward. make
+    law across all code sessions and changes. push video explanation to all
+    impacted." So the form is fixed in three parts, and A CHANGE IS NOT DONE
+    until all three are true. (1) The film is a real MP4, about 10 MB or
+    less, that plays inline from ONE link with no sign-in, no tap-to-start
+    card and no download: `films/watch.html?f=<name>&t=<title>` on this site.
+    An in-page tour (`?tour=`) is a rehearsal, not the film. (2) That link is
+    PUSHED to every person the change touches, on their phone (the app's
+    push; a text where there is no app), inside 8 AM–7:30 PM (gospel 35), and
+    the same link goes to Kevin in the session, not by email. (3) It is
+    listed newest-first on docs/ride-alongs.html. No explanation to the team
+    goes out as an email, ever again. The maker is
+    Commercial-Desk/tools/ride-along/make.mjs (Guy's voice); the "(phone)"
+    copy is the one that ships.*
 32. **The machine babysits so the people hunt.** "They get busy taking care
     of all they've built — no time to hunt, they're babysitting. They are out
     of capacity. We aren't. I've never been, ever." Everyone has a capacity;
@@ -219,7 +235,7 @@ wrong, not the gospel.
 | Count once, say the source | Every county record carries source and as-of; the console badges |
 | Draft until send | Gmail drafts, posts pasted by Kevin |
 | Signing is not selling | estimate-view /sign, the accepted estimate, the NOC |
-| Every new thing ships with a Ride-Along | docs/ride-alongs.html; the films in js/tour.js (`?tour=1`, `?tour=crews`, `&voice=1`); 🎬 What's new in the header |
+| Every new thing ships with a Ride-Along | docs/ride-alongs.html; **since 17 Sep the film is an MP4 at `films/watch.html?f=<name>` (one tap, no sign-in), pushed to each impacted phone**; the in-page tours in js/tour.js (`?tour=1`, `?tour=crews`, `&voice=1`) are rehearsals; 🎬 What's new in the header |
 | They accept now, sign everything once, nobody goes back | The signing link (366–368); the NOC row on the file's Paperwork card; the switch The NOC to the customer; `?tour=noc` |
 | Leave people alone 7:30 PM–8 AM | `backend/worker/quiet-hours.mjs` (one clock, one rule) gates every engine that sends; the app's Send holds until 8 AM in the window (next spoon); the invoice sweep (381) keeps the same hours for its texts, emails, call cards and pushes |
 | The machine babysits so the people hunt · the phone is human | The invoice (381, 17 Sep): built from the file on the sign-off, sent by text and email with the pay link, chased on a plan of rows, paid by itself — and the one human touch is a call card on the office seat, never a machine on the phone. `docs/the-invoice.html` |

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Ride-Along</title>
+<meta name="robots" content="noindex"/>
+<style>
+  :root { --bg:#f5f2ec; --ink:#1c1a15; --dim:#6b675e; --gold:#b8860b; --card:#fff; --line:#e3ddd0; }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  .wrap { max-width:760px; margin:0 auto; padding:16px; }
+  .eyebrow { font-family:ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); margin:6px 0 8px }
+  h1 { font-family:Georgia,"Times New Roman",serif; font-weight:500; font-size:26px; line-height:1.15; margin:0 0 14px }
+  video { display:block; width:100%; border-radius:14px; background:#000; box-shadow:0 12px 40px rgba(0,0,0,.18) }
+  .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px }
+  .btn { display:inline-block; padding:12px 16px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--ink); text-decoration:none; font-weight:700; font-size:15px }
+  .btn.fill { background:var(--gold); border-color:var(--gold); color:#fff }
+  p.note { color:var(--dim); font-size:14px; line-height:1.5; margin-top:14px }
+  p.err { color:#b3261e; font-weight:700 }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Ride-Along · shows it, says it, writes it</div>
+  <h1 id="t">Ride-Along</h1>
+  <video id="v" controls playsinline preload="metadata" poster=""></video>
+  <div class="row">
+    <a class="btn fill" id="play" href="#">▶ Play</a>
+    <a class="btn" id="dl" href="#" download>Save to my phone</a>
+    <a class="btn" id="open" href="../" style="display:none">Open the real screen</a>
+  </div>
+  <p class="note" id="n">Sound on. About two minutes. Everything the voice says is written on the screen too.</p>
+</div>
+<script>
+  // One link per film: watch.html?f=<file name without .mp4>&t=<title>&go=<path to the real screen>
+  var q = new URLSearchParams(location.search);
+  var f = (q.get('f') || '').replace(/[^a-z0-9-]/gi, '');
+  var title = q.get('t') || 'Ride-Along';
+  document.title = title + ' · Ride-Along';
+  document.getElementById('t').textContent = title;
+  var v = document.getElementById('v');
+  if (!f) { document.getElementById('n').innerHTML = '<span class="err">No film named in this link. Ask Kevin for the link again.</span>'; }
+  else {
+    var src = f + '.mp4';
+    v.src = src;
+    document.getElementById('dl').href = src;
+    document.getElementById('play').onclick = function (e) { e.preventDefault(); v.play(); v.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+    v.onplay = function () { document.getElementById('play').style.display = 'none'; };
+    v.onerror = function () { document.getElementById('n').innerHTML = '<span class="err">The film did not load. Tap "Save to my phone" and open it from there, or tell Kevin these words: ' + src + '.</span>'; };
+    var go = q.get('go'); if (go && /^[a-z0-9?&=._\-\/]+$/i.test(go)) { var o = document.getElementById('open'); o.href = '../' + go.replace(/^\/+/, ''); o.style.display = ''; }
+  }
+</script>
+</body>
+</html>
