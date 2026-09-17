@@ -551,12 +551,13 @@ function propertyCard(p, customer, filled = []) {
   </div>`;
 }
 /* ── THE NOC IS THE CUSTOMER'S ERRAND (367, CONTRACT SIGNING AND AUTO WORKFLOW) ──
-   Kevin, 16 Sep: the customer signs every form on the link — the permit
-   application included — except the Notice of Commencement. That one is
-   emailed to them filled in (the rep and the office copied), they sign it in
-   front of a notary, and a picture from the link closes it. The machine texts
-   them until it lands; the rep never goes back for it. This row says where
-   that stands and gives the office the two buttons it may need. */
+   Kevin, 16 Sep (final, 9:30 PM): the customer signs everything on the link
+   and is locked in. The county's notary forms (the NOC, the hold harmless,
+   the permit application where the town notarizes it) are filled from the
+   file, emailed to the customer as the "you're in" note, and the REP goes
+   back once as the notary — or the customer signs at any notary and sends a
+   picture from the link. The machine texts them until the forms are back;
+   PERMIT and material open when they are. This row says where that stands. */
 function nocRow(a, h, hasFilled) {
   const day = (iso) => new Date(iso).toLocaleDateString([], { month: 'short', day: 'numeric' });
   const open = a.state === 'OPEN';
@@ -565,13 +566,13 @@ function nocRow(a, h, hasFilled) {
   if (!open) {
     line = h?.received_by === 'customer' ? ` · <span class="verify">photo from the customer · ${esc(day(h.received_at))}</span>` : a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : '';
   } else if (!h) {
-    next = hasFilled ? 'Email the filled NOC to the customer to sign before a notary. Nobody goes out for it.' : 'Fill the NOC (Property card), then email it to the customer to sign before a notary.';
+    next = hasFilled ? 'Send the "you\'re in" note with the filled notary forms; the rep sets the visit.' : 'Fill the NOC (Property card), then send the "you\'re in" note; the rep sets the visit.';
     btn = `<button class="btn sm ok" id="noc-send">${hasFilled ? 'Email it to the customer' : 'Fill + email it'}</button>`;
   } else if (h.status === 'waiting') {
     const texts = h.nudges_sent ? `${h.nudges_sent} text${h.nudges_sent === 1 ? '' : 's'} sent` : 'no texts yet';
     const coming = h.next ? (h.next.channel === 'text' ? `next text ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}` : `${h.next.channel === 'push_rep' ? 'the rep' : 'the office'} is pushed ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}`) : 'the plan ran out — call them';
     line = ` · <span class="dimmer">${h.emailed_at ? 'emailed ' + esc(day(h.emailed_at)) : 'not emailed yet'} · ${esc(texts)} · ${h.switch_on ? esc(coming) : 'texts OFF (Office room)'}${h.page_opened_at ? ' · they opened the link' : ''}</span>`;
-    next = h.emailed_at ? `With the customer since ${day(h.started_at)}: they sign it in front of a notary and send a picture from the link. The permit does not wait on it.` : (h.switch_on ? 'The email goes on the next sweep, or press Email it.' : 'The switch is OFF: press Email it, or flip "The NOC to the customer" in the Office room.');
+    next = h.emailed_at ? `"You're in" note sent ${day(h.emailed_at)}: the rep notarizes on the visit, or they send a picture from the link. The permit and the material open when it is back.` : (h.switch_on ? 'The note goes on the next sweep, or press Email it.' : 'The switch is OFF: press Email it, or flip "The you\'re-in note" in the Office room.');
     btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button><button class="btn sm ${h.emailed_at ? '' : 'ok'}" id="noc-send">${h.emailed_at ? 'Resend' : 'Email it'}</button>`;
   } else if (h.status === 'stopped') {
     line = ` · <span class="dimmer">texts stopped · ${esc(h.stop_reason || '')}</span>`;

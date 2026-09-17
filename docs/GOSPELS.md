@@ -151,18 +151,22 @@ wrong, not the gospel.
     do I need to do?" is answered by the card, never by a manual. And never
     "I'll walk you through the first one": the card walks them. (16 Sep)
 
-34. **They accept now, they sign everything once, and nobody goes back for
-    paperwork.** "If the customer's ready, they'll accept now. They'll sign
-    every one of our documents, including the building permit." One link,
-    one signature, nothing notarized on it; Oasis signs the contract alone.
-    The one form Florida wants notarized, the Notice of Commencement, is the
-    customer's errand: emailed to them filled in the second they sign, the
-    rep and the office copied; they sign it in front of any notary and send a
-    picture from the link; the machine texts them until it lands, gently for
-    a fence (it is only needed for the inspection, and that is when we are
-    done), harder for a roof. "The sales guys don't need to go back at all."
-    The close is one line: great, I can get you started now, go ahead and
-    accept here, and we get everything moving on our end. (16 Sep)
+34. **They accept now, they sign everything once, and they are locked in.
+    The county's two notary forms are a formality, on them, and the rep goes
+    back once as the notary.** "If the customer's ready, they'll accept now.
+    They'll sign every one of our documents." One link, one signature; Oasis
+    signs the contract alone. The Notice of Commencement and the Hold
+    Harmless are what the county wants notarized (the hold harmless is a
+    condition of the permit for a fence in an easement; the NOC is for the
+    inspection, and Rockledge and Orange City ask for it at the counter), so
+    they are filled from the file, emailed to the customer as the "you're in"
+    note the second they sign, and the rep, a notary, goes back once and
+    stamps them; or the customer signs at any notary and sends a picture. The
+    machine texts them until the forms are back. The office pulls the permit
+    and orders the material when they are. "It cannot and will not be a
+    reason not to pay us… they are holding up themselves." The close is one
+    line: great, I can get you started now, go ahead and accept here, and we
+    get everything moving on our end. Still easier, just compliant. (16 Sep)
 
 ## Where each one shows up
 
