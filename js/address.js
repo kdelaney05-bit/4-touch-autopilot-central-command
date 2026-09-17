@@ -6,8 +6,8 @@
 // they come from OpenStreetMap through Photon (photon.komoot.io — free, no key, no sign-up): it knows the street, the
 // city and the zip and often not the house number, so the number the office typed stays in front of the street it picked.
 // Nothing about the customer goes anywhere: the query is the address being typed, that is all.
-import { GOOGLE_MAPS_KEY } from './config.js?v=116';
-import { esc } from './ui.js?v=116';
+import { GOOGLE_MAPS_KEY } from './config.js?v=117';
+import { esc } from './ui.js?v=117';
 
 const HOME = { lat: 28.33, lon: -80.67 };   // Merritt Island — the middle of the book; a bias, not a fence
 const key = () => (GOOGLE_MAPS_KEY || '').trim();
@@ -41,8 +41,8 @@ export function addressPicker(input, box, onPick) {
   let t = null, rows = [], cur = -1, seq = 0;
   const close = () => { rows = []; cur = -1; box.innerHTML = ''; box.hidden = true; };
   const paint = () => {
-    const typedNum = /^s*(d+[a-z]?)/i.exec(input.value || '')?.[1];   // Sam, 17 Sep: the list said 'Greenbrier Ave · 32958' for '934 Greenbrier' — the number she typed rides the line, as it will ride the pick
-    box.innerHTML = rows.map((r, i) => `<button type="button" class="sub${i === cur ? ' lit' : ''}" data-i="${i}"><b>${esc(typedNum && r.street && !/^d/.test(r.street) ? typedNum + ' ' + r.label : r.label)}</b>${r.sub ? `<span>${esc(r.sub)}</span>` : ''}</button>`).join('');
+    const typedNum = /^ *([0-9]+[a-z]?)(?=[^0-9a-z]|$)/i.exec(input.value || "")?.[1];   // Sam, 17 Sep: the list said Greenbrier Ave · 32958 for 934 Greenbrier — the number she typed rides the line, as it will ride the pick
+    box.innerHTML = rows.map((r, i) => `<button type="button" class="sub${i === cur ? ' lit' : ''}" data-i="${i}"><b>${esc(typedNum && r.street && !/^[0-9]/.test(r.street) ? typedNum + ' ' + r.label : r.label)}</b>${r.sub ? `<span>${esc(r.sub)}</span>` : ''}</button>`).join('');
     box.hidden = !rows.length;
     box.querySelectorAll('button').forEach((b) => { b.onmousedown = (e) => e.preventDefault(); b.onclick = () => choose(Number(b.dataset.i)); });
   };
