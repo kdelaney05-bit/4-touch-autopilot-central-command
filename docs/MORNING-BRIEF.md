@@ -15,8 +15,7 @@ The rep's phone buzzes the moment she books it, the booking is the file's
 first line, the door shows the rep's day, and the machine carries the lead
 into Contractors Cloud behind a switch (OFF: Copy for CC on the file). Her
 film: `?demo=1&as=office&tour=leads&auto=1&voice=1`. Her page:
-`docs/JESS-MONDAY.md`. Your three moves: send the Jess email in your drafts;
-say whether the box's CC token may write (then the mirror switch); flip
+`docs/JESS-MONDAY.md`. The Jess email went out 17 Sep 11:52 AM ET. Your two moves: say whether the box's CC token may write (then the mirror switch); flip
 `appt_confirm` for Fencing if you want the customer texted on booking.
 
 ## New tonight, 16 Sep — CONTRACT SIGNING AND AUTO WORKFLOW
