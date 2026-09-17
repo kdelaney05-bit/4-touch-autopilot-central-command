@@ -178,7 +178,9 @@ wrong, not the gospel.
     is scheduled for 8:00 AM Eastern, and the sender sees "goes at 8 AM" where
     the Send button was. One clock for all of it: America/New_York. A draft
     written at night says "schedule for 8 AM" in its hand-off, never "send
-    now." (16 Sep, 9 PM, the night a supplier email went out at 9:05)
+    now." The one exception is Kevin himself: "I don't have quiet hours
+    ever." A note, a push or an email addressed to him goes at any hour.
+    (16 Sep, 9 PM, the night a supplier email went out at 9:05)
 
 
 ## Where each one shows up
