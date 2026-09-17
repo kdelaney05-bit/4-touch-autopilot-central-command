@@ -22,6 +22,15 @@ body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 -apple-system
 h1{font-size:26px;line-height:1.15;margin:4px 0 0}
 .lead{font-size:17px;color:var(--dim);margin:8px 0 14px}
 .lang{font:700 13px var(--mono);border:1px solid var(--line);border-radius:999px;padding:8px 12px;background:#fff;cursor:pointer;white-space:nowrap}
+/* the language switch: two big buttons, always in view, never a guess (Kevin, 16 Sep: "let's not ever assume Spanish but make sure they can see how to easily toggle") */
+.langbar{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--bg);padding:8px 0 10px}
+.langbar button{font:800 16px var(--mono);letter-spacing:.06em;padding:12px 8px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--dim);cursor:pointer}
+.langbar button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.langbar button small{display:block;font:600 10px var(--mono);letter-spacing:.1em;margin-top:2px;opacity:.85}
+.langfoot{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:14px}
+.langfoot button{font:700 14px var(--mono);padding:10px 8px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--dim);cursor:pointer}
+.langfoot button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+@media print{.langbar,.langfoot{display:none}}
 .rule{background:var(--goldsoft);border-left:6px solid var(--gold);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:18px;font-weight:700;line-height:1.35}
 .rule small{display:block;font-weight:400;font-size:14px;color:var(--dim);margin-top:4px}
 .step{background:var(--card);border:1px solid var(--line);border-left:8px solid var(--gold);border-radius:14px;padding:14px 14px 12px;margin-bottom:12px}
@@ -73,7 +82,8 @@ tr:last-child td{border-bottom:0}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div><div class="k" data-i="k">Liberty · Oasis · Pro-Tech · la cuadrilla</div><h1 data-i="h1">Tu día con Liberty.</h1></div><button class="lang" id="lang">EN</button></div>
+  <div class="langbar" role="group" aria-label="Idioma / Language"><button type="button" data-lang="es" id="lang-es">ESPAÑOL<small>toca para leer en español</small></button><button type="button" data-lang="en" id="lang-en">ENGLISH<small>tap to read in English</small></button></div>
+  <div class="top"><div><div class="k" data-i="k">Liberty · Oasis · Pro-Tech · la cuadrilla</div><h1 data-i="h1">Tu día con Liberty.</h1></div><button class="lang" id="lang" hidden>EN</button></div>
   <p class="lead" data-i="lead">Un texto con un link. Sin app, sin cuenta, sin contraseña. Seis toques en el día. Todo lo demás lo hace la máquina.</p>
   <div class="rule"><span data-i="rule">Nada que aprender. Te llega.</span><small data-i="ruleS">Tu trabajo aparece en el teléfono y el teléfono te dice qué tocar. Si algo no se entiende, la pantalla está mal, no tú. Díselo a Luis.</small></div>
 
@@ -142,6 +152,7 @@ tr:last-child td{border-bottom:0}
   </table>
 
   <div class="close"><b data-i="ch">Nada que aprender. Te llega.</b><p data-i="cp">Esto no es algo que memorizar. Es lo que va a pasar. La pantalla te dice qué tocar. Si una pantalla confunde, la pantalla está mal, no tú. Díselo a Luis y Kevin la arregla.</p></div>
+  <div class="langfoot"><button type="button" data-lang="es">ESPAÑOL</button><button type="button" data-lang="en">ENGLISH</button></div>
   <p class="foot"><span data-i="f1">Así se ve el encargo en tu teléfono hoy:</span> <a href="https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1" target="_blank" rel="noopener">c.html?demo=1</a> · <span data-i="f2">el modelo completo:</span> <a href="https://github.com/kdelaney05-bit/4-touch-autopilot-central-command/blob/main/docs/THE-CREWS.md" target="_blank" rel="noopener">THE-CREWS.md</a> · 16 Sep 2026</p>
 </div>
 <script>
@@ -168,15 +179,20 @@ tr:last-child td{border-bottom:0}
   };
   var ES = {};
   document.querySelectorAll('[data-i]').forEach(function(el){ ES[el.dataset.i] = el.innerHTML; });
-  var L = 'es'; try { L = localStorage.getItem('crew-day-lang') || 'es'; } catch (e) {}
+  // Never assume a language (Kevin, 16 Sep): a tap wins, then the phone's own setting, then English; the two big buttons are always in view.
+  var q = (new URLSearchParams(location.search).get('lang') || '').toLowerCase();
+  var saved = null; try { saved = localStorage.getItem('crew-day-lang'); } catch (e) {}
+  var phone = (navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
+  var L = (q === 'es' || q === 'en') ? q : (saved === 'es' || saved === 'en') ? saved : phone;
   function apply(){
     var D = L === 'en' ? EN : ES;
     document.querySelectorAll('[data-i]').forEach(function(el){ if (D[el.dataset.i] != null) el.innerHTML = D[el.dataset.i]; });
-    document.documentElement.lang = L; document.getElementById('lang').textContent = L === 'es' ? 'EN' : 'ES';
+    document.documentElement.lang = L;
+    document.querySelectorAll('[data-lang]').forEach(function(b){ b.classList.toggle('on', b.dataset.lang === L); });
     document.title = L === 'es' ? 'Tu día con Liberty · Your day with Liberty' : 'Your day with Liberty · Tu día con Liberty';
   }
-  document.getElementById('lang').onclick = function(){ L = L === 'es' ? 'en' : 'es'; try { localStorage.setItem('crew-day-lang', L); } catch (e) {} apply(); };
-  if (L === 'en') apply();
+  document.querySelectorAll('[data-lang]').forEach(function(b){ b.onclick = function(){ L = b.dataset.lang; try { localStorage.setItem('crew-day-lang', L); } catch (e) {} apply(); window.scrollTo({ top: 0 }); }; });
+  apply();
 })();
 </script>
 </body>

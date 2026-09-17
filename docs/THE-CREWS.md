@@ -55,6 +55,15 @@ supervisor; the office reads it on the file. The login is shelved; the twelve
 Aug crew seats stay inactive. What the crew sees from the link, today, is the
 list below.
 
+**Never assume Spanish** (Kevin, 16 Sep, ~9:30 PM: "let's not ever assume
+Spanish but make sure they can see how to easily toggle"). The text carries
+both languages in one message. Every crew page opens in the phone's own
+language (a tap wins, then the phone's setting, then English) with two big
+buttons, ESPAÑOL · ENGLISH, at the top and the bottom, never a small pill.
+The printed handout is two files, English and Spanish, and says so at the
+top. The manager's language on a crew's card (`crew_people.lang`) is the
+manager's word, not an assumption, and one tap overrides it.
+
 **The link's page, today (`w.html`), and what each tap does:**
 
 1. **The customer and the address**, the drawing, the material list, the

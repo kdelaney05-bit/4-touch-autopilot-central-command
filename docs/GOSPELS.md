@@ -99,7 +99,11 @@ wrong, not the gospel.
     written: no login, ever. One text with one link per job, and the link is
     the room, a mini chat for that job: the crew, Luis, the supervisor, every
     tap and every photo on the customer's file. Spanish or English on their
-    say, and the machine carries the other side. `docs/THE-CREWS.md`.*
+    say, and the machine carries the other side. And, ~9:30 PM: "let's not
+    ever assume Spanish but make sure they can see how to easily toggle" — so
+    "in Spanish" means in their language, never assumed: the page opens in
+    the phone's own language and two big buttons, ESPAÑOL · ENGLISH, are
+    always in view. `docs/THE-CREWS.md`.*
 27. **The hard quote goes to the one who can price it, fast.** A rep's ask
     is a checklist and pictures in one tap; the price comes back on the file
     and buzzes the rep; the clock on it is the number to watch. "Cut this
