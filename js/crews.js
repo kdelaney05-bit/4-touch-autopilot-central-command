@@ -6,10 +6,10 @@
 // to point fingers… they need to know we told them next time." So every nugget is
 // a receipt: texted (when), opened (when), RECIBIDO by name (when), brought back
 // (what, when). Not to fight. So there is nothing to argue.
-import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=114';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=114';
-import { brandName } from './config.js?v=114';
-import { micButton } from './dictate.js?v=114';   // 388: dictate the nugget in the crew's language
+import { state, isDemo, personName, firstName, photoSrc, upsertCrew, sendNugget, searchCustomers } from './book.js?v=115';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=115';
+import { brandName } from './config.js?v=115';
+import { micButton } from './dictate.js?v=115';   // 388: dictate the nugget in the crew's language
 
 const BRING = { done: 'Just tell me it is done', photo: 'A photo', number: 'A number', yesno: 'Yes or no', text: 'A few words' };
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';

@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=114';
-import { DEMO } from './demo.js?v=114';
+import * as api from './api.js?v=115';
+import { DEMO } from './demo.js?v=115';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -135,7 +135,7 @@ export async function loadFile(customerId) {
   let job = rows.sort((a, b) => (a.completed_at ? 1 : 0) - (b.completed_at ? 1 : 0))[0] || null;
   if (!job) {
     // not on the stage board (selling, or older than 30 days): read the job directly
-    const j = await api.one(`jobs?select=id,cc_project_id,cc_company_id,customer_id,title,fin_sold_amount,contract_signed_at,completed_at,rep_id,appt_starts_at,reps(name)&customer_id=eq.${customerId}&order=created_at.desc`);
+    const j = await api.one(`jobs?select=id,cc_project_id,cc_company_id,customer_id,title,fin_sold_amount,contract_signed_at,completed_at,rep_id,appt_starts_at,reps!jobs_rep_id_fkey(name)&customer_id=eq.${customerId}&order=created_at.desc`);
     const c = await api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`);
     job = j ? { job_id: j.id, cc_project_id: j.cc_project_id, cc_company_id: j.cc_company_id, customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone,
                 title: j.title, fin_sold_amount: j.fin_sold_amount, contract_signed_at: j.contract_signed_at, completed_at: j.completed_at, rep_id: j.rep_id, rep_name: j.reps?.name || null,

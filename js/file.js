@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=114';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=114';
-import { enterPosts, micButton } from './dictate.js?v=114';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=114';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=114';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=115';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=115';
+import { enterPosts, micButton } from './dictate.js?v=115';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=115';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=115';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=114';
-import { settleDialog } from './office.js?v=114';
-import { reload } from './app.js?v=114';
-import { relTime } from './production.js?v=114';
-import { billsCards, billsNext, wireBills } from './bills.js?v=114';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=115';
+import { settleDialog } from './office.js?v=115';
+import { reload } from './app.js?v=115';
+import { relTime } from './production.js?v=115';
+import { billsCards, billsNext, wireBills } from './bills.js?v=115';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
