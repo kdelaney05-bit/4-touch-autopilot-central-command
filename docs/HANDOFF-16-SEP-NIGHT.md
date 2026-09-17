@@ -17,7 +17,9 @@ committed and pushed: this repo on `main`, `kdelaney05-bit/trureview-mobile` on
 - **The bills intake ran for real at 10:20 PM on Kevin's "run it": 9 bills on the files**
   (Iron World ×2, Heritage ×1 needing a human, Nick's Lawn ×2, Kicking Grass ×4). None matched
   a job (no PO on any), so the first tap is Pick the right file. A second pass returned all
-  "already". **Not on a timer** — it runs on `run it` only, until Kevin says hourly:
+  "already". **On a timer since 10:50 PM on Kevin's "hourly": `liberty-bills.timer` (OnCalendar=hourly,
+  RandomizedDelaySec=120, Persistent) → `liberty-bills.service` (oneshot, EnvironmentFile /etc/liberty-command.env).**
+  `journalctl -u liberty-bills.service` shows each pass. By hand:
   `ssh` to the box, `cd /opt/liberty-command`,
   `LIBERTY_ENV_FILE=/etc/liberty-command.env node backend/worker/bills-intake.mjs` (`--dry` to look).
 - **How the intake reads mail:** the Workspace delegation key (`NURTURE_GMAIL_SA_KEYFILE`, gmail.readonly).
@@ -44,9 +46,8 @@ committed and pushed: this repo on `main`, `kdelaney05-bit/trureview-mobile` on
    jessica@oasislandscapesfl.com. (The Gmail forward was abandoned: Google's re-verification
    blocks the side panel; the sub-user route makes it unnecessary.)
 2. **Schedule the two drafts for 8 AM.**
-3. **Decision, defaulted:** the crew's paper invoice is landed by the OFFICE first (Jess), the
-   supervisors' snap in their app comes after a week. Kevin says otherwise or it stands.
-4. **Say "hourly"** when Jess and Jonathan have seen the first cards, and the intake goes on a timer.
+3. ~~Decision~~ **Decided 10:50 PM: the office lands the crew's paper first; the supervisors' snap comes a week later.**
+4. ~~Hourly~~ **Done 10:50 PM: the timer is on.**
 5. **QuickBooks Payments on Pro-Tech and Oasis:** gear → Account and settings → Payments; card
    and ACH on? (Fencing already is.) Not blocking.
 6. **The card list** for the next lane (bank, last four, company, who carries it), and the alert
@@ -57,6 +58,6 @@ committed and pushed: this repo on `main`, `kdelaney05-bit/trureview-mobile` on
 1. The "+ Bill" paper door on the customer file (office seats), calling `bill_land_by_hand`.
 2. "What did it cost" on Sam's PERMIT ask → a fee row.
 3. The night pushes from the database and the "goes at 8 AM" label.
-4. The intake on a timer (`liberty-bills.timer`, hourly) on Kevin's word.
+4. ~~The intake on a timer~~ done 10:50 PM.
 5. CARD CHARGE LANDED from the cards' alert emails; Approve → QuickBooks Purchase → bank match.
 6. The supervisor app's snap for the crew's paper.
