@@ -27,9 +27,9 @@
 //
 // Every number says its source (gospel 5); the next step is one line with the
 // button beside it (gospel 3); nothing to learn, it comes to you (gospel 33).
-import { state, isDemo, firstName, personName, seatName, mentionHandle, decideBill, rematchBill, openBillPdf, invoiceRequest, settleAsk, textCustomer, postMessage, threadForJob, renderLine, searchCustomers } from './book.js?v=97';
-import { raw, esc, toast, openModal } from './ui.js?v=97';
-import { brandName } from './config.js?v=97';
+import { state, isDemo, firstName, personName, seatName, mentionHandle, decideBill, rematchBill, openBillPdf, invoiceRequest, settleAsk, textCustomer, postMessage, threadForJob, renderLine, searchCustomers } from './book.js?v=98';
+import { raw, esc, toast, openModal } from './ui.js?v=98';
+import { brandName } from './config.js?v=98';
 
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmt = (n) => (n == null || n === '' ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));

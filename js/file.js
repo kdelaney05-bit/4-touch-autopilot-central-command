@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=97';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=97';
-import { enterPosts, micButton } from './dictate.js?v=97';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=97';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=97';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=98';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=98';
+import { enterPosts, micButton } from './dictate.js?v=98';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=98';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=98';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=97';
-import { settleDialog } from './office.js?v=97';
-import { reload } from './app.js?v=97';
-import { relTime } from './production.js?v=97';
-import { billsCards, billsNext, wireBills } from './bills.js?v=97';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=98';
+import { settleDialog } from './office.js?v=98';
+import { reload } from './app.js?v=98';
+import { relTime } from './production.js?v=98';
+import { billsCards, billsNext, wireBills } from './bills.js?v=98';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -229,7 +229,7 @@ function draw(root, ctx, compact) {
           ${openAsks.length ? raw(openAsks.map((a) => askRow(a, me)).join('')) : raw('<div class="small">No open asks.</div>')}
           ${doneAsks.length ? raw('<div class="kicker" style="margin-top:8px">Settled</div>' + doneAsks.map((a) => `<div class="ask done" style="grid-template-columns:auto 1fr auto"><span class="check done"></span><span>${esc(askLabel(a))} · ${esc(a.assignee_name || '')}${a.proof?.value ? ' · ' + esc(a.proof.value) : ''}${a.proof?.waived ? ' · waived: ' + esc(a.proof.waived) : ''}</span><span class="mono">${esc(mins(a.minutes_to_close))}</span></div>`).join('')) : ''}
         </div>
-        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [])) : ''}
+        ${customer ? raw(propertyCard(ctx.data.parcel, customer, ctx.data.filled || [], ctx.data.counter)) : ''}
         ${raw(fenceCard(ctx.data.fence, ctx.data.packet || [], estimates))}
       </div>
       <div style="display:flex;flex-direction:column;gap:12px">
@@ -270,6 +270,17 @@ function draw(root, ctx, compact) {
     box.querySelectorAll('.line').forEach((b) => (b.onclick = () => { const c = q('#compose'); if (!c || c.disabled) return; c.value = b.dataset.body; c.focus(); box.querySelectorAll('.line').forEach((x) => x.classList.toggle('on', x === b)); }));
     applyNextWord(ctx, q, lines, box);
   }).catch(() => { const box = q('#lines'); if (box) box.innerHTML = '<div class="small">The lines could not load. Type it yourself on the left.</div>'; });
+  root.querySelectorAll('[data-material-send]').forEach((b) => (b.onclick = async () => {
+    b.disabled = true; const was = b.textContent; b.textContent = 'Sending…';
+    try {
+      const r = await materialSend(ctx.customerId);
+      const went = (r?.sent || []).filter((s) => s.sent).map((s) => s.supplier);
+      const held = (r?.sent || []).filter((s) => !s.sent).map((s) => `${s.supplier}: ${s.why}`);
+      if (r?.ok) toast(`Order emailed to ${went.join(', ')}${held.length ? ' · ' + held.join(' · ') : ''}. The order number they reply with closes the ask.`);
+      else toast(r?.why || held.join(' · ') || 'Nothing went out.', 'err');
+      if (r?.ok) { await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } else { b.disabled = false; b.textContent = was; }
+    } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = was; }
+  }));
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), (r, proof) => { state.nextWord = nextWordFor({ ...a, customer_id: ctx.customerId }, proof); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); }); }));
   if (q('#file-take')) q('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } catch (e) { toast(e.message, 'err'); } };
   if (q('#file-back-job')) q('#file-back-job').onclick = () => openModal({ title: `Hand ${name} back`, submitLabel: 'Hand it back', body: '<div class="field"><label>Why</label><textarea name="note" required></textarea></div>', onSubmit: async (f) => { await handBack(job.job_id, f.note.value.trim()); toast('Handed back'); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } });
@@ -518,7 +529,26 @@ function sendEstimateDialog(ctx, r, name, customer, cc, again) {
    What the county appraiser holds for this address: who owns it, where they
    get mail, the parcel id and legal description the NOC needs. The chip says
    whether the person who signed the estimate is that owner. */
-function propertyCard(p, customer, filled = []) {
+/* 378: what the counter asks for at intake, from permit_jurisdiction_rules — the fine print Kevin read on 16 Sep, as rows.
+   By law the NOC is never a condition of the permit (713.135(1)(a)); what a counter lists on its own sheet is a separate fact. */
+function counterLine(k) {
+  if (!k || !k.found) return '';
+  const where = k.municipality ? k.municipality.replace(/\b\w/g, (c) => c.toUpperCase()) : `${k.county} County (unincorporated)`;
+  const bits = [];
+  if (k.permit_required === false) bits.push('no permit for our work');
+  else {
+    if (k.hha_gates_issuance === 'always') bits.push('hold harmless before the permit issues, every job');
+    else if (k.hha_gates_issuance === 'easement') bits.push(`hold harmless before the permit issues when the fence is in an easement${k.easement ? ' — THIS ONE IS' : ''}`);
+    else if (k.hha_gates_issuance === 'never') bits.push('no hold harmless');
+    else if (k.hha_notarized) bits.push('hold harmless (notarized; whether it gates issuance is not read yet)');
+    if (k.permit_app_notarized) bits.push("owner's signature on the permit application, notarized");
+    else if (k.permit_app_owner_signs) bits.push("owner signs the permit application");
+    if (k.noc_asked_at_intake) bits.push('lists the recorded NOC at intake (the law does not require it — 713.135(1)(a))');
+    else bits.push('NOC before the first inspection, not at intake');
+  }
+  return `<div class="r"><span class="small"><b>At the counter · ${esc(where)}:</b> ${esc(bits.join(' · '))}${k.read_at ? '' : ' <span class="dimmer">· from Sam\'s tree, not read from the city yet</span>'}</span></div>`;
+}
+function propertyCard(p, customer, filled = [], counter = null) {
   const addr = [customer?.street, customer?.city, customer?.zip].filter(Boolean).join(', ');
   if (!p) return `<div class="card"><div class="head" style="margin-bottom:0"><div class="kicker">Property · owner of record</div><span style="display:flex;gap:4px"><button class="btn sm fill" id="parcel-look">Ask the county</button><button class="btn sm" id="noc-fill" title="The statutory Notice of Commencement from the customer's own name and address — parcel and legal left as blanks for the office">Fill the NOC</button></span></div><div class="next"><b>NEXT</b> Ask the county who owns ${esc(addr || 'this address')}. It runs by itself when the customer accepts; when the county does not match the address, the NOC still fills from the file (Fill the NOC) and goes to the customer.</div></div>`;
   const chip = p.signer_match === 'match' ? '<span class="chip ok">SIGNER IS THE OWNER</span>'
@@ -542,6 +572,7 @@ function propertyCard(p, customer, filled = []) {
       <div class="r"><span><b>${esc((p.owner_names || []).join(' & ') || '—')}</b>${p.signer_name ? ' · signed by ' + esc(p.signer_name) : ''}</span></div>
       <div class="r"><span>Owner's mail: ${esc(mail || '—')}${mail && !sameMail ? ' <span class="red">· not the job address</span>' : ''}</span></div>
       <div class="r"><span>Parcel ${esc(p.parcel_id || '—')}${p.jurisdiction ? ' · ' + esc(p.jurisdiction) : ''}${p.subdivision ? ' · ' + esc(p.subdivision) : ''}</span></div>
+      ${counterLine(counter)}
       ${p.legal_description ? `<div class="r"><span class="small">${esc(p.legal_description)}</span></div>` : ''}
       ${p.deed_book ? `<div class="r"><span class="small dimmer">Last deed OR ${esc(p.deed_book)} / ${esc(p.deed_page || '')}${p.sale_date ? ' · ' + esc(new Date(p.sale_date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</span></div>` : ''}
       ${p.confidential ? '<div class="r"><span class="red">Protected address — the county withholds the owner. Nothing from this record prints.</span></div>' : ''}
@@ -708,7 +739,7 @@ function askRow(a, me) {
   const mine = a.assignee_id === me?.id;
   const cls = a.lane === 'SUPER' ? 'st-orange' : a.lane === 'CHAT' ? 'st-green' : 'st-blue';
   const openMin = (Date.now() - new Date(a.opened_at)) / 6e4;
-  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span><button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
+  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span>${a.ask_type === 'MATERIAL' && a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-material-send="${esc(a.id)}" title="Emails the order to the supplier the calculator's products point at, the material order attached; Gio and the watchers copied. Wood waits for the permit.">Send to supplier</button> ` : ''}<button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
 }
 
 function withQueueShape(a, job) {

@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=97';
-import * as api from './api.js?v=97';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=97';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=97';
-import { iconForAsk } from './words.js?v=97';
-import { DEMO_STEPS } from './demo-office.js?v=97';
-import { reload } from './app.js?v=97';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=97';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor } from './book.js?v=98';
+import * as api from './api.js?v=98';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=98';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=98';
+import { iconForAsk } from './words.js?v=98';
+import { DEMO_STEPS } from './demo-office.js?v=98';
+import { reload } from './app.js?v=98';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=98';   // 365/369: the Bills tile and queue
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -55,6 +55,7 @@ export function renderOffice(root) {
       <div class="switch"><span><b>Supplier bills → Contractors Cloud</b> — the approved bill written into CC with the Ref # filled. No CC bill-create door is confirmed yet, so OFF the card hands the office the fields to paste, in CC's order.</span><button class="btn sm ${sw('bills_to_cc')?.is_on ? 'ok' : ''}" data-switch="bills_to_cc">${sw('bills_to_cc')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div></div>`) : ''}
       <div class="switch"><span><b>The packet on the estimate page</b> — the disclosures and the county or city forms for the address appear under the customer's signature, one tap each, the same signature covers them — the permit application and the hold harmless included, nothing notarized on the link. Oasis signs the contract alone. The Notice of Commencement is the one form not on it (the switch below). Off = the estimate page is exactly as it was.</span><button class="btn sm ${sw('esign_packet')?.is_on ? 'ok' : ''}" data-switch="esign_packet">${sw('esign_packet')?.is_on ? 'ON' : 'off'}</button></div>
       <div class="switch" data-tour="noc-switch"><span><b>The "you're in" note</b> — the moment they sign, the customer gets: you're in, your order is approved and moving, here are the county's notary forms filled in; your rep will set a time to notarize them, or any notary and a picture on the link. The rep, the office, Kevin, Jess and Gio are copied. The machine texts them from the main line until the forms are back (gentle for fence and Oasis, hard for roofing; rows in noc_nudge_plans). Off = the note waits on the file; a seat can still press Email it.</span><button class="btn sm ${sw('noc_notarize')?.is_on ? 'ok' : ''}" data-switch="noc_notarize">${sw('noc_notarize')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
+      <div class="switch"><span><b>The order to the supplier</b> — the moment a calculator job's material releases (paperwork official, deposit in), the order goes by email to the supplier the products point at (FIS, Merchants, Ideal, Iron World, Statewide, Home Depot), from Jonathan's seat, the calculator's material order attached, the bill of materials in the body, Gio and the watchers copied. Wood waits for the permit. Gio's approval or a product not in the guide keeps it a human send. The supplier's order number still closes the ask. Off = the ask says "Send to supplier"; Jonathan presses it on the file.</span><button class="btn sm ${sw('material_to_supplier')?.is_on ? 'ok' : ''}" data-switch="material_to_supplier">${sw('material_to_supplier')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
     <div class="card" id="cc-workflow"></div>`;
 
   workflowCard(root);
@@ -63,7 +64,7 @@ export function renderOffice(root) {
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.settle); if (a) settleDialog(a, (r, proof) => { reload(true); offerNextWord(nextWordFor(a, proof)); }); }));
   root.querySelectorAll('[data-switch]').forEach((b) => (b.onclick = async () => {
     const cur = sw(b.dataset.switch)?.is_on;
-    const ask = { appt_confirm: 'Turn the confirmation text ON? The next new appointments get a text from the main line within 5 minutes.', text_clock: 'Turn the answer clock ON? Watchers get pinged 15 minutes after any customer text from now on.', office_machine_texts: 'Turn the chain\'s texts ON? From now on a settled permit, schedule, invoice and payment texts the customer from the main line.', after_hours_reply: 'Turn the after-hours holding text ON?', bills_to_qb: 'Turn supplier bills → QuickBooks ON? From now on an approved Bill landed card is created in QuickBooks within the hour, duplicate-guarded on vendor + invoice number.', bills_to_cc: 'Turn supplier bills → Contractors Cloud ON? Nothing writes into CC yet (no bill-create door confirmed); the card only stops showing the fields to paste. Leave it OFF until that door exists.', noc_notarize: 'Turn the "you\'re in" note ON? From now on, when a customer signs, they get the note with the county\'s notary forms (the rep and the office copied) and the machine texts them from the main line until the forms are back. Files signed in the last two weeks that are still waiting get the note on the next sweep.' };
+    const ask = { appt_confirm: 'Turn the confirmation text ON? The next new appointments get a text from the main line within 5 minutes.', text_clock: 'Turn the answer clock ON? Watchers get pinged 15 minutes after any customer text from now on.', office_machine_texts: 'Turn the chain\'s texts ON? From now on a settled permit, schedule, invoice and payment texts the customer from the main line.', after_hours_reply: 'Turn the after-hours holding text ON?', bills_to_qb: 'Turn supplier bills → QuickBooks ON? From now on an approved Bill landed card is created in QuickBooks within the hour, duplicate-guarded on vendor + invoice number.', bills_to_cc: 'Turn supplier bills → Contractors Cloud ON? Nothing writes into CC yet (no bill-create door confirmed); the card only stops showing the fields to paste. Leave it OFF until that door exists.', material_to_supplier: 'Turn the order to the supplier ON? From now on, the moment a calculator job\'s material releases, the order is emailed to the supplier from Jonathan\'s seat with the calculator\'s order attached (Gio and the watchers copied). Wood still waits for the permit; Gio\'s approval or an unknown product stays a human send.', noc_notarize: 'Turn the "you\'re in" note ON? From now on, when a customer signs, they get the note with the county\'s notary forms (the rep and the office copied) and the machine texts them from the main line until the forms are back. Files signed in the last two weeks that are still waiting get the note on the next sweep.' };
     const ok = confirm(cur ? 'Turn it off?' : (ask[b.dataset.switch] || 'Turn it on?'));
     if (!ok) return;
     try { await setSwitch(b.dataset.switch, !cur); toast(cur ? 'Off' : 'On'); await reload(true); } catch (e) { toast(e.message, 'err'); }

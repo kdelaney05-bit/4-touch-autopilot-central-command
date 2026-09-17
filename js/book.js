@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=97';
-import { DEMO } from './demo.js?v=97';
+import * as api from './api.js?v=98';
+import { DEMO } from './demo.js?v=98';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -141,7 +141,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, counter] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at&id=eq.${customerId}`),
@@ -183,9 +183,10 @@ export async function loadFile(customerId) {
     api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []),
     api.page(`v_quote_requests?select=*&customer_id=eq.${customerId}&order=created_at.desc`, 20).catch(() => []),   // 353
     thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
+    api.rpc('counter_rule_for', { p_customer: customerId }).catch(() => null),   // 378: what this address's counter asks for at intake
   ]);
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
-           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null,
+           fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null,
            bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
@@ -241,6 +242,10 @@ export async function openPaperwork(id) { guard(); return api.fn('paperwork-fill
 /* 367: the NOC is the customer's errand — Email it (a seat pressed Send: the email goes now, the texts follow the switch), and where it stands. */
 export async function nocSend(customerId) { guard(); return api.rpc('noc_handoff_send', { p_customer: customerId }); }
 export async function nocStatus(customerId) { if (isDemo()) return null; return api.rpc('noc_handoff_for', { p_customer: customerId }).catch(() => null); }
+/* 378: the order to the supplier from the MATERIAL ask — one email per supplier the calculator's products point at, the order attached; wood waits for the permit */
+export async function materialSend(customerId) { guard(); return api.rpc('material_order_send', { p_customer: customerId }); }
+/* 378: what the counter asks for at this address (permit_jurisdiction_rules) */
+export async function counterRule(customerId) { if (isDemo()) return null; return api.rpc('counter_rule_for', { p_customer: customerId }).catch(() => null); }
 export async function threadForJob(jobId) { guard(); return api.rpc('file_thread_for', { p_job: jobId }); }
 export async function mentionSeen(threadId) { if (isDemo()) return 0; return api.rpc('mention_seen', { p_thread: threadId }).catch(() => 0); }
 export async function setSwitch(key, on) { guard(); return api.rpc('automation_switch_set', { p_key: key, p_on: on }); }
