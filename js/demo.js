@@ -238,7 +238,13 @@ function file(customerId) {
   const bills = BILLS.filter((x) => x.customer_id === b.customer_id);
   const deposit = b.job_id === 'j3' ? { deposit_required: false, deposit_amount: null, deposit_paid_at: null, deposit_method: null, deposit_paid_by: null } : null;
   const invoiceQueue = b.job_id === 'j11' ? [{ id: 'iq1', ask_id: null, amount: 6400, memo: 'Final invoice', status: 'sent', qb_invoice_id: '27915', qb_doc_number: '29334', pay_link: 'https://connect.intuit.com/portal/app/CommerceNetwork/view/demo', error: null, created_at: ago(30), sent_at: ago(29.7) }] : [];
-  return { noc, bills, deposit, invoiceQueue, invoiceState: demoInvoice(b), photos: demoPhotos(b), subLocks: demoSubLocks(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet };
+  return { noc, bills, deposit, invoiceQueue, invoiceState: demoInvoice(b), photos: demoPhotos(b), subLocks: demoSubLocks(b), quotes: QUOTES.filter((q) => q.customer_id === b.customer_id), receipts, job: { ...b, sms_opt_out_at: null }, customer: { id: b.customer_id, name: b.customer_name, phone: b.customer_phone, email: null }, texts, emails: b.job_id === 'j3' ? [{ id: 'e1', occurred_at: ago(22 * 24), subject: 'Your estimate from Liberty Fencing — #E-4481', status: 'sent', source: 'rep', opened: true }] : [], thread: { id: 't' + b.job_id }, messages, asks, attachments, handoffs, outbox: [], fence, packet,
+    // 401: the calls on the file — Dana called Ron before the estimate, Ron called her about the gate, and she called this afternoon and nobody picked up
+    calls: b.job_id === 'j3' ? [
+      { call_id: 'dc1', call_type: 'inbound', ext: '152', began_at: ago(23 * 24), answered_at: ago(23 * 24), duration_s: 240, remote_e164: '+13215550142', dialed_e164: '+13863023131', answered_by: 'app', rep_id: 'r1' },
+      { call_id: 'dc2', call_type: 'outbound', ext: '152', began_at: ago(9 * 24), answered_at: ago(9 * 24), duration_s: 95, remote_e164: '+13215550142', dialed_e164: '+13215550142', answered_by: null, rep_id: 'r1' },
+      { call_id: 'dc3', call_type: 'missed', ext: '152', began_at: ago(0.5), answered_at: null, duration_s: 40, remote_e164: '+13215550142', dialed_e164: '+13863023131', answered_by: 'core', rep_id: 'r1' },
+    ] : [] };
 }
 
 function search(q) {
