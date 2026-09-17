@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark } from './book.js?v=103';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=103';
-import { enterPosts, micButton } from './dictate.js?v=103';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=103';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=103';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=104';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=104';
+import { enterPosts, micButton } from './dictate.js?v=104';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=104';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=104';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=103';
-import { settleDialog } from './office.js?v=103';
-import { reload } from './app.js?v=103';
-import { relTime } from './production.js?v=103';
-import { billsCards, billsNext, wireBills } from './bills.js?v=103';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=104';
+import { settleDialog } from './office.js?v=104';
+import { reload } from './app.js?v=104';
+import { relTime } from './production.js?v=104';
+import { billsCards, billsNext, wireBills } from './bills.js?v=104';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -303,6 +303,16 @@ function draw(root, ctx, compact) {
   if (q('#mirror-copy')) q('#mirror-copy').onclick = async () => { const t = mirrorCopyText(ctx.data.mirror, customer, job); try { await navigator.clipboard.writeText(t); toast('Copied — paste into Contractors Cloud, top to bottom'); } catch { prompt('For Contractors Cloud', t); } };
   if (q('#mirror-byhand')) q('#mirror-byhand').onclick = async () => { try { await mirrorMark(ctx.data.mirror.id, 'by_hand', null); toast('Noted: typed into Contractors Cloud'); again(); } catch (e) { toast(e.message, 'err'); } };
   if (q('#mirror-again')) q('#mirror-again').onclick = async () => { try { await mirrorMark(ctx.data.mirror.id, 'queued', null); toast('Queued again — the machine tries within the hour'); again(); } catch (e) { toast(e.message, 'err'); } };
+  // 384: move, book or cancel the estimate visit from the file — the rep is buzzed, the line goes on the file, the CC copy follows its switch (or Copy for CC)
+  const apptDialog = (booked) => openModal({ title: booked ? `Move ${firstName(name)}'s estimate` : `Book ${firstName(name)}'s estimate`, submitLabel: booked ? 'Move it' : 'Book it', body: `
+      <div class="two"><div class="field"><label>${booked ? 'New day and time' : 'Day and time'}</label><input name="at" type="datetime-local" required/></div><div class="field"><label>Length</label><select name="mins"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1½ h</option><option value="120">2 h</option></select></div></div>
+      <div class="field"><label>Why, in a word (optional)</label><input name="note" placeholder="customer asked for Thursday · rain · rep sick"/></div>
+      <div class="note">${esc(job.rep_name ? firstName(job.rep_name) + "'s phone buzzes with the " + (booked ? 'new ' : '') + 'time' : 'No rep on this file yet')}. The line goes on the file with your name. Contractors Cloud follows when its switch is on; until then, Copy for CC.</div>`,
+    onSubmit: async (f) => { const r = await apptSet(job.job_id, new Date(f.at.value).toISOString(), Number(f.mins.value || 60), f.note.value.trim() || null); toast(`${booked ? 'Moved' : 'Booked'} · ${r?.when || ''}${r?.pushed_rep ? ' · ' + firstName(job.rep_name || 'the rep') + "'s phone buzzed" : ''}`); await reload(true); again(); } });
+  if (q('#appt-change')) q('#appt-change').onclick = () => apptDialog(true);
+  if (q('#appt-book')) q('#appt-book').onclick = () => apptDialog(false);
+  if (q('#appt-cancel')) q('#appt-cancel').onclick = () => openModal({ title: `Cancel ${firstName(name)}'s estimate visit`, submitLabel: 'Cancel the visit', body: `<div class="field"><label>Why (optional)</label><input name="note" placeholder="moving in the spring · will call back"/></div><div class="note">The visit comes off the rep's day and his phone says so; the lead stays on the file. A real no is the Not going with us button.</div>`,
+    onSubmit: async (f) => { await apptSet(job.job_id, null, null, f.note.value.trim() || null); toast('Visit cancelled · the rep was told'); await reload(true); again(); } });
   // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
   root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => { const p = (photos || []).find((x) => photoSrc(x) === (im.dataset.full || im.src)); lightbox(im.dataset.full || im.src, im.title || '', p, customer); }));
   wireQuotes(root);   // 353
@@ -690,14 +700,17 @@ function leadLine(job, appt, mirror) {
   const at = job.appt_starts_at || appt?.appt_starts_at;
   const parts = [];
   if (at) { const d = new Date(at); const future = d > new Date(); parts.push(`<span class="chip ${future ? 'st-gold' : ''}" title="The estimate appointment">ESTIMATE · ${esc(d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase())} · ${esc(d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}${job.rep_name ? ' · ' + esc(firstName(job.rep_name).toUpperCase()) : ''}</span>`); }
+  // 384: move or cancel the visit from here (the rep is buzzed, the file says it, CC follows its switch); an unbooked lead gets Book the time
+  if (job.job_id && !job.contract_signed_at) parts.push(at ? '<button class="btn sm" id="appt-change" title="A new day or time: the rep\'s phone buzzes, the line goes on the file">Change the time</button><button class="btn sm" id="appt-cancel" title="The visit comes off the rep\'s day; the lead stays">Cancel the visit</button>' : '<button class="btn sm fill" id="appt-book" title="Book the estimate: the rep\'s phone buzzes the moment you do">Book the time</button>');
   if (mirror) {
-    const s = mirror.status;
-    parts.push(s === 'sent' ? `<span class="chip st-green" title="Contractors Cloud project ${esc(mirror.cc_project_id || '')}">IN CONTRACTORS CLOUD ✓</span>`
-      : s === 'by_hand' ? '<span class="chip st-green">TYPED INTO CONTRACTORS CLOUD ✓</span>'
-      : s === 'failed' ? `<span class="chip warn" title="${esc(mirror.error || '')}">CONTRACTORS CLOUD REFUSED IT</span>`
+    const s = mirror.status, k = mirror.kind || 'lead';
+    const what = k === 'cancel' ? 'THE CANCELLATION' : k === 'reschedule' ? 'THE NEW TIME' : '';
+    parts.push(s === 'sent' ? `<span class="chip st-green" title="Contractors Cloud project ${esc(mirror.cc_project_id || '')}">${what ? what + ' IS IN' : 'IN'} CONTRACTORS CLOUD ✓</span>`
+      : s === 'by_hand' ? `<span class="chip st-green">${what ? what + ' TYPED INTO CC' : 'TYPED INTO CONTRACTORS CLOUD'} ✓</span>`
+      : s === 'failed' ? `<span class="chip warn" title="${esc(mirror.error || '')}">CONTRACTORS CLOUD REFUSED ${what || 'IT'}</span>`
       : s === 'skipped' ? '<span class="chip">NOT FOR CONTRACTORS CLOUD</span>'
       : s === 'sending' ? '<span class="chip st-gold">GOING INTO CONTRACTORS CLOUD…</span>'
-      : '<span class="chip warn" title="The machine carries it across when the cc_mirror switch is on; until then, paste it">NOT IN CONTRACTORS CLOUD YET</span>');
+      : `<span class="chip warn" title="The machine carries it across when the cc_mirror switch is on; until then, paste it">${what ? what + ' ' : ''}NOT IN CONTRACTORS CLOUD YET</span>`);
     if (!['sent', 'by_hand', 'skipped', 'sending'].includes(s)) parts.push('<button class="btn sm" id="mirror-copy" title="The fields, in CC\'s order">Copy for CC</button><button class="btn sm" id="mirror-byhand" title="I typed it into Contractors Cloud myself">Typed into CC</button>');
     if (s === 'failed') parts.push('<button class="btn sm" id="mirror-again">Queue it again</button>');
   }
@@ -705,7 +718,7 @@ function leadLine(job, appt, mirror) {
 }
 function mirrorCopyText(m, customer, job) {
   const p = m?.payload || {};
-  const when = p.appt_starts_at ? `${p.appt_starts_at} to ${String(p.appt_ends_at || '').slice(11, 16)} (Eastern)` : 'no appointment yet';
+  const when = (m?.kind === 'cancel' ? 'CANCEL it (retitle CANCELLED, the way the office does)' : '') + (p.appt_starts_at ? `${m?.kind === 'reschedule' ? 'MOVE to ' : ''}${p.appt_starts_at} to ${String(p.appt_ends_at || '').slice(11, 16)} (Eastern)` : (m?.kind === 'cancel' ? '' : 'no appointment yet'));
   return [`Account (person): ${p.name || customer?.name || ''}`, `Phone: ${p.phone || customer?.phone || ''}`, `Email: ${p.email || customer?.email || ''}`,
     `Address: ${[p.street, p.city, p.state || 'FL', p.zip].filter(Boolean).join(', ')}`, `Company: ${brandName(String(p.company_id || job.cc_company_id || ''))}`,
     `Lead source: ${p.lead_source || ''}`, `Primary rep: ${p.rep_name || job.rep_name || ''}`, 'Project: Lead · Residential-Own · Standard Event',

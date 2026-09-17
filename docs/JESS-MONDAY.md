@@ -56,7 +56,7 @@ means it is built and waits on Kevin's word.
 | The "your estimate is booked" text (Heymarket, by hand) | the confirmation text from the brand's main line, 5 minutes after booking | switch `appt_confirm` (Kevin) |
 | Project notes | the file's thread: the booking line, your notes, @names that buzz the person | here |
 | The template tasks after a sale (paperwork, permit, locate, materials, schedule, inspection, invoice, close-out) | asks with clocks, opened by the chain the moment the customer signs on the link; the Office room, oldest first | here for a lead born here; CC's own template still runs on the CC copy until Kevin turns it off |
-| Reschedule or cancel an appointment | not a door here yet (next spoon); change it in CC and the sync brings it back within the hour | CC |
+| Reschedule or cancel an appointment | **Change the time** · **Cancel the visit** on the file (384): the rep's phone buzzes with the new time, the line goes on the file, CC follows its switch (or Copy for CC); a lead with no time yet has **Book the time** | **here** |
 | Work orders, crews, scheduling labor | CC; the crew's link is the room (switch `crew_link_text`, OFF) | CC |
 | The customer's invoice (Billdu / QuickBooks) | the Invoice ready card records it; the invoice lane (381 the invoice) waits on its switches | CC / Billdu, untouched |
 | Supplier bills and expenses | the Bill landed card records it; `bills_to_cc` · `bills_to_qb` OFF | CC, untouched |

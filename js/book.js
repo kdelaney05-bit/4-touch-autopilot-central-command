@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=103';
-import { DEMO } from './demo.js?v=103';
+import * as api from './api.js?v=104';
+import { DEMO } from './demo.js?v=104';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -257,6 +257,8 @@ export async function repDay(repId, dayIso) {
   return api.page(`jobs?select=id,title,appt_starts_at,customers(name,city)&rep_id=eq.${repId}&appt_starts_at=gte.${start.toISOString()}&appt_starts_at=lt.${end.toISOString()}&order=appt_starts_at.asc`, 50);
 }
 export async function mirrorMark(queueId, status, note) { guard(); return api.rpc('cc_mirror_mark', { p_queue: queueId, p_status: status, p_note: note ?? null }); }
+/* 384: move the estimate visit (or book a first one), or cancel it with at = null — the rep is buzzed, the file says it, the CC copy follows */
+export async function apptSet(jobId, at, mins, note) { guard(); return api.rpc('job_appt_set', { p_job: jobId, p_appt_at: at ?? null, p_minutes: mins ?? 60, p_note: note ?? null }); }
 /* 322: the itemized estimate — one call mints the document, its items, the amount fact and the tracked link. */
 export async function createEstimate(p) { guard(); return api.rpc('estimate_doc_create', { p }); }
 /* 324: ask the county who owns the address on this file; the row lands on the file with the signer check. */
