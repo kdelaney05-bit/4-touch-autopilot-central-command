@@ -128,3 +128,8 @@ may see. The key in `js/config.js` is publishable and authorises nothing.
   what he has to decide. The session
   board lives in trureview-mobile's `SESSIONS.md` — add a line there too when
   you ship, and update its `CLAUDE.md` migration ledger.
+
+## Films and anything Kevin sends on (Kevin, 17 Sep 2026)
+
+- Never hand Kevin a video or picture only as a Claude file card or only inside a page, a GIF or a tour — he forwards to people without Claude ("a format no one can use"). Every film is a **plain MP4 at a direct link** (H.264 main, yuv420p, silent AAC if no narration, `+faststart`) under `films/` here, listed on `docs/films.html`, with a copy in `C:\Users\kdela\OneDrive\Desktop\YouTube Uploads\` (his numbering) for an unlisted YouTube link. Put the direct `.mp4` link in the note that goes out. Text-size 480-px copy for films under a minute.
+- **Gospel 36:** every change ships with its own note the same day — `docs/was-and-is.html` per role, an email from Kevin to the people it touches, the hype thread when reps are involved, a film when the customer's side changed. The rule for all sessions lives in `C:\Users\kdela\.claude\CLAUDE.md`.
