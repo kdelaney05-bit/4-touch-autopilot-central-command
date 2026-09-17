@@ -126,8 +126,7 @@ invites, voicemails. The two Heritage accounts: H044803 (Fencing) lands in Jess'
 H021915 (Oasis, the paver account the subs buy on) still reaches only Kevin's personal Gmail
 until Brian adds Jess or Kevin forwards it. **The Billtrust customer portal (eInvoice Connect, surveyed 16 Sep 10 PM) has no IIF-by-email setting**: notifications are per login user (new bill · attach a PDF copy · payment confirmation), the QuickBooks file is an on-demand download only ("Easy Import"), and recipients are added as sub-users. Jess already has a sub-user on H021915 (jessica@oasislandscapesfl.com); H044803 sits on a separate login and already emails Jess's fencing inbox. So Heritage's amount is typed by a human on the card until either the supplier side turns the IIF attachment on (the draft to Brian) or the parser learns Heritage's page-2 totals from a PDF whose text layer carries them.
 
-**Not run for real yet.** The first real pass puts the cards above on the office's files
-(v97 reads `v_bills_queue`), every switch still OFF. Kevin says when.
+**Run for real on Kevin's word, 16 Sep 10:20 PM: 9 rows landed** (Iron World ×2, Heritage ×1 needing a human, Nick's Lawn ×2, Kicking Grass ×4), PDFs in the job-docs bucket, every switch still OFF. A second pass came back all "already" — the dedupe keys hold. The cards are on the Office room's Bills queue for Jess and Jonathan at 8 AM; none is matched to a job yet (no PO on any of them), so the first tap on each is "Pick the right file". Not on a timer yet: one pass per Kevin's word until he says hourly.
 
 ## 5. The spoons, in order
 
