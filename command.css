@@ -147,6 +147,15 @@ tr.link { cursor: pointer; } tr.link:hover td { background: var(--card-hi); }
 .modal .foot { display: flex; gap: 8px; margin-top: 14px; }
 .modal .err, .err { color: var(--red); font-size: 12px; min-height: 16px; margin-top: 6px; }
 .note { font-size: 12px; color: var(--dimmer); line-height: 1.45; }
+/* the itemized estimate's item row (322): one line on a desk; on a phone the item and its scope take the
+   full width and qty · unit · price each sit under it with their names, so Mike can type a line on his phone */
+.est-row { display: grid; grid-template-columns: 1.5fr 64px 70px 110px 32px; gap: 6px; align-items: start; margin-top: 6px; }
+.est-row .est-cl { display: none; }
+@media (max-width: 700px) {
+  .est-row { grid-template-columns: 1fr 1fr 1.4fr 32px; align-items: end; margin-top: 10px; }
+  .est-row > div:first-child { grid-column: 1 / -1; }
+  .est-row .est-cl { display: block; font-family: var(--mono); font-size: 10px; color: var(--dimmer); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 3px; }
+}
 #toast-root { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 30; }
 .toast { background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,.2); display: flex; gap: 12px; align-items: center; }
 .toast.err { background: var(--red); }

@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=110';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=110';
-import { enterPosts, micButton } from './dictate.js?v=110';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=110';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=110';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=111';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=111';
+import { enterPosts, micButton } from './dictate.js?v=111';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=111';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=111';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=110';
-import { settleDialog } from './office.js?v=110';
-import { reload } from './app.js?v=110';
-import { relTime } from './production.js?v=110';
-import { billsCards, billsNext, wireBills } from './bills.js?v=110';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=111';
+import { settleDialog } from './office.js?v=111';
+import { reload } from './app.js?v=111';
+import { relTime } from './production.js?v=111';
+import { billsCards, billsNext, wireBills } from './bills.js?v=111';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -529,11 +529,11 @@ function estimateSeedFromTakeoff(f) {
 function estimateDialog(ctx, job, customer, name, again, seed, opts = {}) {
   const cc = job.cc_company_id || state.me?.manages_company_id || '1461';
   const co = opts.kind === 'change_order';   // 381: the same builder, the same link; signed = a line on the invoice
-  const rowHtml = (it) => `<div class="est-row" style="display:grid;grid-template-columns:1.5fr 64px 70px 110px 32px;gap:6px;align-items:start;margin-top:6px">
+  const rowHtml = (it) => `<div class="est-row">
       <div><input name="label" placeholder="Pavers · 6' privacy fence · shingle roof" value="${esc(it?.label || '')}" required/><textarea name="desc" placeholder="Scope of work — what you'll do, what's included, what isn't" style="min-height:72px;margin-top:4px">${esc(it?.desc || '')}</textarea></div>
-      <input name="qty" type="number" step="0.01" min="0" value="${esc(String(it?.qty ?? 1))}" title="Qty"/>
-      <input name="unit" placeholder="job" value="${esc(it?.unit || '')}" title="Unit"/>
-      <input name="price" type="number" step="0.01" min="0" placeholder="0.00" value="${it && it.price != null ? esc(String(it.price)) : ''}" title="Unit price" required/>
+      <div class="est-cell"><span class="est-cl">Qty</span><input name="qty" type="number" step="0.01" min="0" value="${esc(String(it?.qty ?? 1))}" title="Qty"/></div>
+      <div class="est-cell"><span class="est-cl">Unit</span><input name="unit" placeholder="job" value="${esc(it?.unit || '')}" title="Unit"/></div>
+      <div class="est-cell"><span class="est-cl">Price each</span><input name="price" type="number" step="0.01" min="0" placeholder="0.00" value="${it && it.price != null ? esc(String(it.price)) : ''}" title="Unit price" required/></div>
       <button class="btn sm" type="button" data-del title="Remove this item">×</button>
     </div>`;
   openModal({ title: co ? `Change order for ${name}` : `Estimate for ${name}`, submitLabel: co ? 'Create the change order' : 'Create the estimate', wide: true, body: `
