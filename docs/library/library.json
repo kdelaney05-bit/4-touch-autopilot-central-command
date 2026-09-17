@@ -1,0 +1,393 @@
+[
+ {
+  "title": "Every rep · Say it. To anyone, about any customer.",
+  "what": "Kevin, 17 Sep, 6:40 PM: \"make a video showing how to use this little contact-other-people thing on the mobile app… I don't even know how to use it.\" The box under the money on the Today tab. Top line: who it's about (type the last name, tap the customer). Big box: say it. POST. With a customer it lands on that customer's file as a team note; @Jessica Coley or @office in the words buzzes them; the customer never sees it. Leave the name blank and it goes to the Village, where everyone with a seat reads it; @sales, @supers, @office buzzes the group. When they answer, your phone buzzes and it's on the same file.",
+  "film": "ride-along-say-it",
+  "go": null,
+  "tour": null,
+  "meta": "6 scenes · ~2 minutes · 17 Sep · the phone app, Today tab (312 · 360 · 363) · no switch",
+  "links": []
+ },
+ {
+  "title": "Every rep · When you miss a call or a text",
+  "what": "Kevin, 17 Sep, 4:20 PM: \"I have the strangest suspicion that we're missing calls and text.\" We were. The 15-minute \"not answered\" notice went only to the watcher and to Kevin, never to the rep; a text on a rep's own number never buzzed the app and landed 15 minutes late; and nobody read the phone company's call list, so 50 calls a day rang out with no one the wiser. Tonight: a customer text on your own number buzzes you when it lands (399); the 15-minute clock buzzes you first and skips ratings, STOP, thank-yous and test files (400); every call sits on the customer's file, and a missed call from a customer buzzes you once (401). Robocalls never buzz. Nothing buzzes 7:30 PM–8 AM. A missed call can show up to an hour late: the list comes once an hour.",
+  "film": "ride-along-when-you-miss-a-call-or-a-text",
+  "go": "?demo=1&as=manager&file=cj3",
+  "tour": null,
+  "meta": "5 scenes · ~2 minutes · 17 Sep · migrations 399 + 400 + 401 · Central Command v113 · no switch",
+  "links": []
+ },
+ {
+  "title": "Mike · The estimate, line by line, in the 4-Touch app",
+  "what": "Kevin, 17 Sep, 5 PM: \"Mike is only on the MVP mobile app… put that same thing inside.\" The ESTIMATE ON FILE sheet in the app now has A PICTURE / LINE BY LINE: what it is, qty, unit, price each, + ITEM, the total is the project value, SAVE makes the customer's link (the same Billdu-shaped page, one ACCEPT), and Text it now sends it from the Oasis line. And 6 PM: \"he can type whatever he wants or he can get the pop-ups\" — under WHAT IT IS sits the whole Oasis menu (palms · bushes & shrubs · mulch & rock · flowers · the job, 48 items from the design folder), typing finds matches, a tap fills the name, the unit and the last price used. Published over the air 17 Sep ~6:10 PM (runtime 1.0.4).",
+  "film": "ride-along-the-estimate-in-the-4-touch-app",
+  "go": null,
+  "tour": null,
+  "meta": "10 scenes · ~2 minutes · 17 Sep · app PR #429 · migrations 322 + 400 · OTA 01a0b173 · no switch",
+  "links": []
+ },
+ {
+  "title": "Jess · The estimate, line by line, on the file in Central Command",
+  "what": "The same estimate from the office's chair: Files, the customer, the Estimate button, one row per thing, Create, Text it. Every estimate sits on the file with its status and its link; when the customer taps ACCEPT the file says so with the date and Mike's phone buzzes. Oasis numbers keep counting from Billdu's 2040.",
+  "film": "ride-along-the-estimate-on-the-file-jess",
+  "go": "?demo=1&as=office&file=cp10",
+  "tour": null,
+  "meta": "8 scenes · ~1½ minutes · 17 Sep · v111 · migration 322 · no switch",
+  "links": [
+   {
+    "href": "../?demo=1&as=office&file=cp10",
+    "text": "Try it on the demo file"
+   }
+  ]
+ },
+ {
+  "title": "Mike · The estimate, line by line, on your phone",
+  "what": "Kevin, 17 Sep: \"Mike wants to go line by line and put the price in… send a digital copy.\" The Estimate button on the customer's file is that, and from v111 it fits on a phone: one row per thing (what it is, the scope, how many, the unit, the price for one), the total adds itself, one link, the customer taps ACCEPT, Mike's phone buzzes. Oasis numbers keep counting from Billdu's 2040.",
+  "film": "ride-along-the-estimate-on-your-phone",
+  "go": "?demo=1&as=manager&file=cp10",
+  "tour": null,
+  "meta": "9 scenes · ~1½ minutes · 17 Sep · v111 · migration 322 · no switch",
+  "links": [
+   {
+    "href": "../?demo=1&as=manager&file=cp10",
+    "text": "Try it on the demo file"
+   }
+  ]
+ },
+ {
+  "title": "Mike · Jess · The sub locked in, on the contract picture",
+  "what": "Kevin and Jess, 17 Sep, the Billdu handoff: Mike gets the sub's number before he prices the job, kept it in a CompanyCam picture, and once it signed emailed Jess the Billdu link, the sub and the amount. Now it is one question on the contract picture (＋ Photo → This picture is the signed contract) or the 🔒 Lock the sub button on the file: who is doing the work, their price, their cell once. The sub is texted the picture and the price from the Oasis line and taps RECIBIDO; Jess is tagged with the sub and the price (her phone, her email, her text); she presses Copy for CC, then Typed into CC, and the Office room lists what is still waiting. Nobody remembers anything. Billdu is untouched today. Narrated (Guy).",
+  "film": null,
+  "go": "?demo=1&as=manager&tour=sub&auto=1",
+  "tour": "../?demo=1&as=manager&tour=sub&auto=1&voice=1",
+  "meta": "7 steps · ~2 minutes · 17 Sep · migration 397 · no switch",
+  "links": [
+   {
+    "href": "was-and-is.html",
+    "text": "Was and is · Mike, Jess"
+   }
+  ]
+ },
+ {
+  "title": "Jess · Laura · Sam · Monday: every new lead starts here",
+  "what": "From Mon 21 Sep a new customer comes in through + New lead, not through Contractors Cloud: type it once, pick the rep and the time (the form shows the rep's day), press Open the file. The rep's phone buzzes, the booking is the file's first line, the customer gets the confirmation text when its switch is on, and the machine carries the lead into CC when its switch is on — until then, Copy for CC. Nothing else moves. Later the same day, Samantha's first idea: the Street box suggests the address as you type, and a pick fills street, city and zip; the rep list carries Gio and Jessica beside the sellers. Narrated (Guy).",
+  "film": null,
+  "go": "?demo=1&as=office&tour=leads&auto=1",
+  "tour": "../?demo=1&as=office&tour=leads&auto=1&voice=1",
+  "meta": "9 steps · ~3 minutes · 17 Sep · migrations 381 · 396 · switch cc_mirror OFF",
+  "links": [
+   {
+    "href": "JESS-MONDAY.md",
+    "text": "Everything you did in CC, and where it is here"
+   }
+  ]
+ },
+ {
+  "title": "Kevin · Luis · The crew thread, in pictures",
+  "what": "One text, one link, one room on the customer's file: the room drawn as a chat for one Thursday, then the same room on the three screens that see it (the crew's phone, Luis's phone, the office desk), who is in it, the day step by step, and where the switch stands.",
+  "film": null,
+  "go": null,
+  "tour": null,
+  "meta": "one page, five pictures · 16 Sep night · 342 · 347 · 379",
+  "links": [
+   {
+    "href": "the-crew-thread.html",
+    "text": "▶ Open the picture"
+   }
+  ]
+ },
+ {
+  "title": "Luis · How everything works, from your seat",
+  "what": "The ops manager's handbook on paper: the notification is the instruction and nobody has to think; the two doors; the eleven rooms; the file as the hub; the chain and where Luis comes in; his crews today and next; tags, the bing, photos; the supervisor app; who does what; what to do when something goes wrong. Reprinted as things change; keep the newest.",
+  "film": null,
+  "go": null,
+  "tour": null,
+  "meta": "10 sections · a page, printed · 16 Sep night · v97",
+  "links": [
+   {
+    "href": "how-it-works-luis.html",
+    "text": "▶ Open the page"
+   },
+   {
+    "href": "how-it-works-luis.pdf",
+    "text": "Print · PDF"
+   }
+  ]
+ },
+ {
+  "title": "Luis · The crews · Tu día con Liberty",
+  "what": "The page Luis hands around on Wed 17 Sep: one login per crew, six taps in a day, the real button words (AQUÍ · RECIBIDO · FOTOS · LISTO), who does what, and what a crew never has to do. Spanish first, English one tap. The model behind it: docs/THE-CREWS.md. The Spanish film with its own narrator comes with the build.",
+  "film": null,
+  "go": null,
+  "tour": null,
+  "meta": "6 steps · a page, not a film yet · 16 Sep night",
+  "links": [
+   {
+    "href": "the-crew-day.html",
+    "text": "▶ Abrir · Open the page"
+   },
+   {
+    "href": "tu-dia-con-liberty-ES.pdf",
+    "text": "Imprimir · ES"
+   },
+   {
+    "href": "your-day-with-liberty-EN.pdf",
+    "text": "Print · EN"
+   },
+   {
+    "href": "https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1",
+    "text": "What Ramón's phone shows today"
+   }
+  ]
+ },
+ {
+  "title": "The sales team · Contract signing and the auto workflow",
+  "what": "The customer accepts now and signs everything once — the proposal, our contract sheet, the disclosures, the hold harmless, the permit application. Oasis signs the contract alone. The Notice of Commencement is the one form not on the link: it goes to the customer by email to sign in front of a notary, the machine texts them until the picture lands, and the rep never goes back. Narrated (Guy).",
+  "film": null,
+  "go": "?demo=1&tour=noc&auto=1",
+  "tour": "../?demo=1&tour=noc&auto=1&voice=1",
+  "meta": "7 steps · ~2 minutes · 16 Sep evening",
+  "links": [
+   {
+    "href": "sign-everything.html",
+    "text": "The customer's phone"
+   }
+  ]
+ },
+ {
+  "title": "Gio · The paperwork, signature to permit",
+  "what": "One link signs the job: the proposal and our contract sheet, seven green spots. The disclosures can ride the same link with one switch. The NOC, the Hold Harmless and the permit applications need a notary, so the file fills them in from the county's owner of record and Sam prints, notarizes and pulls the permit. Narrated (Guy), 2:18. Superseded 16 Sep evening: the Hold Harmless and the permit application sign on the link; the NOC goes to the customer to notarize (the film above).",
+  "film": "ride-along-the-paperwork",
+  "go": null,
+  "tour": null,
+  "meta": "7 scenes · 2:18 · 16 Sep · made with tools/ride-along",
+  "links": []
+ },
+ {
+  "title": "Laura · Jess · The Invoice",
+  "what": "The moment Luis signs off with the finished photos, the file builds the customer's invoice by itself: the signed estimate, the deposit taken, any signed change order, the photos, the sign-off and the text with the pay link, on one INVOICE card. The office checks it and taps Approve, or Hold and says why. Nothing to learn; it comes to you. Narrated (Guy), 2:55.",
+  "film": "ride-along-the-invoice",
+  "go": null,
+  "tour": null,
+  "meta": "the picture: 17 Sep · 381 · switches OFF · the film: 9 scenes · 2:55 · 16 Sep",
+  "links": [
+   {
+    "href": "the-invoice.html",
+    "text": "▶ Open the picture · old way, new way"
+   },
+   {
+    "href": "the-bills-before-after.html",
+    "text": "Before and after"
+   }
+  ]
+ },
+ {
+  "title": "Jess · Sam · Jonathan · Hand It Back",
+  "what": "Kevin's rule: nobody asks \"what do I do?\". Whatever reaches you — a sub's email, a crew's paper, a fee receipt — the machine types it and hands it back as one card: SUB INVOICE · CREW INVOICE · FEE RECEIPT LANDED, the amount, the job, the paper. Approve, Wrong job, or Hold. Migration 376 on live, every switch OFF. Narrated (Guy), 3:15.",
+  "film": null,
+  "go": null,
+  "tour": null,
+  "meta": "9 scenes · 3:15 · 16 Sep · made with tools/ride-along · switches OFF",
+  "links": [
+   {
+    "href": "HAND-IT-BACK.md",
+    "text": "The lane"
+   }
+  ]
+ },
+ {
+  "title": "Jonathan · The Bills",
+  "what": "The supplier's email lands on the customer's file by itself; a BILL LANDED card with the invoice number, the PO, the amount next to what we ordered at, the due date and the PDF; red if it is over. Jonathan verifies and taps Approve. You were the one typing it; now you are the one who says yes. Nothing to learn; it comes to you. Narrated (Guy), 3:16.",
+  "film": "ride-along-the-bills",
+  "go": null,
+  "tour": null,
+  "meta": "10 scenes · 3:16 · 16 Sep · made with tools/ride-along · switches OFF",
+  "links": [
+   {
+    "href": "the-bills-before-after.html",
+    "text": "One invoice, before and after"
+   }
+  ]
+ },
+ {
+  "title": "The sales team · Where you were, what you're getting",
+  "what": "Six weeks ago, the greatest hits of the thread, the numbers, today's app, then the three new things: Photos on the file, the help desk both ways, Send quote to Gio. Narrated (Guy), 4:27.",
+  "film": "ride-along-what-youre-getting",
+  "go": null,
+  "tour": null,
+  "meta": "15 scenes · 4:27 · 16 Sep · made with tools/ride-along",
+  "links": []
+ },
+ {
+  "title": "Everyone · Put it to bed",
+  "what": "A customer asks about the permit. Sam tags Jonathan. He is busy; his phone buzzes; the file already knows and the answer is written; one tap sends it from the brand line. Narrated (Guy), 1:55.",
+  "film": "ride-along-put-it-to-bed",
+  "go": null,
+  "tour": null,
+  "meta": "8 scenes · 1:55 · 16 Sep · made with tools/ride-along",
+  "links": []
+ },
+ {
+  "title": "Everyone · Tell the Team",
+  "what": "The new button under the texts card on any customer: type @ and a name, say what you need, they get the buzz and the file. Narrated (Guy), the words on screen, 1:38.",
+  "film": "ride-along-tell-the-team",
+  "go": null,
+  "tour": null,
+  "meta": "7 scenes · 1:38 · 16 Sep · made with tools/ride-along",
+  "links": []
+ },
+ {
+  "title": "Everyone · one job, signature to close-out",
+  "what": "The customer signs on the link; the rep is done. Sam's tile lights, then Jonathan's, then Luis takes the job, the Job Board moves by itself, Laura invoices, and Kevin sees the chain. Nobody assigns anything.",
+  "film": null,
+  "go": "?demo=1&tour=chain&auto=1",
+  "tour": "../?demo=1&tour=chain&auto=1&voice=1",
+  "meta": "11 steps · ~3 minutes · 16 Sep",
+  "links": [
+   {
+    "href": "who-does-what.html",
+    "text": "Who does what"
+   }
+  ]
+ },
+ {
+  "title": "The office · from Contractors Cloud to here",
+  "what": "Sam, Laura, Jonathan, Jess. Ten hand-made tasks became four inputs: the Office room's four tiles, oldest ask on top, Done asks for the input, every CC step and what became of it, the paperwork checklist that opens itself, the note that keeps you on the file, the text from the file, the Answer button.",
+  "film": null,
+  "go": "?demo=1&as=office&tour=office&auto=1",
+  "tour": "../?demo=1&as=office&tour=office&auto=1&voice=1",
+  "meta": "9 steps · ~2½ minutes · 16 Sep",
+  "links": [
+   {
+    "href": "who-does-what.html",
+    "text": "Who does what, before and now"
+   },
+   {
+    "href": "workflows.html",
+    "text": "Every step"
+   }
+  ]
+ },
+ {
+  "title": "The supervisor app · the real screens",
+  "what": "Today and the LIVE FILES door, the job files, a file's four lanes, OFFICE with @names and the + ask and the paperclip, PHOTOS with TAKE, the crew pilot. A film, not a walkthrough: press play.",
+  "film": null,
+  "go": null,
+  "tour": null,
+  "meta": "10 scenes · ~2½ minutes · Guy · 16 Sep",
+  "links": []
+ },
+ {
+  "title": "Luis, Obed, Robert · the supervisor's day",
+  "what": "Your board and Take the job, the customer's text line on the file, the inside note that the customer never sees, photos, your crews and the nugget, what they are asking, the Village. On a phone it is the phone layout.",
+  "film": null,
+  "go": "?demo=1&as=manager&tour=super&auto=1",
+  "tour": "../?demo=1&as=manager&tour=super&auto=1&voice=1",
+  "meta": "9 steps · ~2½ minutes · 16 Sep",
+  "links": []
+ },
+ {
+  "title": "Mike · the picture, the price, the crew",
+  "what": "The crews card, adding a crew, the photo with scope and price on the customer's file, tap it → Send to a crew, the nugget already filled, the receipt (texted · opened · RECIBIDO · brought back), and what Ramón sees.",
+  "film": null,
+  "go": "?demo=1&as=manager&tour=crews&auto=1",
+  "tour": "../?demo=1&as=manager&tour=crews&auto=1&voice=1",
+  "meta": "7 steps · ~90 seconds · 16 Sep",
+  "links": [
+   {
+    "href": "https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1",
+    "text": "Ramón's screen"
+   }
+  ]
+ },
+ {
+  "title": "Gio · quotes to price",
+  "what": "The Line, his card, the clock, type the price and a word, Send the price, PRICED on the customer's file, the Pipeline.",
+  "film": null,
+  "go": "?demo=1&as=manager&tour=gio&auto=1",
+  "tour": "../?demo=1&as=manager&tour=gio&auto=1&voice=1",
+  "meta": "7 steps · ~90 seconds · 16 Sep",
+  "links": []
+ },
+ {
+  "title": "Jess and Luis · the keys",
+  "what": "Every room. Say it, the bing, what you sent out and the chain, where it is stuck, View as, the crews, the rail, My book, the file and ＋ Photo, the receipt, and the phone on the road.",
+  "film": null,
+  "go": "?demo=1&tour=keys&auto=1",
+  "tour": "../?demo=1&tour=keys&auto=1&voice=1",
+  "meta": "12 steps · ~2½ minutes · 16 Sep",
+  "links": []
+ },
+ {
+  "title": "Sam · The Line, on her screen",
+  "what": "The bing, ✓ Got it, the file and the thread, the receipt under a note, ＋ Photo, the Photos room, the Answer button, Quotes to price, My book, the next word, what you sent out.",
+  "film": null,
+  "go": "?demo=1&as=office&tour=1&auto=1",
+  "tour": "../?demo=1&as=office&tour=1&auto=1&voice=1",
+  "meta": "16 steps · ~2 minutes · 15–16 Sep",
+  "links": []
+ },
+ {
+  "title": "Everyone · The Full Show — The 4-Touch Autopilot",
+  "what": "Everything, start to finish: the lead, the estimate, the signature, the paperwork, the crew, the invoice, the review. Eleven minutes. Watch it once and you know the whole machine.",
+  "film": "the-full-show",
+  "meta": "11 min · everyone",
+  "go": null,
+  "tour": null,
+  "links": []
+ },
+ {
+  "title": "The sales team · The Hunt — the sales app",
+  "what": "A rep’s day in the 4-Touch app: Today, the Morning Line, the customer file, the four touches, the estimate on the phone.",
+  "film": "the-hunt",
+  "meta": "2:52 · sales",
+  "go": null,
+  "tour": null,
+  "links": []
+ },
+ {
+  "title": "Luis · the crews · The Record — the crew cut",
+  "what": "The crew’s day: the work order on the phone, Spanish first, the photos, RECIBIDO, done.",
+  "film": "the-record",
+  "meta": "2:22 · Luis, the crews",
+  "go": null,
+  "tour": null,
+  "links": []
+ },
+ {
+  "title": "Luis · Obed · Robert · The Babysitter — the supervisor cut",
+  "what": "The supervisor’s day: take the job, the crew, the site, the sign-off, hand it back to the office.",
+  "film": "the-babysitter",
+  "meta": "2:31 · Luis, Obed, Robert",
+  "go": null,
+  "tour": null,
+  "links": []
+ },
+ {
+  "title": "Kevin · Jess · The Blindfold Off — the owner’s cut",
+  "what": "What Kevin sees: the boards, the clocks, the money, who moved and who did not.",
+  "film": "the-blindfold-off",
+  "meta": "2:54 · Kevin, Jess, the managers",
+  "go": null,
+  "tour": null,
+  "links": []
+ },
+ {
+  "title": "Every rep · Sign on the phone",
+  "what": "The whole thing the customer does on their phone: open the link, read it, sign once, done. Twenty-two seconds, no words.",
+  "film": "sign-on-the-phone-small",
+  "meta": "0:22 · no words · every rep",
+  "go": null,
+  "tour": null,
+  "links": []
+ },
+ {
+  "title": "Luis · Obed · Robert · The supervisor app — the real screens",
+  "what": "The supervisor app, screen by screen: the board, the job, the crew, the photos, the sign-off, hand it back.",
+  "film": "supervisor-app",
+  "meta": "2:53 · Luis, Obed, Robert",
+  "go": null,
+  "tour": null,
+  "links": []
+ }
+]

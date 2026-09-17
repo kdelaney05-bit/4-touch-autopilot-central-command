@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>The Library · how everything works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { color-scheme: dark; --bg: #0f1520; --panel: #161e2b; --panel2: #1c2634; --line: rgba(255,255,255,0.09); --ink: #eef0ec; --dim: #9aa3ad; --gold: #e9c46a; --gold2: #c9962b; --green: #4fd1a5; --teal: #4fd1c5; --red: #ff7a6e; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  a { color: inherit; }
+  .hero { padding: 26px 16px 14px; max-width: 1100px; margin: 0 auto; }
+  .brand { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
+  h1 { font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: clamp(38px, 8vw, 64px); line-height: .95; margin: 8px 0 8px; letter-spacing: .01em; }
+  .lead { color: var(--dim); max-width: 620px; margin: 0 0 14px; font-size: 16.5px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0 6px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--dim); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; }
+  .chip.on { background: var(--gold); border-color: var(--gold); color: #1c1a15; }
+  .search { width: 100%; max-width: 420px; margin: 8px 0 2px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; font-size: 15px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 90px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
+  .card.hide { display: none; }
+  .cover { position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden; display: block; }
+  .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cover .play { position: absolute; inset: 0; display: grid; place-items: center; }
+  .cover .play span { width: 62px; height: 62px; border-radius: 50%; background: rgba(233,196,106,0.95); color: #1c1a15; display: grid; place-items: center; font-size: 26px; padding-left: 5px; box-shadow: 0 8px 30px rgba(0,0,0,.5); }
+  .cover .len { position: absolute; right: 10px; bottom: 10px; font-family: "IBM Plex Mono", monospace; font-size: 12px; background: rgba(0,0,0,.65); padding: 3px 8px; border-radius: 8px; }
+  .cover.none { aspect-ratio: 16/5; display: grid; place-items: center; background: var(--panel2); color: var(--dim); font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .1em; }
+  .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .who { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+  h2 { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 26px; line-height: 1.02; margin: 0; }
+  .what { color: var(--dim); font-size: 14px; line-height: 1.45; margin: 0; }
+  .what.short { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .more { color: var(--teal); font-size: 13px; cursor: pointer; background: none; border: 0; padding: 0; text-align: left; font-weight: 600; }
+  .frames { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .frames img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); cursor: zoom-in; display: block; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+  .btn { text-decoration: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13.5px; border: 1px solid var(--line); color: var(--ink); background: var(--panel2); }
+  .btn.fill { background: var(--gold); border-color: var(--gold); color: #1c1a15; }
+  .meta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--dim); }
+  .rule { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; color: var(--dim); font-size: 14px; }
+  .rule b { color: var(--ink); }
+  #lb { position: fixed; inset: 0; background: rgba(0,0,0,.92); display: none; place-items: center; z-index: 9; padding: 16px; }
+  #lb.on { display: grid; }
+  #lb img { max-width: 100%; max-height: 92vh; border-radius: 12px; }
+  .empty { color: var(--dim); padding: 30px 0; grid-column: 1 / -1; text-align: center; }
+  @media (max-width: 420px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="brand">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis</div>
+  <h1>The Library.</h1>
+  <p class="lead">Everything that changed, in about two minutes each. Every piece has three or four pictures of what it is, a few lines on what it does, and a film that shows exactly how it works. Tap a person to see only your pieces.</p>
+  <input class="search" id="q" type="search" placeholder="Search: estimate, call, invoice, crew…" autocomplete="off">
+  <div class="filters" id="filters"></div>
+</section>
+<main id="grid"></main>
+<div class="rule">
+  <b>How to watch.</b> Tap <b>▶ Play</b>. Sound on. A film opens on the real screen with the words read out loud and written under the picture. <b>Open the real screen</b> takes you to the same spot with pretend customers, so you can try it without touching anything real. New pieces go on top.
+</div>
+<div id="lb" onclick="this.classList.remove('on')"><img id="lbimg" alt=""></div>
+<script>
+(async () => {
+  const [rows, frames] = await Promise.all([fetch('library.json').then((r) => r.json()), fetch('frames.json').then((r) => r.json()).catch(() => ({}))]);
+  const esc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const site = new URL('../../', location.href).href;   // the Central Command root
+  const mmss = (s) => s ? Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') : '';
+  // who a piece is for, from the title's "Name · Name · What" shape
+  const whoOf = (t) => { const parts = t.split(' · '); return parts.length > 1 ? parts.slice(0, -1).join(' · ') : 'Everyone'; };
+  const nameOf = (t) => { const parts = t.split(' · '); return parts.length > 1 ? parts[parts.length - 1] : t; };
+  const PEOPLE = ['Everyone', 'Every rep', 'The sales team', 'Mike', 'Jess', 'Sam', 'Laura', 'Jonathan', 'Gio', 'Luis', 'Obed', 'Robert', 'Kevin', 'The office', 'The supervisor app'];
+  const tags = (r) => { const w = whoOf(r.title); const out = new Set(); PEOPLE.forEach((p) => { if (w.toLowerCase().includes(p.toLowerCase())) out.add(p); }); if (/every rep|sales team|everyone/i.test(w)) out.add('Sales'); if (/jess|sam|laura|jonathan|office/i.test(w)) out.add('Office'); if (/luis|obed|robert|supervisor/i.test(w)) out.add('Supervisors'); if (/mike|gustavo|oasis/i.test(w + r.what)) out.add('Oasis'); return [...out]; };
+  const FILTERS = ['All', 'Sales', 'Office', 'Supervisors', 'Oasis', 'Mike', 'Jess', 'Sam', 'Gio', 'Luis'];
+  let filter = 'All', q = '';
+  const grid = document.getElementById('grid');
+  const draw = () => {
+    grid.innerHTML = '';
+    let n = 0;
+    rows.forEach((r) => {
+      const t = tags(r);
+      const hay = (r.title + ' ' + r.what + ' ' + t.join(' ')).toLowerCase();
+      if (filter !== 'All' && !t.includes(filter)) return;
+      if (q && !hay.includes(q)) return;
+      n++;
+      const fr = r.film && frames[r.film] ? frames[r.film] : null;
+      const watch = r.film ? `${site}films/watch.html?f=${encodeURIComponent(r.film)}&t=${encodeURIComponent(nameOf(r.title))}${r.go ? '&go=' + encodeURIComponent(r.go) : ''}` : null;
+      const reads = (r.links || []).filter((l) => !/watch\.html|\.mp4$/.test(l.href)).slice(0, 3);
+      const card = document.createElement('article'); card.className = 'card';
+      card.innerHTML = `
+        ${fr ? `<a class="cover" href="${esc(watch)}"><img src="frames/${esc(fr.frames[0])}" alt="" loading="lazy"><div class="play"><span>▶</span></div><div class="len">${mmss(fr.seconds)}</div></a>` : `<div class="cover none">${r.tour ? 'PLAYS ON THE REAL SCREEN · SOUND ON' : 'A PAGE TO READ'}</div>`}
+        <div class="body">
+          <div class="who">${esc(whoOf(r.title))}</div>
+          <h2>${esc(nameOf(r.title))}</h2>
+          <p class="what short">${esc(r.what)}</p>
+          <button class="more" type="button">read the whole thing ›</button>
+          ${fr ? `<div class="frames">${fr.frames.slice(1).concat(fr.frames.slice(0, 1)).map((f) => `<img src="frames/${esc(f)}" alt="" loading="lazy" data-full="frames/${esc(f)}">`).join('')}</div>` : ''}
+          <div class="btns">
+            ${watch ? `<a class="btn fill" href="${esc(watch)}">▶ Play the film</a>` : r.tour ? `<a class="btn fill" href="${esc(new URL(r.tour, site + 'docs/ride-alongs.html').href)}">▶ Play it on the real screen</a>` : ''}
+            ${r.go ? `<a class="btn" href="${esc(site + r.go.replace(/^\//, ''))}" target="_blank" rel="noopener">Open the real screen</a>` : ''}
+            ${reads.map((l) => `<a class="btn" href="${esc(new URL(l.href, site + 'docs/ride-alongs.html').href)}" target="_blank" rel="noopener">${esc(l.text.length > 28 ? l.text.slice(0, 27) + '…' : l.text || 'Read it')}</a>`).join('')}
+          </div>
+          <div class="meta">${esc(r.meta)}</div>
+        </div>`;
+      card.querySelector('.more').onclick = (e) => { const p = card.querySelector('.what'); p.classList.toggle('short'); e.target.textContent = p.classList.contains('short') ? 'read the whole thing ›' : 'less ▴'; };
+      card.querySelectorAll('.frames img').forEach((im) => { im.onclick = () => { document.getElementById('lbimg').src = im.dataset.full; document.getElementById('lb').classList.add('on'); }; });
+      grid.appendChild(card);
+    });
+    if (!n) grid.innerHTML = '<div class="empty">Nothing here for that. Try All.</div>';
+  };
+  const f = document.getElementById('filters');
+  FILTERS.forEach((k) => { const b = document.createElement('span'); b.className = 'chip' + (k === 'All' ? ' on' : ''); b.textContent = k; b.onclick = () => { filter = k; [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === k)); draw(); }; f.appendChild(b); });
+  document.getElementById('q').oninput = (e) => { q = e.target.value.trim().toLowerCase(); draw(); };
+  draw();
+})();
+</script>
+</body>
+</html>

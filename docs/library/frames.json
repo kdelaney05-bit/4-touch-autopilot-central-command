@@ -1,0 +1,173 @@
+{
+ "ride-along-put-it-to-bed": {
+  "seconds": 115,
+  "frames": [
+   "ride-along-put-it-to-bed-1.jpg",
+   "ride-along-put-it-to-bed-2.jpg",
+   "ride-along-put-it-to-bed-3.jpg",
+   "ride-along-put-it-to-bed-4.jpg"
+  ]
+ },
+ "ride-along-say-it": {
+  "seconds": 112,
+  "frames": [
+   "ride-along-say-it-1.jpg",
+   "ride-along-say-it-2.jpg",
+   "ride-along-say-it-3.jpg",
+   "ride-along-say-it-4.jpg"
+  ]
+ },
+ "ride-along-tell-the-team": {
+  "seconds": 98,
+  "frames": [
+   "ride-along-tell-the-team-1.jpg",
+   "ride-along-tell-the-team-2.jpg",
+   "ride-along-tell-the-team-3.jpg",
+   "ride-along-tell-the-team-4.jpg"
+  ]
+ },
+ "ride-along-the-bills": {
+  "seconds": 197,
+  "frames": [
+   "ride-along-the-bills-1.jpg",
+   "ride-along-the-bills-2.jpg",
+   "ride-along-the-bills-3.jpg",
+   "ride-along-the-bills-4.jpg"
+  ]
+ },
+ "ride-along-the-estimate-in-the-4-touch-app": {
+  "seconds": 122,
+  "frames": [
+   "ride-along-the-estimate-in-the-4-touch-app-1.jpg",
+   "ride-along-the-estimate-in-the-4-touch-app-2.jpg",
+   "ride-along-the-estimate-in-the-4-touch-app-3.jpg",
+   "ride-along-the-estimate-in-the-4-touch-app-4.jpg"
+  ]
+ },
+ "ride-along-the-estimate-on-the-file-jess": {
+  "seconds": 94,
+  "frames": [
+   "ride-along-the-estimate-on-the-file-jess-1.jpg",
+   "ride-along-the-estimate-on-the-file-jess-2.jpg",
+   "ride-along-the-estimate-on-the-file-jess-3.jpg",
+   "ride-along-the-estimate-on-the-file-jess-4.jpg"
+  ]
+ },
+ "ride-along-the-estimate-on-your-phone": {
+  "seconds": 96,
+  "frames": [
+   "ride-along-the-estimate-on-your-phone-1.jpg",
+   "ride-along-the-estimate-on-your-phone-2.jpg",
+   "ride-along-the-estimate-on-your-phone-3.jpg",
+   "ride-along-the-estimate-on-your-phone-4.jpg"
+  ]
+ },
+ "ride-along-the-invoice": {
+  "seconds": 175,
+  "frames": [
+   "ride-along-the-invoice-1.jpg",
+   "ride-along-the-invoice-2.jpg",
+   "ride-along-the-invoice-3.jpg",
+   "ride-along-the-invoice-4.jpg"
+  ]
+ },
+ "ride-along-the-paperwork": {
+  "seconds": 145,
+  "frames": [
+   "ride-along-the-paperwork-1.jpg",
+   "ride-along-the-paperwork-2.jpg",
+   "ride-along-the-paperwork-3.jpg",
+   "ride-along-the-paperwork-4.jpg"
+  ]
+ },
+ "ride-along-what-youre-getting": {
+  "seconds": 267,
+  "frames": [
+   "ride-along-what-youre-getting-1.jpg",
+   "ride-along-what-youre-getting-2.jpg",
+   "ride-along-what-youre-getting-3.jpg",
+   "ride-along-what-youre-getting-4.jpg"
+  ]
+ },
+ "ride-along-when-you-miss-a-call-or-a-text": {
+  "seconds": 100,
+  "frames": [
+   "ride-along-when-you-miss-a-call-or-a-text-1.jpg",
+   "ride-along-when-you-miss-a-call-or-a-text-2.jpg",
+   "ride-along-when-you-miss-a-call-or-a-text-3.jpg",
+   "ride-along-when-you-miss-a-call-or-a-text-4.jpg"
+  ]
+ },
+ "sign-on-the-phone-small": {
+  "seconds": 22,
+  "frames": [
+   "sign-on-the-phone-small-1.jpg",
+   "sign-on-the-phone-small-2.jpg",
+   "sign-on-the-phone-small-3.jpg",
+   "sign-on-the-phone-small-4.jpg"
+  ]
+ },
+ "sign-on-the-phone": {
+  "seconds": 22,
+  "frames": [
+   "sign-on-the-phone-1.jpg",
+   "sign-on-the-phone-2.jpg",
+   "sign-on-the-phone-3.jpg",
+   "sign-on-the-phone-4.jpg"
+  ]
+ },
+ "supervisor-app": {
+  "seconds": 173,
+  "frames": [
+   "supervisor-app-1.jpg",
+   "supervisor-app-2.jpg",
+   "supervisor-app-3.jpg",
+   "supervisor-app-4.jpg"
+  ]
+ },
+ "the-babysitter": {
+  "seconds": 151,
+  "frames": [
+   "the-babysitter-1.jpg",
+   "the-babysitter-2.jpg",
+   "the-babysitter-3.jpg",
+   "the-babysitter-4.jpg"
+  ]
+ },
+ "the-blindfold-off": {
+  "seconds": 175,
+  "frames": [
+   "the-blindfold-off-1.jpg",
+   "the-blindfold-off-2.jpg",
+   "the-blindfold-off-3.jpg",
+   "the-blindfold-off-4.jpg"
+  ]
+ },
+ "the-full-show": {
+  "seconds": 660,
+  "frames": [
+   "the-full-show-1.jpg",
+   "the-full-show-2.jpg",
+   "the-full-show-3.jpg",
+   "the-full-show-4.jpg"
+  ]
+ },
+ "the-hunt": {
+  "seconds": 173,
+  "frames": [
+   "the-hunt-1.jpg",
+   "the-hunt-2.jpg",
+   "the-hunt-3.jpg",
+   "the-hunt-4.jpg"
+  ]
+ },
+ "the-record": {
+  "seconds": 143,
+  "frames": [
+   "the-record-1.jpg",
+   "the-record-2.jpg",
+   "the-record-3.jpg",
+   "the-record-4.jpg"
+  ]
+ }
+}
