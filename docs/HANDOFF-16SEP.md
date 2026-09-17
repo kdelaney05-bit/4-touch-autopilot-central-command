@@ -143,3 +143,13 @@ Kevin: "if the person on the estimate is not the person on the title, we have to
 - **noc-return deployed:** the same page with the deed's words (find it in your closing papers · a picture of each page · send), the file names and labels say warranty deed.
 - **Central Command v106:** the deed row on the Paperwork card (emailed · texts · Copy the photo link · Upload), the Property card's NEXT and Request the deed, the Office switch, words.js.
 - **Next free = 387.**
+
+## ✅ 17 Sep ~11:20 AM — 387 THE SIGNED NOTE CARRIES THE SIGNED THINGS
+
+Kevin, after signing the walk-through: "I got the email of a signed Delaney final walk, it's moving, and all the PDFs are not signed. They're blank." Diagnosis: the SIGNED note is queued by the trigger on the signature row, the same instant, and its attachment list was built then — the calculator's unsigned packet only; the stamped hold harmless landed 3 seconds later, the NOC 4 seconds later, and the worker adds printouts itself only when the list is empty. Also: nothing produced a signed CONTRACT document at all — the customer stamps the HTML sheet; the calculator's proposal PDF was the unsigned print.
+
+- **387 applied:** the SIGNED note waits two minutes (`queued_at` in the future — the worker takes rows older than six seconds); `signed_note_files(customer)` builds the list (the signed contract first, the town's forms signed and stamped, the NOC for the rep, the calculator's order and drawing; the unsigned proposal only when no signed contract exists); a trigger on `paperwork_filled` rebuilds the pending note's list as each form lands; `signed_note_resend(customer)` for a seat.
+- **paperwork-fill deployed:** stamp mode also stamps the calculator's proposal PDF as the signed contract — the signature image and the date on the Customer Signature line, the typed name under it, the initials under the fence top the calculator checked (follow grade / flat on top) — on the page before the two Terms pages; recorded as `paperwork_filled` form_key `contract`, method `stamped`. A re-run adds only what is missing (already-stamped forms are skipped).
+- Kevin's walk-through: re-stamped (the signed contract made), the SIGNED note resent with six files: Contract — signed · Hold Harmless Cocoa — signed · Notice of Commencement — for the rep · drawing · material order · supporting docs.
+- Owed: a "Resend the SIGNED note" button on the file (the RPC exists); the HHA signature image is small (the spot's height) — enlarge per form.
+- **Next free = 388.**
