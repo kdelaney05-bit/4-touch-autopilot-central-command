@@ -2,7 +2,7 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine } from './book.js?v=102';
+import { state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark } from './book.js?v=102';
 import { $, html, raw, esc, toast, openModal } from './ui.js?v=102';
 import { enterPosts, micButton } from './dictate.js?v=102';
 import { quoteFileCard, wireQuotes } from './quotes.js?v=102';
@@ -169,6 +169,7 @@ function draw(root, ctx, compact) {
       <div style="flex-grow:1;min-width:0">
         <div class="kicker">The customer file · one file, every room writes on it</div>
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
+        ${raw(leadLine(job, ctx.data.appt, ctx.data.mirror))}
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
         ${journey.length ? raw(`<div class="journey" title="Who moved through this file, in order">${journey.map((j) => { const p = j.pid === 'machine' ? { name: 'The machine' } : personOf(j.pid); const c = colorFor(j.pid); return `<span style="--c:${c.c};flex-grow:${j.n}" title="${esc((p?.name || 'someone') + ' · ' + new Date(j.from).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (j.n > 1 ? ' · ' + j.n : ''))}"></span>`; }).join('')}</div><div class="journey-who">${[...new Set(journey.map((j) => j.pid))].map((pid) => { const p = pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(pid); const c = colorFor(pid); return `<span class="pill" style="--c:${c.c};--cs:${c.cs}"><i class="av">${esc(initialsOf(p))}</i>${esc(pid === 'machine' ? 'The machine' : firstName(p?.name || 'someone'))}</span>`; }).join('')}</div>`) : ''}
         ${raw((() => { const ownerBad = ctx.data.parcel?.signer_match === 'mismatch' || ctx.data.parcel?.confidential; const n = (!ownerBad && customer?.disposition !== 'lost' && billsNext(ctx)) || fileNext(job, openAsks, estimates, ctx.data.parcel, customer, canTake); return `<div class="next ${n.tone}" style="margin-top:10px"><b>NEXT</b> ${esc(n.text)}</div>`; })())}
@@ -298,6 +299,10 @@ function draw(root, ctx, compact) {
       <div class="note">Nothing is deleted. ${esc(firstName(name))} is marked lost, the job comes off every board and every number, and the office is tagged on this file to mark it lost in Contractors Cloud. Revive brings it back.</div>`,
     onSubmit: async (f) => { await markLost(ctx.customerId, f.reason.value, f.note.value.trim() || null); toast('Off the board · the office was tagged to mark it in CC'); await reload(true); again(); } });
   if (q('#file-revive')) q('#file-revive').onclick = async () => { try { await reviveCustomer(ctx.customerId, null); toast(`${firstName(name)} is back on`); await reload(true); again(); } catch (e) { toast(e.message, 'err'); } };
+  // 381 THE FIRST PIECE: the lead's copy for Contractors Cloud — the fields in CC's order, or the seat's word that it was typed / should go again
+  if (q('#mirror-copy')) q('#mirror-copy').onclick = async () => { const t = mirrorCopyText(ctx.data.mirror, customer, job); try { await navigator.clipboard.writeText(t); toast('Copied — paste into Contractors Cloud, top to bottom'); } catch { prompt('For Contractors Cloud', t); } };
+  if (q('#mirror-byhand')) q('#mirror-byhand').onclick = async () => { try { await mirrorMark(ctx.data.mirror.id, 'by_hand', null); toast('Noted: typed into Contractors Cloud'); again(); } catch (e) { toast(e.message, 'err'); } };
+  if (q('#mirror-again')) q('#mirror-again').onclick = async () => { try { await mirrorMark(ctx.data.mirror.id, 'queued', null); toast('Queued again — the machine tries within the hour'); again(); } catch (e) { toast(e.message, 'err'); } };
   // 351: tap a picture for the full size; ＋ Photo takes one (phone) or picks one (laptop) and says it on the file
   root.querySelectorAll('.pthumb').forEach((im) => (im.onclick = () => { const p = (photos || []).find((x) => photoSrc(x) === (im.dataset.full || im.src)); lightbox(im.dataset.full || im.src, im.title || '', p, customer); }));
   wireQuotes(root);   // 353
@@ -677,6 +682,36 @@ function fenceCard(f, packet, estimates) {
    One line, the loudest thing on the file, for whoever is looking. Never a
    hint: either the machine is doing it, or a named human has to. First match
    wins, worst news first. */
+/* ── 381 THE FIRST PIECE: the booking, and where the lead stands in Contractors Cloud ──
+   Kevin, 17 Sep: every new lead starts here from Mon 21 Sep. The line under the name says
+   when the estimate is and with whom; the chip says whether the machine has carried it into
+   CC yet (the cc_mirror switch), and OFF it hands the office the fields in CC's order. */
+function leadLine(job, appt, mirror) {
+  const at = job.appt_starts_at || appt?.appt_starts_at;
+  const parts = [];
+  if (at) { const d = new Date(at); const future = d > new Date(); parts.push(`<span class="chip ${future ? 'st-gold' : ''}" title="The estimate appointment">ESTIMATE · ${esc(d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase())} · ${esc(d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}${job.rep_name ? ' · ' + esc(firstName(job.rep_name).toUpperCase()) : ''}</span>`); }
+  if (mirror) {
+    const s = mirror.status;
+    parts.push(s === 'sent' ? `<span class="chip st-green" title="Contractors Cloud project ${esc(mirror.cc_project_id || '')}">IN CONTRACTORS CLOUD ✓</span>`
+      : s === 'by_hand' ? '<span class="chip st-green">TYPED INTO CONTRACTORS CLOUD ✓</span>'
+      : s === 'failed' ? `<span class="chip warn" title="${esc(mirror.error || '')}">CONTRACTORS CLOUD REFUSED IT</span>`
+      : s === 'skipped' ? '<span class="chip">NOT FOR CONTRACTORS CLOUD</span>'
+      : s === 'sending' ? '<span class="chip st-gold">GOING INTO CONTRACTORS CLOUD…</span>'
+      : '<span class="chip warn" title="The machine carries it across when the cc_mirror switch is on; until then, paste it">NOT IN CONTRACTORS CLOUD YET</span>');
+    if (!['sent', 'by_hand', 'skipped', 'sending'].includes(s)) parts.push('<button class="btn sm" id="mirror-copy" title="The fields, in CC\'s order">Copy for CC</button><button class="btn sm" id="mirror-byhand" title="I typed it into Contractors Cloud myself">Typed into CC</button>');
+    if (s === 'failed') parts.push('<button class="btn sm" id="mirror-again">Queue it again</button>');
+  }
+  return parts.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px" id="lead-line">${parts.join('')}</div>` : '';
+}
+function mirrorCopyText(m, customer, job) {
+  const p = m?.payload || {};
+  const when = p.appt_starts_at ? `${p.appt_starts_at} to ${String(p.appt_ends_at || '').slice(11, 16)} (Eastern)` : 'no appointment yet';
+  return [`Account (person): ${p.name || customer?.name || ''}`, `Phone: ${p.phone || customer?.phone || ''}`, `Email: ${p.email || customer?.email || ''}`,
+    `Address: ${[p.street, p.city, p.state || 'FL', p.zip].filter(Boolean).join(', ')}`, `Company: ${brandName(String(p.company_id || job.cc_company_id || ''))}`,
+    `Lead source: ${p.lead_source || ''}`, `Primary rep: ${p.rep_name || job.rep_name || ''}`, 'Project: Lead · Residential-Own · Standard Event',
+    `Sales Appointment: ${when}`, `Description: ${p.appt_description || p.title || job.title || ''}`].join('\n');
+}
+
 function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
   const ageMin = (iso) => iso ? Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000) : null;
   if (customer?.disposition === 'lost') return { tone: '', text: `Not going with us${customer.disposition_at ? ' since ' + new Date(customer.disposition_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : ''}. Nothing opens on this file; the office marks it lost in Contractors Cloud. Revive brings it back.` };
@@ -690,7 +725,11 @@ function fileNext(job, openAsks, estimates, parcel, customer, canTake) {
   const est = (estimates || [])[0];
   if (est && est.status === 'sent') return { tone: '', text: `Estimate #${est.serial_number} is out, waiting on the customer since ${new Date(est.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}. Text a nudge from the Cockpit.` };
   if (est && est.status === 'accepted' && !job.contract_signed_at) return { tone: 'good', text: `Estimate #${est.serial_number} accepted. Office: the contract and the permit run. The owner of record is ${parcel ? 'on the file' : 'being looked up'}.` };
-  if (!job.job_id) return { tone: '', text: 'No job on this file yet. + New job puts it on the board with a clock.' };
+  if (!job.job_id) return { tone: '', text: 'No job on this file yet. + New lead puts it on the board with a clock.' };
+  // 381: a lead born here — booked (the rep knows), or still to be booked (a person has to)
+  const at = job.appt_starts_at ? new Date(job.appt_starts_at) : null;
+  if (!job.contract_signed_at && at && at > new Date()) return { tone: 'good', text: `Estimate booked ${at.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} at ${at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}${job.rep_name ? ' with ' + firstName(job.rep_name) : ''}. ${job.rep_name ? firstName(job.rep_name) + ' shows up early, in the collared shirt.' : 'No rep on it yet — pick one.'} The confirmation text follows its switch.` };
+  if (!job.contract_signed_at && !at && !['sold_office', 'production', 'field_complete', 'invoiced', 'paid'].includes(job.stage)) return { tone: 'bad', text: `No appointment yet. Call ${firstName(customer?.name || job.customer_name || 'the customer')} and book the estimate; the rep's phone buzzes the moment you do.` };
   if (job.stage === 'sold_office' && canTake) return { tone: 'bad', text: 'Sold and nobody holds it. Take the job.' };
   if (job.stage === 'sold_office') return { tone: '', text: 'Sold. The office runs paperwork, permit and schedule; asks open here as each one is due.' };
   if (job.stage === 'production') return { tone: '', text: `In production${job.supervisor_id ? ' with ' + (seatName(job.supervisor_id) || 'the supervisor') : ''}. Field complete ends this stage.` };

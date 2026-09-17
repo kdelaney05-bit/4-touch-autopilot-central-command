@@ -1,6 +1,6 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
 import * as api from './api.js?v=102';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob } from './book.js?v=102';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=102';
 import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=102';
 import { BRAND_BY_CC } from './config.js?v=102';
 import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=102';
@@ -184,20 +184,42 @@ function wireFind() {
   document.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); box.focus(); box.select(); } });
 }
 
-/* The New Job door — customer + job (+ appointment, + signing) in one call.
-   Built beside Contractors Cloud: a job made here lives here; nothing in CC
-   changes. The office keeps its CC habit until Kevin moves them. */
-function newJob() {
+/* THE NEW LEAD DOOR — customer + job (+ appointment, + signing) in one call (313, 381).
+   Kevin, 17 Sep: "Jess starting on Monday scheduling all leads in the new app… we have to start
+   here, we're not going to do the first redundancy." So from Mon 21 Sep this is the FIRST door a
+   new customer comes through, ahead of Contractors Cloud: the rep's phone buzzes the moment it is
+   booked, the booking is a line on the file, the confirmation text follows its switch, and the
+   machine carries the copy into CC behind the cc_mirror switch (OFF = the file shows the fields
+   to paste). The form reads the rep's day so nobody is double-booked. A prefill opens it typed
+   (the Ride-Along). Nothing else moves: invoicing, bills, work orders stay in CC until Kevin says. */
+function newJob(prefill) {
   const me = state.me || {};
   const brands = Object.entries(BRAND_BY_CC);
   const sellers = state.sellers || [];
   const canPickRep = me.role !== 'sales';
+  const cc0 = prefill?.cc || me.manages_company_id || '1461';
   const srcFor = (cc) => (state.leadSources || []).filter((s) => s.cc_company_id === cc);
   const srcOpts = (cc) => '<option value="">— how they found us —</option>' + srcFor(cc).map((s) => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
-  openModal({ title: 'New job', submitLabel: 'Open the file', wide: true, body: `
+  const repOpts = (cc) => { const mine = sellers.filter((s) => String(s.cc_default_company_id) === String(cc)), rest = sellers.filter((s) => String(s.cc_default_company_id) !== String(cc)); return '<option value="">— pick the rep —</option>' + [...mine, ...rest].map((s) => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join(''); };
+  // the rep's day: what they already have booked on the day you picked, so nobody is double-booked
+  const dayStrip = async (f) => {
+    const box = f.querySelector('#nj-day'); if (!box) return;
+    const rep = canPickRep ? f.rep.value : me.id, day = f.appt.value ? f.appt.value.slice(0, 10) : '';
+    if (!rep || !day) { box.innerHTML = '<div class="small dimmer">Pick the rep and the day and this shows what they already have that day.</div>'; return; }
+    box.innerHTML = '<div class="small dimmer">Reading the rep\'s day…</div>';
+    try {
+      const rows = await repDay(rep, day);
+      const who = firstName(sellers.find((s) => s.id === rep)?.name || me.name || 'the rep');
+      const d = new Date(day + 'T12:00:00').toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+      box.innerHTML = rows.length
+        ? `<div class="kicker">${esc(who)} · ${esc(d)} · already booked</div>` + rows.map((r) => `<div class="r"><span><span class="mono">${esc(new Date(r.appt_starts_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</span> · ${esc(personName(r.customers?.name || 'a customer'))}${r.customers?.city ? ' · ' + esc(r.customers.city) : ''}</span><span class="small dimmer">${esc(r.title || '')}</span></div>`).join('')
+        : `<div class="small verify">${esc(who)} has nothing booked ${esc(d)}. Wide open.</div>`;
+    } catch (e) { box.innerHTML = `<div class="small dimmer">Could not read the day (${esc(e.message)}).</div>`; }
+  };
+  openModal({ title: 'New lead · a new customer starts here', submitLabel: 'Open the file', wide: true, body: `
     <div class="two">
-      <div class="field"><label>Brand</label><select name="cc">${brands.map(([cc, b]) => `<option value="${cc}" ${cc === (me.manages_company_id || '1461') ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></div>
-      <div class="field"><label>Sold by</label>${canPickRep ? `<select name="rep"><option value="">— pick the rep —</option>${sellers.map((s) => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('')}</select>` : `<input value="${esc(me.name || '')}" disabled/>`}</div>
+      <div class="field"><label>Brand</label><select name="cc">${brands.map(([cc, b]) => `<option value="${cc}" ${cc === cc0 ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></div>
+      <div class="field"><label>How they found us · the same list as Contractors Cloud</label><select name="src">${srcOpts(cc0)}</select></div>
     </div>
     <div class="two">
       <div class="field"><label>Customer name</label><input name="name" required placeholder="Last, First — or the household"/></div>
@@ -205,35 +227,51 @@ function newJob() {
     </div>
     <div class="two">
       <div class="field"><label>Email</label><input name="email" type="email"/></div>
-      <div class="field"><label>Job</label><input name="title" placeholder="6' vinyl privacy, 210 ft"/></div>
-    </div>
-    <div class="two">
-      <div class="field"><label>Lead source · the same list as Contractors Cloud</label><select name="src">${srcOpts(me.manages_company_id || '1461')}</select></div>
-      <div class="field"></div>
+      <div class="field"><label>What they want</label><input name="title" placeholder="chain link quote needed · 6' vinyl privacy, 210 ft"/></div>
     </div>
     <div class="two">
       <div class="field"><label>Street</label><input name="street"/></div>
       <div class="field"><label>City · zip</label><div style="display:flex;gap:6px"><input name="city" placeholder="Cocoa"/><input name="zip" placeholder="32922" style="width:110px"/></div></div>
     </div>
     <div class="two">
-      <div class="field"><label>Estimate appointment (optional)</label><input name="appt" type="datetime-local"/></div>
+      <div class="field"><label>Rep</label>${canPickRep ? `<select name="rep">${repOpts(cc0)}</select>` : `<input value="${esc(me.name || '')}" disabled/>`}</div>
+      <div class="field"><label>Estimate appointment · leave blank if they still need a time</label><div style="display:flex;gap:6px"><input name="appt" type="datetime-local" style="flex:1"/><select name="mins" style="width:96px"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1½ h</option><option value="120">2 h</option></select></div></div>
+    </div>
+    <div class="rows" id="nj-day" style="margin:2px 0 8px"><div class="small dimmer">Pick the rep and the day and this shows what they already have that day.</div></div>
+    <div class="two">
+      <div class="field"><label>Note to the team (optional)</label><input name="note" placeholder="gate code 2021 · dog in the yard · call before 8"/></div>
       <div class="field"><label>Signed today for (optional)</label><input name="amount" type="number" step="0.01" min="0" placeholder="leave blank if not signed yet"/></div>
     </div>
-    <div class="field"><label>Note to the team (optional)</label><input name="note" placeholder="gate code 2021 · HOA approval needed · call before 8"/></div>
-    <div class="note">Same phone number = same customer: their file keeps its history. A signed amount opens the paperwork checklist for the office. An appointment sends the confirmation text if that switch is on.</div>`,
-    onOpen: (f) => { f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); }; },
+    <div class="note">Open the file and it is done: the rep's phone buzzes with the day, the time and the address; the booking is the first line on the file; the customer gets the confirmation text when that switch is on; and the machine carries the lead into Contractors Cloud when its switch is on. Same phone number = same customer. A signed amount opens the paperwork checklist for the office.</div>`,
+    onOpen: (f) => {
+      f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); if (f.rep) f.rep.innerHTML = repOpts(f.cc.value); dayStrip(f); };
+      if (f.rep) f.rep.onchange = () => dayStrip(f);
+      f.appt.onchange = () => dayStrip(f);
+      if (prefill) {   // the Ride-Along opens it typed; nothing is saved in the demo
+        for (const [k, v] of Object.entries(prefill)) { const el = f.elements[k]; if (el && k !== 'cc') el.value = v; }
+        if (prefill.src) f.src.value = prefill.src;
+        if (prefill.rep && f.rep) f.rep.value = prefill.rep;
+        dayStrip(f);
+      }
+    },
     onSubmit: async (f) => {
       const amount = f.amount.value ? Number(f.amount.value) : null;
       const r = await createJob({ p_cc_company: f.cc.value, p_name: f.name.value.trim(), p_phone: f.phone.value.trim() || null, p_email: f.email.value.trim() || null,
         p_street: f.street.value.trim() || null, p_city: f.city.value.trim() || null, p_zip: f.zip.value.trim() || null,
         p_rep: canPickRep ? (f.rep.value || null) : null, p_title: f.title.value.trim() || null,
         p_appt_at: f.appt.value ? new Date(f.appt.value).toISOString() : null,
-        p_amount: amount, p_signed_at: amount ? new Date().toISOString() : null, p_lead_source: f.src.value || null, p_note: f.note.value.trim() || null });
-      toast('The file is open' + (amount ? ' · paperwork checklist opened for the office' : ''));
+        p_amount: amount, p_signed_at: amount ? new Date().toISOString() : null, p_lead_source: f.src.value || null, p_note: f.note.value.trim() || null,
+        p_appt_minutes: Number(f.mins.value || 60), p_what: f.title.value.trim() || null });
+      const bits = ['The file is open'];
+      if (r?.pushed_rep) bits.push(`${firstName(r.rep_name || 'the rep')}'s phone buzzed`);
+      if (amount) bits.push('paperwork checklist opened for the office');
+      bits.push(r?.mirror_on ? 'going into Contractors Cloud within the hour' : 'not in Contractors Cloud yet — the file shows what to paste');
+      toast(bits.join(' · '));
       await reload(true);
       window.__peek(r.customer_id);
     } });
 }
+window.__newJob = (prefill) => newJob(prefill);   // the Ride-Along opens the door typed
 
 async function boot() {
   $('#btn-newjob').onclick = newJob;

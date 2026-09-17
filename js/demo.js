@@ -106,11 +106,13 @@ const HYPE = [
 // The Pipeline room's fictional selling side: the same shape the live jobs read returns, customer embedded.
 const pj = (id, name, city, rep, apptH, o = {}) => ({ id, customer_id: 'c' + id, rep_id: rep, cc_company_id: o.cc || '1461', title: o.title || 'Fence estimate', appt_starts_at: apptH == null ? null : ago(apptH), contract_signed_at: o.signedH != null ? ago(o.signedH) : null, fin_sold_amount: o.amt ?? null, created_at: ago((apptH ?? 48) + 72),
   customers: { name, phone: '(321) 555-0' + String(100 + Number(id.replace(/\D/g, ''))).slice(-3), city, disposition: o.lost ? 'lost' : null } });
+// 381: the lead the Ride-Along books — next Monday at nine, with Eric (the office's first Monday, 21 Sep 2026)
+const NEXT_MON_9 = (() => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); d.setHours(9, 0, 0, 0); return d.getTime(); })();
 const PIPE = [
   pj('p1', 'Hartley, Nina', 'Palm Bay', 'r3', -30, { cc: '1563', title: 'Shingle re-roof' }), pj('p2', 'Duarte, Miguel', 'Cocoa', 'r1', -6), pj('p3', 'Chen, Amy', 'Rockledge', 'r2', -52),
   pj('p4', 'Bellamy, Joe', 'Melbourne', 'r3', 3, { cc: '1563', title: 'Roof, 24 sq' }), pj('p5', 'Osei, Grace', 'Titusville', 'r1', 20), pj('p6', 'Ferraro, Dom', 'Merritt Island', 'r2', 40), pj('p7', 'Quinn, Sarah', 'Viera', 'g', 60),
   pj('p8', 'Lindqvist, Erik', 'Palm Coast', 'r5', 30), pj('p9', 'Baptiste, Marie', 'Cocoa', 'r1', 80), pj('p10', 'Torres, Luis', 'Winter Park', 'r4', 12, { cc: '1560', title: 'Paver patio' }),
-  pj('p11', 'Nakamura, Ken', 'Melbourne', 'r3', 150, { cc: '1563' }), pj('p12', 'Whitaker, Ann', 'Palm Bay', 'r2', 200, { lost: true }), pj('p13', 'Grant, Tyrell', 'Deltona', 'r5', null), pj('p14', 'Ivey, Paula', 'Orlando', 'r4', null, { cc: '1560' }),
+  pj('p11', 'Nakamura, Ken', 'Melbourne', 'r3', 150, { cc: '1563' }), pj('p12', 'Whitaker, Ann', 'Palm Bay', 'r2', 200, { lost: true }), pj('p13', 'Grant, Tyrell', 'Deltona', 'r5', null), pj('p14', 'Ivey, Paula', 'Orlando', 'r4', null, { cc: '1560' }), pj('p15', 'Okonkwo, Grace', 'Mims', 'r3', (now - NEXT_MON_9) / 3600e3, { title: 'chain link quote needed' }),
   ...BOARD.filter((b) => b.contract_signed_at).slice(0, 6).map((b) => ({ id: b.job_id, customer_id: b.customer_id, rep_id: b.rep_id, cc_company_id: b.cc_company_id, title: b.title, appt_starts_at: ago(300), contract_signed_at: b.contract_signed_at, fin_sold_amount: b.fin_sold_amount, created_at: ago(400), customers: { name: b.customer_name, phone: b.customer_phone, city: 'Cocoa', disposition: null } })),
 ];
 const EST = [{ customer_id: 'cp8', amount: 7800, occurred_at: ago(28) }, { customer_id: 'cp9', amount: 12400, occurred_at: ago(70) }, { customer_id: 'cp11', amount: 18900, occurred_at: ago(140) }];
@@ -156,13 +158,32 @@ function book() {
     ...[...new Map(BOARD.map((b) => [b.rep_id, b.rep_name])).entries()].map(([id, name]) => ({ id, name, role: 'sales', initials: null, sms_from: id === 'r1' ? '+13863023131' : null }))];
   return { me: { ...me, manages_company_id: null }, seats: SEATS, people, stageSeats: [{ cc_company_id: '1461', stage: 'sold_office', owner_id: 'sam', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'schedule', owner_id: 'jon', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'production', owner_id: null, watcher_id: 'luis' }, { cc_company_id: '1461', stage: 'invoiced', owner_id: 'laura', watcher_id: 'jc' }, { cc_company_id: '1461', stage: 'field_complete', owner_id: 'laura', watcher_id: 'jc' }], board: BOARD, queue: QUEUE, clock: CLOCK, pipeline: PIPE, estimates: EST, direct: DIRECT, bills: BILLS.filter((x) => ['landed', 'matched', 'needs_human', 'held', 'wrong_job'].includes(x.status)),
     leadSources: [{ cc_lead_id: 1, name: 'Google', cc_company_id: '1461' }, { cc_lead_id: 2, name: 'Referral', cc_company_id: '1461' }, { cc_lead_id: 3, name: 'Angi (Lead Service)', cc_company_id: '1461' }, { cc_lead_id: 4, name: 'Previous Customer', cc_company_id: '1461' }, { cc_lead_id: 5, name: 'Google', cc_company_id: '1560' }],
-    sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
+    sellers: [{ id: 'r1', name: 'Ron Seidel', cc_default_company_id: '1461' }, { id: 'r2', name: 'Travis Janke', cc_default_company_id: '1461' }, { id: 'r3', name: 'Eric Payne', cc_default_company_id: '1461' }, { id: 'r5', name: 'Haakon Endreson', cc_default_company_id: '1461' }, { id: 'r4', name: 'Mike LeRoy', cc_default_company_id: '1560' }],
     mentions: [{ message_id: 'mm1', thread_id: 'tj3', created_at: ago(0.4), seen_at: null, customer_id: 'cj3', customer_name: 'Reed, Dana', cc_company_id: '1461', author_name: 'Obed Santiago', body: '@Laura signed off, 6 photos on the file — invoice when you can', lane: 'OFFICE' }],
     switches: [{ key: 'appt_confirm', is_on: false }, { key: 'text_clock', is_on: false }],
     lines: [{ line_e164: '+13218061995', cc_company_id: '1461', label: 'Liberty Fencing · 321', campaign_ok: true }, { line_e164: '+13862766898', cc_company_id: '1461', label: 'Liberty Fencing · 386', campaign_ok: true }], warnings: ['DEMO — a fictional book; nothing is saved'] };
 }
 
+/* 381: a lead born at the New lead door — booked, the rep buzzed, the booking as the file's first line, the CC mirror queued (the switch is OFF in the demo) */
+function leadFile(p) {
+  const repName = ({ r1: 'Ron Seidel', r2: 'Travis Janke', r3: 'Eric Payne', r4: 'Mike LeRoy', r5: 'Haakon Endreson' })[p.rep_id] || null;
+  const when = p.appt_starts_at ? new Date(p.appt_starts_at) : null;
+  const job = { job_id: p.id, cc_project_id: 'lc-' + p.id, cc_company_id: p.cc_company_id, customer_id: p.customer_id, customer_name: p.customers.name, customer_phone: p.customers.phone,
+    title: p.title, fin_sold_amount: null, contract_signed_at: null, completed_at: null, rep_id: p.rep_id, rep_name: repName, appt_starts_at: p.appt_starts_at,
+    stage: when && when > new Date() ? 'booked' : 'selling', days_in_stage: 0, owner_name: null, open_asks: 0, sms_opt_out_at: null };
+  const line = when ? `Laura Schepp booked the estimate · ${when.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })} · ${when.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}${repName ? ' with ' + repName.split(' ')[0] : ' · no rep yet'} · ${p.title} · Google` : `Laura Schepp opened the lead · no appointment yet · ${p.title}`;
+  const messages = [{ id: 'lead1', lane: 'OFFICE', author_name: 'Laura Schepp', body: line, is_system: true, created_at: ago(0.2) },
+                    { id: 'lead2', lane: 'OFFICE', author_id: 'laura', author_name: 'Laura Schepp', body: 'gate code 2021 · dog in the yard, call before you pull in', is_system: false, created_at: ago(0.19) }];
+  const stamp = (d) => d ? d.toISOString().slice(0, 19).replace('T', ' ') : null;
+  return { job, customer: { id: p.customer_id, name: p.customers.name, phone: p.customers.phone, email: 'grace.okonkwo@example.com', sms_opt_out_at: null, disposition: null }, texts: [], emails: [], thread: { id: 't' + p.id }, messages,
+    asks: [], attachments: [], handoffs: [], outbox: [], estimates: [], estLinks: [], parcel: null, filled: [], fence: null, packet: [], noc: null, counter: null, bills: [], deposit: null, invoiceQueue: [], photos: [], quotes: [], receipts: [],
+    appt: { appt_starts_at: p.appt_starts_at },
+    mirror: { id: 'mq' + p.id, status: 'queued', error: null, cc_project_id: null, payload: { name: p.customers.name, phone: p.customers.phone, email: 'grace.okonkwo@example.com', street: '4050 Palm Ave', city: p.customers.city, state: 'FL', zip: '32754', company_id: p.cc_company_id, lead_source: 'Google', rep_name: repName, appt_starts_at: stamp(when), appt_ends_at: stamp(when ? new Date(when.getTime() + 3600e3) : null), appt_description: p.title, title: p.title } } };
+}
+
 function file(customerId) {
+  const pipe = !BOARD.some((x) => x.customer_id === customerId) && PIPE.find((x) => x.customer_id === customerId);
+  if (pipe) return leadFile(pipe);
   const b = BOARD.find((x) => x.customer_id === customerId) || BOARD[2];
   const t = (h, dir, body, ext, feed) => ({ id: 'm' + h + body.length, direction: dir, body, occurred_at: ago(h), uvoice_ext: ext ?? null, feed_source: feed || 'cloudmessage', has_media: false,
     resolved_rep_id: dir === 'outbound' ? ({ 152: 'r1', 102: 'sam', 158: 'obed' })[ext] ?? null : null, from_number: ext === 152 ? '+13863023131' : '+13218061995' });

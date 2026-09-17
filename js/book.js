@@ -133,15 +133,16 @@ export async function loadFile(customerId) {
   let job = rows.sort((a, b) => (a.completed_at ? 1 : 0) - (b.completed_at ? 1 : 0))[0] || null;
   if (!job) {
     // not on the stage board (selling, or older than 30 days): read the job directly
-    const j = await api.one(`jobs?select=id,cc_project_id,cc_company_id,customer_id,title,fin_sold_amount,contract_signed_at,completed_at,rep_id&customer_id=eq.${customerId}&order=created_at.desc`);
+    const j = await api.one(`jobs?select=id,cc_project_id,cc_company_id,customer_id,title,fin_sold_amount,contract_signed_at,completed_at,rep_id,appt_starts_at,reps(name)&customer_id=eq.${customerId}&order=created_at.desc`);
     const c = await api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`);
     job = j ? { job_id: j.id, cc_project_id: j.cc_project_id, cc_company_id: j.cc_company_id, customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone,
-                title: j.title, fin_sold_amount: j.fin_sold_amount, contract_signed_at: j.contract_signed_at, completed_at: j.completed_at, rep_id: j.rep_id,
-                stage: j.contract_signed_at ? 'sold_office' : 'selling', days_in_stage: null, owner_name: null, open_asks: 0 }
+                title: j.title, fin_sold_amount: j.fin_sold_amount, contract_signed_at: j.contract_signed_at, completed_at: j.completed_at, rep_id: j.rep_id, rep_name: j.reps?.name || null,
+                appt_starts_at: j.appt_starts_at,   // 381: a lead born here — the booking is the file's first fact
+                stage: j.contract_signed_at ? 'sold_office' : (j.appt_starts_at && new Date(j.appt_starts_at) > new Date() ? 'booked' : 'selling'), days_in_stage: null, owner_name: null, open_asks: 0 }
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, counter] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
@@ -181,13 +182,18 @@ export async function loadFile(customerId) {
     }
   }
   // 351: every photo on this customer — ours and CompanyCam's, newest first
-  const [photos, quotes, receipts] = await Promise.all([
+  const [photos, quotes, receipts, counter, appt, mirror] = await Promise.all([
     api.page(`v_file_photos?select=*&customer_id=eq.${customerId}&order=taken_at.desc`, 400).catch(() => []),
     api.page(`v_quote_requests?select=*&customer_id=eq.${customerId}&order=created_at.desc`, 20).catch(() => []),   // 353
     thread ? threadReceipts(thread.id).catch(() => []) : [],   // 354: who each note reached
-    api.rpc('counter_rule_for', { p_customer: customerId }).catch(() => null),   // 378: what this address's counter asks for at intake
+    api.rpc('counter_rule_for', { p_customer: customerId }).catch(() => null),   // 378: what this address's counter asks for at intake (was fetched and dropped before 381)
+    // 381 THE FIRST PIECE: the estimate appointment on this customer (the newest job that has one), and the lead's copy for Contractors Cloud
+    api.one(`jobs?select=id,appt_starts_at,rep_id&customer_id=eq.${customerId}&appt_starts_at=not.is.null&order=appt_starts_at.desc`).catch(() => null),
+    api.one(`v_cc_mirror_queue?select=*&customer_id=eq.${customerId}&order=created_at.desc`).catch(() => null),
   ]);
+  if (!job.appt_starts_at && appt?.appt_starts_at) job.appt_starts_at = appt.appt_starts_at;
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
+           appt: appt || null, mirror: mirror || null,
            fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null,
            bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [] };
 }
@@ -243,6 +249,14 @@ export async function linePreview(customerId) {
 export async function cancelText(id) { guard(); return api.rpc('app_text_cancel', { p_id: id }); }
 export async function ensureThread(ccProjectId) { guard(); return api.rpc('ensure_thread', { p_cc_project_id: ccProjectId }); }
 export async function createJob(args) { guard(); return api.rpc('job_create', args); }
+/* 381 THE FIRST PIECE: what a rep already has booked on a day (read from jobs — the office seat can read jobs; it cannot read cc_appointments),
+   and the office's word on the Contractors Cloud mirror: "typed into CC" · "queue it again" · "not for CC". */
+export async function repDay(repId, dayIso) {
+  const start = new Date(dayIso + 'T00:00:00'), end = new Date(start.getTime() + 86400e3);
+  if (isDemo()) return (state.pipeline || []).filter((j) => j.rep_id === repId && j.appt_starts_at && new Date(j.appt_starts_at) >= start && new Date(j.appt_starts_at) < end).sort((a, b) => String(a.appt_starts_at).localeCompare(String(b.appt_starts_at)));
+  return api.page(`jobs?select=id,title,appt_starts_at,customers(name,city)&rep_id=eq.${repId}&appt_starts_at=gte.${start.toISOString()}&appt_starts_at=lt.${end.toISOString()}&order=appt_starts_at.asc`, 50);
+}
+export async function mirrorMark(queueId, status, note) { guard(); return api.rpc('cc_mirror_mark', { p_queue: queueId, p_status: status, p_note: note ?? null }); }
 /* 322: the itemized estimate — one call mints the document, its items, the amount fact and the tracked link. */
 export async function createEstimate(p) { guard(); return api.rpc('estimate_doc_create', { p }); }
 /* 324: ask the county who owns the address on this file; the row lands on the file with the signer check. */

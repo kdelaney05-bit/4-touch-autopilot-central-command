@@ -118,7 +118,20 @@ const NOC_STEPS = [
   { room: 'office', at: '[data-tour="noc-switch"]', title: 'One switch.', body: 'The you\'re-in note, in the Office room. Kevin flips it. Off, the file still writes the handoff and a seat can press Email it.' },
   { room: 'files', at: null, title: 'Nothing to learn. It comes to you.', body: 'The customer gets the note and the texts. The rep gets the packet and the buzz to set the visit. The office gets the permit ask the moment the paperwork is in. Still easier. Just compliant.' },
 ];
-const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS, 'noc': NOC_STEPS };
+// THE FIRST PIECE (Kevin, 17 Sep: "Jess starting on Monday scheduling all leads in the new app… send a video… the same
+// way you did before… reassure that every step is in here"). ?demo=1&as=office&tour=leads&auto=1&voice=1 — the office's own rooms.
+const nextMonday9 = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); d.setHours(9, 0, 0, 0); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T09:00`; };
+const LEADS_STEPS = [
+  { room: 'files', at: '#btn-newjob', title: 'Monday: every new lead starts here.', body: 'Jess, Laura, Sam: from Monday a new customer comes in through this button, not through Contractors Cloud. One form, two minutes, and everything after it happens by itself. Here is the whole thing.' },
+  { room: 'files', at: '#modal-form', do: 'newjob', title: 'Plus New lead. Type it once.', body: 'The brand, and how they found us: the same lead-source list as Contractors Cloud, so the reports keep counting. Name, mobile, email, the address. What they want, in your words: chain link quote needed. Same phone number means the same customer, so their history stays in one file.' },
+  { room: 'files', at: '#nj-day', title: 'Pick the rep and the day. It shows you their day.', body: 'Choose the rep and the appointment time, and the form reads what that rep already has booked that day, so nobody is double-booked. An hour is the default; change it if you need to. Then press Open the file.' },
+  { room: 'files', at: '#drawer #lead-line', do: 'newjobdone', title: 'The file is open. The rep already knows.', body: 'The moment you press it, Eric\'s phone buzzes: new estimate booked, Monday at nine, the address, chain link quote, booked by Laura. The booking is the first line on the file. The customer gets the confirmation text from the main line when Kevin turns that switch on. Nobody calls anybody.' },
+  { room: 'files', at: '#drawer .next', title: 'NEXT says what happens next.', body: 'Estimate booked Monday at nine with Eric. Eric shows up early. If a lead comes in with no time yet, NEXT says so in red: call them and book it. Nothing to remember.' },
+  { room: 'files', at: '#drawer #lead-line', title: 'And Contractors Cloud?', body: 'Nothing else moves. Invoicing, bills, work orders and commissions stay in Contractors Cloud for now. The machine carries the lead across, the account, the project and the sales appointment on the rep, so his Google Calendar fills in the way it does today. Until Kevin flips that switch, the chip says not in Contractors Cloud yet, Copy for CC gives you the fields in CC\'s order, and Typed into CC records that you did.' },
+  { room: 'pipeline', at: '.pies .pie, .pies', title: 'The Pipeline sees it too.', body: 'Every rep\'s book by stage: new leads with no appointment, upcoming appointments, priced and waiting, signed. Tap a name for his book alone; tap a customer and you are on the file.' },
+  { room: 'files', at: null, title: 'Nothing to learn. It comes to you.', body: 'Monday: a lead comes in, you press plus New lead, you type it once, you press Open the file. The rep is told, the file is written, the customer is texted, Contractors Cloud is filled. Everything you did in there is either already here or being done for you, one piece at a time, and Kevin says when each piece moves.' },
+];
+const FILMS = { '1': STEPS, 'crews': CREW_STEPS, 'gio': GIO_STEPS, 'keys': KEYS_STEPS, 'office': OFFICE_STEPS, 'chain': CHAIN_STEPS, 'super': SUPER_STEPS, 'noc': NOC_STEPS, 'leads': LEADS_STEPS };
 let FILM_NAME = '1';
 // THE VOICE. &voice=1 reads every step aloud. Browsers refuse to speak until the person has tapped the page once
 // (Chrome since 71, every iPhone), so a voiced film opens on a tap-to-start card. A step can carry a recorded
@@ -214,6 +227,9 @@ function paint(autoplay = false) {
   if (s.do === 'lightbox') document.querySelector('#drawer #photos-card .pthumb')?.click();
   if (s.do === 'lbcrew') { document.querySelector('#lb-crew')?.click(); }
   if (s.do === 'closemodal') { document.querySelector('#modal-cancel')?.click(); const lb = document.querySelector('#lightbox'); if (lb) lb.hidden = true; }
+  // 381: the New lead door opens typed with a fictional lead; the next step closes it and opens the file the demo holds for her
+  if (s.do === 'newjob' && window.__newJob && !document.querySelector('#modal-form')) window.__newJob({ cc: '1461', src: 'Google', name: 'Okonkwo, Grace', phone: '(321) 555-0177', email: 'grace.okonkwo@example.com', title: 'chain link quote needed', street: '4050 Palm Ave', city: 'Mims', zip: '32754', rep: 'r3', appt: nextMonday9(), mins: '60', note: 'gate code 2021 · dog in the yard' });
+  if (s.do === 'newjobdone') { document.querySelector('#modal-cancel')?.click(); if (window.__peek && !document.querySelector('#drawer:not([hidden])')) window.__peek('cp15'); }
   // the voice: &voice=1 reads the caption in the browser's own voice (Kevin: "commentate our instructions")
   if (VOICE) narrate(s, autoplay && i < FILM.length - 1 ? () => setTimeout(next, 1400) : null);
   const light = () => { let t = null; if (s.at) for (const sel of s.at.split(',')) { t = document.querySelector(sel.trim()); if (t) break; } if (t) { t.classList.add('tour-lit'); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } return t; };
