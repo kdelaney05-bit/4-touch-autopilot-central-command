@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="robots" content="noindex"/>
+<title>The crew thread, in pictures</title>
+<!--
+  THE CREW THREAD, IN PICTURES — Kevin, 16 Sep 2026, ~10:45 PM: "show me visual of how this will work.
+  text chat room is hard to visualize." One fictional day (Reed, Dana · 118 Palm Ave · Cuadrilla MK ·
+  Thu 18 Sep), drawn as it lands: the room as a chat, the same room on the three screens that see it,
+  who is in it, the day step by step. Every line here is what 342/347/379 actually write.
+-->
+<style>
+:root{--bg:#f6f3ec;--card:#fff;--line:#e3ddd0;--ink:#1c1a15;--dim:#5a544a;--dimmer:#8a8377;--gold:#b8860b;--goldsoft:#fbf0d0;--green:#2f8f5b;--greensoft:#e6f2e9;--navy:#1c3055;--navysoft:#e1e8f3;--blue:#1d5fa8;--red:#b4574a;--redsoft:#fbeae6;--mono:ui-monospace,Menlo,Consolas,monospace;--serif:Georgia,'Times New Roman',serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,'Segoe UI',system-ui,sans-serif;padding:20px 16px 50px}
+.wrap{max-width:1180px;margin:0 auto}
+.k{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer)}
+h1{font-family:var(--serif);font-weight:500;font-size:40px;line-height:1.05;margin:6px 0 8px}
+h2{font-family:var(--serif);font-weight:500;font-size:26px;line-height:1.1;margin:0 0 4px}
+.lead{font-size:17px;color:var(--dim);max-width:860px;margin:0 0 22px}
+.sec{margin:26px 0 0}
+.sec .k{margin-bottom:6px}
+.sub{color:var(--dim);margin:0 0 12px;max-width:900px}
+/* the room */
+.room{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:grid;grid-template-columns:1fr;gap:8px;max-width:760px}
+.room .head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:4px}
+.room .head b{font-family:var(--serif);font-weight:500;font-size:20px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 9px;font:500 10px var(--mono);letter-spacing:.06em;color:var(--dim);background:#fff;white-space:nowrap}
+.chip.gold{color:var(--gold);background:var(--goldsoft);border-color:transparent}
+.chip.green{color:var(--green);background:var(--greensoft);border-color:transparent}
+.chip.red{color:var(--red);background:var(--redsoft);border-color:transparent}
+.m{max-width:78%;border-radius:14px;padding:9px 12px;font-size:14.5px;line-height:1.4;border:1px solid var(--line);background:#fff;position:relative}
+.m .w{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer);margin-bottom:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.m .via{font:600 9.5px var(--mono);letter-spacing:.06em;color:var(--dimmer);background:var(--bg);border-radius:999px;padding:2px 7px}
+.m.crew{align-self:flex-end;background:#efe6d6;border-right:5px solid #6e5a3a;margin-left:auto}
+.m.crew .w{color:#6e5a3a}
+.m.luis{background:var(--navysoft);border-left:5px solid var(--navy)}
+.m.luis .w{color:var(--navy)}
+.m.office{background:#e8eef8;border-left:5px solid var(--blue)}
+.m.office .w{color:var(--blue)}
+.m.sys{align-self:center;max-width:92%;background:var(--goldsoft);border:1px solid #ead9a8;border-left:5px solid var(--gold);font-size:13px;color:var(--ink);text-align:left}
+.m.sys .w{color:var(--gold)}
+.m.sys.red{background:var(--redsoft);border-color:#ead0cb;border-left-color:var(--red)}.m.sys.red .w{color:var(--red)}
+.m.sys.green{background:var(--greensoft);border-color:#cfe5d6;border-left-color:var(--green)}.m.sys.green .w{color:var(--green)}
+.shots{display:flex;gap:5px;margin-top:6px}.shots span{width:52px;height:52px;border-radius:8px;background:linear-gradient(180deg,#c9d7e6 0 55%,#8ea07a 55% 100%);border:1px solid var(--line)}
+.note{font-size:12px;color:var(--dimmer);margin-top:3px}
+/* the three screens */
+.three{display:grid;grid-template-columns:300px 300px 1fr;gap:22px;align-items:start}
+.cap{margin:0 0 8px}
+.cap b{display:block;font-family:var(--serif);font-weight:500;font-size:19px}
+.cap span{font-size:13px;color:var(--dim)}
+.phone{width:300px;height:600px;border-radius:36px;background:#000;border:6px solid #1c1f24;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden;position:relative}
+.phone .scr{position:absolute;inset:0;background:#f4f2ec;overflow:hidden;font-size:12.5px}
+.sms{background:#fff;height:100%;padding:44px 12px 0}
+.sms .from{font:600 10px var(--mono);letter-spacing:.08em;color:var(--dimmer);text-align:center;margin-bottom:10px}
+.sms .b{background:#e9e9eb;border-radius:16px;padding:9px 11px;font-size:12.5px;line-height:1.4;max-width:88%;margin-bottom:8px}
+.sms .b a{color:var(--blue);word-break:break-all}
+.sms .b.me{background:#1d5fa8;color:#fff;margin-left:auto}
+.sms .t{font:500 9.5px var(--mono);color:var(--dimmer);text-align:center;margin:4px 0 8px}
+.wo header{background:var(--navy);color:#fff;padding:10px 12px;font:800 11px/1 inherit;letter-spacing:.06em}
+.wo .lb{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px 10px;background:#f4f2ec}
+.wo .lb span{font:800 11px var(--mono);letter-spacing:.06em;padding:8px 4px;text-align:center;border:2px solid #d8d6cd;border-radius:9px;background:#fff;color:#5f6672}
+.wo .lb span.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.wo .card{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(20,30,50,.1);padding:8px 10px;margin:6px 10px}
+.wo .kk{font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#7a7f8a;margin-bottom:2px}
+.wo .big{font-size:15px;font-weight:800;color:var(--navy)}
+.wo .th{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.wo .mm{border-radius:10px;padding:6px 8px;font-size:11.5px;line-height:1.3;border:1px solid #e3ddd0;background:#fbf4e6;border-left:3px solid #b45309;max-width:92%}
+.wo .mm.me{background:#efe6d6;border-left:1px solid #e3ddd0;border-right:3px solid #6e5a3a;margin-left:auto}
+.wo .mm.sys{background:#f4f2ec;color:#5f6672;font-size:10.5px;border:0;border-radius:999px;padding:3px 9px;margin:0 auto;text-align:center}
+.wo .mm i{display:block;font:600 8.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#7a7f8a;font-style:normal;margin-bottom:2px}
+.wo .bar{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #e3ddd0;padding:8px 10px 10px;box-shadow:0 -6px 20px rgba(0,0,0,.08)}
+.wo .b4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:5px}
+.wo .b4 span{font:800 11px/1 inherit;padding:9px 2px;border:1px solid #d8d6cd;border-radius:9px;background:#f6f5f0;text-align:center;display:flex;flex-direction:column;gap:3px;align-items:center}
+.wo .b4 span small{font:600 8px/1 inherit;color:#7a7f8a}
+.wo .b4 .here{background:#fbf0d0;border-color:#c9962b}.wo .b4 .done{background:#e3f0e7;border-color:#2e7d4f;color:#1e6b3a}
+.wo .falta{border:2px solid #a3341f;border-radius:9px;padding:7px 6px;background:#fbeae6;color:#a3341f;font:800 11px/1 inherit;text-align:center;margin-bottom:5px}
+.wo .say{display:flex;gap:5px}.wo .say span{flex:1;border:1px solid #d8d6cd;border-radius:8px;padding:7px 8px;font-size:11px;color:#7a7f8a}.wo .say b{background:var(--navy);color:#fff;border-radius:8px;padding:7px 9px;font-size:10px}
+/* luis's phone: the push cards over the supervisor app */
+.sup{background:#0c1322;height:100%;color:#e8ecf4;padding:40px 10px 0;font-family:var(--mono)}
+.sup .push{background:#fff;color:#1c1a15;border-radius:14px;padding:9px 11px;margin-bottom:8px;font-family:-apple-system,'Segoe UI',system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.sup .push .a{font:600 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dimmer);display:flex;justify-content:space-between}
+.sup .push b{display:block;font-size:12.5px;margin:2px 0 1px}
+.sup .push span{font-size:11.5px;color:var(--dim)}
+.sup .app{margin-top:14px;background:#121e35;border:1px solid #1c2a44;border-radius:12px;padding:10px}
+.sup .app .t{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:#8fa0ba;margin-bottom:6px}
+.sup .lanes{display:flex;gap:4px;margin-bottom:8px}.sup .lanes span{font-size:9px;letter-spacing:.08em;padding:4px 7px;border-radius:999px;border:1px solid #1c2a44;color:#8fa0ba}.sup .lanes span.on{background:#e0b64e;color:#0c1322;border-color:#e0b64e;font-weight:700}
+.sup .ln{font-family:-apple-system,'Segoe UI',system-ui,sans-serif;font-size:11px;line-height:1.35;padding:6px 8px;border-radius:8px;background:#1a2740;margin-bottom:5px;color:#e8ecf4}
+.sup .ln i{display:block;font:600 8.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:#8fa0ba;font-style:normal}
+.sup .ln.me{background:#243b1f}
+.sup .box{margin-top:6px;border:1px solid #1c2a44;border-radius:8px;padding:7px 8px;font-size:10.5px;color:#8fa0ba;font-family:-apple-system,'Segoe UI',system-ui,sans-serif}
+/* the office desk */
+.desk{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.12)}
+.desk .top{background:#f6f3ec;border-bottom:1px solid var(--line);padding:8px 14px;display:flex;gap:14px;align-items:center;font-size:12px}
+.desk .top b{font-family:var(--serif);font-weight:500;font-size:16px}
+.desk .top span{color:var(--dimmer)}.desk .top span.on{color:var(--ink);font-weight:700;border-bottom:2px solid var(--gold)}
+.desk .body{padding:12px 14px;display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+.desk .file .kk{font:600 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer)}
+.desk .file h3{font-family:var(--serif);font-weight:500;font-size:22px;margin:2px 0 6px}
+.desk .next{padding:7px 10px;border-radius:9px;background:var(--goldsoft);border-left:4px solid var(--gold);font-size:12.5px;margin-bottom:8px}
+.desk .next b{font:700 9.5px var(--mono);letter-spacing:.14em;color:var(--gold);margin-right:6px}
+.desk .th{display:flex;flex-direction:column;gap:5px}
+.desk .ev{font-size:11.5px;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:#fbf4e6;border-left:4px solid #b45309}
+.desk .ev.sys{background:var(--goldsoft);border-color:#ead9a8;border-left-color:var(--gold)}
+.desk .ev.red{background:var(--redsoft);border-color:#ead0cb;border-left-color:var(--red)}
+.desk .ev.me{background:#efe6d6;border-right:4px solid #6e5a3a;border-left:1px solid var(--line);margin-left:16%}
+.desk .ev.of{background:#e8eef8;border-left-color:var(--blue)}
+.desk .ev i{display:block;font:600 8.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dimmer);font-style:normal}
+.desk .side .kk{font:600 9.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dimmer);margin-bottom:6px}
+.desk .sel{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11.5px;margin-bottom:6px;background:#fff}
+.desk .sel b{color:var(--blue)}
+.desk .box{border:1px solid var(--line);border-radius:10px;background:#f0f4fa;padding:8px;font-size:12px;min-height:56px;color:var(--ink)}
+.desk .post{display:inline-block;margin-top:6px;background:#c9962b;color:#1c1a15;font-weight:700;font-size:11px;border-radius:8px;padding:6px 10px}
+.desk .who{font-size:11px;color:var(--dimmer);margin-top:6px}
+/* who is in the room */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.who-c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;border-top:5px solid var(--gold)}
+.who-c.crew{border-top-color:#6e5a3a}.who-c.luis{border-top-color:var(--navy)}.who-c.office{border-top-color:var(--blue)}.who-c.cust{border-top-color:var(--line);opacity:.85}
+.who-c b{display:block;font-family:var(--serif);font-weight:500;font-size:19px;margin-bottom:4px}
+.who-c p{margin:0;color:var(--dim);font-size:13.5px}
+/* the day */
+.day{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.st{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.st .n{font:700 10.5px var(--mono);letter-spacing:.14em;color:var(--gold);text-transform:uppercase}
+.st b{display:block;font-size:15px;margin:2px 0 4px}
+.st p{margin:0;color:var(--dim);font-size:13px}
+.st .who{margin-top:6px}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.legend span{font-size:12px;color:var(--dim);display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
+.on-off{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--red);border-radius:14px;padding:14px 16px;max-width:900px;margin-top:8px}
+.on-off b{font-family:var(--serif);font-weight:500;font-size:19px;display:block;margin-bottom:4px}
+.on-off p{margin:0;color:var(--dim);font-size:13.5px}
+.foot{margin-top:18px;font:500 11px var(--mono);color:var(--dimmer);line-height:1.6}
+.foot a{color:var(--blue)}
+@media (max-width:1000px){.three{grid-template-columns:1fr}.grid4,.day{grid-template-columns:1fr 1fr}.desk .body{grid-template-columns:1fr}}
+@media (max-width:640px){.grid4,.day{grid-template-columns:1fr}.phone{width:280px}h1{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="k">Liberty · Oasis · Pro-Tech · the crews · one fictional Thursday, drawn as it lands · 16 Sep 2026</div>
+  <h1>One text. One link. One room on the customer's file.</h1>
+  <p class="lead">The crew never learns anything: a text arrives, they tap the link, and everything they tap or write lands on the customer's file with their crew's name. Luis, the supervisor and the office write on that same file, and it reaches the crew by text and on the link. This is the whole room, on one day, for one job: Reed, Dana · 118 Palm Ave, Melbourne · Cuadrilla MK · Thursday.</p>
+
+  <!-- 1 · THE ROOM -->
+  <div class="sec">
+    <div class="k">1 · The room, as a chat · the customer's file, the crew's lane · Thursday 18 Sep</div>
+    <p class="sub">Right side, gold-brown: the crew, whether they tapped the link or just replied to the text. Left, navy: Luis and the supervisor. Left, blue: the office. Centre, gold: the machine's own lines. Every one of these is a real line the system writes today.</p>
+    <div class="room">
+      <div class="head"><div><div class="k">The customer's file · crew's lane</div><b>Reed, Dana · 118 Palm Ave, Melbourne · Cuadrilla MK</b></div><span class="chip gold">THU 18 SEP</span></div>
+      <div class="m sys"><div class="w">7:00 AM · the machine <span class="via">TEXT SENT</span></div>Hoy / Today · Cuadrilla MK: Reed, Dana, 118 Palm Ave, Melbourne. The link. Tap HERE when you arrive.</div>
+      <div class="m sys"><div class="w">7:41 · from the link <span class="via">AQUÍ</span></div>Cuadrilla MK · EN SITIO · on site — Ramón</div>
+      <div class="m crew"><div class="w">7:42 · Ramón · Cuadrilla MK <span class="via">REPLIED TO THE TEXT</span></div>Llegamos. El portón del patio tiene candado.<div class="note">A reply to the SMS lands here too. No wrong place to answer.</div></div>
+      <div class="m luis"><div class="w">7:44 · Luis <span class="via">FROM THE FILE · TEXTED TO RAMÓN</span></div>Código 2021 en la caja gris. Sam le avisa al cliente.</div>
+      <div class="m sys red"><div class="w">9:40 · from the link <span class="via">FALTA MATERIAL</span></div>Cuadrilla MK · FALTA MATERIAL · short on material · faltan 2 postes 5x5 para la esquina del fondo — Ramón</div>
+      <div class="m sys red"><div class="w">9:40 · the machine <span class="via">ASK OPENED</span></div>Material run opened on Obed · clock running · Obed's phone buzzed</div>
+      <div class="m office"><div class="w">9:52 · Sam · @crew <span class="via">FROM THE OFFICE · TEXTED TO RAMÓN</span></div>Jonathan lleva los 2 postes, 40 minutos. Sigan con el frente.</div>
+      <div class="m crew"><div class="w">2:15 PM · Ramón <span class="via">FOTOS · ON THE LINK</span></div>4 fotos<div class="shots"><span></span><span></span><span></span><span></span></div></div>
+      <div class="m sys green"><div class="w">3:30 PM · from the link <span class="via">LISTO</span></div>Cuadrilla MK · TERMINADO · done · 3 fotos — Ramón</div>
+      <div class="m sys green"><div class="w">3:31 PM · the machine <span class="via">NEXT</span></div>Sign-off waiting on Luis · three finished photos are on the file</div>
+      <div class="m luis"><div class="w">4:05 PM · Luis <span class="via">SIGN-OFF · FROM THE APP</span></div>Signed off. Gate hangs right, yard clean.</div>
+      <div class="m sys green"><div class="w">4:05 PM · the machine <span class="via">INVOICE READY</span></div>Invoice ready on Laura: $14,200 · typed from the signed estimate · Approve sends it</div>
+    </div>
+    <div class="legend"><span><i style="background:#efe6d6;border-right:3px solid #6e5a3a"></i>the crew</span><span><i style="background:#e1e8f3;border-left:3px solid #1c3055"></i>Luis · the supervisor</span><span><i style="background:#e8eef8;border-left:3px solid #1d5fa8"></i>the office, via @crew</span><span><i style="background:#fbf0d0;border-left:3px solid #b8860b"></i>the machine</span><span><i style="background:#fbeae6;border-left:3px solid #b4574a"></i>something is short</span></div>
+  </div>
+
+  <!-- 2 · THREE SCREENS -->
+  <div class="sec">
+    <div class="k">2 · The same room, on the three screens that see it</div>
+    <p class="sub">Nothing is copied anywhere. It is one thread on one file. The crew sees it on the link, Luis on his phone, the office on the customer's file in Central Command. The customer's own texts stay on the customer's line; the crew never sees those, and the customer never sees this.</p>
+    <div class="three">
+      <div>
+        <div class="cap"><b>The crew's phone</b><span>A text, then the link. No app, no login. ESPAÑOL · ENGLISH always in view.</span></div>
+        <div class="phone"><div class="scr">
+          <div class="wo">
+            <header>ORDEN DE TRABAJO · Work order</header>
+            <div class="lb"><span class="on">ESPAÑOL</span><span>ENGLISH</span></div>
+            <div class="card"><div class="kk">Cliente / Customer</div><div class="big">Reed, Dana</div><div style="font-size:11px">118 Palm Ave, Melbourne · mapa</div><div style="font-size:11px;margin-top:3px"><span style="color:#5f6672">Supervisor</span> <b>Obed · 321-555-0158</b></div></div>
+            <div class="card"><div class="kk">Supervisor · mensajes / messages</div><div class="th">
+              <div class="mm sys">EN SITIO · on site · 7:41</div>
+              <div class="mm me"><i>Cuadrilla · crew · 7:42</i>Llegamos. El portón del patio tiene candado.</div>
+              <div class="mm"><i>Luis · 7:44</i>Código 2021 en la caja gris. Sam le avisa al cliente.</div>
+              <div class="mm sys">FALTA MATERIAL · 2 postes 5x5 · 9:40</div>
+              <div class="mm"><i>Sam · 9:52</i>Jonathan lleva los 2 postes, 40 minutos. Sigan con el frente.</div>
+            </div></div>
+            <div class="bar"><div class="b4"><span class="here">AQUÍ<small>HERE</small></span><span>FOTOS<small>PHOTOS</small></span><span class="done">LISTO<small>DONE</small></span><span>LLAMAR<small>CALL</small></span></div><div class="falta">FALTA MATERIAL</div><div class="say"><span>Mensaje al supervisor…</span><b>ENVIAR</b></div></div>
+          </div>
+        </div></div>
+      </div>
+      <div>
+        <div class="cap"><b>Luis's phone</b><span>The push for every tap, then the same lane in the supervisor app. He answers there or on the site; the crew gets it by text.</span></div>
+        <div class="phone"><div class="scr"><div class="sup">
+          <div class="push"><div class="a"><span>4-Touch · Central Command</span><span>7:41</span></div><b>Crew is on site</b><span>Reed, Dana — Cuadrilla MK · EN SITIO · on site — Ramón</span></div>
+          <div class="push"><div class="a"><span>4-Touch · Central Command</span><span>7:42</span></div><b>Crew message (by text)</b><span>Reed, Dana — Cuadrilla MK: Llegamos. El portón del patio tiene candado.</span></div>
+          <div class="push"><div class="a"><span>4-Touch · Central Command</span><span>9:40</span></div><b>Crew is short on material</b><span>Reed, Dana — faltan 2 postes 5x5 · a material run is on Obed</span></div>
+          <div class="app"><div class="t">Reed, Dana · the file</div><div class="lanes"><span>CHAT</span><span class="on">SUPER</span><span>OFFICE</span><span>PHOTOS</span></div>
+            <div class="ln"><i>Cuadrilla MK · 7:42 · by text</i>Llegamos. El portón del patio tiene candado.</div>
+            <div class="ln me"><i>Luis · 7:44</i>Código 2021 en la caja gris. Sam le avisa al cliente.</div>
+            <div class="ln"><i>Cuadrilla MK · 9:40 · FALTA MATERIAL</i>faltan 2 postes 5x5 para la esquina del fondo</div>
+            <div class="box">Write to the crew… it lands on the file and texts Ramón</div>
+          </div>
+        </div></div></div>
+      </div>
+      <div>
+        <div class="cap"><b>The office desk · Central Command</b><span>The customer's file. Sam picks @crew and her note goes to the crew's lane and to Ramón's phone. She never needs their number.</span></div>
+        <div class="desk">
+          <div class="top"><b>Central Command</b><span>The Line</span><span>Office</span><span>Production</span><span class="on">Files</span><span>Photos</span></div>
+          <div class="body">
+            <div class="file">
+              <div class="kk">The customer file · one file, every room writes on it</div>
+              <h3>Dana Reed <span style="font-size:13px;color:#5a544a;font-family:-apple-system,system-ui,sans-serif">Aluminum + gate · $14,200 · Fencing</span></h3>
+              <div class="next"><b>NEXT</b> Crew is short on material at 118 Palm Ave: 2 posts. Material run is on Obed, 12 min.</div>
+              <div class="th">
+                <div class="ev sys"><i>7:00 AM · the machine</i>Texted Cuadrilla MK the job and the link · +1 (321) ···-0187</div>
+                <div class="ev sys"><i>7:41 · crew's lane</i>Cuadrilla MK · EN SITIO · on site — Ramón</div>
+                <div class="ev me"><i>7:42 · Cuadrilla MK · by text</i>Llegamos. El portón del patio tiene candado.</div>
+                <div class="ev"><i>7:44 · Luis · crew's lane · texted to Ramón</i>Código 2021 en la caja gris. Sam le avisa al cliente.</div>
+                <div class="ev red"><i>9:40 · crew's lane · FALTA MATERIAL</i>Cuadrilla MK · faltan 2 postes 5x5 — Ramón · Material run opened on Obed</div>
+                <div class="ev of"><i>9:52 · Sam · @crew · texted to Ramón</i>Jonathan lleva los 2 postes, 40 minutos. Sigan con el frente.</div>
+              </div>
+            </div>
+            <div class="side">
+              <div class="kk">Note to the team · the customer never sees this</div>
+              <div class="sel">To: <b>@crew · the crew on this job, on their link</b></div>
+              <div class="sel">What: a note</div>
+              <div class="box">Jonathan lleva los 2 postes, 40 minutos. Sigan con el frente.</div>
+              <span class="post">Post</span>
+              <div class="who">Lands in the crew's lane · shows on Ramón's link · texted to +1 (321) ···-0187 from the Fencing line</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 · WHO IS IN THE ROOM -->
+  <div class="sec">
+    <div class="k">3 · Who is in the room</div>
+    <div class="grid4">
+      <div class="who-c crew"><b>The crew lead</b><p>Gets the text. Taps the link, or just replies to the text. AQUÍ, FOTOS, LISTO, FALTA MATERIAL, a line to the supervisor. Never a login. Whoever holds the phone is the crew; he types his name once.</p></div>
+      <div class="who-c luis"><b>Luis · Obed · Robert · Mike</b><p>Pushed on every tap. Read and answer in the crew's lane, from the app or the site. Their answer reaches the crew by text and on the link. Luis signs off on the LISTO photos.</p></div>
+      <div class="who-c office"><b>Sam · Laura · Jonathan · Jess · Kevin</b><p>See the whole room on the customer's file. Pick @crew in the note box and the note goes to the crew, texted, without anyone looking up a number. Jonathan's material run comes off the FALTA MATERIAL ask.</p></div>
+      <div class="who-c cust"><b>The customer</b><p>Not in this room, ever. Their texts live on their own line on the same file; the crew never sees them and they never see the crew's lane. When the switch for the chain's texts is on, they hear "the crew arrived" from the main line.</p></div>
+    </div>
+  </div>
+
+  <!-- 4 · THE DAY -->
+  <div class="sec">
+    <div class="k">4 · The day, step by step · what opens what</div>
+    <div class="day">
+      <div class="st"><div class="n">The date is set</div><b>Jonathan sets Thursday</b><p>The file writes the work order and texts the crew lead the job and the link. Luis and the crew get it by email too.</p><p class="who">Text from the Fencing line · switch: The crew's text</p></div>
+      <div class="st"><div class="n">7 AM Thursday</div><b>Hoy / Today</b><p>A second text with the job and the link, so the day starts on the phone. Once.</p><p class="who">Same switch</p></div>
+      <div class="st"><div class="n">7:41</div><b>AQUÍ</b><p>On site, on the file, Luis's phone buzzes. Any question the crew has goes on the link or as a reply to the text. Both land in the same place.</p><p class="who">Reply landing: always on, no switch</p></div>
+      <div class="st"><div class="n">7:44</div><b>Luis answers</b><p>From the app or the site, in the crew's lane. It shows on the crew's link and goes to their phone as a text with the link.</p><p class="who">Same switch</p></div>
+      <div class="st"><div class="n">9:40</div><b>FALTA MATERIAL</b><p>One red button, a few words. A line on the file, a material run opened on the supervisor with the clock running. Sam answers with @crew.</p><p class="who">Live on the link</p></div>
+      <div class="st"><div class="n">3:30 PM</div><b>LISTO · 3 photos</b><p>Done, with the finished photos. The sign-off opens on Luis by itself.</p><p class="who">The chain</p></div>
+      <div class="st"><div class="n">4:05 PM</div><b>Luis signs off</b><p>Three or more photos and his word. That tap is the trigger.</p><p class="who">The chain</p></div>
+      <div class="st"><div class="n">4:05 PM</div><b>INVOICE READY on Laura</b><p>Typed from the signed estimate. Approve sends it. Nobody calls anybody.</p><p class="who">Built tonight, v96</p></div>
+    </div>
+  </div>
+
+  <!-- 5 · TONIGHT -->
+  <div class="sec">
+    <div class="on-off"><b>Where the switch stands tonight</b><p><b style="font-size:14px;color:var(--red);display:inline">OFF.</b> The link goes by email only, no text back, no morning text. Flip "The crew's text" in the Office room and all three texts turn on at once. The reply landing on the file, @crew from the desk and FALTA MATERIAL on the link work regardless. The text goes to the phone on the crew's card in Contractors Cloud: 8 of 37 cards have one tonight, so the roster comes first. Fence crews first; the Oasis and Pro-Tech lines are not approved for texting yet.</p></div>
+  </div>
+
+  <p class="foot">The model: <a href="THE-CREWS.md">docs/THE-CREWS.md</a> · the crew's handout: <a href="the-crew-day.html">the-crew-day.html</a> · Luis's handbook: <a href="how-it-works-luis.pdf">how-it-works-luis.pdf</a> · the crew's real link page: <a href="https://kdelaney05-bit.github.io/liberty-command/w.html">liberty-command/w.html</a> · 342 · 347 · 379 · v100</p>
+</div>
+</body>
+</html>
