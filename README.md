@@ -143,15 +143,16 @@ Migrations, workers and edge functions live in `kdelaney05-bit/trureview-mobile`
 | The PO on the supplier order (`material_order_send` says `PO <job number>`) and the bills intake matches a bill's PO to `jobs.cc_job_number` | **383** |
 | Not going with us: `customer_lost(p_customer, p_reason, p_note)` marks the customer lost, drops every unfinished job off the boards and the numbers (`reporting_excluded`), stamps `jobs.lost_at / lost_by / lost_reason`, tags @office on the file to mark it in CC; `customer_revive` is the road back | **380** |
 | THE FIRST PIECE — every new lead starts here from Mon 21 Sep: `job_create` v2 (p_appt_minutes · p_what; pushes the rep, or the office seat when no rep; the booking as the file's first line; queues the mirror), `cc_mirror_queue` + switch `cc_mirror` (OFF), `cc_mirror_payload`, `job_link_cc` (re-keys job · thread · appointment · customer onto CC's ids; `job_threads` and `no_quote_requests` FKs now cascade on update), `cc_mirror_mark`, `v_cc_mirror_queue`; `lead_create` queues the mirror too; worker `backend/worker/lead-mirror.mjs` | **381** (`381_the_first_piece_leads`, a second 381 like the two 369s) |
+| Mike's line: `office_lines.for_rep` (null = everyone's line; a rep id = that seat's own line, shown to nobody else); `line_preview` hands a seat everyone's lines plus its own and says which are its own (`mine`); the row `mike_on_my_way` sits first on Mike's screen | **392** |
 | Reschedule the estimate: `job_appt_set(job, at, minutes, note)` moves, books or cancels the visit from the file (the rep buzzed, the line on the file, CC's CANCELLED title convention), follow-up `cc_mirror_queue` rows of kind reschedule · cancel for a lead already in CC (the worker PATCHes them behind `cc_mirror`); `cc_mirror_payload` ignores a cancelled row | **384** |
 
-Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (380 applied as of 17 Sep 7:30 AM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; next free 381).
+Next free migration number: check `schema_migrations` on live — sibling sessions number in parallel (380 applied as of 17 Sep 7:30 AM; two migrations share the number 369 — `369_bills_queue_and_rematch` and `369_nothing_waits_at_signing`, both applied; 392 applied 17 Sep 10:58 AM; next free 393).
 
 ## What Kevin and Jess change without a build
 
 These are rows, not code. Edit the row, the app follows.
 
-- `office_lines` — the pre-written texts (including `pay_link`).
+- `office_lines` — the pre-written texts (including `pay_link`). A row with `for_rep` set is one seat's own line (392: Mike's).
 - `ask_chain` — what settling one ask opens next, who is pushed, what the
   customer is told. Brand-scoped since 316.
 - `ask_proof_rules` — what each ask needs before it can close.
