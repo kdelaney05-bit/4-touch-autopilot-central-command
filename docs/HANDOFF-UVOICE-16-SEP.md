@@ -114,3 +114,11 @@ Kevin: "fix Jessica's part on notifications and handle it for Uvoice… leave th
 ## 17 Sep, 1:25 PM ET, KEVIN'S FINAL WORD ON MIKE: "Mike will be the 274 number now. Do not change it. Leave the poor man alone."
 
 Mike texts from the Oasis line **321-274-4268 inside the 4-Touch app** (reps.sms_via = cloudmessage, sms_from = +13212744268; first send 1:17 PM to Kade Green, sent from 4268, then a run of them) and calls from **321-220-9556 in ConnectUC** (texts to 9556 land in ConnectUC, not the app; that is expected). This is the same shape as Fencing: the brand line for texts, the rep's own DID for calls; the email signature says both by itself (304). **No row changes, no Uvoice ticket, no "fix". Do not point his texting at 9556.** The rep_channel_map note carries the same words. The one thing left is a note to Mike saying so (draft in Gmail, 1:25 PM; Kevin presses Send or tells him by voice).
+
+## 17 Sep, 1:45 PM ET, Kevin: "all Oasis stuff needs to go to Mike and Jessica"
+
+Done on live, all rows, all reversible:
+- **Tim Whitson's seat now names Mike as successor** (`reps.merged_into`), so the `jobs_rep_follow_merge` trigger redirects any future stamp of Tim to Mike. **His 147 Oasis jobs moved to Mike** (`jobs.rep_id`; their `cc_rep_primary_id` still says Tim's CC user 19179, which is how to find them again). Why it mattered: replies on those files were credited to Tim (four from Shawn Monica this afternoon) and buzzed nobody; now they buzz Mike. Today's replies re-credited to Mike.
+- **Oasis stage seats** (`stage_seats`, cc_company_id 1560): production owner Mike (was empty), selling owner Mike (was Kevin), watcher Jessica Coley on both; the office stages (sold_office · schedule · field_complete · invoiced) stay Jessica Coley. Undo: selling owner/watcher back to fa314b31…, production owner back to null.
+- **Jess's copies gain the Oasis main line 321-626-2802** (office_text_copy_rules; the sheet says she holds its SMS). The Oasis texting line 321-274-4268 is NOT copied to her: that is Mike's and Gustavo's conversations; one row if Kevin wants it.
+- Not touched: Nick Campana's 33 Oasis jobs (active rep), the 8 with no rep, Mike's numbers (see the ruling above).
