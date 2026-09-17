@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=107';
+import { $, html, raw, esc } from './ui.js?v=108';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -125,6 +125,7 @@ const nextMonday9 = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - 
 const LEADS_STEPS = [
   { room: 'files', at: '#btn-newjob', title: 'Monday: every new lead starts here.', body: 'Jess, Laura, Sam: from Monday a new customer comes in through this button, not through Contractors Cloud. One form, two minutes, and everything after it happens by itself. Here is the whole thing.' },
   { room: 'files', at: '#modal-form', do: 'newjob', title: 'Plus New lead. Type it once.', body: 'The brand, and how they found us: the same lead-source list as Contractors Cloud, so the reports keep counting. Name, mobile, email, the address. What they want, in your words: chain link quote needed. Same phone number means the same customer, so their history stays in one file.' },
+  { room: 'files', at: '#nj-addr-pick', do: 'address', title: 'The address fills itself in.', body: 'Samantha\'s idea, her first day in the app. Start typing the street and the map offers the match. Pick it, and the street, the city and the zip are typed for you. And the rep list now has every seller, plus Gio when he sells one himself, and Jessica as the placeholder until a rep is picked.' },
   { room: 'files', at: '#nj-day', title: 'Pick the rep and the day. It shows you their day.', body: 'Choose the rep and the appointment time, and the form reads what that rep already has booked that day, so nobody is double-booked. An hour is the default; change it if you need to. Then press Open the file.' },
   { room: 'files', at: '#drawer #lead-line', do: 'newjobdone', title: 'The file is open. The rep already knows.', body: 'The moment you press it, Eric\'s phone buzzes: new estimate booked, Monday at nine, the address, chain link quote, booked by Laura. The booking is the first line on the file. The customer gets the confirmation text from the main line when Kevin turns that switch on. Nobody calls anybody.' },
   { room: 'files', at: '#drawer .next', title: 'NEXT says what happens next.', body: 'Estimate booked Monday at nine with Eric. Eric shows up early. If a lead comes in with no time yet, NEXT says so in red: call them and book it. Nothing to remember.' },
@@ -230,6 +231,8 @@ function paint(autoplay = false) {
   if (s.do === 'closemodal') { document.querySelector('#modal-cancel')?.click(); const lb = document.querySelector('#lightbox'); if (lb) lb.hidden = true; }
   // 381: the New lead door opens typed with a fictional lead; the next step closes it and opens the file the demo holds for her
   if (s.do === 'newjob' && window.__newJob && !document.querySelector('#modal-form')) window.__newJob({ cc: '1461', src: 'Google', name: 'Okonkwo, Grace', phone: '(321) 555-0177', email: 'grace.okonkwo@example.com', title: 'chain link quote needed', street: '4050 Palm Ave', city: 'Mims', zip: '32754', rep: 'r3', appt: nextMonday9(), mins: '60', note: 'gate code 2021 · dog in the yard' });
+  // the address step types a street into the open door so the suggestions show for real (they come from the map; nothing is saved)
+  if (s.do === 'address') { const st = document.querySelector('#modal-form [name=street]'); if (st) { st.value = '4050 Palm'; st.focus(); st.dispatchEvent(new Event('input', { bubbles: true })); } }
   if (s.do === 'newjobdone') { document.querySelector('#modal-cancel')?.click(); if (window.__peek && !document.querySelector('#drawer:not([hidden])')) window.__peek('cp15'); }
   // the voice: &voice=1 reads the caption in the browser's own voice (Kevin: "commentate our instructions")
   if (VOICE) narrate(s, autoplay && i < FILM.length - 1 ? () => setTimeout(next, 1400) : null);

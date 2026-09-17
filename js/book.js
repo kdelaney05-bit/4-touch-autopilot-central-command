@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=107';
-import { DEMO } from './demo.js?v=107';
+import * as api from './api.js?v=108';
+import { DEMO } from './demo.js?v=108';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -14,7 +14,7 @@ export const state = {
   switches: [],        // automation_switches
   lines: [],           // brand_sms_lines
   mentions: [],        // v_my_mentions — tagged for me
-  sellers: [],         // v_sellers — who a job can be sold by
+  sellers: [],         // lead_rep_options() (396) — who a job can be sold by: every seller, plus the seats Kevin named (takes_leads)
   leadSources: [],     // lead_sources — CC's own list, per brand
   proofRules: [],      // ask_proof_rules — what closes each ask (the DB's word, not the room's)
   parcels: [],         // parcel_lookups, last 30 days (324)
@@ -62,7 +62,9 @@ export async function loadAll() {
     api.page('automation_switches?select=*'),
     api.page('brand_sms_lines?select=*'),
     api.page('v_my_mentions?select=*&order=created_at.desc', 200).catch(() => []),
-    api.page('v_sellers?select=*&order=name.asc').catch(() => []),
+    // 396: the New lead form's rep list — every seller plus the seats Kevin named (reps.takes_leads: Gio, Jessica Coley), readable by the
+    // office seat too (v_sellers ran as the caller and an office login read an empty list). v_sellers stays the fallback until 396 is live.
+    api.rpc('lead_rep_options').catch(() => api.page('v_sellers?select=*&order=name.asc').catch(() => [])),
     api.page('lead_sources?select=cc_lead_id,name,cc_company_id,cc_total_used&is_active=eq.true&order=cc_total_used.desc.nullslast').catch(() => []),
     api.page('ask_proof_rules?select=*').catch(() => []),
     // 324/325: the permit lane's last 30 days — owner checks and NOCs made, for the Office door on the home room

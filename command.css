@@ -623,3 +623,9 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .billrow.red { border-color: #ead0cb; background: #fbf1ef; }
 .billrow .who { color: var(--dim); font-size: 12px; margin-top: 3px; }
 @media (max-width: 700px) { .bill-grid { grid-template-columns: 1fr 1fr; } .billrow { grid-template-columns: 1fr; } }
+
+/* ── the address that fills itself in (Samantha, 17 Sep): the list under the Street box on the New lead door ── */
+.addrpick { flex-direction: column; align-items: stretch; gap: 3px; }
+.addrpick .sub { justify-content: flex-start; border-radius: 8px; text-align: left; gap: 8px; cursor: pointer; }
+.addrpick .sub span { color: var(--dimmer); font-weight: 400; }
+.addrpick .sub.lit, .addrpick .sub:hover { border-color: var(--goldbtn); box-shadow: 0 0 0 3px rgba(201,150,43,.18); }

@@ -5,6 +5,20 @@ export const SUPA_URL = 'https://lzegjjbkfuecrhdvlvay.supabase.co';
 export const SUPA_KEY = 'sb_publishable_kToiGqET7XzO2It9evStJw_kYzvjSF8';
 export const SESSION_KEY = 'command:session:v1';
 
+/* THE ADDRESS THAT FILLS ITSELF IN (Samantha, 17 Sep — her first idea in the app). A Google Maps Platform BROWSER key:
+   Places API (New) enabled, restricted to the referrer https://kdelaney05-bit.github.io/* so a copy of it is useless
+   anywhere else (this repo is public; a referrer-locked browser key is built to sit here, like SUPA_KEY). Blank = the
+   Street box still suggests, from OpenStreetMap (free, no key, no sign-up). Kevin pastes the key here; nothing else changes. */
+export const GOOGLE_MAPS_KEY = '';
+
+/* THE REP LIST ON THE NEW LEAD FORM (Kevin, 17 Sep: "put Gio and Jessica and Jermey in a sales person option on the lead
+   form — Gio sometimes sells for real and Jessica is a placeholder"). The list is lead_rep_options() (396): every active
+   seller, plus any seat with reps.takes_leads on. The note after a name says why a non-seller is on it. */
+export const LEAD_REP_NOTE = {
+  '940ad537-cfbd-4129-a335-9d8a9bc7a013': 'sells one himself sometimes',        // Gio
+  'c2b126ae-a182-4dca-be11-2b9bf02c1c21': 'placeholder · no rep picked yet',     // Jessica Coley
+};
+
 export const BRAND_BY_CC = {
   '1461': { key: 'liberty', name: 'Liberty Fencing',  short: 'Fencing' },
   '1537': { key: 'libroof', name: 'Liberty Roofing',  short: 'Liberty Roofing' },

@@ -1,23 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=107';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=107';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=107';
-import { BRAND_BY_CC } from './config.js?v=107';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=107';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=107';
-import { renderHome } from './home.js?v=107';
-import { renderRoom } from './village.js?v=107';
-import { renderSales } from './sales.js?v=107';
-import { renderPipeline } from './pipeline.js?v=107';
-import { renderMarketing } from './marketing.js?v=107';
-import { renderOffice } from './office.js?v=107';
-import { renderProduction } from './production.js?v=107';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=107';
-import { stopRoomPoll } from './village.js?v=107';
-import { renderFlow, stopFlow } from './flow.js?v=107';
-import { startTour, tourWanted } from './tour.js?v=107';
-import { startAlerts } from './alerts.js?v=107';
-import { renderPhotos } from './photos.js?v=107';
+import * as api from './api.js?v=108';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=108';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=108';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=108';
+import { addressPicker, addressSource } from './address.js?v=108';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=108';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=108';
+import { renderHome } from './home.js?v=108';
+import { renderRoom } from './village.js?v=108';
+import { renderSales } from './sales.js?v=108';
+import { renderPipeline } from './pipeline.js?v=108';
+import { renderMarketing } from './marketing.js?v=108';
+import { renderOffice } from './office.js?v=108';
+import { renderProduction } from './production.js?v=108';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=108';
+import { stopRoomPoll } from './village.js?v=108';
+import { renderFlow, stopFlow } from './flow.js?v=108';
+import { startTour, tourWanted } from './tour.js?v=108';
+import { startAlerts } from './alerts.js?v=108';
+import { renderPhotos } from './photos.js?v=108';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -200,7 +201,7 @@ function newJob(prefill) {
   const cc0 = prefill?.cc || me.manages_company_id || '1461';
   const srcFor = (cc) => (state.leadSources || []).filter((s) => s.cc_company_id === cc);
   const srcOpts = (cc) => '<option value="">— how they found us —</option>' + srcFor(cc).map((s) => `<option value="${esc(s.name)}">${esc(s.name)}</option>`).join('');
-  const repOpts = (cc) => { const mine = sellers.filter((s) => String(s.cc_default_company_id) === String(cc)), rest = sellers.filter((s) => String(s.cc_default_company_id) !== String(cc)); return '<option value="">— pick the rep —</option>' + [...mine, ...rest].map((s) => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join(''); };
+  const repOpts = (cc) => { const mine = sellers.filter((s) => String(s.cc_default_company_id) === String(cc)), rest = sellers.filter((s) => String(s.cc_default_company_id) !== String(cc)); return '<option value="">— pick the rep —</option>' + [...mine, ...rest].map((s) => `<option value="${esc(s.id)}">${esc(s.name)}${LEAD_REP_NOTE[s.id] ? ' · ' + esc(LEAD_REP_NOTE[s.id]) : ''}</option>`).join(''); };
   // the rep's day: what they already have booked on the day you picked, so nobody is double-booked
   const dayStrip = async (f) => {
     const box = f.querySelector('#nj-day'); if (!box) return;
@@ -230,7 +231,7 @@ function newJob(prefill) {
       <div class="field"><label>What they want</label><input name="title" placeholder="chain link quote needed · 6' vinyl privacy, 210 ft"/></div>
     </div>
     <div class="two">
-      <div class="field"><label>Street</label><input name="street"/></div>
+      <div class="field"><label>Street · type it, pick the match · suggestions from ${esc(addressSource())}</label><input name="street" autocomplete="off" placeholder="4050 Palm Ave"/><div id="nj-addr-pick" class="pick addrpick" hidden></div></div>
       <div class="field"><label>City · zip</label><div style="display:flex;gap:6px"><input name="city" placeholder="Cocoa"/><input name="zip" placeholder="32922" style="width:110px"/></div></div>
     </div>
     <div class="two">
@@ -247,6 +248,8 @@ function newJob(prefill) {
       f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); if (f.rep) f.rep.innerHTML = repOpts(f.cc.value); dayStrip(f); };
       if (f.rep) f.rep.onchange = () => dayStrip(f);
       f.appt.onchange = () => dayStrip(f);
+      // Samantha's first (17 Sep): the street suggests as she types; a pick fills street, city and zip and moves her on
+      addressPicker(f.street, f.querySelector('#nj-addr-pick'), (a) => { if (a.street) f.street.value = a.street; if (a.city) f.city.value = a.city; if (a.zip) f.zip.value = a.zip; (a.zip ? (f.rep || f.appt) : f.city).focus(); });
       if (prefill) {   // the Ride-Along opens it typed; nothing is saved in the demo
         for (const [k, v] of Object.entries(prefill)) { const el = f.elements[k]; if (el && k !== 'cc') el.value = v; }
         if (prefill.src) f.src.value = prefill.src;

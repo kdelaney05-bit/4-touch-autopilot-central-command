@@ -34,7 +34,7 @@ in CC.**
   `kdelaney05-bit/trureview-mobile`
   (`C:\Users\kdela\OneDrive\Desktop\Commercial-Desk` is the current clone).
   This app's schema is migrations **306–381** there — see the table in
-  `README.md` for which one backs which feature. **Next free = 393** (live; 392 Mike's line, `office_lines.for_rep`, applied 17 Sep 10:58 AM by this session, file on trureview-mobile main; 389 the first name is a person, 390 the parcel says the city, 391 the seat that sleeps (Oasis is Jess), all applied 17 Sep ~10:05–10:55 AM by the inbox session, files on trureview-mobile main; 382 and 383 taken 17 Sep 8:20 AM, 384 the reschedule door 17 Sep 8:45 AM,
+  `README.md` for which one backs which feature. **Next free = 397** (live, checked 17 Sep afternoon: **396** `lead_rep_options()` + `reps.takes_leads` + policy `office_reads_company_reps` — this app's New lead rep list and the office seat's reps door, the Samantha session, file on trureview-mobile main; 393 office-line copies, 394 no SVG on the signed note, 395 machine handles don't buzz, all the same day; 392 Mike's line, `office_lines.for_rep`, applied 17 Sep 10:58 AM by this session, file on trureview-mobile main; 389 the first name is a person, 390 the parcel says the city, 391 the seat that sleeps (Oasis is Jess), all applied 17 Sep ~10:05–10:55 AM by the inbox session, files on trureview-mobile main; 382 and 383 taken 17 Sep 8:20 AM, 384 the reschedule door 17 Sep 8:45 AM,
   checked 17 Sep noon; two 381s are applied on live, 381_the_invoice and 381_the_first_piece_leads, like the two 369s), but
   check `schema_migrations` on live before writing one: sibling sessions
   number in parallel.
