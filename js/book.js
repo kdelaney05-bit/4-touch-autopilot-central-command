@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=113';
-import { DEMO } from './demo.js?v=113';
+import * as api from './api.js?v=114';
+import { DEMO } from './demo.js?v=114';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -144,7 +144,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, calls: Array.isArray(calls) ? calls : [], estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, calls] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, calls] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
