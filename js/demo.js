@@ -233,7 +233,7 @@ function file(customerId) {
     { id: 'pk3', kind: 'drawing', label: 'drawing.svg', signed: false, storage_path: 'cj8/3-drawing.svg', mime: 'image/svg+xml', uploaded_at: ago(36) },
   ] : [];
   // 367: Kowalski's NOC is with the customer — emailed the day he signed, one text sent, the next one tomorrow
-  const noc = b.job_id === 'j7' ? { id: 'nh1', status: 'waiting', started_at: ago(52), emailed_at: ago(52), email_to: 'jan.kowalski@example.com, travis@libertyfencingfl.com, samantha@libertyfencingfl.com', nudges_sent: 1, last_nudge_at: ago(52), last_step: 1, page_opened_at: ago(40), received_at: null, received_by: null, link: 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/noc-return/demo', switch_on: true, days: 2, next: { step: 2, day: 3, channel: 'text', in_days: 1 }, plan: [] } : null;
+  const noc = b.job_id === 'j7' ? { id: 'nh1', status: 'stopped', stop_reason: 'the NOC is the rep\'s (17 Sep)', started_at: ago(52), emailed_at: ago(52), email_to: 'jan.kowalski@example.com, travis@libertyfencingfl.com, samantha@libertyfencingfl.com', nudges_sent: 1, last_nudge_at: ago(52), last_step: 1, page_opened_at: ago(40), received_at: null, received_by: null, link: 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/noc-return/demo', switch_on: true, days: 2, next: { step: 2, day: 3, channel: 'text', in_days: 1 }, plan: [] } : null;
   // 365: the supplier bills on this file, the deposit line (Kevin, 16 Sep: "we don't take deposits" — stock material, none), the invoice already recorded (Ana Reyes)
   const bills = BILLS.filter((x) => x.customer_id === b.customer_id);
   const deposit = b.job_id === 'j3' ? { deposit_required: false, deposit_amount: null, deposit_paid_at: null, deposit_method: null, deposit_paid_by: null } : null;

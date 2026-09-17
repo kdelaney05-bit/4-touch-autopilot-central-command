@@ -596,8 +596,8 @@ function propertyCard(p, customer, filled = [], counter = null) {
   const next = p.confidential ? 'Protected address: the county withholds the owner. Get the deed from the customer before anything prints.'
     : p.signer_match === 'mismatch' ? 'The person who signed is not the owner of record. Get the owner of record to sign before the NOC or the permit goes anywhere.'
     : p.signer_match === 'entity' ? 'The owner is a company or trust. Get the name and title of the officer who can sign, then fill the NOC with it.'
-    : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online, and goes to them by email to sign before a notary).'
-    : 'NOC is filled. It goes to the customer to sign before a notary; the picture comes back on the Paperwork card. Office: type the permit number, record it at the Clerk when it lands.';
+    : !hasNoc ? 'Owner checks out. Fill the NOC (it fills itself when the customer accepts online; the rep gets it signed before a notary).'
+    : 'NOC is filled. It is the rep\'s: signed by the owner before a notary and uploaded on the Paperwork card. Office: record it at the Clerk when it lands. It holds nothing.';
   return `<div class="card">
     <div class="head" style="margin-bottom:4px"><div class="kicker">Property · owner of record · ${esc(p.county)} County</div>${chip}</div>
     <div class="next ${p.signer_match === 'mismatch' || p.confidential ? 'bad' : hasNoc && p.signer_match === 'match' ? 'good' : ''}"><b>NEXT</b> ${esc(next)}</div>
@@ -630,13 +630,14 @@ function nocRow(a, h, hasFilled) {
   if (!open) {
     line = h?.received_by === 'customer' ? ` · <span class="verify">photo from the customer · ${esc(day(h.received_at))}</span>` : a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : '';
   } else if (!h) {
-    next = hasFilled ? 'Send the "you\'re in" note with the filled notary forms; the rep sets the visit.' : 'Fill the NOC (Property card), then send the "you\'re in" note; the rep sets the visit.';
-    btn = `<button class="btn sm ok" id="noc-send">${hasFilled ? 'Email it to the customer' : 'Fill + email it'}</button>`;
+    /* 385 (Kevin, 17 Sep): the NOC is the rep's — out of the customer's process, off the link, a condition of nothing */
+    next = hasFilled ? 'The rep\'s: get it signed by the owner before a notary and upload the stamped copy here. It holds nothing — the county wants it before the first inspection on jobs over $5,000.' : 'Fill the NOC (Property card); then it is the rep\'s to get signed before a notary and upload here.';
+    btn = hasFilled ? `<button class="btn sm" id="noc-send" title="Optional, not the process: email the filled NOC to the customer with a photo link. The rep still owns it.">Email it to the customer</button>` : '';
   } else if (h.status === 'waiting') {
     const texts = h.nudges_sent ? `${h.nudges_sent} text${h.nudges_sent === 1 ? '' : 's'} sent` : 'no texts yet';
     const coming = h.next ? (h.next.channel === 'text' ? `next text ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}` : `${h.next.channel === 'push_rep' ? 'the rep' : 'the office'} is pushed ${h.next.in_days === 0 ? 'today' : 'in ' + h.next.in_days + ' d'}`) : 'the plan ran out — call them';
     line = ` · <span class="dimmer">${h.emailed_at ? 'emailed ' + esc(day(h.emailed_at)) : 'not emailed yet'} · ${esc(texts)} · ${h.switch_on ? esc(coming) : 'texts OFF (Office room)'}${h.page_opened_at ? ' · they opened the link' : ''}</span>`;
-    next = h.emailed_at ? `"You're in" note sent ${day(h.emailed_at)}: the rep notarizes on the visit, or they send a picture from the link. The permit and the material open when it is back.` : (h.switch_on ? 'The note goes on the next sweep, or press Email it.' : 'The switch is OFF: press Email it, or flip "The you\'re-in note" in the Office room.');
+    next = 'The rep\'s: get it signed before a notary and upload the stamped copy here. It holds nothing.' + (h.emailed_at ? ` The customer also has it by email with a photo link (sent ${day(h.emailed_at)}).` : '');
     btn = `<button class="btn sm" data-copy-link="${esc(h.link)}">Copy the photo link</button><button class="btn sm ${h.emailed_at ? '' : 'ok'}" id="noc-send">${h.emailed_at ? 'Resend' : 'Email it'}</button>`;
   } else if (h.status === 'stopped') {
     line = ` · <span class="dimmer">texts stopped · ${esc(h.stop_reason || '')}</span>`;

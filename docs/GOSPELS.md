@@ -157,21 +157,24 @@ wrong, not the gospel.
     "I'll walk you through the first one": the card walks them. (16 Sep)
 
 34. **They accept now, they sign everything once, and they are locked in.
-    The county's two notary forms are a formality, on them, and the rep goes
-    back once as the notary.** "If the customer's ready, they'll accept now.
-    They'll sign every one of our documents." One link, one signature; Oasis
-    signs the contract alone. The Notice of Commencement and the Hold
-    Harmless are what the county wants notarized (the hold harmless is a
-    condition of the permit for a fence in an easement; the NOC is for the
-    inspection, and Rockledge and Orange City ask for it at the counter), so
-    they are filled from the file, emailed to the customer as the "you're in"
-    note the second they sign, and the rep, a notary, goes back once and
-    stamps them; or the customer signs at any notary and sends a picture. The
-    machine texts them until the forms are back. The office pulls the permit
-    and orders the material when they are. "It cannot and will not be a
-    reason not to pay us… they are holding up themselves." The close is one
-    line: great, I can get you started now, go ahead and accept here, and we
-    get everything moving on our end. Still easier, just compliant. (16 Sep)
+    The NOC is the rep's. Nothing waits.** "If the customer's ready, they'll
+    accept now. They'll sign every one of our documents." One link, one
+    signature: the contract, the disclosures, the hold harmless and the
+    permit application, every county, filled on the lines and stamped with
+    the signature; Oasis signs the contract and initials the terms. The
+    second they sign, the permit opens on Sam and the material on Jonathan
+    (custom and aluminum once the deposit is in). The one form off the link
+    is the Notice of Commencement, and it is the rep's — "the only thing a
+    rep will be responsible for is getting the NOC, and that's on them… if
+    they want to DocuSign it that's fine, but I don't want it in our
+    process… it's not a condition of the acceptance." No note to the
+    customer, no texts; the file reminds the rep until the stamped copy is
+    on the file. It holds nothing: the county wants it before the first
+    inspection on jobs over \$5,000. "It cannot and will not be a reason not
+    to pay us… they are holding up themselves." The close is one line: great,
+    I can get you started now, go ahead and accept here, and we get
+    everything moving on our end. Still easier, just compliant. (16 Sep, final
+    17 Sep)
 35. **Leave people alone from 7:30 PM to 8 AM.** "Don't send any more emails
     this late. Schedule for 8 am, always, after 7pm. New rule across the
     board. Leave people alone from 7:30 to 8am. Spread across the board."
