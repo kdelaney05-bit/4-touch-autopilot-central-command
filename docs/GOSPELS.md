@@ -194,6 +194,7 @@ wrong, not the gospel.
 | Next step shouts | The NEXT line on the Property card (13 Sep); the ask clocks; the adopt buttons on an unfiled job |
 | Visually obvious | Red mismatch chip, green accepted pill, the Office door's permit lines on the home room |
 | Anyone can step in | Central Command's rooms are role-gated for reading, not for understanding |
+| A no is as good as a yes | "Not going with us" on every file (380, 17 Sep): the customer is marked lost, the job leaves every board and every number, the office is tagged to mark it in CC; Revive is the road back. The rep app's Lost button writes the same column |
 | The file is the hub | The customer file in Central Command and the phone app |
 | Count once, say the source | Every county record carries source and as-of; the console badges |
 | Draft until send | Gmail drafts, posts pasted by Kevin |
