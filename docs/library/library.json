@@ -1,6 +1,34 @@
 {
- "built": "2026-09-18T14:41:59.842Z",
+ "built": "2026-09-18T15:01:58.109Z",
  "pieces": [
+  {
+   "id": "ride-along-the-jetstream",
+   "title": "Everyone · The Jetstream: tell anyone anything about a customer, from the file",
+   "what": "Jess, 18 Sep, 9:33 AM: \"let's start using the system now for all jet stream communication to get everyone familiar.\" Laura, 9:38: \"would someone be able to show me inside the file where the 'New' jetstream is?\" Sam, 10:02: \"the @ doesn't work in the Note to Team section… in CC we start typing part of someone's name and their name gets highlighted so we can hit Enter\"; 10:28: \"to reply, we have to go into the corner.\" Kevin, 10:45: \"a video of how to do a jet stream, how to communicate in that. Everyone wants to use it, but we do not know how.\" Jess filmed one herself at 9:53; this is the narrated one for everybody, the office, sales and the supervisors, on the real screen. Open the customer, Open the full file: the left side is the customer, the right side is the team, and that is the Jetstream. Type @ and two letters in the blue box and the people come up; Enter picks, Enter posts (v122, Sam's ask: the Village's own picker on the note box). Or one name in To. Everyone named gets it: a buzz on the phone with the link for a rep or a supervisor, an email with the link for Jess, Sam and Laura, and it waits on The Line until they open the file. The note lands in the thread marked never sent to the customer with the receipt under it, and ↩ Reply on any inside note fills To with who wrote it, so the answer sits on the same customer. On the phone it is the same thread: TELL THE TEAM under the texts. Three rules: about a customer, on the customer; about the day, the Village; the customer never sees either. Narrated (Guy).",
+   "short": "The Jetstream in its new home: open the file, @ and two letters in the note box, Enter posts. They get the buzz or the email with the link; ↩ Reply lands the answer on the same customer.",
+   "film": "ride-along-the-jetstream",
+   "go": null,
+   "tour": null,
+   "meta": "9 scenes · 2:29 · 18 Sep, midday · Central Command v122 · everyone: the office, sales, supervisors, managers · no switch",
+   "date": "2026-09-18",
+   "where": [
+    "cc",
+    "app"
+   ],
+   "ask": [
+    "How do I do a Jetstream in the new system?",
+    "How do I tag Eric, Sam, Obed or the office on a customer?",
+    "How do I reply to a note on a file?",
+    "Where do the reps see a Jetstream (the app)?"
+   ],
+   "links": [
+    {
+     "href": "../?demo=1&as=office&file=cj3",
+     "text": "Open the real screen (pretend customers)"
+    }
+   ],
+   "words": "The Jetstream. The same idea you use in Contractors Cloud, in its new home. Tell anyone anything about a customer from the customer's file, and their answer comes back to the same file. Two minutes, for everyone. Step one. Open the customer, from Files, The Line, or the find box. It opens as a drawer. Press Open the full file. Step two. Left side, the customer: their texts and yours. Right side, the team. That is the Jetstream. Nothing you post on the right ever goes to the customer. Step three. Say it in the blue box. To bring someone in, type the at sign and two letters of their name, the way you do in CC. The people come up. Enter, and the name is in your note. Again for the next person, as many as you like. Or one name in the To box: type Eric, it is Eric. Step four. Post, or just press Enter. Everyone you named gets it: a buzz on the phone with the link for a rep or a supervisor, an email with the link for Jess, Sam and Laura. It waits on The Line until they open the file. Nobody else hears about it. Step five. Your note lands in the thread, marked never sent to the customer, with who got it under it. To answer somebody, press Reply on their note: their name fills in, you type, you post. Same customer, in order. No email chain. On the phone, in the 4-Touch app, it is the same thread. Under the texts, tell the team: tap the people, say it, post. When the office tags you, your phone buzzes with the link. Tap it, you are on that file. Answer right there. Three rules. About a customer: on the customer's file. About the day, not one customer: the Village, same at sign. And the customer never sees any of it. Try one today. Open a file, at and two letters, say one thing, Enter. If anything does not work, reply on Kevin's email thread; that thread is the ticket. Nothing to learn. It comes to you."
+  },
   {
    "id": "ride-along-you-asked",
    "title": "The office · You asked this morning. Here it is.",

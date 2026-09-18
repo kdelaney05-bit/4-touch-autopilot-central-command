@@ -2,17 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=121';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=121';
-import { enterPosts, micButton } from './dictate.js?v=121';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=121';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=121';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=122';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=122';
+import { enterPosts, micButton } from './dictate.js?v=122';
+import { wireAtOn } from './village.js?v=122';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=122';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=122';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=121';
-import { settleDialog } from './office.js?v=121';
-import { reload } from './app.js?v=121';
-import { relTime } from './production.js?v=121';
-import { billsCards, billsNext, wireBills } from './bills.js?v=121';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=122';
+import { settleDialog } from './office.js?v=122';
+import { reload } from './app.js?v=122';
+import { relTime } from './production.js?v=122';
+import { billsCards, billsNext, wireBills } from './bills.js?v=122';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -224,11 +225,12 @@ function draw(root, ctx, compact) {
           <datalist id="note-to-list"><option value="@rep">the rep on this file (sold it, or is quoting it)</option><option value="@office">the office seat</option><option value="@sales">every rep</option><option value="@supers">every supervisor, every brand</option><option value="@production">the supervisor on this job</option><option value="@schedule">scheduling</option><option value="@invoice">billing</option><option value="@crew">the crew on this job, on their link</option>${raw(state.seats.map((s) => `<option value="${esc(mentionHandle(s))}">${esc(s.name)}</option>`).join(''))}</datalist>
           <select id="note-what" style="width:auto;padding:5px 8px;font-size:12px"><option value="">What: a note</option>${raw(Object.keys(ASK_LABEL).map((t) => `<option value="${t}">Task: ${esc(ASK_LABEL[t])}</option>`).join(''))}</select>
         </div>
-        <div class="composer" style="background:var(--officesoft)">
-          <textarea id="note" placeholder="permit is in, ready to schedule · take this one · customer asked for you"></textarea>
+        <div class="composer" style="background:var(--officesoft);position:relative">
+          <textarea id="note" placeholder="permit is in, ready to schedule · take this one · customer asked for you · @ and two letters adds anyone"></textarea>
+          <div class="line-find-pop at-pop" id="note-at-pop" hidden></div>
           <button class="btn" id="note-send">Post</button>
         </div>
-        <div class="small">They get a push, and it sits in their Tagged list until they open this file. A task also opens an ask on them with the clock running.</div>
+        <div class="small">Type <b>@</b> and two letters in the box to add anyone, as many as you like; Enter picks, Enter posts. They get a push on the phone or an email with the link to this file, and it sits in their Tagged list until they open it. A task also opens an ask on them with the clock running.</div>
       </div>
     </div>
 
@@ -412,6 +414,13 @@ function draw(root, ctx, compact) {
   }));
   if (q('#file-text')) q('#file-text').onclick = () => { const c = q('#compose'); if (c) { c.scrollIntoView({ block: 'center', behavior: 'smooth' }); c.focus(); } };
   if (q('#file-tag')) q('#file-tag').onclick = () => { const n = q('#note'); if (n) { n.scrollIntoView({ block: 'center', behavior: 'smooth' }); n.focus(); } };
+  // THE JETSTREAM (Sam, 18 Sep 10:02 AM: "the @ doesn't work in the 'Note to Team' section… in CC we start typing part of someone's
+  // name and their name gets highlighted so we can hit Enter"; 10:28: "to reply, we have to go into the corner"). The Village's own
+  // picker on this box: type @ and two letters, the people come up, Enter picks; Enter alone posts (Shift+Enter is a new line).
+  // ↩ Reply on an inside note fills To with who wrote it and puts the cursor in the box, so the answer lands on the same file.
+  enterPosts(q('#note'), () => q('#note-send')?.click(), () => { const p = q('#note-at-pop'); return !!(p && !p.hidden); });   // registered first: it sees the picker open and steps aside
+  wireAtOn(q('#note'), q('#note-at-pop'), () => {});
+  root.querySelectorAll('[data-reply-to]').forEach((b) => (b.onclick = () => { const s = personOf(b.dataset.replyTo); const to = q('#note-to'), n = q('#note'); if (to && s) to.value = mentionHandle(s); if (n) { n.scrollIntoView({ block: 'center', behavior: 'smooth' }); n.focus(); } }));
   if (q('#file-send')) q('#file-send').onclick = () => {
     const seats = (state.seats || []).filter((s) => s.id !== me?.id);
     openModal({ title: `Send ${name}'s file to…`, submitLabel: 'Send it', body: `
@@ -899,7 +908,7 @@ function bubble(i) {
   if (i.kind === 'in') return `<div class="msg in"><div class="who">${esc(i.who)} · ${esc(when(i.at))}</div>${esc(i.body)}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
   const p = i.pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(i.pid);
   const cls = i.kind === 'machine' ? 'machine' : i.kind === 'chat' ? 'chat' : 'out';
-  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}</div>${esc(i.body)}${i.photo ? photoThumb(i.photo) : ''}${i.rcpt ? receiptLine(i.rcpt) : ''}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
+  return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}${i.kind === 'chat' && i.pid && i.pid !== 'machine' && i.pid !== state.me?.id ? ` <button class="btn sm" data-reply-to="${esc(i.pid)}" title="Answer on this file: To fills in with their name" style="margin-left:6px;padding:0 7px;font-size:11px;line-height:18px">↩ Reply</button>` : ''}</div>${esc(i.body)}${i.photo ? photoThumb(i.photo) : ''}${i.rcpt ? receiptLine(i.rcpt) : ''}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
 }
 
 function askRow(a, me) {

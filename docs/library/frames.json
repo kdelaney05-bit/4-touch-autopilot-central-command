@@ -89,6 +89,16 @@
   ],
   "bytes": 16986543
  },
+ "ride-along-the-jetstream": {
+  "seconds": 150,
+  "frames": [
+   "ride-along-the-jetstream-1.jpg",
+   "ride-along-the-jetstream-2.jpg",
+   "ride-along-the-jetstream-3.jpg",
+   "ride-along-the-jetstream-4.jpg"
+  ],
+  "bytes": 5858771
+ },
  "ride-along-the-library": {
   "seconds": 104,
   "frames": [

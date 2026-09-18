@@ -40,6 +40,8 @@ in CC.**
   number in parallel.
 
   **17 Sep 2026 (evening):** live top is **397** — `397_the_sub_locked_in` (Kevin + Jess, the Billdu handoff meeting; APPLIED LIVE by the Billdu-handoff session, dry-run rolled back first on "Delaney Oasis walk, Kevin"; file on trureview-mobile main): `job_sub_locks` · `sub_options` · `sub_lock` · `sub_lock_mark` · `v_job_sub_locks`. This app v109: the checkbox on ＋ Photo, the Sub locked in card, NEXT, the Office room's waiting list, the film `?tour=sub`. **Next free = 398** — read `schema_migrations` first.
+
+  **18 Sep 2026 (midday):** this app **v122** — THE JETSTREAM (Kevin: "a video of how to do a jet stream, how to communicate in that"): the Village's @ picker on the file's note box (Sam's ask), Enter picks / Enter posts, ↩ Reply on an inside note; the film `films/ride-along-the-jetstream.mp4` for everyone, listed on the Ride-Alongs page, was/is, films and the Library. No migration; **next free is still 398**.
 - The owner console (`kdelaney05-bit/liberty-command`) is a separate page; the
   Sales and Marketing rooms embed it by hash (`#sales`, `#marketing`). Same
   github.io origin, its own sign-in. Never copy it in.
