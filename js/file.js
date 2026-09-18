@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=125';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=125';
-import { enterPosts, micButton } from './dictate.js?v=125';
-import { wireAtOn } from './village.js?v=125';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=125';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=125';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=126';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=126';
+import { enterPosts, micButton } from './dictate.js?v=126';
+import { wireAtOn } from './village.js?v=126';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=126';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=126';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=125';
-import { settleDialog } from './office.js?v=125';
-import { reload } from './app.js?v=125';
-import { relTime } from './production.js?v=125';
-import { billsCards, billsNext, wireBills } from './bills.js?v=125';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=126';
+import { settleDialog, handDialog } from './office.js?v=126';
+import { reload } from './app.js?v=126';
+import { relTime } from './production.js?v=126';
+import { billsCards, billsNext, wireBills } from './bills.js?v=126';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -249,11 +249,11 @@ function draw(root, ctx, compact) {
         ${raw(subLockCard(ctx.data.subLocks || [], job, customer, me, photos))}
         ${raw(quoteFileCard(ctx.data.quotes, photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
-        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : a.doc_kind === 'deed' ? deedRow(a, ctx.data.deed) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : '<span class="mono verify">on file</span>'}</div>`).join('')}</div>`) : ''}
+        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : a.doc_kind === 'deed' ? deedRow(a, ctx.data.deed) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : `<span style="display:flex;gap:6px;align-items:center"><span class="mono verify">on file</span>${(a.proof?.files || []).filter((f) => f.storage_path).map((f) => `<button class="btn sm" data-open-doc="${esc(f.storage_path)}" title="${esc(f.label || '')}">Open</button>`).join('')}</span>`}</div>`).join('')}</div>`) : ''}
         <div class="card">
           <div class="kicker">On the file</div>
           <div class="rows">
-            ${attachments.length ? raw(attachments.slice(-12).map((f) => `<div class="r"><span>${esc(f.label || f.storage_path || f.source)}</span><span class="mono dimmer">${esc(new Date(f.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></div>`).join('')) : raw('<div class="r"><span class="dimmer">No documents or photos yet.</span></div>')}
+            ${attachments.length ? raw(attachments.slice(-12).map((f) => `<div class="r"><span>${esc(f.label || f.storage_path || f.source)}</span><span style="display:flex;gap:6px;align-items:center"><span class="mono dimmer">${esc(new Date(f.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span>${f.storage_path ? `<button class="btn sm" data-open-doc="${esc(f.storage_path)}">Open</button>` : ''}</span></div>`).join('')) : raw('<div class="r"><span class="dimmer">No documents or photos yet.</span></div>')}
           </div>
         </div>
         <div class="card">
@@ -293,6 +293,15 @@ function draw(root, ctx, compact) {
       else toast(r?.why || held.join(' · ') || 'Nothing went out.', 'err');
       if (r?.ok) { await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } else { b.disabled = false; b.textContent = was; }
     } catch (e) { toast(e.message, 'err'); b.disabled = false; b.textContent = was; }
+  }));
+  /* 126: one ask to one seat (ask_hand); and every document on the file opens */
+  root.querySelectorAll('[data-hand]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.hand); if (a) handDialog(a, { repId: job.rep_id, repName: job.rep_name }, () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId))); }));
+  root.querySelectorAll('[data-open-doc]').forEach((b) => (b.onclick = async () => {
+    b.disabled = true;
+    const tab = window.open('', '_blank');
+    try { const url = await docUrl(b.dataset.openDoc); if (tab) tab.location = url; else window.location.assign(url); }
+    catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
+    b.disabled = false;
   }));
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.settle); if (a) settleDialog(withQueueShape(a, job), (r, proof) => { state.nextWord = nextWordFor({ ...a, customer_id: ctx.customerId }, proof); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); }); }));
   if (q('#file-take')) q('#file-take').onclick = async () => { try { await takeJob(job.job_id); toast(`You have ${name}.`); await reload(true); (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId)); } catch (e) { toast(e.message, 'err'); } };
@@ -915,7 +924,7 @@ function askRow(a, me) {
   const mine = a.assignee_id === me?.id;
   const cls = a.lane === 'SUPER' ? 'st-orange' : a.lane === 'CHAT' ? 'st-green' : 'st-blue';
   const openMin = (Date.now() - new Date(a.opened_at)) / 6e4;
-  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span>${a.ask_type === 'MATERIAL' && a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-material-send="${esc(a.id)}" title="Emails the order to the supplier the calculator's products point at, the material order attached; Gio and the watchers copied. Wood waits for the permit.">Send to supplier</button> ` : ''}<button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
+  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span>${a.ask_type === 'MATERIAL' && a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-material-send="${esc(a.id)}" title="Emails the order to the supplier the calculator's products point at, the material order attached; Gio and the watchers copied. Wood waits for the permit.">Send to supplier</button> ` : ''}${a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-hand="${esc(a.id)}" title="Hand this ask to another seat">Hand to…</button> ` : ''}<button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
 }
 
 function withQueueShape(a, job) {

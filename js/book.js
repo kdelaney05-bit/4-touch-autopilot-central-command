@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=125';
-import { DEMO } from './demo.js?v=125';
+import * as api from './api.js?v=126';
+import { DEMO } from './demo.js?v=126';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -210,6 +210,18 @@ export async function loadFile(customerId) {
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
+/* 126: open a document that sits on the file (Jess, 18 Sep: "it says it's on file but we have no idea where it is").
+   Paperwork stamped on the link lives in the private estimates bucket ('estimates/…' — a signed link); what the office,
+   the rep or CC put on the file lives in job-docs under <company>/<project>/… (a public path nobody can guess);
+   anything else is a proof from the estimates bucket. */
+export async function docUrl(path) {
+  if (!path) throw new Error('No file on this row');
+  if (path.startsWith('estimates/')) return openPacketFile(path.slice('estimates/'.length));
+  if (/^[0-9]+\/[0-9]+\//.test(path)) return api.publicUrl('job-docs', path);
+  return openPacketFile(path);
+}
+/* 126 · 407: one open ask to one seat. The new holder gets the push and their name on the row; the clock keeps running. */
+export async function handAsk(askId, to, note) { guard(); return api.rpc('ask_hand', { p_ask: askId, p_to: to, p_note: note ?? null }); }
 
 // ── writes (all refused in demo) ─────────────────────────────────────────────
 const guard = () => { if (isDemo()) throw new Error('Demo — nothing is saved'); };

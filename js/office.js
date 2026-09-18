@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=125';
-import * as api from './api.js?v=125';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=125';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=125';
-import { iconForAsk } from './words.js?v=125';
-import { DEMO_STEPS } from './demo-office.js?v=125';
-import { reload } from './app.js?v=125';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=125';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, handAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=126';
+import * as api from './api.js?v=126';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=126';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=126';
+import { iconForAsk } from './words.js?v=126';
+import { DEMO_STEPS } from './demo-office.js?v=126';
+import { reload } from './app.js?v=126';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=126';   // 365/369: the Bills tile and queue
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -102,6 +102,7 @@ export function renderOffice(root) {
   workflowCard(root);
   wireBills(root, { after: () => reload(true) });   // 365/369: the Bills queue's taps
   root.querySelectorAll('[data-f]').forEach((b) => (b.onclick = () => { filter = b.dataset.f; renderOffice(root); }));
+  root.querySelectorAll('[data-hand]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.hand); if (a) handDialog(a, { repId: a.rep_id, repName: a.rep_name }, () => reload(true)); }));
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.settle); if (a) settleDialog(a, (r, proof) => { reload(true); offerNextWord(nextWordFor(a, proof)); }); }));
   root.querySelectorAll('[data-switch]').forEach((b) => (b.onclick = async () => {
     const cur = sw(b.dataset.switch)?.is_on;
@@ -121,7 +122,7 @@ function row(q) {
     <div><b>${esc(personName(q.customer_name))}</b> · ${esc(brandName(q.cc_company_id))} · ${esc(money(q.job_value))}<div class="who">${noc ? 'with the customer to notarize · the machine texts them · ' : ''}${esc(q.note || '')} · opened by ${esc(q.opened_by_name || 'the file')} · ${esc(q.assignee_name || 'unassigned')} holds it</div></div>
     <span class="mono ${red ? 'red' : ''}">${esc(mins(q.open_min))}</span>
     <span class="chip ${STAGES[q.stage]?.cls || 'st-ink'}">${esc(stageLabel(q.stage))}</span>
-    <div style="display:flex;gap:6px" onclick="event.stopPropagation()"><button class="btn sm" onclick="__peek('${esc(q.customer_id)}')">Open file</button><button class="btn sm ok" data-settle="${esc(q.ask_id)}">${green ? 'Invoiced' : 'Done'}</button></div>
+    <div style="display:flex;gap:6px" onclick="event.stopPropagation()"><button class="btn sm" onclick="__peek('${esc(q.customer_id)}')">Open file</button><button class="btn sm" data-hand="${esc(q.ask_id)}" title="Hand this ask to another seat">Hand to…</button><button class="btn sm ok" data-settle="${esc(q.ask_id)}">${green ? 'Invoiced' : 'Done'}</button></div>
   </div>`;
 }
 
@@ -262,4 +263,17 @@ async function fillSubLocks(root) {
   if (!rows.length) { box.innerHTML = ''; return; }
   box.innerHTML = `<div class="card" data-tour="sublocks"><div class="kicker">Subs locked in · waiting to be typed into Contractors Cloud · ${rows.length}</div><div class="rows">${rows.map((l) => `<div class="r"><span><b>🔒 ${esc(l.sub_name)}</b> · ${money(l.amount)} · <a href="#" data-open="${esc(l.customer_id)}">${esc(l.customer_name)}</a>${l.city ? ' · ' + esc(l.city) : ''} · ${esc(brandName(String(l.cc_company_id)))} <span class="dimmer">· ${esc((l.locked_by_name || '').split(' ')[0])}${l.received_at ? ' · RECIBIDO ' + esc(l.received_by || '') : l.person_id ? ' · texted' : ' · no phone'}</span></span><span class="mono ${l.open_min > 240 ? 'red' : ''}">${esc(mins(l.open_min))}</span></div>`).join('')}</div><div class="small dimmer" style="margin-top:6px">Open the file: Copy for CC has the fields, Typed into CC turns it green.</div></div>`;
   box.querySelectorAll('[data-open]').forEach((a) => a.onclick = (e) => { e.preventDefault(); if (window.__peek) window.__peek(a.dataset.open); });
+}
+
+/* 126 · 407: hand one open ask to one seat (ask_hand). The seats door still says who gets every NEW ask for a brand;
+   this moves one ask that already exists. Jess, 18 Sep: "how can we assign different tasks to different staff members." */
+export function handDialog(a, ctx, after) {
+  const seats = (state.seats || []).map((s) => ({ id: s.id, name: s.name, role: s.role || '' }));
+  if (ctx?.repId && !seats.some((s) => s.id === ctx.repId)) seats.push({ id: ctx.repId, name: ctx.repName || 'the rep', role: 'sales · the rep on this job' });
+  const list = seats.filter((s) => s.id !== a.assignee_id).sort((x, y) => x.name.localeCompare(y.name));
+  openModal({ title: `Hand ${askLabel(a)} to…`, submitLabel: 'Hand it', body: `
+      <div class="field"><label>Who</label><select name="to" required><option value="">— pick the seat —</option>${list.map((s) => `<option value="${esc(s.id)}">${esc(s.name)} · ${esc(s.role)}</option>`).join('')}</select></div>
+      <div class="field"><label>A word for them (optional)</label><input name="note" placeholder="you know this customer · needs a call before 8"/></div>
+      <div class="note">${esc(a.assignee_name || 'Nobody')} holds it now. The new holder gets a push and their name on the row; the clock keeps running. Anyone in the office can still press Done.</div>`,
+    onSubmit: async (fm) => { if (!fm.to.value) throw new Error('Pick the seat'); await handAsk(a.ask_id || a.id, fm.to.value, fm.note.value.trim() || null); toast('Handed · they get a push'); if (after) after(); } });
 }
