@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=134';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=134';
-import { enterPosts, micButton } from './dictate.js?v=134';
-import { wireAtOn } from './village.js?v=134';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=134';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=134';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=135';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=135';
+import { enterPosts, micButton } from './dictate.js?v=135';
+import { wireAtOn } from './village.js?v=135';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=135';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=135';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=134';
-import { settleDialog, handDialog } from './office.js?v=134';
-import { reload } from './app.js?v=134';
-import { relTime } from './production.js?v=134';
-import { billsCards, billsNext, wireBills } from './bills.js?v=134';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=135';
+import { settleDialog, handDialog, voidDialog } from './office.js?v=135';
+import { reload } from './app.js?v=135';
+import { relTime } from './production.js?v=135';
+import { billsCards, billsNext, wireBills } from './bills.js?v=135';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -135,7 +135,9 @@ function draw(root, ctx, compact) {
   texts.forEach((t) => {
     if (t.direction === 'inbound') { items.push({ at: t.occurred_at, kind: 'in', who: name, body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url }); return; }
     const machine = t.feed_source === 'machine' || /Reply STOP/.test(t.body || '');
-    const s = machine ? { id: 'machine', name: 'The machine', line: lineLabel(t.from_number, job) } : senderOf(t, job);
+    // 135 (Jess, 18 Sep 2:52 PM: "I cant see who sent it"): the app's own send (sms_outbox) names the seat when the phone log did not
+    const o = machine ? null : outbox.find((x) => x.rep_id && x.body === t.body && Math.abs(new Date(x.sent_at || x.queued_at) - new Date(t.occurred_at)) < 15 * 60e3);
+    const s = machine ? { id: 'machine', name: 'The machine', line: lineLabel(t.from_number, job) } : senderOf(t, job, o);
     items.push({ at: t.occurred_at, kind: machine ? 'machine' : 'out', pid: s.id, who: s.name, line: s.line, body: t.body || (t.has_media ? '(photo)' : ''), media: t.media_url });
   });
   outbox.filter((o) => o.status !== 'cancelled' && !texts.some((t) => t.direction === 'outbound' && t.body === o.body)).forEach((o) => {
@@ -299,6 +301,7 @@ function draw(root, ctx, compact) {
   }));
   /* 126: one ask to one seat (ask_hand); and every document on the file opens */
   root.querySelectorAll('[data-hand]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.hand); if (a) handDialog(a, { repId: job.rep_id, repName: job.rep_name }, () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId))); }));
+  root.querySelectorAll('[data-void]').forEach((b) => (b.onclick = () => { const a = asks.find((x) => x.id === b.dataset.void); if (a) voidDialog({ ...a, customer_name: customer?.name }, () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId))); }));   // 135
   root.querySelectorAll('[data-open-doc]').forEach((b) => (b.onclick = async () => {
     b.disabled = true;
     const tab = window.open('', '_blank');
@@ -877,14 +880,15 @@ function lineLabel(from, job, p) {
 }
 /* Who sent an outbound text: the rep the file resolved it to, else the rep
    whose own number it left from, else the extension. Never a bare "Liberty". */
-function senderOf(t, job) {
-  let p = personOf(t.resolved_rep_id);
-  const d = digits(t.from_number);
+function senderOf(t, job, o) {
+  let p = personOf(t.resolved_rep_id) || (o ? personOf(o.rep_id) : null);   // 135: the app's send names the seat
+  const from = t.from_number || o?.from_number;
+  const d = digits(from);
   if (!p && d) p = state.people.find((x) => x.sms_from && digits(x.sms_from) === d) || null;
   const ext = t.uvoice_ext;
-  if (!p && ext >= 100 && ext <= 102) return { id: 'office-' + ext, name: 'The office', line: lineLabel(t.from_number, job) + ' · ext ' + ext };
-  if (!p) return { id: ext ? 'ext-' + ext : 'liberty', name: ext ? 'A rep' : 'Liberty', line: lineLabel(t.from_number, job) + (ext ? ' · ext ' + ext : '') };
-  return { id: p.id, name: p.name, line: lineLabel(t.from_number, job, p) };
+  if (!p && ext >= 100 && ext <= 102) return { id: 'office-' + ext, name: 'The office', line: lineLabel(from, job) + ' · ext ' + ext };
+  if (!p) return { id: ext ? 'ext-' + ext : 'liberty', name: ext ? 'A rep' : 'Liberty', line: lineLabel(from, job) + (ext ? ' · ext ' + ext : '') };
+  return { id: p.id, name: p.name, line: lineLabel(from, job, p) };
 }
 
 /* Sam, 18 Sep ("I am struggling to easily find their email and phone number… I also can't easily figure out the address"):
@@ -920,7 +924,7 @@ function askRow(a, me) {
   const mine = a.assignee_id === me?.id;
   const cls = a.lane === 'SUPER' ? 'st-orange' : a.lane === 'CHAT' ? 'st-green' : 'st-blue';
   const openMin = (Date.now() - new Date(a.opened_at)) / 6e4;
-  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span>${a.ask_type === 'MATERIAL' && a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-material-send="${esc(a.id)}" title="Emails the order to the supplier the calculator's products point at, the material order attached; Gio and the watchers copied. Wood waits for the permit.">Send to supplier</button> ` : ''}${a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-hand="${esc(a.id)}" title="Hand this ask to another seat">Hand to…</button> ` : ''}<button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
+  return `<div class="ask" style="grid-template-columns:1fr auto;row-gap:6px"><span><i class="ai">${iconForAsk(a)}</i><span class="chip ${cls}">${esc(askLabel(a))}</span> <span class="mono ${openMin > 2880 ? 'red' : 'dimmer'}">${esc(mins(openMin))}</span><div style="margin-top:4px">${esc(a.note || '')}</div><div class="who">${esc(a.assignee_name || 'unassigned')} holds it · opened by ${esc(a.opened_by_name || '')}</div></span>${a.ask_type === 'MATERIAL' && a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-material-send="${esc(a.id)}" title="Emails the order to the supplier the calculator's products point at, the material order attached; Gio and the watchers copied. Wood waits for the permit.">Send to supplier</button> ` : ''}${a.state === 'OPEN' && me && me.id ? `<button class="btn sm" data-hand="${esc(a.id)}" title="Hand this ask to another seat">Hand to…</button> ` : ''}${a.state === 'OPEN' && me && me.id && (['owner', 'admin', 'manager', 'office'].includes(me.role) || mine) ? `<button class="btn sm" data-void="${esc(a.id)}" title="Not needed on this job — off the list, with the reason on the file">Not needed</button> ` : ''}<button class="btn sm ${mine ? 'ok' : ''}" data-settle="${esc(a.id)}">Done</button></div>`;
 }
 
 function withQueueShape(a, job) {

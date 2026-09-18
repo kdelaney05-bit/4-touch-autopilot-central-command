@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=134';
-import { DEMO } from './demo.js?v=134';
+import * as api from './api.js?v=135';
+import { DEMO } from './demo.js?v=135';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -226,6 +226,8 @@ export async function docUrl(path) {
 }
 /* 126 · 407: one open ask to one seat. The new holder gets the push and their name on the row; the clock keeps running. */
 export async function handAsk(askId, to, note) { guard(); return api.rpc('ask_hand', { p_ask: askId, p_to: to, p_note: note ?? null }); }
+/* 135 (Jess, 18 Sep 1:51 PM: "I can also jump in and close tasks that arent needed"): an open ask off the list, with the reason on the file; nothing else opens. */
+export async function voidAsk(askId, reason) { guard(); return api.rpc('ask_void', { p_ask: askId, p_reason: reason }); }
 
 // ── writes (all refused in demo) ─────────────────────────────────────────────
 const guard = () => { if (isDemo()) throw new Error('Demo — nothing is saved'); };

@@ -19,10 +19,10 @@
 //
 // Every number says its source (gospel 5); the next step is one line with the
 // button beside it (gospel 3); nothing to learn, it comes to you (gospel 33).
-import { state, isDemo, firstName, personName, seatName, decideBill, rematchBill, openBillPdf, searchCustomers } from './book.js?v=134';
-import { invoiceCard, invoiceNext, wireInvoice } from './invoice.js?v=134';   // 381: the customer's invoice, from the sign-off to the money
-import { raw, esc, toast, openModal } from './ui.js?v=134';
-import { brandName } from './config.js?v=134';
+import { state, isDemo, firstName, personName, seatName, decideBill, rematchBill, openBillPdf, searchCustomers } from './book.js?v=135';
+import { invoiceCard, invoiceNext, wireInvoice } from './invoice.js?v=135';   // 381: the customer's invoice, from the sign-off to the money
+import { raw, esc, toast, openModal } from './ui.js?v=135';
+import { brandName } from './config.js?v=135';
 
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmt = (n) => (n == null || n === '' ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));

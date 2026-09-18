@@ -1,16 +1,17 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, handAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=134';
-import * as api from './api.js?v=134';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=134';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=134';
-import { iconForAsk } from './words.js?v=134';
-import { DEMO_STEPS } from './demo-office.js?v=134';
-import { reload } from './app.js?v=134';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=134';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=135';
+import * as api from './api.js?v=135';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=135';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=135';
+import { iconForAsk } from './words.js?v=135';
+import { DEMO_STEPS } from './demo-office.js?v=135';
+import { reload } from './app.js?v=135';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=135';   // 365/369: the Bills tile and queue
 
-let filter = 'all';
+let filter = 'all', laneF = 'OFFICE', oldOnly = false;   // 135: the list can show the field's asks too, and only the ones older than three days
+const canVoid = (q) => ['owner', 'admin', 'manager', 'office'].includes(state.me?.role) || (q.assignee_id && q.assignee_id === state.me?.id);
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
 const money = (n) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString();
 const LINE_MIN = { PERMIT: 5 * 1440, CONTRACT_DOC: 2 * 1440, SURVEY: 1440, SCHEDULE: 2 * 1440, MATERIAL: 2 * 1440, INVOICE: 240, PAYMENT: 30 * 1440, COLLECT_CALL: 240 };   // 381: a call card waits four hours, then it is red
@@ -49,10 +50,16 @@ async function fillLocates(root) {
 
 export function renderOffice(root) {
   setTimeout(() => { fillSubLocks(root); fillLocates(root); }, 0);   // 397: the subs waiting to be typed into CC, after the paint · 18 Sep: the locates about to expire
-  const Q = state.queue.filter((q) => q.lane === 'OFFICE');
-  const types = ['CONTRACT_DOC', 'PERMIT', 'SURVEY', 'SCHEDULE', 'MATERIAL', 'INVOICE', 'COLLECT_CALL', 'PAYMENT'];
+  const ALL = state.queue;
+  const QO = ALL.filter((q) => q.lane === 'OFFICE');
+  // 135 (Jess, 18 Sep 1:51 PM: "Is there a way I can see all open tasks?… overdue… so we dont forget any final inspections"): Office, Field or Everything, and only the old ones
+  const Q = ALL.filter((q) => (laneF === 'all' || q.lane === laneF) && (!oldOnly || q.open_min > 3 * 1440));
+  const types = ['CONTRACT_DOC', 'PERMIT', 'SURVEY', 'SCHEDULE', 'MATERIAL', 'INVOICE', 'COLLECT_CALL', 'PAYMENT', 'INTRO_CALL', 'INSPECTION', 'COMPLETION_SIGNOFF', 'MILESTONE', 'CLOSEOUT', 'MATERIAL_REQUEST', 'SITE_ISSUE'];
   const n = (t) => Q.filter((q) => q.ask_type === t).length;
-  const oldest = (t) => Q.filter((q) => q.ask_type === t).sort((a, b) => b.open_min - a.open_min)[0];
+  const nO = (t) => QO.filter((q) => q.ask_type === t).length;
+  const oldest = (t) => QO.filter((q) => q.ask_type === t).sort((a, b) => b.open_min - a.open_min)[0];
+  const lanes = (l) => ALL.filter((q) => l === 'all' || q.lane === l).length;
+  const stale = ALL.filter((q) => (laneF === 'all' || q.lane === laneF) && q.open_min > 3 * 1440).length;
   const rows = (filter === 'all' ? Q : Q.filter((q) => q.ask_type === filter)).slice().sort((a, b) => b.open_min - a.open_min);
   const canFlip = ['owner', 'admin'].includes(state.me?.role);
   const sw = (k) => state.switches.find((s) => s.key === k);
@@ -66,11 +73,17 @@ export function renderOffice(root) {
     <div class="tiles" data-tour="office-tiles" style="grid-template-columns:repeat(6,minmax(0,1fr))">
       ${raw([['CONTRACT_DOC', 'Paperwork'], ['PERMIT', 'Permit'], ['INVOICE', sw('invoice_auto')?.is_on ? 'Invoices · the machine' : 'Ready to invoice'], ['COLLECT_CALL', 'Calls · invoices'], ['PAYMENT', 'Payment']].map(([t, label]) => {
         const o = oldest(t); const red = o && o.open_min > (LINE_MIN[t] || 1e9);
-        return `<div class="tile"><div class="kicker">${esc(label)}</div><div class="fnum" ${t === 'INVOICE' ? 'style="color:var(--verify)"' : red ? 'style="color:var(--clock)"' : ''}>${n(t)}</div><div class="small">${o ? 'oldest <span class="mono ' + (red ? 'red' : '') + '">' + esc(mins(o.open_min)) + '</span> · ' + esc(o.assignee_name || '') : t === 'COLLECT_CALL' ? 'none · the machine opens one when an invoice goes unpaid' : t === 'INVOICE' && sw('invoice_auto')?.is_on ? 'none waiting · they build themselves' : 'none open'}</div></div>`;
+        return `<div class="tile"><div class="kicker">${esc(label)}</div><div class="fnum" ${t === 'INVOICE' ? 'style="color:var(--verify)"' : red ? 'style="color:var(--clock)"' : ''}>${nO(t)}</div><div class="small">${o ? 'oldest <span class="mono ' + (red ? 'red' : '') + '">' + esc(mins(o.open_min)) + '</span> · ' + esc(o.assignee_name || '') : t === 'COLLECT_CALL' ? 'none · the machine opens one when an invoice goes unpaid' : t === 'INVOICE' && sw('invoice_auto')?.is_on ? 'none waiting · they build themselves' : 'none open'}</div></div>`;
       }).join(''))}
       ${raw(billsTile())}
     </div>
     <div class="card" data-tour="office-asks">
+      <div class="subs" style="margin-bottom:2px">
+        <button class="sub ${laneF === 'OFFICE' ? 'on' : ''}" data-lane="OFFICE" title="What the office holds">Office · ${lanes('OFFICE')}</button>
+        <button class="sub ${laneF === 'SUPER' ? 'on' : ''}" data-lane="SUPER" title="What the field holds: sign-offs, milestones, the crew's asks">Field · ${lanes('SUPER')}</button>
+        <button class="sub ${laneF === 'all' ? 'on' : ''}" data-lane="all" title="Every open ask on every file">Everything · ${lanes('all')}</button>
+        <button class="sub ${oldOnly ? 'on' : ''}" data-old="1" title="Only the asks open longer than three days" style="margin-left:8px">${oldOnly ? '✓ ' : ''}3 days + · ${stale}</button>
+      </div>
       <div class="subs" style="margin-bottom:4px">
         <button class="sub ${filter === 'all' ? 'on' : ''}" data-f="all">All · ${Q.length}</button>
         ${raw(types.filter(n).map((t) => `<button class="sub ${filter === t ? 'on' : ''}" data-f="${t}">${esc(askLabel({ ask_type: t }))} · ${n(t)}</button>`).join(''))}
@@ -102,6 +115,9 @@ export function renderOffice(root) {
   workflowCard(root);
   wireBills(root, { after: () => reload(true) });   // 365/369: the Bills queue's taps
   root.querySelectorAll('[data-f]').forEach((b) => (b.onclick = () => { filter = b.dataset.f; renderOffice(root); }));
+  root.querySelectorAll('[data-lane]').forEach((b) => (b.onclick = () => { laneF = b.dataset.lane; filter = 'all'; renderOffice(root); }));
+  root.querySelectorAll('[data-old]').forEach((b) => (b.onclick = () => { oldOnly = !oldOnly; renderOffice(root); }));
+  root.querySelectorAll('[data-void]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.void); if (a) voidDialog(a, () => reload(true)); }));
   root.querySelectorAll('[data-hand]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.hand); if (a) handDialog(a, { repId: a.rep_id, repName: a.rep_name }, () => reload(true)); }));
   root.querySelectorAll('[data-settle]').forEach((b) => (b.onclick = (e) => { e.stopPropagation(); const a = state.queue.find((q) => q.ask_id === b.dataset.settle); if (a) settleDialog(a, (r, proof) => { reload(true); offerNextWord(nextWordFor(a, proof)); }); }));
   root.querySelectorAll('[data-switch]').forEach((b) => (b.onclick = async () => {
@@ -119,11 +135,26 @@ function row(q) {
   const green = q.ask_type === 'INVOICE';
   return `<div class="ask ${green ? 'green' : ''}" style="cursor:pointer" onclick="__peek('${esc(q.customer_id)}')">
     <span class="chip ${green ? 'st-green' : 'st-blue'}"><i class="ai">${iconForAsk(q)}</i>${esc(askLabel(q))}</span>
-    <div><b>${esc(personName(q.customer_name))}</b> · ${esc(brandName(q.cc_company_id))} · ${esc(money(q.job_value))}<div class="who">${noc ? 'with the customer to notarize · the machine texts them · ' : ''}${esc(q.note || '')} · opened by ${esc(q.opened_by_name || 'the file')} · ${esc(q.assignee_name || 'unassigned')} holds it</div></div>
+    <div><b>${esc(personName(q.customer_name))}</b> · ${esc(brandName(q.cc_company_id))}${q.lane === 'SUPER' ? ' · <span class="chip st-orange">field</span>' : ''} · ${esc(money(q.job_value))}<div class="who">${noc ? 'with the customer to notarize · the machine texts them · ' : ''}${esc(q.note || '')} · opened by ${esc(q.opened_by_name || 'the file')} · ${esc(q.assignee_name || 'unassigned')} holds it</div></div>
     <span class="mono ${red ? 'red' : ''}">${esc(mins(q.open_min))}</span>
     <span class="chip ${STAGES[q.stage]?.cls || 'st-ink'}">${esc(stageLabel(q.stage))}</span>
-    <div style="display:flex;gap:6px" onclick="event.stopPropagation()"><button class="btn sm" onclick="__peek('${esc(q.customer_id)}')">Open file</button><button class="btn sm" data-hand="${esc(q.ask_id)}" title="Hand this ask to another seat">Hand to…</button><button class="btn sm ok" data-settle="${esc(q.ask_id)}">${green ? 'Invoiced' : 'Done'}</button></div>
+    <div style="display:flex;gap:6px" onclick="event.stopPropagation()"><button class="btn sm" onclick="__peek('${esc(q.customer_id)}')">Open file</button><button class="btn sm" data-hand="${esc(q.ask_id)}" title="Hand this ask to another seat">Hand to…</button>${canVoid(q) ? `<button class="btn sm" data-void="${esc(q.ask_id)}" title="Not needed on this job — off the list, with the reason on the file">Not needed</button>` : ''}<button class="btn sm ok" data-settle="${esc(q.ask_id)}">${green ? 'Invoiced' : 'Done'}</button></div>
   </div>`;
+}
+
+/* 135 (Jess, 18 Sep 1:51 PM: "I can also jump in and close tasks that arent needed so no one is overwhelmed"): Not needed —
+   the ask comes off the list with a reason, the file says who and why, nothing else opens (ask_void, migration 410). */
+export function voidDialog(a, after) {
+  openModal({ title: 'Not needed on this job', submitLabel: 'Take it off the list', body: `
+    <div class="note" style="margin-bottom:10px">${a.customer_name ? '<b>' + esc(personName(a.customer_name)) + '</b> · ' : ''}${esc(askLabel(a))}${a.note ? ' · ' + esc(a.note) : ''}</div>
+    <div class="field"><label>Why — it goes on the file</label><input name="reason" placeholder="no HOA here · CC has it · done another way" required minlength="3"/></div>
+    <div class="note">This does not open the next step. If the job needs what comes after this ask, press Done instead.</div>`,
+    onSubmit: async (f) => {
+      if (isDemo()) { toast('Demo — nothing is saved'); return; }
+      await voidAsk(a.ask_id || a.id, f.reason.value.trim());
+      toast('Off the list');
+      after?.();
+    } });
 }
 
 /* The settle dialog — one shape per proof kind. Files go to the job-docs
