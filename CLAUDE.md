@@ -99,6 +99,9 @@ may see. The key in `js/config.js` is publishable and authorises nothing.
 
 ## The pieces a session is most likely to touch
 
+- **The phones** (`docs/THE-PHONES.md`) — where every call and text lives,
+  which worker fills which table, the lines, and the playbook for fixing
+  Uvoice and texting problems. Start there for any phone or text question.
 - **The customer file** (`js/file.js`) — the header (Call · Text · Tag ·
   + Document · Send to…), the thread, the asks with their clocks, the
   documents, the side drawer that opens the file from any room.
