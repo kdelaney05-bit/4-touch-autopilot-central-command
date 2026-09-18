@@ -18,7 +18,8 @@ easier. Done: https://kdelaney05-bit.github.io/4-touch-autopilot-central-command
 - The search reads every word Guy says in every film and every step of every
   tour: type **deposit** and it finds the film that says it and shows the line.
   **HOW DO I…** questions, one tap each. Two tabs, **The phone app** ·
-  **Central Command**. Tap your team once and the phone remembers it.
+  **Central Command**, and a chip per team; it opens on everything unless the
+  link says otherwise (nothing remembered: a remembered chip confused the first look).
 - Every piece: four pictures, ▶ Play the film, Open the real screen (pretend
   customers), **Send it** (the link, ready to text).
 - Doors: **🎬 The Library** at the top of Central Command (v119; opens on the

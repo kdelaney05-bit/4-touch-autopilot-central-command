@@ -134,9 +134,9 @@
   // state
   let q = (params.get('q') || '').trim(), where = ['app', 'cc'].includes(params.get('where')) ? params.get('where') : 'all', pinned = null, older = false, askAll = false;
   let filter = 'Everyone';
-  const wanted = params.get('for'); const remembered = store.get('lib.for');
+  const wanted = params.get('for');   // only the LINK picks a team (the CRM's header, the app's door); nothing is remembered
   if (wanted && FILTERS.some((f) => f.toLowerCase() === wanted.toLowerCase())) filter = FILTERS.find((f) => f.toLowerCase() === wanted.toLowerCase());
-  else if (remembered && FILTERS.includes(remembered)) filter = remembered;
+  try { localStorage.removeItem('lib.for'); } catch {}   // the first cut remembered a chip; forget it
 
   // search: every word must land somewhere; the title, the one-liner and the questions count most, then the story, then the film's words
   const norm = (s) => String(s || '').toLowerCase().replace(/[’']/g, "'");
@@ -216,7 +216,7 @@
     if (!list.length && !(older && old.length)) grid.innerHTML = `<div class="empty">Nothing for “${esc(q || filter)}”${where !== 'all' || filter !== 'Everyone' ? ` under ${esc(where !== 'all' ? WHERE[where] : filter)}` : ''}.${elsewhere ? ` <b data-all>${elsewhere} piece${elsewhere === 1 ? '' : 's'} under Everything ›</b>` : ` Try one word: <b>estimate</b>, <b>call</b>, <b>lead</b>, <b>sub</b>, <b>invoice</b>, <b>sign</b>, <b>crew</b>.`}${old.length ? ` Or look at the <b data-older>older pieces (${old.length})</b>.` : ''}</div>`;
     grid.querySelectorAll('.empty b').forEach((b) => { b.onclick = () => {
       if (b.dataset.older !== undefined) { older = true; draw(); }
-      else if (b.dataset.all !== undefined) { where = 'all'; filter = 'Everyone'; store.set('lib.for', null); [...seg.children].forEach((c) => c.classList.toggle('on', c.textContent === 'Everything')); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === 'Everyone')); drawMine(); draw(); }
+      else if (b.dataset.all !== undefined) showAll();
       else setQ(b.textContent); }; });
     if (!searching && old.length) { const b = document.createElement('button'); b.type = 'button'; b.textContent = older ? `Hide the older pieces ▴` : `Older than two weeks · ${old.length} piece${old.length === 1 ? '' : 's'} ▾`; b.onclick = () => { older = !older; draw(); }; olderEl.appendChild(b); }
     countEl.textContent = searching ? `${list.length} piece${list.length === 1 ? '' : 's'} for “${q}”` : `${list.length} piece${list.length === 1 ? '' : 's'} from the last two weeks${filter !== 'Everyone' ? ' · ' + filter : ''}${where !== 'all' ? ' · ' + WHERE[where] : ''}`;
@@ -246,12 +246,13 @@
 
   // where it plays
   const seg = document.getElementById('seg');
-  [['all', 'Everything'], ['app', 'The phone app'], ['cc', 'Central Command']].forEach(([k, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.className = k === where ? 'on' : ''; b.onclick = () => { where = k; [...seg.children].forEach((c) => c.classList.toggle('on', c === b)); draw(); }; seg.appendChild(b); });
+  [['all', 'Everything'], ['app', 'The phone app'], ['cc', 'Central Command']].forEach(([k, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.className = k === where ? 'on' : ''; b.onclick = () => { where = k; [...seg.children].forEach((c) => c.classList.toggle('on', c === b)); drawMine(); draw(); }; seg.appendChild(b); });
 
-  // who it is for; a pick is remembered on this phone
+  // who it is for; nothing is remembered — when a tab or a team is on, one line says so, one tap brings everything back
   const f = document.getElementById('filters'), mine = document.getElementById('mine');
-  const drawMine = () => { const r = store.get('lib.for'); mine.hidden = !(r && r !== 'Everyone' && filter === r); mine.innerHTML = r ? `Showing yours: <b>${esc(r)}</b> · <b data-all>show everyone</b>` : ''; mine.querySelectorAll('b').forEach((b) => { b.onclick = () => { if (b.dataset.all !== undefined) { filter = 'Everyone'; store.set('lib.for', null); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === filter)); drawMine(); draw(); } }; }); };
-  FILTERS.forEach((k) => { const b = document.createElement('span'); b.className = 'chip' + (k === filter ? ' on' : ''); b.textContent = k; b.onclick = () => { filter = k; store.set('lib.for', k === 'Everyone' ? null : k); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === k)); drawMine(); draw(); }; f.appendChild(b); });
+  const showAll = () => { where = 'all'; filter = 'Everyone'; [...seg.children].forEach((c) => c.classList.toggle('on', c.textContent === 'Everything')); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === 'Everyone')); drawMine(); draw(); };
+  const drawMine = () => { const on = [where !== 'all' ? WHERE[where] : null, filter !== 'Everyone' ? filter : null].filter(Boolean); mine.hidden = !on.length; mine.innerHTML = on.length ? `Showing only <b>${esc(on.join(' · '))}</b> · <b data-all>show everything</b>` : ''; mine.querySelectorAll('b[data-all]').forEach((b) => { b.onclick = showAll; }); };
+  FILTERS.forEach((k) => { const b = document.createElement('span'); b.className = 'chip' + (k === filter ? ' on' : ''); b.textContent = k; b.onclick = () => { filter = k; [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === k)); drawMine(); draw(); }; f.appendChild(b); });
   drawMine();
   draw();
   if (matchMedia('(pointer: fine)').matches && !q) input.focus();
