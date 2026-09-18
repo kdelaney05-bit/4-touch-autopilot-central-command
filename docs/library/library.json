@@ -1,6 +1,29 @@
 {
- "built": "2026-09-18T15:01:58.109Z",
+ "built": "2026-09-18T16:52:33.442Z",
  "pieces": [
+  {
+   "id": "call-from-the-iphone",
+   "title": "Sales · Calls from your iPhone: Call in the app dials your phone, one question when you are back",
+   "what": "Kevin, 18 Sep, 12:30 PM, on the phone with Uvoice after the audit of every sales line (ConnectUC on the reps' iPhones lost forty customer calls on two lines since Monday: straight to voicemail without ringing, or rang out silent): \"I want them on the app, when they click, to go to their iPhone… we'll get all outbound… if they call from the app and it takes them off, we have to ask the question: voicemail, talked to customer, just those two.\" So: Call in the app opens the iPhone's own dialer; when the app comes back it asks Voicemail or Talked to them, and that answer is the record on the customer's file; Log a call on every card for a call made outside the app; a customer calling your number rings your iPhone when ConnectUC is asleep (Uvoice forwards it); texting stays on the business line inside the app.",
+   "short": "Kevin, 18 Sep, 12:30 PM, on the phone with Uvoice after the audit of every sales line (ConnectUC on the reps' iPhones lost forty customer calls on two lines since Monday: straight to voicemail without",
+   "film": "call-from-the-iphone",
+   "go": null,
+   "tour": null,
+   "meta": "7 scenes · 1:53 · 18 Sep, 12:50 PM · the 4-Touch app (OTA) + Central Command v129 · sales: Travis, Eric, Haakon, Ron, Mike, Gustavo, Jermey · no switch",
+   "date": "2026-09-18",
+   "where": [
+    "app",
+    "cc"
+   ],
+   "ask": [],
+   "links": [
+    {
+     "href": "../?demo=1&as=manager&file=cj3",
+     "text": "Open the real screen (pretend customers)"
+    }
+   ],
+   "words": ""
+  },
   {
    "id": "ride-along-the-jetstream",
    "title": "Everyone · The Jetstream: tell anyone anything about a customer, from the file",
