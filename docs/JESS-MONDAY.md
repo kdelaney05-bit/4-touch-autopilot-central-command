@@ -41,15 +41,13 @@ you do moves yet.
      then the file says NOT IN CONTRACTORS CLOUD YET, **Copy for CC** gives
      you the fields in CC's order, and **Typed into CC** records that you did.
    - the visit lands on the rep's own Google Calendar by itself (404, 18 Sep,
-     Sam's catch): the machine writes it there the minute you press Open the
-     file, moves it when you change the time, takes it off when you cancel —
-     once Kevin has given the machine the calendar permission. Until then a
-     visit booked here is on the rep's phone and on the file, not on Google:
-     press Copy for CC, type it into CC the way you do today, and press
-     Typed into CC — CC puts it on his Google Calendar as always, and the
-     machine sees you did it (405) so it never adds a second one. Do not add
-     it to Google by hand on his calendar; the machine cannot see that, and
-     the rep would get the visit twice.
+     Sam's catch — **on since 18 Sep, 11:32 AM**): the machine writes it there
+     within a minute of Open the file, moves it when you change the time,
+     takes it off when you cancel. You no longer type it into CC for the
+     calendar's sake. If you already typed one into CC and pressed Typed
+     into CC, leave it: the machine knows (405) and never adds a second one.
+     Do not add it to Google by hand on his calendar; the machine cannot see
+     that, and the rep would get the visit twice.
 
 ## Everything you do in Contractors Cloud today, and where it is here
 
