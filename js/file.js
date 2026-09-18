@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=128';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=128';
-import { enterPosts, micButton } from './dictate.js?v=128';
-import { wireAtOn } from './village.js?v=128';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=128';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=128';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=129';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=129';
+import { enterPosts, micButton } from './dictate.js?v=129';
+import { wireAtOn } from './village.js?v=129';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=129';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=129';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=128';
-import { settleDialog, handDialog } from './office.js?v=128';
-import { reload } from './app.js?v=128';
-import { relTime } from './production.js?v=128';
-import { billsCards, billsNext, wireBills } from './bills.js?v=128';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=129';
+import { settleDialog, handDialog } from './office.js?v=129';
+import { reload } from './app.js?v=129';
+import { relTime } from './production.js?v=129';
+import { billsCards, billsNext, wireBills } from './bills.js?v=129';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -155,6 +155,9 @@ function draw(root, ctx, compact) {
   // 401: every call on the file — answered, placed, or missed — from Uvoice's hourly call records; a missed one is red
   (ctx.data.calls || []).forEach((c) => { const p = personOf(c.rep_id); const who = p ? firstName(p.name) : (c.ext ? 'ext ' + c.ext : 'the office'); const secs = c.duration_s || 0; const len = secs >= 60 ? Math.round(secs / 60) + ' min' : secs + ' s';
     ev(c.began_at, c.call_type === 'missed' ? 'bad' : 'step', c.rep_id, c.call_type === 'missed' ? `📞 ${name} called ${who}'s line, nobody answered · rang ${len}` : c.call_type === 'inbound' ? `📞 ${name} called · ${c.answered_by === 'core' ? 'voicemail took it' : who + ' answered'} · ${len}` : `📞 ${who} called them · ${len}`); });
+  // 408: the calls the rep made from his iPhone (the app's Call button, 18 Sep) or logged by hand — the tap is the record, the answer to the app's one question is the outcome; a cancelled dial is not drawn
+  (ctx.data.appCalls || []).filter((c) => c.outcome !== 'cancelled').forEach((c) => { const p = personOf(c.rep_id); const who = p ? firstName(p.name) : 'the rep'; const what = c.outcome === 'talked' ? 'talked to them' : c.outcome === 'voicemail' ? 'voicemail' : 'not logged yet'; const how = c.via === 'manual' ? ' · logged by hand' : ' · from the iPhone';
+    ev(c.tapped_at, 'step', c.rep_id, c.direction === 'in' ? `📞 ${name} called ${who} · ${what}${how}` : `📞 ${who} called them · ${what}${how}`); });
   handoffs.forEach((h) => ev(h.at, 'step', h.to_seat, `${seatName(h.to_seat) || 'nobody'} ${h.kind === 'handback' ? 'handed it back' : h.kind === 'assign' ? 'was assigned by ' + (seatName(h.by_id) || '') : 'took the job'}${h.note ? ' · ' + h.note : ''}`));
   asks.filter((a) => a.state !== 'OPEN' && a.closed_at).forEach((a) => ev(a.closed_at, 'step', a.assignee_id, a.state === 'VOID' ? `${(seatName(a.closed_by) || a.assignee_name || 'someone').split(' ')[0]} took ${thing(a)} off the list${a.void_reason ? ' — ' + a.void_reason : ''}` : a.proof?.waived ? `${(seatName(a.closed_by) || a.assignee_name || 'someone').split(' ')[0]} skipped ${thing(a)}: ${a.proof.waived}` : `${(seatName(a.closed_by) || a.assignee_name || 'someone').split(' ')[0]} turned in ${thing(a)}${a.proof?.value ? ': ' + a.proof.value : ''}`));   // 127: the seat that pressed Done, not the holder (Jess uploaded, the line said Samantha)
   if (job.contract_signed_at) ev(job.contract_signed_at, 'money', job.rep_id, `SOLD · ${money(job.fin_sold_amount)} · ${job.rep_name || ''}`);
