@@ -344,3 +344,20 @@ from calls group by 1 order by 2 desc;
 ```
 
 **Is it spam? (Kevin, 3:20 PM) Mostly no.** Of the 140 business-hour calls to the office lines in the 7 days that never reached a person: 60 were customers already on file (41 numbers; by day 11 Sep 3 · 14 Sep 12 · 15 Sep 10 · 16 Sep 8 · 17 Sep 11 · 18 Sep 7), 12 were two toll-free robodialers (877-947-3639 alone: 11 calls over four days — the attendant spammer from the 10:50 AM notes), and 68 were ordinary numbers not on file (55 numbers, almost all one call each: what new leads and vendors look like, not a robocall shape). The CDR carries no STIR/SHAKEN attestation, so shape (toll-free, repeats across days, hang-ups under 5 s) is the only spam signal we have; the known-customer count is the number that matters.
+
+**3:50 PM, the decisive cut (Kevin: "do you believe we are missing calls? do I need to alert Dwayne and Jeff?"). Yes, and yes.** Of the office-line calls that RANG OUT in business hours over the 7 days (`call_type = 'missed'` on ext 250/251, 41 of them), **24 happened while no office desk phone (101 · 102 · 104 · 105) was on any call, inbound or outbound**; 12 more with one desk busy and three free; only 5 with two desks busy. 15 of the 24 were customers on file. The desks answer 98% of what rings them, so the phones are fine when they ring; on these 24 the phones were idle and the call still rang out for 30–66 s. That is the reps' shape (a registration or routing gap between the PBX and the phones), not a coverage shape. The reply to Jeff cc Dwayne on the live "RE: Re:" thread (Kevin's Drafts, 3:55 PM) carries the 24 CallIDs and asks for the routing on 446-5110 / 215-4437 (attendant → which group → which extensions → ring time) and the registration history on 101/102/104/105 for 11–18 Sep. Kevin sends.
+
+```sql
+-- rang-out office calls vs. desks busy at the time (in or out)
+with rang as (select u.*, (u.began_at at time zone 'America/New_York') ny from uvoice_calls u
+  where u.began_at > now() - interval '7 days' and u.call_type = 'missed' and u.ext in ('250','251')
+    and right(u.dialed_e164,10) in ('3864465110','3212154437','3212751100')
+    and extract(dow from (u.began_at at time zone 'America/New_York')) between 1 and 5
+    and extract(hour from (u.began_at at time zone 'America/New_York')) between 8 and 17),
+desk as (select ext, began_at, began_at + coalesce(duration_s,0) * interval '1 second' ended_at from uvoice_calls
+  where began_at > now() - interval '8 days' and ext in ('100','101','102','103','104','105') and coalesce(duration_s,0) > 0
+    and (answered_by = 'app' or call_type = 'outbound'))
+select r.ny, r.duration_s, r.remote_e164, r.customer_id is not null as known, r.call_id,
+  (select count(distinct d.ext) from desk d where d.began_at <= r.began_at + coalesce(r.duration_s,0) * interval '1 second' and d.ended_at >= r.began_at) desks_busy
+from rang r order by r.ny desc;
+```
