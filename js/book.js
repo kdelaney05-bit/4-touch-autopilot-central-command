@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=123';
-import { DEMO } from './demo.js?v=123';
+import * as api from './api.js?v=124';
+import { DEMO } from './demo.js?v=124';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -56,9 +56,12 @@ export async function loadAll() {
     api.one(`reps?select=id,name,role,manages_company_id,track&id=eq.${s.repId}`),
     api.page('reps?select=id,name,role,email&active=eq.true&role=in.(manager,office,admin,owner)&order=name.asc'),
     api.page('stage_seats?select=*'),
-    api.page('v_stage_board?select=*&order=days_in_stage.desc', 3000),
-    api.page('v_office_queue?select=*&order=opened_at.asc', 2000),
-    api.page('v_customer_text_clock?select=*&order=waiting_min.desc', 1000),
+    // Jess, 18 Sep 11:06 AM ("i keep getting this?" — THE LOAD FAILED · canceling statement due to statement timeout): at 11:05 the
+    // database was busy with the owner console's reports and these three reads ran past the 8-second limit; one late read took the
+    // whole page down. Now a late read empties its own room, says so, and the rest of the page loads; Refresh brings it back.
+    api.page('v_stage_board?select=*&order=days_in_stage.desc', 3000).catch((e) => { state.warnings.push('The stage board did not load (' + String(e.message || e).slice(0, 60) + '). Everything else is here; press Refresh in a minute for the board.'); return []; }),
+    api.page('v_office_queue?select=*&order=opened_at.asc', 2000).catch((e) => { state.warnings.push('The Office room\'s asks did not load (' + String(e.message || e).slice(0, 60) + '). Everything else is here; press Refresh in a minute.'); return []; }),
+    api.page('v_customer_text_clock?select=*&order=waiting_min.desc', 1000).catch((e) => { state.warnings.push('The answer clock did not load (' + String(e.message || e).slice(0, 60) + '). Everything else is here; press Refresh in a minute.'); return []; }),
     api.page('automation_switches?select=*'),
     api.page('brand_sms_lines?select=*'),
     api.page('v_my_mentions?select=*&order=created_at.desc', 200).catch(() => []),
