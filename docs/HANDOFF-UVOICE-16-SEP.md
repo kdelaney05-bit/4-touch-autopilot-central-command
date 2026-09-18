@@ -187,3 +187,12 @@ Kevin, 9:40 PM: "we had the tag anyone screen on main page of mobile app and now
 - **Film:** `films/watch.html?f=ride-along-words-first&t=The%20words%20first` (6 scenes, ~1 min, Guy). The two sheet frames are the real sheet drawn over the real file capture (the demo book cannot open the sheet; the guard patch for the shoot was refused by the session's classifier). Listed on the Ride-Alongs page; was-and-is has the section. Pushes: Kevin at once; the other seven at 8 AM ET (gospel 35).
 - **The phones, who does what:** `docs/THE-PHONES.md`, the new section at the end; the same words in a Gmail draft to Jess from Kevin (not sent).
 - **Left running:** the web copy of the app at http://localhost:8095 (a worktree of trureview-mobile main in the session scratchpad, `phone-app-main` in `.claude/launch.json`); Kevin's sign-in is in that tab. Stop it from the pane when done.
+
+**The 8 AM push for the words-first film (gospel 35; the session's classifier refused to schedule it in pg_cron).** Run this on live at or after 8:00 AM ET on 18 Sep (SQL editor, or the morning session):
+
+```sql
+select r.name, rep_push_notify(r.id, 'The words first · new in the app',
+  'Every text button now shows the words before it goes out. Read it, edit it, SEND. The film, about a minute: tap here.',
+  jsonb_build_object('kind','film','url','https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/films/watch.html?f=ride-along-words-first&t=The%20words%20first'))
+from reps r where r.name in ('Eric Payne','Gio Calderin','Gustavo Alvarez','Haakon Endreson','Mike LeRoy','Ron Seidel','Travis Janke');
+```
