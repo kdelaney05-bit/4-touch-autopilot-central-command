@@ -342,3 +342,5 @@ select line, count(*) filter (where biz) calls, count(*) filter (where biz and h
        count(*) filter (where biz and known and not human) known_not_reached
 from calls group by 1 order by 2 desc;
 ```
+
+**Is it spam? (Kevin, 3:20 PM) Mostly no.** Of the 140 business-hour calls to the office lines in the 7 days that never reached a person: 60 were customers already on file (41 numbers; by day 11 Sep 3 · 14 Sep 12 · 15 Sep 10 · 16 Sep 8 · 17 Sep 11 · 18 Sep 7), 12 were two toll-free robodialers (877-947-3639 alone: 11 calls over four days — the attendant spammer from the 10:50 AM notes), and 68 were ordinary numbers not on file (55 numbers, almost all one call each: what new leads and vendors look like, not a robocall shape). The CDR carries no STIR/SHAKEN attestation, so shape (toll-free, repeats across days, hang-ups under 5 s) is the only spam signal we have; the known-customer count is the number that matters.
