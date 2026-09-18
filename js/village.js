@@ -5,12 +5,12 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=141';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=141';
-import { DEMO } from './demo.js?v=141';
-import { html, raw, esc, toast } from './ui.js?v=141';
-import { BRAND_BY_CC } from './config.js?v=141';
-import { enterPosts, micButton } from './dictate.js?v=141';
+import * as api from './api.js?v=142';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=142';
+import { DEMO } from './demo.js?v=142';
+import { html, raw, esc, toast } from './ui.js?v=142';
+import { BRAND_BY_CC } from './config.js?v=142';
+import { enterPosts, micButton } from './dictate.js?v=142';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -128,6 +128,8 @@ export function stopRoomPoll() {
   timer = null;
   mounts.clear();
 }
+// 141 THE BING ON EVERY MESSAGE: the rooms on the screen right now (Home, Office, Production and Sales each mount one)
+export function mountedRooms() { return [...mounts.keys()].filter((r) => mounts.get(r)?.root?.isConnected); }
 
 function arm() {
   if (timer) return;
