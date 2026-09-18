@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=142';
-import { DEMO } from './demo.js?v=142';
+import * as api from './api.js?v=143';
+import { DEMO } from './demo.js?v=143';
 
 export const state = {
   me: null,            // reps row for the signed-in seat

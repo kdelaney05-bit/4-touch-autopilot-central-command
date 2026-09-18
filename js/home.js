@@ -19,11 +19,11 @@
 // with no live source reads honestly absent. Sources are never blended;
 // nothing is projected into an actual. Costs and profit have no feed yet and
 // say so.
-import * as api from './api.js?v=142';
-import { state, isDemo, personName } from './book.js?v=142';
-import { html, raw, esc } from './ui.js?v=142';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel } from './config.js?v=142';
-import { renderRoom } from './village.js?v=142';
+import * as api from './api.js?v=143';
+import { state, isDemo, personName } from './book.js?v=143';
+import { html, raw, esc } from './ui.js?v=143';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel, ROOMS_BY_ROLE, ROOMS_BY_SEAT } from './config.js?v=143';
+import { renderRoom } from './village.js?v=143';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
@@ -319,7 +319,7 @@ function ledgersHtml(L, B) {
 
   return `
     <div class="ledger sales">
-      <div class="lhead"><h2>Sales</h2><div class="right">${salesSrc} <span class="btn" onclick="__go('sales')">Open the Sales room</span></div></div>
+      <div class="lhead"><h2>Sales</h2><div class="right">${salesSrc}${(ROOMS_BY_SEAT[state.me?.id] || ROOMS_BY_ROLE[state.me?.role] || []).includes('sales') ? ' <span class="btn" onclick="__go(\'sales\')">Open the Sales room</span>' : ''}</div></div>
       <div class="figs">${salesFigs}</div>
       <div class="three">
         <div><div class="kicker">Sold · last 30 days · by company</div>${sold ? bars(brandRows((cc) => sum(sold.filter((s) => s.cc_company_id === cc), (s) => s.amount)), { color: 'var(--greensoft)' }) : '<div class="note">—</div>'}</div>
