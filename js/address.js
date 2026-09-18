@@ -6,8 +6,8 @@
 // they come from OpenStreetMap through Photon (photon.komoot.io — free, no key, no sign-up): it knows the street, the
 // city and the zip and often not the house number, so the number the office typed stays in front of the street it picked.
 // Nothing about the customer goes anywhere: the query is the address being typed, that is all.
-import { GOOGLE_MAPS_KEY } from './config.js?v=130';
-import { esc } from './ui.js?v=130';
+import { GOOGLE_MAPS_KEY } from './config.js?v=131';
+import { esc } from './ui.js?v=131';
 
 const HOME = { lat: 28.33, lon: -80.67 };   // Merritt Island — the middle of the book; a bias, not a fence
 const key = () => (GOOGLE_MAPS_KEY || '').trim();

@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=130';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=130';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=130';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=130';
-import { addressPicker, addressSource } from './address.js?v=130';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=130';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=130';
-import { renderHome } from './home.js?v=130';
-import { renderRoom } from './village.js?v=130';
-import { renderSales } from './sales.js?v=130';
-import { renderPipeline } from './pipeline.js?v=130';
-import { renderMarketing } from './marketing.js?v=130';
-import { renderOffice } from './office.js?v=130';
-import { renderProduction } from './production.js?v=130';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=130';
-import { stopRoomPoll } from './village.js?v=130';
-import { renderFlow, stopFlow } from './flow.js?v=130';
-import { startTour, tourWanted } from './tour.js?v=130';
-import { startAlerts } from './alerts.js?v=130';
-import { renderPhotos } from './photos.js?v=130';
+import * as api from './api.js?v=131';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=131';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=131';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=131';
+import { addressPicker, addressSource } from './address.js?v=131';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=131';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=131';
+import { renderHome } from './home.js?v=131';
+import { renderRoom } from './village.js?v=131';
+import { renderSales } from './sales.js?v=131';
+import { renderPipeline } from './pipeline.js?v=131';
+import { renderMarketing } from './marketing.js?v=131';
+import { renderOffice } from './office.js?v=131';
+import { renderProduction } from './production.js?v=131';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=131';
+import { stopRoomPoll } from './village.js?v=131';
+import { renderFlow, stopFlow } from './flow.js?v=131';
+import { startTour, tourWanted } from './tour.js?v=131';
+import { startAlerts } from './alerts.js?v=131';
+import { renderPhotos } from './photos.js?v=131';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -370,4 +370,17 @@ async function boot() {
   if (fromLink) { showSignIn(); card('sp-form'); $('#sp-pass').focus(); return; }
   if (api.loadSession()) { showApp(); await reload(true); openWanted(); startAlerts(); if (tourWanted()) setTimeout(startTour, 600); } else { showSignIn(); card('si-form'); }
 }
+/* 131: a page left open from the morning announces a newer one (Jess, 18 Sep 1:01 PM: "jonathan can see on file but can not open
+   it" — his page was older than the Open button, so there was nothing to press). Every three minutes, and each time the tab comes
+   back, read index.html fresh; if its app.js?v= is newer than the one running, the chip shows; tap reloads. Nothing else changes. */
+const MY_V = Number(new URL(import.meta.url).searchParams.get('v')) || 0;
+async function newerVersion() {
+  try {
+    const r = await fetch(`./index.html?fresh=${Date.now()}`, { cache: 'no-store' });
+    const m = /app\.js\?v=(\d+)/.exec(await r.text());
+    if (m && MY_V && Number(m[1]) > MY_V) { const b = $('#btn-newer'); if (b) { b.classList.remove('hidden'); b.onclick = () => location.reload(); } }
+  } catch { /* offline or mid-deploy: next time */ }
+}
+setInterval(newerVersion, 3 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) newerVersion(); });
 boot();
