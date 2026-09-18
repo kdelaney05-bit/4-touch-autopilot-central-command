@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=120';
-import { DEMO } from './demo.js?v=120';
+import * as api from './api.js?v=121';
+import { DEMO } from './demo.js?v=121';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -338,7 +338,10 @@ export async function searchCustomers(q) {
   // Kevin, 15 Sep, eleven Delaneys deep: "Delaney beta" must find "Delaney, Kev beta" — so every word matches on its
   // own (name OR street), the newest file comes first, and the row carries the street and the date to tell twins apart.
   const words = term.split(/\s+/).filter(Boolean).slice(0, 4).map((w) => encodeURIComponent(w.replace(/[,()]/g, '')));
-  const filter = digits.length >= 4
+  // Sam, 18 Sep 10:30 AM: "3117 Constellation Dr" was read as a phone number (four digits) and the list showed the realtor
+  // program instead of her roofing customer. A phone has no letters in it; a house number with a street name is an address.
+  const phoneLike = digits.length >= 4 && !/[A-Za-z]/.test(term);
+  const filter = phoneLike
     ? `phone.ilike.*${digits.split('').join('*')}*`   // the phone is stored as (786) 366-1475: a star between every digit finds it however it was typed (Sam, 16 Sep)
     : words.length === 1 ? `name.ilike.*${words[0]}*,street.ilike.*${words[0]}*` : null;
   const where = filter ? `or=(${filter})` : `and=(${words.map((w) => `or(name.ilike.*${w}*,street.ilike.*${w}*)`).join(',')})`;
