@@ -1,24 +1,25 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=135';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=135';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=135';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=135';
-import { addressPicker, addressSource } from './address.js?v=135';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=135';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=135';
-import { renderHome } from './home.js?v=135';
-import { renderRoom } from './village.js?v=135';
-import { renderSales } from './sales.js?v=135';
-import { renderPipeline } from './pipeline.js?v=135';
-import { renderMarketing } from './marketing.js?v=135';
-import { renderOffice } from './office.js?v=135';
-import { renderProduction } from './production.js?v=135';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=135';
-import { stopRoomPoll } from './village.js?v=135';
-import { renderFlow, stopFlow } from './flow.js?v=135';
-import { startTour, tourWanted } from './tour.js?v=135';
-import { startAlerts } from './alerts.js?v=135';
-import { renderPhotos } from './photos.js?v=135';
+import * as api from './api.js?v=136';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=136';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=136';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=136';
+import { addressPicker, addressSource } from './address.js?v=136';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=136';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=136';
+import { renderHome } from './home.js?v=136';
+import { renderRoom } from './village.js?v=136';
+import { renderSales } from './sales.js?v=136';
+import { renderPipeline } from './pipeline.js?v=136';
+import { renderMarketing } from './marketing.js?v=136';
+import { renderOffice } from './office.js?v=136';
+import { renderProduction } from './production.js?v=136';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=136';
+import { stopRoomPoll } from './village.js?v=136';
+import { renderVillage, stopVillagePoll } from './threads.js?v=136';
+import { renderFlow, stopFlow } from './flow.js?v=136';
+import { startTour, tourWanted } from './tour.js?v=136';
+import { startAlerts } from './alerts.js?v=136';
+import { renderPhotos } from './photos.js?v=136';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -32,7 +33,8 @@ export function rooms() {
 
 export function go(v, arg) {
   view = v;
-  stopRoomPoll();                 // the room you are leaving stops talking to the database
+  stopRoomPoll();$1
+  stopVillagePoll();
   stopLinePoll();
   stopFlow();
   if (v !== 'file') closeDrawer();
@@ -47,14 +49,10 @@ window.addEventListener('unhandledrejection', (e) => { try { const m = (e.reason
 /* THE VILLAGE as a room of its own (16 Sep, launch morning). The same card the rail shows, full width:
    every seat reads it, every post can hang on a customer, and a name in the words gets the buzz. */
 function renderVillageRoom(root) {
-  // 134 (Kevin, 18 Sep 1:50 PM: "a lot of dead space… make the chat thread a little longer"): one line on top, the room gets the height
-  root.innerHTML = html`
-    <div class="head" style="margin-bottom:6px">
-      <div class="kicker">The Village · the whole company, one thread · newest at the bottom</div>
-      <button class="btn sm" id="my-character" title="Your emoji and your color, everywhere your name shows">🎨 My character</button>
-    </div>
-    <div class="village-wide" id="village-room"></div>`;
-  renderRoom(root.querySelector('#village-room'), 'village', { kicker: 'The Village · everyone', note: 'every seat reads this room · hang a post on a customer and their file is one tap away' });
+  // 136 THE VILLAGE AS CONVERSATIONS (Kevin, 18 Sep ~2:15 PM, on the drawn page: "I like your recommendations. Let's do that."):
+  // the board of cards — every conversation you are in, the standing rooms always there, a dashed card to start one, By person
+  // as a switch, Enter sends. threads.js draws it; the one-thread room of v134 is the "Everyone" card on it.
+  renderVillage(root);
   const btn = root.querySelector('#my-character');
   if (btn) btn.onclick = () => {
     const me = state.me || {}; const p = (state.people || []).find((x) => x.id === me.id) || me;
@@ -85,7 +83,7 @@ export function viewAs(id) {
   const seat = id ? (state.people || []).find((p) => p.id === id) : null;
   state.viewAsId = seat ? seat.id : null;
   state.me = seat ? { ...real, ...seat } : real;
-  stopRoomPoll(); stopLinePoll(); stopFlow(); closeDrawer();
+  stopRoomPoll(); stopVillagePoll(); stopLinePoll(); stopFlow(); closeDrawer();
   view = rooms()[0] || 'files';
   render();
   window.scrollTo({ top: 0 });

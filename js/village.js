@@ -5,12 +5,12 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=135';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=135';
-import { DEMO } from './demo.js?v=135';
-import { html, raw, esc, toast } from './ui.js?v=135';
-import { BRAND_BY_CC } from './config.js?v=135';
-import { enterPosts, micButton } from './dictate.js?v=135';
+import * as api from './api.js?v=136';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=136';
+import { DEMO } from './demo.js?v=136';
+import { html, raw, esc, toast } from './ui.js?v=136';
+import { BRAND_BY_CC } from './config.js?v=136';
+import { enterPosts, micButton } from './dictate.js?v=136';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -165,12 +165,12 @@ export function renderRoom(root, room, opts = {}) {
         <div class="line-find-pop at-pop" data-at-pop hidden></div>
       </div>
       ${room === 'sales' ? '' : raw('<div class="lanes at-lanes" data-lanes hidden><button class="lanebtn on" data-room-lane="inside">Inside</button><button class="lanebtn" data-room-lane="text">Text the customer</button><span class="small" data-lane-law></span></div>')}
-      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}Post sends · Enter is a new line unless "Enter sends" is on at the top · 🎤 talks into the box.</div>
+      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}${opts.enterSends ? 'Enter sends · Shift+Enter for a new line' : 'Post sends · Enter is a new line unless "Enter sends" is on at the top'} · 🎤 talks into the box.</div>
     </div>`;
 
   const say = root.querySelector('[data-say]');
   root.querySelector('[data-post]').onclick = () => post(root, room, ctx);
-  enterPosts(say, () => post(root, room, ctx), () => { const p = root.querySelector('[data-at-pop]'); return !!(p && !p.hidden); });
+  enterPosts(say, () => post(root, room, ctx), () => { const p = root.querySelector('[data-at-pop]'); return !!(p && !p.hidden); }, !!opts.enterSends);   // 136: inside the board, Enter sends
   { const m = micButton(say); const pb = root.querySelector('[data-post]'); if (m && pb) pb.parentElement.insertBefore(m, pb); }
   wireFind(root, ctx);
   if (room !== 'sales') wireAt(root, ctx);

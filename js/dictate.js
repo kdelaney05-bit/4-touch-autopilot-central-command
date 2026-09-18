@@ -8,7 +8,7 @@
 //                                             hidden where the browser has none. Tap to talk, tap to stop.
 const SR = typeof window !== 'undefined' ? (window.SpeechRecognition || window.webkitSpeechRecognition) : null;
 
-export function enterPosts(ta, post, isPickerOpen = () => false) {
+export function enterPosts(ta, post, isPickerOpen = () => false, forceSends = false) {
   if (!ta) return;
   ta.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing) return;
@@ -17,7 +17,9 @@ export function enterPosts(ta, post, isPickerOpen = () => false) {
     // 132 (Kevin, 1:35 PM: "I hit the enter key… it didn't send"): the "Enter sends" switch at the top puts the old way back
     // for that person, on that browser. While an @-picker is open its own handler picks.
     if (isPickerOpen()) return;
-    let sends = false; try { sends = localStorage.getItem('enter_sends') === '1'; } catch { sends = false; }
+    // 136 (Kevin, 18 Sep: "the enter button is not sending my message"): inside the Village board every box sends on Enter (forceSends);
+    // Shift+Enter is the new line there. Elsewhere the switch decides, as before.
+    let sends = forceSends; if (!sends) { try { sends = localStorage.getItem('enter_sends') === '1'; } catch { sends = false; } }
     if (sends) { e.preventDefault(); post(); }
   });
 }
