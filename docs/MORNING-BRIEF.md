@@ -227,6 +227,16 @@ person presses Send.
    ```
 
    Or tell me to run them and I will, once you allow it.
+9. **One click so the visits reach Google Calendar (18 Sep, Sam's catch).**
+   A visit booked at the New lead door reaches the rep's phone and the file,
+   not his Google Calendar; the machine can now write it there itself (404),
+   but it needs the Calendar permission on the same Google service account
+   the emails use. In each Workspace admin console (libertyfencingfl.com,
+   oasislandscapesfl.com, protechroofingfl.com): Security → Access and data
+   control → API controls → Domain-wide delegation → the **liberty-nurture**
+   client → add `https://www.googleapis.com/auth/calendar.events`. Then on
+   the box: `node backend/worker/gcal-sync.mjs --probe=gio@libertyfencingfl.com`
+   and `systemctl enable --now liberty-gcal`. Sam has been told it is coming.
 
 ## The safe order to migrate
 

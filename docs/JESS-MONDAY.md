@@ -40,6 +40,16 @@ you do moves yet.
      in exactly as it does today — when Kevin has **that** switch on. Until
      then the file says NOT IN CONTRACTORS CLOUD YET, **Copy for CC** gives
      you the fields in CC's order, and **Typed into CC** records that you did.
+   - the visit lands on the rep's own Google Calendar by itself (404, 18 Sep,
+     Sam's catch): the machine writes it there the minute you press Open the
+     file, moves it when you change the time, takes it off when you cancel —
+     once Kevin has given the machine the calendar permission. Until then a
+     visit booked here is on the rep's phone and on the file, not on Google:
+     press Copy for CC, type it into CC the way you do today, and press
+     Typed into CC — CC puts it on his Google Calendar as always, and the
+     machine sees you did it (405) so it never adds a second one. Do not add
+     it to Google by hand on his calendar; the machine cannot see that, and
+     the rep would get the visit twice.
 
 ## Everything you do in Contractors Cloud today, and where it is here
 
@@ -52,7 +62,7 @@ means it is built and waits on Kevin's word.
 | Make the account and the contact (name, phone, email, address) | + New lead | **here, first** |
 | Make the project (Lead · Standard Event · lead source · primary rep) | + New lead; the lead source is CC's own list | **here, first**; CC gets the copy from the machine (switch `cc_mirror`) or from Copy for CC |
 | Book the Sales Appointment on the rep (title, description, time, address) | + New lead: rep, time, length; the rep's day shown | **here, first** |
-| The rep finds out (his Google Calendar, through CC) | his phone buzzes the moment you press Open the file; the visit is on Today in the phone app; Google Calendar fills through the CC copy | here; Google Calendar needs the switch |
+| The rep finds out (his Google Calendar, through CC) | his phone buzzes the moment you press Open the file; the visit is on Today in the phone app; his Google Calendar fills by itself (404) — the machine writes the visit straight onto his calendar, no CC copy needed for that | here; Google Calendar needs Kevin's one permission click (the Calendar scope on the delegation) |
 | The "your estimate is booked" text (Heymarket, by hand) | the confirmation text from the brand's main line, 5 minutes after booking | switch `appt_confirm` (Kevin) |
 | Project notes | the file's thread: the booking line, your notes, @names that buzz the person | here |
 | The template tasks after a sale (paperwork, permit, locate, materials, schedule, inspection, invoice, close-out) | asks with clocks, opened by the chain the moment the customer signs on the link; the Office room, oldest first | here for a lead born here; CC's own template still runs on the CC copy until Kevin turns it off |
