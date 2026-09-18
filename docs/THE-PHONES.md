@@ -57,7 +57,7 @@ file were flowing within the last hour of that check.
 | 386-276-6898 | Liberty Fencing | Live since 2 Sep. Every rep texts from it. Both feeds arrive. |
 | 321-806-1995 | Liberty Fencing (321 market) | Inbound arrives on the PBX feed only, so a reply shows on the file within ~15 min and nobody buzzes. Outbound from our rail works and delivers. **Missing: the CloudMessage URL forward on this line**, and that is the ask to Uvoice. |
 | 321-274-4268 | Oasis | Inbound proven on both feeds. Cannot send from our side until Uvoice gives the Oasis account UID + API key and the rail carries a token per line. |
-| 321-352-6955 · 321-783-1688 (Jermey) · 321-783-1694 (office) | Pro-Tech | Campaign approved 16 Sep. Lines stay OFF until Kevin says; UIDs and tokens asked for on the ticket. |
+| 321-352-6955 · 321-783-1688 (Jermey, ext 157) · 321-783-1694 (office) | Pro-Tech | **ON since 18 Sep 8:15 AM ET** (Kevin: "Turn Protech on. And set Jermey up."). `sms_lines` active, `brand_sms_lines` campaign_ok + active; Jermey's seat `sms_via` cloudmessage / `sms_from` +13213526955, ext 157 on his channel row, `uvoice_live_at` set (Call hands him into ConnectUC); the three missed calls on ext 157 (10 Sep ×2, 17 Sep 3:44 PM, all to voicemail on the core) credited to him. Keys for 6955 and 1688 on the rail since 17 Sep, **never probed and never sent from — the first send from 6955 proves the key** (`node backend/worker/sms-rail.mjs --probe=+13213526955` on the box, or read `sms_outbox.error` on the first send). 783-1694 lands on the file (Laura, 17 Sep). |
 | 321-220-9556 (Mike, ext 156) · 321-526-8951 (Gustavo, ext 155) | Oasis | Texting live on the PBX; their ConnectUC texts land on the file by extension. The app's own rail is off for Oasis reps until the Oasis line can send. |
 | 321-275-1100 · 386-446-5110 · 386-246-7007 | Office | Jess's email copies come from these. |
 
@@ -192,10 +192,10 @@ The rep's own line has not moved yet, so ConnectUC is still half the inbox.
 and one from the Oasis line 17 Sep 8:10 AM, both "invalid from number", both
 before their line was ready on the rail. Check the two files.
 
-**Who cannot text from the app:** Jermey (Pro-Tech lines OFF until Kevin
-says), Nick Campana (active sales seat, no line, no extension, no phone that
+**Who cannot text from the app:** Nick Campana (active sales seat, no line, no extension, no phone that
 buzzes: retire the seat or set it up), the office seats (no rail line on
-`reps.sms_from`; the office texts from the PBX extensions 100–105).
+`reps.sms_from`; the office texts from the PBX extensions 100–105). Jermey
+texts from the Pro-Tech line since 18 Sep 8:15 AM (the row in the lines table above).
 
 **Not built, Kevin's call:** a buzz for PBX-feed inbound on a rep's
 extension (late by the 15-minute ingest unless Uvoice puts a CloudMessage
@@ -234,7 +234,7 @@ Kevin: "it seems we can do a lot with our phone system without our phone peeps�
 **Needs the phone people (Uvoice / Dwayne), because it lives on their side:**
 
 - **A line that never posts to our URL.** If a text is not in `uvoice_sms_raw`, Uvoice never sent it: the forward is not on for that line, or the line is not on a campaign. They turn it on; we write the email with the line, the time and the test that proves it. You send it.
-- **New numbers, porting a rep's own number onto the rail, 10DLC campaign registration and approval** (Pro-Tech's lines stay OFF until that is done and you say so).
+- **New numbers, porting a rep's own number onto the rail, 10DLC campaign registration and approval** (Pro-Tech's went ON 18 Sep 8:15 AM on Kevin's word).
 - **"Only use the phone number assigned to your account"** on a failed send: the line is not on the CloudMessage account whose token we hold. They attach it.
 - **ConnectUC on a rep's phone:** registration, audio, the softphone itself. The 32-second No ACK Timeout drops are the phone-network side of a call; we can show them exactly which calls and when.
 - **Call routing:** the auto-attendant, voicemail boxes, ring groups, hold music, the toll-free spammer hitting the attendant, and the hourly call export (it started on their side 9 Sep).
