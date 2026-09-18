@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=136';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=136';
-import { enterPosts, micButton } from './dictate.js?v=136';
-import { wireAtOn } from './village.js?v=136';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=136';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=136';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=137';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=137';
+import { enterPosts, micButton } from './dictate.js?v=137';
+import { wireAtOn } from './village.js?v=137';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=137';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=137';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=136';
-import { settleDialog, handDialog, voidDialog } from './office.js?v=136';
-import { reload } from './app.js?v=136';
-import { relTime } from './production.js?v=136';
-import { billsCards, billsNext, wireBills } from './bills.js?v=136';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=137';
+import { settleDialog, handDialog, voidDialog } from './office.js?v=137';
+import { reload } from './app.js?v=137';
+import { relTime } from './production.js?v=137';
+import { billsCards, billsNext, wireBills } from './bills.js?v=137';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
