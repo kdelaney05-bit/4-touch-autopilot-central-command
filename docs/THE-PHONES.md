@@ -102,6 +102,67 @@ adds it here (or corrects the line table), and to `SESSIONS.md` in
 trureview-mobile if it shipped code. The next session starts from this file,
 not from memory.
 
+## Dropped calls: how to tell (17 Sep 2026, late; Kevin: "guys are getting calls dropped… how can you tell if anything is being dropped")
+
+Uvoice's hourly file carries a **Release Cause** on every call and
+`uvoice_calls.release_cause` keeps it. **No screen shows it yet**: the
+customer file draws a call as who · answered · length (`js/file.js`), nothing
+about how it ended. Two signals, both read from `uvoice_calls` on live.
+
+**Signal 1: the PBX saw the call die.** The cause is not a hang-up.
+
+| Release cause | What it is |
+|---|---|
+| `Orig: Bye` · `Term: Bye` | A normal hang-up by the caller · by the called side. |
+| `Orig: Cancel` | The caller gave up before anyone answered. |
+| `Term: 404` · `486` · `603` · `604` · `No Dial Rule` | Bad number, busy, declined, could not route. Never connected. |
+| `Transferred` · `DTMF <n> entered` · `No digit` · `Recording Done` · `Max Recording` · `Playback Done` | The attendant and voicemail doing their job. |
+| **`No ACK Timeout`** | The far side answered, the rep's ConnectUC app never acknowledged, the PBX tore it down at **exactly 32 s** (the SIP ACK timer). The rep hears ringing or dead air; the customer says hello into silence and hangs up. **A dropped call.** 7 since 9 Sep: Haakon ×3, Eric ×2, Travis ×1, ext 101 ×1, every one outbound, 32 s, on the app leg. In 5 of the 7 the same two numbers tried again within 4 minutes. |
+| **`Reinv: 408`** | A mid-call session refresh timed out and the PBX ended the call on its own. 1 (ext 101, 9 Sep, at 39 minutes). |
+| `Disconnect` on ext 812 at exactly 66 s · `Time Limit` at 1800 s on ext 813 | The auto-attendant timing out on one toll-free 877 caller that hits the office main line several times a day. Spam on the attendant, not a rep. |
+
+**Signal 2: the reconnect.** A drop on the rep's side (the phone's data
+dies, the app loses Uvoice) is written by the PBX as an ordinary `Orig: Bye`
+or `Term: Bye`, because the other person hung up on silence. Those are caught
+by the callback: an answered call of 20 s or more, then the same extension and
+the same far number connected again within 60 s. 9–17 Sep on rep extensions:
+Eric 12 of 111 answered calls, Haakon 6 of 118, Travis 4 of 84, Ron 3 of 29,
+ext 105 5, ext 102 5, ext 104 2. Eric's are the clearest: six long inbound
+calls (2–8 min) where the customer called straight back within 11–22 s and
+talked another 5–17 min, four of them on 16 and 17 Sep.
+
+```sql
+-- Signal 1: every call the PBX did not end with a hang-up
+select ext, began_at at time zone 'America/New_York' as began_et, call_type, duration_s, release_cause, call_id
+from uvoice_calls where release_cause not in ('Orig: Bye','Term: Bye','Orig: Cancel') order by began_at desc;
+
+-- Signal 2: answered 20 s+, then the same ext and far number back on within 60 s
+with a as (select *, began_at + make_interval(secs => coalesce(duration_s,0)) as ended_at from uvoice_calls
+           where answered_at is not null and call_type <> 'missed' and duration_s >= 20 and ext ~ '^1\d\d$')
+select a.ext, a.began_at at time zone 'America/New_York' as began_et, a.call_type, a.duration_s, a.release_cause,
+       extract(epoch from (n.began_at - a.ended_at))::int as back_after_s, n.duration_s as back_for_s
+from a join lateral (select * from uvoice_calls c where c.call_id <> a.call_id and c.ext = a.ext and c.remote_e164 = a.remote_e164
+       and c.answered_at is not null and c.call_type <> 'missed'
+       and c.began_at >= a.ended_at - interval '5 s' and c.began_at < a.ended_at + interval '60 s'
+       order by c.began_at limit 1) n on true
+order by a.began_at desc;
+```
+
+**What the file cannot tell:** jitter, packet loss, MOS, which SIP leg
+failed. Those live in Uvoice's portal (call quality, SIP trace). The ask to
+Uvoice for a dropped call is the CallID (`uvoice_calls.call_id`), the
+extension, the time and the release cause; our half of the ticket comes
+straight off the table, theirs is the trace.
+
+**The feed itself, checked 17 Sep 9:50 PM ET:** healthy. A file every hour
+that had calls, the newest ingested within the hour. The hourly export began
+**9 Sep 14:00 UTC**; the only earlier file is Uvoice's 15-minute test of
+17 Aug, so the 17 Aug → 9 Sep hole is no export, not a lost one (inferred from
+the file names on the table; the box's folder was not read this session).
+
+**Not built:** a "dropped" mark on the file's call line and a daily count on
+the Office room's door. Kevin's call.
+
 ## Where the code is (all in `trureview-mobile`; `git fetch` first, sibling sessions merge from the cloud)
 
 - `supabase/functions/uvoice-sms/index.ts` is the URL Uvoice posts to. Deploy with `npx supabase functions deploy uvoice-sms --no-verify-jwt`.
