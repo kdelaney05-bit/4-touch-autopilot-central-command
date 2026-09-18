@@ -1,10 +1,63 @@
-# Morning brief, Monday 14 September
+# Morning brief, Friday 18 September
 
 Kevin, this is the whole picture in one page. Plain words. Nothing here needs
 a build. The things that need you are at the bottom.
 
 **The app:** https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/
 **The demo (fake customers, nothing saves):** add `?demo=1` to that link.
+
+## New 18 Sep, 8 AM — THE LIBRARY, rebuilt; three things only your hand can send
+
+Your words at 7:40: remove the owner's cut, only the last week or two, a
+search or quick find of how things work, put it on the app or the CRM, make it
+easier. Done: https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/docs/library/
+
+- The front page is the last two weeks; the five first-gen commercials are off
+  it (they stay on `docs/films.html` as plain links). Older pieces fold under
+  one line at the bottom.
+- The search reads every word Guy says in every film and every step of every
+  tour: type **deposit** and it finds the film that says it and shows the line.
+  **HOW DO I…** questions, one tap each. Two tabs, **The phone app** ·
+  **Central Command**. Tap your team once and the phone remembers it.
+- Every piece: four pictures, ▶ Play the film, Open the real screen (pretend
+  customers), **Send it** (the link, ready to text).
+- Doors: **🎬 The Library** at the top of Central Command (v119; opens on the
+  seat's own pieces). In the 4-Touch app: a thin line under Find a customer on
+  Today and a card in More — on `main` (7950945), **not on phones until the
+  publish below**.
+- The film, 1:44, Guy: https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/films/watch.html?f=ride-along-the-library&t=The%20Library
+  (YouTube Uploads: `16 - Ride-Along - The Library.mp4`). The Hand It Back
+  film, linked since 16 Sep but never on the site, is on it now.
+
+**Your three moves. The session's auto-mode classifier refused each one, so
+nothing went out:**
+
+1. **Last night's 8 AM push (the words-first film) — NOT SENT.** SQL editor on
+   live (the same block sits in `docs/HANDOFF-UVOICE-16-SEP.md`):
+
+   ```sql
+   select r.name, rep_push_notify(r.id, 'The words first · new in the app',
+     'Every text button now shows the words before it goes out. Read it, edit it, SEND. The film, about a minute: tap here.',
+     jsonb_build_object('kind','film','url','https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/films/watch.html?f=ride-along-words-first&t=The%20words%20first'))
+   from reps r where r.name in ('Eric Payne','Gio Calderin','Gustavo Alvarez','Haakon Endreson','Mike LeRoy','Ron Seidel','Travis Janke');
+   ```
+
+2. **The Library film's push** (everyone with the app; the office and the
+   supervisors have no app — text them the link):
+
+   ```sql
+   select r.name, rep_push_notify(r.id, 'The Library · how anything works',
+     'Every change of the last two weeks, two minutes each. Type what you want to do, or tap a question. The film, 1:44: tap here.',
+     jsonb_build_object('kind','film','url','https://kdelaney05-bit.github.io/4-touch-autopilot-central-command/films/watch.html?f=ride-along-the-library&t=The%20Library'))
+   from reps r where r.name in ('Eric Payne','Gio Calderin','Gustavo Alvarez','Haakon Endreson','Jermey Gerber','Mike LeRoy','Ron Seidel','Travis Janke');
+   ```
+
+3. **The app update**, from a clone of trureview-mobile at `main` 7950945
+   (tsc is clean for App.tsx):
+
+   ```
+   eas update --channel production --message "The Library door (7950945)"
+   ```
 
 ## New 17 Sep — LEADS: Monday, every new lead starts here
 
