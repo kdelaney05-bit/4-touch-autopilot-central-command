@@ -7,9 +7,9 @@
 // Every 10 seconds this asks for anything new with your name on it: an @-tag
 // on a customer's file (v_my_mentions) or a direct line to you
 // (direct_messages). The phone gets the same thing as a push (312 / 346).
-import * as api from './api.js?v=132';
-import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=132';
-import { $, esc, toast } from './ui.js?v=132';
+import * as api from './api.js?v=133';
+import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=133';
+import { $, esc, toast } from './ui.js?v=133';
 
 let timer = null, since = null, unseen = 0;
 const seen = new Set();

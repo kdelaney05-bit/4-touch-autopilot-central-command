@@ -5,12 +5,12 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=132';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=132';
-import { DEMO } from './demo.js?v=132';
-import { html, raw, esc, toast } from './ui.js?v=132';
-import { BRAND_BY_CC } from './config.js?v=132';
-import { enterPosts, micButton } from './dictate.js?v=132';
+import * as api from './api.js?v=133';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=133';
+import { DEMO } from './demo.js?v=133';
+import { html, raw, esc, toast } from './ui.js?v=133';
+import { BRAND_BY_CC } from './config.js?v=133';
+import { enterPosts, micButton } from './dictate.js?v=133';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -62,16 +62,36 @@ function norm(r, room) {
   };
 }
 
+const BELLS = 12;
 async function read(room) {
   const rows = isDemo()
     ? (room === 'sales' ? (DEMO.hype || []) : ((DEMO.rooms || {})[room] || []))
     : await api.page(readPath(room), LIMIT);
-  return rows.map((r) => norm(r, room)).sort(byTime);
+  let out = rows.map((r) => norm(r, room));
+  /* 133 (Kevin, 18 Sep 1:45 PM: "every time the bell rings, it rings in the village too"): the bells off the reps' thread —
+     only the bells, never their chatter — ride into the Village. A reply goes back onto their thread, on their phones. */
+  if (room === 'village') {
+    try {
+      const bells = isDemo() ? (DEMO.hype || []).filter((r) => /just hung one/.test(r.body || ''))
+        : await api.page(`hype_messages?select=id,author_id,author_name,author_initials,body,image_url,created_at&body=like.*just%20hung%20one*&order=created_at.desc&limit=${BELLS}`, BELLS);
+      out = out.concat(bells.map((r) => ({ ...norm(r, room), bell: true })));
+    } catch { /* the reps' thread is theirs; the room still loads */ }
+  }
+  return out.sort(byTime);
 }
 
 const isMine = (m) => m.authorId ? m.authorId === state.me?.id : !!(state.me?.name && m.name === state.me.name);
 
 function bubble(m, room) {
+  if (m.bell) {
+    const img = m.image ? `<div><a href="${esc(m.image)}" target="_blank" rel="noopener">photo</a></div>` : '';
+    return `<div class="roomrow bell"><span class="ini bell" title="${esc(personName(m.name))}">🛎️</span>`
+      + `<div class="msg in bell"><div class="who">${esc(m.first)} rang the bell · ${esc(relTime(m.at))}</div>`
+      + `<div class="say">${lit(esc(m.body))}</div>${img}`
+      + `<div class="room-reacts"><button class="react" data-bell-cheer="${esc(m.id)}" data-first="${esc(m.first)}">🔥 Way to go, ${esc(m.first)}!</button>`
+      + `<button class="react" data-bell-reply="${esc(m.id)}" data-first="${esc(m.first)}">💬 Reply</button></div>`
+      + `<div class="small dimmer" style="margin-top:4px">Your reply lands on the reps' thread, on their phones.</div></div></div>`;
+  }
   const mine = isMine(m);
   const on = m.customerId
     ? `<button class="chip cust" onclick="__peek('${esc(m.customerId)}')" title="Open the file">on ${esc(personName(m.customerName || 'the file'))}</button>`
@@ -167,9 +187,22 @@ async function load(root, room, ctx, toBottom = false, quiet = false) {
     ? rows.map((m) => bubble(m, room)).join('')
     : '<div class="empty">Nothing here yet. Say the first thing.</div>';
   list.querySelectorAll('[data-react]').forEach((b) => (b.onclick = () => react(root, room, ctx, b.dataset.react, b.dataset.emoji)));
+  list.querySelectorAll('[data-bell-cheer]').forEach((b) => (b.onclick = () => cheer(root, room, ctx, b.dataset.bellCheer, b.dataset.first, b)));
+  list.querySelectorAll('[data-bell-reply]').forEach((b) => (b.onclick = () => {
+    ctx.bellReply = { id: b.dataset.bellReply, first: b.dataset.first };
+    const say = root.querySelector('[data-say]'); if (say) { say.value = `@${b.dataset.first} `; say.focus(); }
+    toast(`Replying to ${b.dataset.first}'s bell · it goes to the reps' phones · Post when ready`);
+  }));
   if (stick) list.scrollTop = list.scrollHeight;
 }
 
+/* 133: one tap on a bell — a reply on the reps' thread, under the bell, on their phones (hype_push_fanout carries it). */
+async function cheer(root, room, ctx, bellId, first, btn) {
+  if (isDemo()) { toast(`Demo — ${first} would hear it on the phone · nothing is saved`); return; }
+  if (btn) btn.disabled = true;
+  try { await api.insert('hype_messages', { body: `🔥 Way to go, ${first}!`, reply_to: bellId }, false); toast(`${first} heard you · on the reps' phones`); }
+  catch (e) { toast(e.message || 'It did not go through', 'err'); if (btn) btn.disabled = false; }
+}
 async function post(root, room, ctx) {
   const say = root.querySelector('[data-say]');
   const body = (say?.value || '').trim();
@@ -186,6 +219,15 @@ async function post(root, room, ctx) {
   const btn = root.querySelector('[data-post]');
   btn.disabled = true;
   try {
+    // 133: a reply to a bell rides the reps' thread, not the room (only while the box still starts with their @name)
+    if (ctx.bellReply && body.startsWith('@' + ctx.bellReply.first)) {
+      await api.insert('hype_messages', { body, reply_to: ctx.bellReply.id }, false);
+      toast(`Sent to the reps' thread · ${ctx.bellReply.first} sees it on the phone`);
+      ctx.bellReply = null; say.value = ''; btn.disabled = false;
+      await load(root, room, ctx, true);
+      return;
+    }
+    ctx.bellReply = null;
     if (room !== 'sales' && ctx.lane === 'text' && ctx.pick) {
       // the customer lane: a text from the brand's approved line (311). It is already on the file's thread — the room does not get a copy.
       await textCustomer(ctx.pick.id, body);

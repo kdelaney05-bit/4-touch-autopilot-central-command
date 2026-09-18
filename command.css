@@ -202,6 +202,9 @@ main.dimmed { filter: none; }
 .room .react { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 1px 7px; font-size: 11px; line-height: 1.55; color: var(--dim); }
 .room .react.on { border-color: var(--goldbtn); background: var(--goldsoft); color: var(--gold); }
 .room .react .mono { font-size: 10px; }
+/* 133: a bell in the Village */
+.room .roomrow.bell .msg.bell { background: var(--goldsoft); border: 1px solid var(--goldbtn); }
+.room .ini.bell { background: var(--goldsoft); font-size: 14px; }
 .room .msg.out .react { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.22); color: var(--bg); }
 .room .msg.out .react.on { background: var(--goldbtn); border-color: var(--goldbtn); color: var(--ink); }
 .room .room-on-row { position: relative; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
