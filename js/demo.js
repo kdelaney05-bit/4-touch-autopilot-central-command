@@ -244,6 +244,12 @@ function file(customerId) {
       { call_id: 'dc1', call_type: 'inbound', ext: '152', began_at: ago(23 * 24), answered_at: ago(23 * 24), duration_s: 240, remote_e164: '+13215550142', dialed_e164: '+13863023131', answered_by: 'app', rep_id: 'r1' },
       { call_id: 'dc2', call_type: 'outbound', ext: '152', began_at: ago(9 * 24), answered_at: ago(9 * 24), duration_s: 95, remote_e164: '+13215550142', dialed_e164: '+13215550142', answered_by: null, rep_id: 'r1' },
       { call_id: 'dc3', call_type: 'missed', ext: '152', began_at: ago(0.5), answered_at: null, duration_s: 40, remote_e164: '+13215550142', dialed_e164: '+13863023131', answered_by: 'core', rep_id: 'r1' },
+    ] : [],
+    // 408: the calls Ron made from his iPhone through the app's Call button (18 Sep) — the tap, then the app's one question
+    appCalls: b.job_id === 'j3' ? [
+      { id: 'ac1', rep_id: 'r1', direction: 'out', via: 'iphone', tapped_at: ago(2), outcome: 'voicemail', answered_at: ago(2), note: null },
+      { id: 'ac2', rep_id: 'r1', direction: 'in', via: 'manual', tapped_at: ago(1.2), outcome: 'talked', answered_at: ago(1.2), note: null },
+      { id: 'ac3', rep_id: 'r1', direction: 'out', via: 'iphone', tapped_at: ago(0.2), outcome: null, answered_at: null, note: null },
     ] : [] };
 }
 

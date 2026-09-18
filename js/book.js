@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=127';
-import { DEMO } from './demo.js?v=127';
+import * as api from './api.js?v=128';
+import { DEMO } from './demo.js?v=128';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -147,7 +147,7 @@ export async function loadFile(customerId) {
             : { customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone, stage: 'booked' };
     job.sms_opt_out_at = c?.sms_opt_out_at ?? null;
   }
-  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, calls] = await Promise.all([
+  const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, calls, appCalls] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
     api.one(`customers?select=id,name,phone,email,street,city,state,zip,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
@@ -176,6 +176,8 @@ export async function loadFile(customerId) {
     job.job_id ? api.rpc('invoice_state', { p_job: job.job_id }).catch(() => null) : null,
     // 401: every call on this file — answered, placed, missed — from Uvoice's hourly call records (the box reads them)
     api.page(`uvoice_calls?select=call_id,call_type,ext,began_at,answered_at,duration_s,remote_e164,dialed_e164,answered_by,rep_id&customer_id=eq.${customerId}&order=began_at.asc`, 500).catch(() => []),
+    // 408: the calls the rep made from his iPhone through the app's Call button, or logged by hand — the tap and the answer to the app's one question
+    api.page(`app_calls?select=id,rep_id,direction,via,tapped_at,outcome,answered_at,note&customer_id=eq.${customerId}&order=tapped_at.asc`, 500).catch(() => []),
   ]);
   let thread = null, messages = [], asks = [], attachments = [];
   if (job.cc_project_id) {
@@ -206,7 +208,9 @@ export async function loadFile(customerId) {
   return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
            appt: appt || null, mirror: mirror || null,
            fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null, deed: deed || null, permitRule: Array.isArray(permitRule) ? permitRule[0] || null : permitRule || null,
-           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [], subLocks: Array.isArray(subLocks) ? subLocks : [] };
+           bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [], subLocks: Array.isArray(subLocks) ? subLocks : [],
+           // 401's calls were loaded but never handed to the file until 18 Sep (408) — every Uvoice call, and the app's own calls, ride here now
+           calls: Array.isArray(calls) ? calls : [], appCalls: Array.isArray(appCalls) ? appCalls : [] };
 }
 /* A ten-minute link to one of the packet's files (328). RLS on the bucket decides. */
 export async function openPacketFile(path) { guard(); return api.signUrl('estimates', path); }
