@@ -215,3 +215,28 @@ In this repo: `js/file.js` draws every call and text on the customer file's
 thread and holds the Text button; `js/switchboard.js` is the message rail.
 `docs/CC-UVOICE-WORKFLOW-AUDIT.md` is the 12 Sep audit of who on the inside
 does what with the phones.
+
+## What we handle ourselves, and what needs the phone people (Kevin and Jess, 17 Sep 2026, late)
+
+Kevin: "it seems we can do a lot with our phone system without our phone peeps… let me and Jess know all the things we can handle with you and all the things we need our phone peeps for… what troubleshooting can you do." The honest split, from the tables above and the playbook.
+
+**We handle it here, no call to Uvoice (a session does it in the repo and on live, and tells you what changed):**
+
+- **Which rep, which customer a text or call lands on.** Extension → rep is a row (`rep_channel_map`); customer matching is ours; a text on the wrong file or no file is our fix.
+- **Everything the app does with a text:** which button does what, the words that come up, the preview and SEND, the 15-second undo, the approved lines, the thread, the receipts, who gets buzzed.
+- **A text that did not go out from the app:** it is in `sms_outbox` with the provider's reason; we resend, fix the worker (`sms-rail.mjs`), or read the reason back to you.
+- **Who texts from which line:** `reps.sms_via` / `sms_from`, the office lines, Mike's line, Sam's line, a rep moving onto the rail: rows, changed in minutes, no app update.
+- **The office copies** of texts (migration 393), the missed-call buzz, the after-hours reply drafts and the appointment confirms (behind the switches you flip).
+- **Dropped calls, who and when:** every call leg is in `uvoice_calls` with its `release_cause`; we read it and name the pattern (No ACK Timeout at 32 s, the reconnect-inside-60-s query).
+- **"A text is missing":** step 1 of the playbook. We find it (or not) in `uvoice_sms_raw` by time and number, follow it through `text_messages`, the file and the push, and say whether it is ours or theirs, with the proof.
+- **The lines tables agreeing** (`sms_lines` vs `brand_sms_lines`), a line switched on or off for texting, a campaign-approved line enforced in the app.
+
+**Needs the phone people (Uvoice / Dwayne), because it lives on their side:**
+
+- **A line that never posts to our URL.** If a text is not in `uvoice_sms_raw`, Uvoice never sent it: the forward is not on for that line, or the line is not on a campaign. They turn it on; we write the email with the line, the time and the test that proves it. You send it.
+- **New numbers, porting a rep's own number onto the rail, 10DLC campaign registration and approval** (Pro-Tech's lines stay OFF until that is done and you say so).
+- **"Only use the phone number assigned to your account"** on a failed send: the line is not on the CloudMessage account whose token we hold. They attach it.
+- **ConnectUC on a rep's phone:** registration, audio, the softphone itself. The 32-second No ACK Timeout drops are the phone-network side of a call; we can show them exactly which calls and when.
+- **Call routing:** the auto-attendant, voicemail boxes, ring groups, hold music, the toll-free spammer hitting the attendant, and the hourly call export (it started on their side 9 Sep).
+
+**The troubleshooting a session runs, on its own, any hour:** find a text by time and number in the raw feed; trace one text or call end to end; read a failed send's reason; pull a rep's line rows and push tokens; compare the two line tables; read the edge-function logs; send a test text to a test file from a line and watch it land; count what a line carried in a day; write the Uvoice email with the proof when it is theirs. What a session never does: flip a machine switch (yours, from the Office room), text a real customer as a test, or change a line without you saying so.
