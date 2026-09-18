@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=126';
-import { DEMO } from './demo.js?v=126';
+import * as api from './api.js?v=127';
+import { DEMO } from './demo.js?v=127';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -217,7 +217,7 @@ export async function openPacketFile(path) { guard(); return api.signUrl('estima
 export async function docUrl(path) {
   if (!path) throw new Error('No file on this row');
   if (path.startsWith('estimates/')) return openPacketFile(path.slice('estimates/'.length));
-  if (/^[0-9]+\/[0-9]+\//.test(path)) return api.publicUrl('job-docs', path);
+  if (/^[0-9]+\/[0-9]+\//.test(path)) { guard(); return api.signUrl('job-docs', path); }   // 127: job-docs is a private bucket — a plain link 404s (Jess, 12:31 PM: "cant open contract")
   return openPacketFile(path);
 }
 /* 126 · 407: one open ask to one seat. The new holder gets the push and their name on the row; the clock keeps running. */

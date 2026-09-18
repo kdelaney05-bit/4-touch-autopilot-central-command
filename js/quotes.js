@@ -5,9 +5,9 @@
 // the checklist, the photos and a price box. His price is one line on the file
 // that @-tags the rep, so the rep's phone buzzes. Everyone else sees the card
 // on the customer's file: what was asked, what came back, how long it took.
-import { state, isDemo, personName, firstName, answerQuote, photoSrc } from './book.js?v=126';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=126';
-import { brandName } from './config.js?v=126';
+import { state, isDemo, personName, firstName, answerQuote, photoSrc } from './book.js?v=127';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=127';
+import { brandName } from './config.js?v=127';
 
 const money = (n) => '$' + Number(n).toLocaleString([], { maximumFractionDigits: 0 });
 const mins = (m) => m >= 1440 ? Math.round(m / 1440) + ' d' : m >= 60 ? Math.round(m / 60) + ' h' : Math.round(m) + ' min';
