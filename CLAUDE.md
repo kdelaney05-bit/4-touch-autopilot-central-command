@@ -40,6 +40,7 @@ in CC.**
   number in parallel.
 
   **17 Sep 2026 (evening):** live top is **397** — `397_the_sub_locked_in` (Kevin + Jess, the Billdu handoff meeting; APPLIED LIVE by the Billdu-handoff session, dry-run rolled back first on "Delaney Oasis walk, Kevin"; file on trureview-mobile main): `job_sub_locks` · `sub_options` · `sub_lock` · `sub_lock_mark` · `v_job_sub_locks`. This app v109: the checkbox on ＋ Photo, the Sub locked in card, NEXT, the Office room's waiting list, the film `?tour=sub`. **Next free = 398** — read `schema_migrations` first.
+  **18 Sep 2026 (morning):** live top is **404** — `404_the_visit_on_the_reps_google_calendar` (Sam: a visit booked at the New lead door reached Gio's phone and the file, never his Google Calendar; Kevin: "we don't need the calendars but it should sync for sure"; APPLIED LIVE by the cloud session, dry-run rolled back first on Sam's own test visit; file on trureview-mobile branch `claude/google-calendar-appt-sync-6rtbkd`): `gcal_events` · `gcal_sync_due` · `gcal_sync_mark`; worker `backend/worker/gcal-sync.mjs` on the box as `liberty-gcal.service`, inert until Kevin adds the Calendar scope to the liberty-nurture delegation in the three Workspace admin consoles. Nothing in this app changed. **Next free = 405** — read `schema_migrations` first.
 - The owner console (`kdelaney05-bit/liberty-command`) is a separate page; the
   Sales and Marketing rooms embed it by hash (`#sales`, `#marketing`). Same
   github.io origin, its own sign-in. Never copy it in.
