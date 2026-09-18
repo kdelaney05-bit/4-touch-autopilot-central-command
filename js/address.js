@@ -6,8 +6,8 @@
 // they come from OpenStreetMap through Photon (photon.komoot.io — free, no key, no sign-up): it knows the street, the
 // city and the zip and often not the house number, so the number the office typed stays in front of the street it picked.
 // Nothing about the customer goes anywhere: the query is the address being typed, that is all.
-import { GOOGLE_MAPS_KEY } from './config.js?v=124';
-import { esc } from './ui.js?v=124';
+import { GOOGLE_MAPS_KEY } from './config.js?v=125';
+import { esc } from './ui.js?v=125';
 
 const HOME = { lat: 28.33, lon: -80.67 };   // Merritt Island — the middle of the book; a bias, not a fence
 const key = () => (GOOGLE_MAPS_KEY || '').trim();
@@ -80,7 +80,8 @@ async function details(placeId) {
   const j = await r.json(); const c = {};
   for (const a of j.addressComponents || []) for (const t of a.types || []) c[t] ||= a.longText || a.shortText || '';
   const street = [c.street_number, c.route].filter(Boolean).join(' ') || (j.formattedAddress || '').split(',')[0];
-  return { street, city: c.locality || c.sublocality || c.postal_town || c.neighborhood || '', zip: c.postal_code || '' };   // Sam, 18 Sep: no county-level name as the city
+  // Sam, 18 Sep: no county-level name as the city. The county rides beside it (407, Who's free: the rep's territory), never in the city box.
+  return { street, city: c.locality || c.sublocality || c.postal_town || c.neighborhood || '', zip: c.postal_code || '', county: (c.administrative_area_level_2 || '').replace(/\s+county$/i, '') };
 }
 
 // ── OpenStreetMap through Photon — free, keyless, CORS-open; fenced to Florida (every book is here) and biased to home so

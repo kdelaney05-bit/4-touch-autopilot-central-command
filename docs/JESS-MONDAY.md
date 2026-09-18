@@ -48,6 +48,11 @@ you do moves yet.
      into CC, leave it: the machine knows (405) and never adds a second one.
      Do not add it to Google by hand on his calendar; the machine cannot see
      that, and the rep would get the visit twice.
+   - **who's free** (407, 18 Sep afternoon): the moment the day and the time are
+     on the form, a strip under them says who covers that county, who is free
+     at that hour, what the busy ones are doing, and how many visits each has
+     that day — read from every rep's real Google Calendar, five minutes old at
+     most. Tap a name and it is the rep. It never picks for you.
 
 ## Everything you do in Contractors Cloud today, and where it is here
 

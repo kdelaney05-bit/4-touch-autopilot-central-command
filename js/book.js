@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=124';
-import { DEMO } from './demo.js?v=124';
+import * as api from './api.js?v=125';
+import { DEMO } from './demo.js?v=125';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -266,6 +266,20 @@ export async function repDay(repId, dayIso) {
   const start = new Date(dayIso + 'T00:00:00'), end = new Date(start.getTime() + 86400e3);
   if (isDemo()) return (state.pipeline || []).filter((j) => j.rep_id === repId && j.customer_id !== 'cp15' && j.appt_starts_at && new Date(j.appt_starts_at) >= start && new Date(j.appt_starts_at) < end).sort((a, b) => String(a.appt_starts_at).localeCompare(String(b.appt_starts_at)));   // cp15 is the lead the film is typing
   return api.page(`jobs?select=id,title,appt_starts_at,customers(name,city)&rep_id=eq.${repId}&appt_starts_at=gte.${start.toISOString()}&appt_starts_at=lt.${end.toISOString()}&order=appt_starts_at.asc`, 50);
+}
+/* 407 WHO'S FREE: for this brand, this county and this hour — who covers the area, who is free, what the busy ones are doing,
+   how many visits each already has that day (CC's, the door's and Google's, the same visit counted once). The office seat asks
+   through the door; it still cannot read the calendars. The demo answers from the fictional book. */
+export async function whoIsFree(cc, county, atIso, mins) {
+  if (isDemo()) {
+    const s = new Date(atIso).getTime(), e = s + (Number(mins) || 60) * 60e3;
+    return (state.sellers || []).filter((r) => String(r.cc_default_company_id) === String(cc)).map((r) => {
+      const hit = (state.pipeline || []).find((j) => j.rep_id === r.id && j.appt_starts_at && new Date(j.appt_starts_at).getTime() < e && new Date(j.appt_starts_at).getTime() + 3600e3 > s);
+      const n = (state.pipeline || []).filter((j) => j.rep_id === r.id && j.appt_starts_at && new Date(j.appt_starts_at).toDateString() === new Date(atIso).toDateString()).length;
+      return { rep_id: r.id, name: r.name, email: null, covers: county ? true : null, free: !hit, busy_with: hit ? `${new Date(hit.appt_starts_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · ${hit.title || 'Sales Appointment'}` : null, visits_that_day: n, calendar_read_at: new Date().toISOString(), calendar_ok: true };
+    });
+  }
+  return api.rpc('who_is_free', { p_cc: cc, p_county: county || null, p_at: atIso, p_minutes: Number(mins) || 60 });
 }
 export async function mirrorMark(queueId, status, note) { guard(); return api.rpc('cc_mirror_mark', { p_queue: queueId, p_status: status, p_note: note ?? null }); }
 /* 384: move the estimate visit (or book a first one), or cancel it with at = null — the rep is buzzed, the file says it, the CC copy follows */

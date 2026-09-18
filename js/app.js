@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=124';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=124';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=124';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=124';
-import { addressPicker, addressSource } from './address.js?v=124';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=124';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=124';
-import { renderHome } from './home.js?v=124';
-import { renderRoom } from './village.js?v=124';
-import { renderSales } from './sales.js?v=124';
-import { renderPipeline } from './pipeline.js?v=124';
-import { renderMarketing } from './marketing.js?v=124';
-import { renderOffice } from './office.js?v=124';
-import { renderProduction } from './production.js?v=124';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=124';
-import { stopRoomPoll } from './village.js?v=124';
-import { renderFlow, stopFlow } from './flow.js?v=124';
-import { startTour, tourWanted } from './tour.js?v=124';
-import { startAlerts } from './alerts.js?v=124';
-import { renderPhotos } from './photos.js?v=124';
+import * as api from './api.js?v=125';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=125';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=125';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=125';
+import { addressPicker, addressSource } from './address.js?v=125';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=125';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=125';
+import { renderHome } from './home.js?v=125';
+import { renderRoom } from './village.js?v=125';
+import { renderSales } from './sales.js?v=125';
+import { renderPipeline } from './pipeline.js?v=125';
+import { renderMarketing } from './marketing.js?v=125';
+import { renderOffice } from './office.js?v=125';
+import { renderProduction } from './production.js?v=125';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=125';
+import { stopRoomPoll } from './village.js?v=125';
+import { renderFlow, stopFlow } from './flow.js?v=125';
+import { startTour, tourWanted } from './tour.js?v=125';
+import { startAlerts } from './alerts.js?v=125';
+import { renderPhotos } from './photos.js?v=125';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -231,6 +231,36 @@ function newJob(prefill) {
         : `<div class="small verify">${esc(who)} has nothing booked ${esc(d)}. Wide open.</div>`;
     } catch (e) { box.innerHTML = `<div class="small dimmer">Could not read the day (${esc(e.message)}).</div>`; }
   };
+  // 407 WHO'S FREE (Kevin, 18 Sep: "how does she know if they're available?"): for this brand, the county the address picker
+  // found and the hour on the form — who covers the area, who is free, what the busy ones are doing (a visit by name, anything
+  // personal just "busy"), how many visits each already has that day. Tap a name and it is the rep. Sam still chooses.
+  let county = prefill?.county || '';
+  const freeStrip = async (f) => {
+    const box = f.querySelector('#nj-free'); if (!box) return;
+    if (!canPickRep) { box.innerHTML = ''; return; }
+    const at = f.appt.value;
+    if (!at) { box.innerHTML = '<div class="small dimmer">Pick the day and the time and this shows who is free then, in that area.</div>'; return; }
+    box.innerHTML = '<div class="small dimmer">Asking who is free…</div>';
+    try {
+      const rows = await whoIsFree(f.cc.value, county, new Date(at).toISOString(), f.mins.value || 60);
+      if (f.appt.value !== at) return;   // she moved the time while this was in flight; the newer ask paints
+      const when = new Date(at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const chip = (r) => {
+        const picked = f.rep && f.rep.value === r.rep_id;
+        const unread = !r.calendar_read_at || r.calendar_ok === false;
+        const cls = r.free ? (unread ? 'st-ink' : 'st-green') : 'warn';
+        const what = r.free ? (unread ? 'free on the book · calendar not read yet' : 'free') : esc(r.busy_with || 'busy');
+        const n = r.visits_that_day ? ` · ${r.visits_that_day} that day` : ' · nothing else that day';
+        return `<button type="button" class="chip ${cls}" data-rep="${esc(r.rep_id)}" style="margin:0 6px 6px 0;cursor:pointer">${picked ? '✓ ' : ''}${esc(firstName(r.name))} · ${what}${n}</button>`;
+      };
+      const inArea = rows.filter((r) => r.covers !== false), outArea = rows.filter((r) => r.covers === false);
+      box.innerHTML = rows.length
+        ? `<div class="kicker">Who's free · ${esc(when)}${county ? ' · ' + esc(county) + ' County' : ''}</div><div>${inArea.map(chip).join('')}</div>` +
+          (outArea.length ? `<div class="small dimmer" style="margin-top:2px">Outside their area</div><div>${outArea.map(chip).join('')}</div>` : '')
+        : '<div class="small dimmer">No reps on this brand\'s list.</div>';
+      box.querySelectorAll('button[data-rep]').forEach((b) => { b.onclick = () => { if (f.rep) { f.rep.value = b.dataset.rep; dayStrip(f); freeStrip(f); } }; });
+    } catch (e) { box.innerHTML = `<div class="small dimmer">Could not ask who is free (${esc(e.message)}).</div>`; }
+  };
   openModal({ title: 'New lead · a new customer starts here', submitLabel: 'Open the file', wide: true, body: `
     <div class="two">
       <div class="field"><label>Brand</label><select name="cc">${brands.map(([cc, b]) => `<option value="${cc}" ${cc === cc0 ? 'selected' : ''}>${esc(b.name)}</option>`).join('')}</select></div>
@@ -252,6 +282,7 @@ function newJob(prefill) {
       <div class="field"><label>Rep</label>${canPickRep ? `<select name="rep">${repOpts(cc0)}</select>` : `<input value="${esc(me.name || '')}" disabled/>`}</div>
       <div class="field"><label>Estimate appointment · leave blank if they still need a time</label><div style="display:flex;gap:6px"><input name="day" type="date" style="flex:1"/><select name="time" style="width:112px"><option value="">time</option>${timeOpts()}</select><input name="appt" type="hidden"/><select name="mins" style="width:96px"><option value="30">30 min</option><option value="45">45 min</option><option value="60" selected>1 hour</option><option value="90">1½ h</option><option value="120">2 h</option></select></div></div>
     </div>
+    <div class="rows" id="nj-free" style="margin:2px 0 6px"><div class="small dimmer">Pick the day and the time and this shows who is free then, in that area.</div></div>
     <div class="rows" id="nj-day" style="margin:2px 0 8px"><div class="small dimmer">Pick the rep and the day and this shows what they already have that day.</div></div>
     <div class="two">
       <div class="field"><label>Note to the team (optional)</label><input name="note" placeholder="gate code 2021 · dog in the yard · call before 8"/></div>
@@ -259,20 +290,21 @@ function newJob(prefill) {
     </div>
     <div class="note">Open the file and it is done: the rep's phone buzzes with the day, the time and the address; the booking is the first line on the file; the customer gets the confirmation text when that switch is on; and the machine carries the lead into Contractors Cloud when its switch is on. Same phone number = same customer. A signed amount opens the paperwork checklist for the office.</div>`,
     onOpen: (f) => {
-      f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); if (f.rep) f.rep.innerHTML = repOpts(f.cc.value); dayStrip(f); };
-      if (f.rep) f.rep.onchange = () => dayStrip(f);
+      f.cc.onchange = () => { f.src.innerHTML = srcOpts(f.cc.value); if (f.rep) f.rep.innerHTML = repOpts(f.cc.value); dayStrip(f); freeStrip(f); };
+      if (f.rep) f.rep.onchange = () => { dayStrip(f); freeStrip(f); };
       // Sam, 17 Sep: the day and a time list that reads 8:00 AM — one pick, no AM/PM segment to tab into; the hidden appt carries both as before
-      const joinAppt = () => { f.appt.value = f.day.value && f.time.value ? f.day.value + 'T' + f.time.value : ''; dayStrip(f); };
-      f.day.onchange = joinAppt; f.time.onchange = joinAppt;
-      // Samantha's first (17 Sep): the street suggests as she types; a pick fills street, city and zip and moves her on
-      addressPicker(f.street, f.querySelector('#nj-addr-pick'), (a) => { if (a.street) f.street.value = a.street; if (a.city) f.city.value = a.city; if (a.zip) f.zip.value = a.zip; (a.zip ? (f.rep || f.day) : f.city).focus(); });
+      const joinAppt = () => { f.appt.value = f.day.value && f.time.value ? f.day.value + 'T' + f.time.value : ''; dayStrip(f); freeStrip(f); };
+      f.day.onchange = joinAppt; f.time.onchange = joinAppt; f.mins.onchange = () => freeStrip(f);
+      // Samantha's first (17 Sep): the street suggests as she types; a pick fills street, city and zip and moves her on. 407: the county rides along, for Who's free.
+      addressPicker(f.street, f.querySelector('#nj-addr-pick'), (a) => { if (a.street) f.street.value = a.street; if (a.city) f.city.value = a.city; if (a.zip) f.zip.value = a.zip; county = a.county || ''; freeStrip(f); (a.zip ? (f.rep || f.day) : f.city).focus(); });
+      freeStrip(f);
       if (prefill) {   // the Ride-Along opens it typed; nothing is saved in the demo
         for (const [k, v] of Object.entries(prefill)) { const el = f.elements[k]; if (el && k !== 'cc') el.value = v; }
         if (prefill.name) { const [l, fi] = String(prefill.name).split(/,\s*/); f.last.value = l || ''; f.first.value = fi || ''; }   // "Okonkwo, Grace" → the two boxes
         if (prefill.src) f.src.value = prefill.src;
         if (prefill.rep && f.rep) f.rep.value = prefill.rep;
         if (prefill.appt) { f.day.value = String(prefill.appt).slice(0, 10); const t = String(prefill.appt).slice(11, 16); if (t && ![...f.time.options].some((o) => o.value === t)) f.time.add(new Option(clock12(t), t)); f.time.value = t; }
-        dayStrip(f);
+        joinAppt();
       }
     },
     onSubmit: async (f) => {
