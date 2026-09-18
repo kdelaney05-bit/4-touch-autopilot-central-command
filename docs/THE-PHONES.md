@@ -308,3 +308,37 @@ order by ext, began_at;
 **Open:** the click-to-dial hook Dwayne offered (the PBX rings the rep's cell, then the customer: company caller ID, the call in the file, no ConnectUC), the SIP device credentials for Bria (the company number back on the phone without ConnectUC), the straight-to-voicemail buzz, the Office room's daily count.
 
 **2:35 PM, the question waits for the call (408b).** Kevin: "it worked on my phone." The dial did; the question never came. His two taps (12:53, 2:21) landed in `app_calls` marked `cancelled`, `answered_at` two seconds after the tap: on today's iPhones a call placed from an app starts in the Dynamic Island and the app stays in front, so "back inside 6 s" was a live call, not a cancel, and iOS's Cancel on the dial sheet looks identical from the app. Fix (OTA, ~2:45 PM): the question comes 20 s after the app is back and waits on the screen until the rep is done; a third, quiet button, Didn't call, covers a dial he did not make (`outcome = cancelled`, not drawn on the file). The film's caption and the was/is line say so; the film was re-cut at the same link.
+
+## 18 Sep 2026, 2:45 PM ET: every incoming call, company-wide (Kevin: "a full audit of all incoming calls, not just the sales guys")
+
+**Read-only; nothing changed on live.** The trigger was Jason Morgan (Eric's fence, signed 11 Sep): told by text to "call the office", he called the main line three times and the second office number once over Thu 17 and Fri 18 Sep, the machine answered every time (legs on ext 251 and 812 only, `answered_by = core`, no desk-phone leg), he left one 66-second voicemail Fri 12:12 PM, Jessica typed it onto the file at 12:36 and tagged Jonathan, Samantha and Laura, Jonathan and Laura opened it at 12:39, and as of the 2:02 PM ingest nobody had called him back (last outbound to him: Mon 14 Sep 1:55 PM, ext 105, 83 s). The story, done the new way, is the film `films/watch.html?f=ride-along-tag-the-office`.
+
+**The office lines are the same story as the sales lines, and it is not a Monday-14-Sep step: it has been like this every day the export covers.** Business hours (Mon–Fri 8 AM–5:59 PM ET), a call = one far number on one line inside three minutes, "reached a person" = any leg with `answered_by = 'app'` (a desk phone or ConnectUC picked up):
+
+| Line | 7-day calls (biz hours) | Reached a person | Did not | Known customers who never reached a person |
+|---|---|---|---|---|
+| **386-446-5110** Fencing main | 223 | 101 (45%) | 122 | 53 |
+| **321-215-4437** Fencing second number | 32 | 19 | 13 | 11 |
+| 321-783-1694 Pro-Tech office | 41 | 21 | 20 | 2 |
+| 321-274-4268 Oasis main | 11 | 5 | 6 | 1 |
+| 321-275-1100 | 8 | 5 | 3 | 0 |
+
+The main line, business hours, by day (calls · reached a person · did not · known customers who did not): 9 Sep 21·13·8·1 · 10 Sep 37·20·17·10 · 11 Sep 42·22·20·9 · 14 Sep 49·21·28·11 · 15 Sep 45·22·23·10 · 16 Sep 32·14·18·6 · 17 Sep 58·23·35·15 · 18 Sep (to 2 PM) 27·18·9·4. **About half of the calls to the main line never reach a person, every day.** The desk phones do answer (101 · 104 · 105 take 40–60 legs a day between them, 98% of what rings them, per the 10:50 AM table above); the calls that never reach a person never rang a desk — they lived on the attendant/queue path (ext 250 · 251) and the voicemail/attendant box (812 · 813): 251 missed legs run 23–54 s ("rang out"), 812 legs end at exactly 66 s with `Disconnect` (the attendant/voicemail timing out, the same shape the 877 spammer leaves).
+
+**Distinct callers, office lines, business hours, and whether they reached anyone on any of our lines that day** (the strict number): 11 Sep 45 callers · 17 never reached anyone · 7 of them known customers; 14 Sep 48 · 21 · 7; 15 Sep 35 · 11 · 3; 16 Sep 36 · 18 · 7; 17 Sep 50 · 21 · 7; 18 Sep (to 2 PM) 29 · 11 · 6. **Every business day this week about seven known customers called the office and never reached a person that day.** The 15 for Thu/Fri went to Jess as a callback list (the email of 18 Sep, "What we caught this week").
+
+**Why nobody got buzzed:** 401 buzzes the rep for a `missed` leg on the rep's own extension. A call that dies on 250/251/812 is typed inbound/core or missed on a house extension — no rep, no buzz — so the office never hears about a known customer who gave up in the attendant. Still not built, Kevin's call (the 10:50 AM list, now with a fourth): (4) a known customer who hits the office attendant and never reaches a person within the hour buzzes the office seat and the job's rep, with the number, from the hourly file.
+
+```sql
+-- one row per call (far number × line × 3-minute bucket), business hours, last 7 days
+with legs as (select u.*, (u.began_at at time zone 'America/New_York') ny from uvoice_calls u
+  where u.began_at > now() - interval '7 days' and u.call_type in ('inbound','missed')),
+calls as (select right(dialed_e164,10) line, remote_e164,
+  date_trunc('hour', began_at) + (floor(extract(minute from began_at)/3)*3) * interval '1 minute' bucket,
+  bool_or(answered_by = 'app') human, bool_or(customer_id is not null) known,
+  bool_or(extract(dow from ny) between 1 and 5 and extract(hour from ny) between 8 and 17) biz
+  from legs group by 1,2,3)
+select line, count(*) filter (where biz) calls, count(*) filter (where biz and human) reached,
+       count(*) filter (where biz and known and not human) known_not_reached
+from calls group by 1 order by 2 desc;
+```

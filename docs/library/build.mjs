@@ -41,6 +41,7 @@ fs.writeFileSync(path.join(HERE, 'frames.json'), JSON.stringify(frames, null, 1)
 
 // 2 · the words: what Guy says in each film (the spec's "say" lines), keyed by the film's file name
 const SPEC_FILM = {
+  'tag-the-office': 'ride-along-tag-the-office',
   'the-jetstream': 'ride-along-the-jetstream',
   'office-asked': 'ride-along-you-asked',
   'the-library': 'ride-along-the-library',
@@ -78,6 +79,7 @@ try {
 // 3 · what a session knows about each piece that the Ride-Alongs page does not say in one line:
 //     where it plays (app · cc · customer · paper), the one-line "short", and the plain questions it answers.
 const KNOWN = {
+  'ride-along-tag-the-office': { where: ['cc', 'app'], short: 'A true story from this week: a customer told to call the office, four calls, the machine every time. The same week the new way: the rep types @office on the customer\'s file, the office answers on the file and texts the customer from it. Nobody calls anybody.', ask: ['A customer texts me that their HOA or permit is approved, what do I do?', 'Should I tell a customer to call the office?', 'How does the office find out something a customer told me?', 'How do I get a customer scheduled without a phone call?'] },
   'ride-along-the-jetstream': { where: ['cc', 'app'], short: 'The Jetstream in its new home: open the file, @ and two letters in the note box, Enter posts. They get the buzz or the email with the link; ↩ Reply lands the answer on the same customer.', ask: ['How do I do a Jetstream in the new system?', 'How do I tag Eric, Sam, Obed or the office on a customer?', 'How do I reply to a note on a file?', 'Where do the reps see a Jetstream (the app)?'] },
   'ride-along-you-asked': { where: ['cc'], short: 'Sam, Jess and Laura asked; here it is: First and Last name boxes, the phone · email · address line with ↗ new tab, type a name to tag them, the inside-note label, the Bills tile, the 811 locates card, and the calendar rule until Kevin\x27s word.', ask: ['Where are the customer\x27s phone, email and address on the file?', 'How do I open two files at once?', 'How do I tag Eric on a customer\x27s file?', 'Where do I see a supplier invoice that landed?', 'Which 811 locates are about to expire?', 'Does a lead I type here go on the rep\x27s Google Calendar?'] },
   'ride-along-the-library': { where: ['app', 'cc'], short: 'Where to find how anything works: type what you want to do, tap a question, watch two minutes.', ask: ['Where do I find how something works?'] },
