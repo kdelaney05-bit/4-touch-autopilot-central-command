@@ -41,6 +41,7 @@ fs.writeFileSync(path.join(HERE, 'frames.json'), JSON.stringify(frames, null, 1)
 
 // 2 · the words: what Guy says in each film (the spec's "say" lines), keyed by the film's file name
 const SPEC_FILM = {
+  'office-asked': 'ride-along-you-asked',
   'the-library': 'ride-along-the-library',
   'words-first': 'ride-along-words-first',
   'say-it': 'ride-along-say-it',
@@ -76,6 +77,7 @@ try {
 // 3 · what a session knows about each piece that the Ride-Alongs page does not say in one line:
 //     where it plays (app · cc · customer · paper), the one-line "short", and the plain questions it answers.
 const KNOWN = {
+  'ride-along-you-asked': { where: ['cc'], short: 'Sam, Jess and Laura asked; here it is: First and Last name boxes, the phone · email · address line with ↗ new tab, type a name to tag them, the inside-note label, the Bills tile, the 811 locates card, and the calendar rule until Kevin\x27s word.', ask: ['Where are the customer\x27s phone, email and address on the file?', 'How do I open two files at once?', 'How do I tag Eric on a customer\x27s file?', 'Where do I see a supplier invoice that landed?', 'Which 811 locates are about to expire?', 'Does a lead I type here go on the rep\x27s Google Calendar?'] },
   'ride-along-the-library': { where: ['app', 'cc'], short: 'Where to find how anything works: type what you want to do, tap a question, watch two minutes.', ask: ['Where do I find how something works?'] },
   'jermey-pro-tech-is-on-your-texts-leave-from-321-352-6955': { where: ['app'], short: 'Jermey texts from the Pro-Tech line, 321-352-6955, from the app: the same words-first sheet, SEND is his, the reply lands on the file.', ask: ['Which number do my texts go out from (Jermey, Pro-Tech)?'] },
   'ride-along-words-first': { where: ['app'], short: 'Every text button on the file shows you the words first. Read it, change it, tap SEND. You stay on the file.', ask: ['How do I text a customer from the app?', 'Why did nothing go out when I tapped a text button?'] },

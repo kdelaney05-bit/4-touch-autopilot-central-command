@@ -1,6 +1,35 @@
 {
- "built": "2026-09-18T12:51:38.694Z",
+ "built": "2026-09-18T14:41:59.842Z",
  "pieces": [
+  {
+   "id": "ride-along-you-asked",
+   "title": "The office · You asked this morning. Here it is.",
+   "what": "Sam, Jess and Laura, 18 Sep, 8:30–10:15 AM: the New lead door needs First and Last boxes; the phone, the email and the address are hard to find on the file; two back-to-back calls need two tabs; typing a name should find the person, like a Jetstream; a note posted on the file looked like it went to the customer; \"how do we see if this went into the system?\" (a supplier invoice); and Sam's idea, an alert when an 811 locate is about to expire on a job that has not started. Six answers, on the real screen: First name · Last name on the door (the file still reads Last, First); phone · email · address under the customer's name with copy and ↗ new tab; type Eric and it is Eric; an inside note says never sent to the customer; the Bills tile and the card with Approve; the 811 locates expiring card in the Office room. And the calendar rule until Kevin's word: Copy for CC → Typed into CC, never by hand on Google. Narrated (Guy).",
+   "short": "Sam, Jess and Laura asked; here it is: First and Last name boxes, the phone · email · address line with ↗ new tab, type a name to tag them, the inside-note label, the Bills tile, the 811 locates card, and the calendar rule until Kevin's word.",
+   "film": "ride-along-you-asked",
+   "go": null,
+   "tour": null,
+   "meta": "Central Command v120 · 18 Sep, 10:45 AM · the office seat · 3:24 · Sam, Jess, Laura",
+   "date": "2026-09-18",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "Where are the customer's phone, email and address on the file?",
+    "How do I open two files at once?",
+    "How do I tag Eric on a customer's file?",
+    "Where do I see a supplier invoice that landed?",
+    "Which 811 locates are about to expire?",
+    "Does a lead I type here go on the rep's Google Calendar?"
+   ],
+   "links": [
+    {
+     "href": "../?demo=1&as=office&file=cj3",
+     "text": "Open the real screen (pretend customers)"
+    }
+   ],
+   "words": "Sam, Jess, Laura. You asked this morning. Here it is. Six answers, three minutes. One. The New lead door. First name, last name, two boxes, the way Contractors Cloud has them. The file still reads last comma first on its own, so nothing downstream changes. And the address list never says Brevard County for the city any more. If it does not know the city, it leaves it blank and you type it. Two. The customer's file. The phone, the email and the address now sit right under the name. Tap the number to call. Tap the address for the map. Copy any of them with one word. And on the right, new tab: it opens this same file in its own browser tab, so two back to back calls are two tabs, the way you work in CC. Three. The note to the team, on the right side of the file. Type the first letters of a name, Eric, Sam, Obed, and pick. Or type at office, at sales. Nobody scrolls a list. That box is inside only: the customer never sees it, and when your note shows up on the left it is marked inside note, never sent to the customer. You did not text anyone. When is it the Village, and when is it the file? If it is about one customer, it goes on their file and you tag the person. If it is about anything else, it goes in the Village. Either way a tag is a push on their phone and an email with a link to the spot. At rep is the rep on this file: the one who sold it, or the one quoting it. And at supers is every supervisor in every brand, so name the one you mean. Four. Jess asked where a supplier invoice shows up. When Fencing Supply, ABC, Iron World or Havana email you an invoice, the machine reads your mailbox every hour and lands it on the customer's file by the P O number. The Bills tile in the Office room counts what landed. Open the file and the card has Approve on it. Nothing goes to QuickBooks or Contractors Cloud until Kevin flips those switches. Five. Sam's idea, built. In the Office room, a card lists every 811 locate that expires within ten days on a job that has not started. Nothing reorders itself. If the job is on hold, leave it. If it is about to go, reorder it on 811 and the new ticket lands here on its own. Six. Google Calendar. It is built and it is waiting on one permission from Kevin on the Google side. Until he says it is on: type the lead here first, press Copy for CC, type it into Contractors Cloud, press Typed into CC. C C puts it on the rep's Google Calendar the way it always has. Never add it to his calendar by hand; the machine cannot see that and he would get the visit twice. Oasis stays exactly as it is for Mike until Jess says. Tuesday, every new lead starts here. Reply on Kevin's email thread if anything does not work. That thread is the ticket. Nothing to learn. It comes to you."
+  },
   {
    "id": "jermey-pro-tech-is-on-your-texts-leave-from-321-352-6955",
    "title": "Jermey · Pro-Tech is on: your texts leave from 321-352-6955",

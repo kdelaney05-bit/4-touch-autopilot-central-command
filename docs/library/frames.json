@@ -139,6 +139,16 @@
   ],
   "bytes": 4038167
  },
+ "ride-along-you-asked": {
+  "seconds": 204,
+  "frames": [
+   "ride-along-you-asked-1.jpg",
+   "ride-along-you-asked-2.jpg",
+   "ride-along-you-asked-3.jpg",
+   "ride-along-you-asked-4.jpg"
+  ],
+  "bytes": 7826932
+ },
  "sign-on-the-phone-small": {
   "seconds": 22,
   "frames": [
