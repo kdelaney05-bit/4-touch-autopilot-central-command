@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=139';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=139';
-import { enterPosts, micButton } from './dictate.js?v=139';
-import { wireAtOn } from './village.js?v=139';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=139';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=139';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=140';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=140';
+import { enterPosts, micButton } from './dictate.js?v=140';
+import { wireAtOn } from './village.js?v=140';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=140';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=140';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=139';
-import { settleDialog, handDialog, voidDialog } from './office.js?v=139';
-import { reload } from './app.js?v=139';
-import { relTime } from './production.js?v=139';
-import { billsCards, billsNext, wireBills } from './bills.js?v=139';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=140';
+import { settleDialog, handDialog, voidDialog } from './office.js?v=140';
+import { reload } from './app.js?v=140';
+import { relTime } from './production.js?v=140';
+import { billsCards, billsNext, wireBills } from './bills.js?v=140';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -306,6 +306,14 @@ function draw(root, ctx, compact) {
     b.disabled = true;
     const tab = window.open('', '_blank');
     try { const url = await docUrl(b.dataset.openDoc); if (tab) tab.location = url; else window.location.assign(url); }
+    catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
+    b.disabled = false;
+  }));
+  // 137: a form filled or stamped from the file opens through paperwork-fill's own door (a fresh signed link for the row) — any seat that can see the file
+  root.querySelectorAll('[data-open-filled]').forEach((b) => (b.onclick = async () => {
+    b.disabled = true;
+    const tab = window.open('', '_blank');
+    try { const r = await openPaperwork(b.dataset.openFilled); if (!r?.url) throw new Error(r?.message || r?.error || 'No file on this row'); if (tab) tab.location = r.url; else window.location.assign(r.url); }
     catch (e) { if (tab) tab.close(); toast(e.message, 'err'); }
     b.disabled = false;
   }));
@@ -678,7 +686,7 @@ function propertyCard(p, customer, filled = [], counter = null, deed = null, per
       ${p.deed_book ? `<div class="r"><span class="small dimmer">Last deed OR ${esc(p.deed_book)} / ${esc(p.deed_page || '')}${p.sale_date ? ' · ' + esc(new Date(p.sale_date + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })) : ''}</span></div>` : ''}
       ${p.confidential ? '<div class="r"><span class="red">Protected address — the county withholds the owner. Nothing from this record prints.</span></div>' : ''}
       <div class="r"><span class="small dimmer">${esc(p.source)}${p.as_of ? ' · county data as of ' + esc(new Date(p.as_of + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''} · looked up ${esc(when)}</span><span style="display:flex;gap:4px"><button class="btn sm" id="parcel-look">Look again</button><button class="btn sm fill" id="noc-fill" title="The Notice of Commencement, filled from this record and the contractor block">Fill the NOC</button>${(p.signer_match === 'mismatch' || p.signer_match === 'entity') && deed?.status !== 'received' ? `<button class="btn sm ${deed ? '' : 'ok'}" id="deed-send" title="Emails the customer for a picture of the warranty deed (a photo link; you and the rep copied) and texts them until it lands. 386.">${deed?.emailed_at ? 'Resend the deed request' : 'Request the deed'}</button>` : ''}</span></div>
-      ${filled.length ? `<div class="kicker" style="margin-top:8px">Filled from the file</div>` + filled.map((f) => `<div class="r"><span>${esc(FORM_LABEL[f.form_key] || f.form_key)} · ${esc(f.method === 'acroform' ? 'county form' : 'statutory form')}${f.county ? ' · ' + esc(f.county) : ''} · ${esc(new Date(f.filled_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}${f.filled_by ? ' · ' + esc(firstName(f.filled_by)) : ''}${(f.blanks || []).length ? ' · <span class="dimmer">' + esc(String((f.blanks || []).length)) + ' blanks for the office</span>' : ''}</span><button class="btn sm" data-open-doc="${esc(f.id)}">Open</button></div>`).join('') : ''}
+      ${filled.length ? `<div class="kicker" style="margin-top:8px">Filled from the file</div>` + filled.map((f) => `<div class="r"><span>${esc(FORM_LABEL[f.form_key] || f.form_key)} · ${esc(FORM_HOW(f))}${f.county ? ' · ' + esc(f.county) : ''} · ${esc(new Date(f.filled_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}${f.filled_by ? ' · ' + esc(firstName(f.filled_by)) : ''}${(f.blanks || []).length ? ' · <span class="dimmer">' + esc(String((f.blanks || []).length)) + ' blanks for the office</span>' : ''}</span><button class="btn sm" data-open-filled="${esc(f.id)}">Open</button></div>`).join('') : ''}
     </div>
   </div>`;
 }
@@ -735,7 +743,9 @@ function deedRow(a, h) {
   }
   return `<div class="ask ${open ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${open ? '' : 'done'}"></span><span>${esc(askLabel(a))}${line}${next ? `<div class="next" style="margin-top:4px"><b>NEXT</b> ${esc(next)}</div>` : ''}</span><span style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">${btn}${upload}</span></div>`;
 }
-const FORM_LABEL = { 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
+const FORM_LABEL = { 'contract': 'Signed contract', 'noc-statutory': 'Notice of Commencement', 'noc-volusia': 'Notice of Commencement (Volusia)', 'noc-flagler': 'Notice of Commencement (Flagler)', 'noc-brevard': 'Notice of Commencement (Brevard)', 'noc-indian-river': 'Notice of Commencement (Indian River)' };
+/* 137: a stamped form was "statutory form" on the card and its Open button asked the bucket for a row id (412, Joseph Auxilly's contract) */
+const FORM_HOW = (f) => f.method === 'stamped' ? 'signed on the link' : f.method === 'acroform' ? 'county form' : 'statutory form';
 
 /* ── THE FENCE JOB (328/331, FENCE PACKET lane) ──────────────────────────────
    What the rep had in Gio's calculator when he tapped Complete Quote: the six
