@@ -5,11 +5,12 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=131';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=131';
-import { DEMO } from './demo.js?v=131';
-import { html, raw, esc, toast } from './ui.js?v=131';
-import { enterPosts, micButton } from './dictate.js?v=131';
+import * as api from './api.js?v=132';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=132';
+import { DEMO } from './demo.js?v=132';
+import { html, raw, esc, toast } from './ui.js?v=132';
+import { BRAND_BY_CC } from './config.js?v=132';
+import { enterPosts, micButton } from './dictate.js?v=132';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -134,7 +135,7 @@ export function renderRoom(root, room, opts = {}) {
         <div class="line-find-pop at-pop" data-at-pop hidden></div>
       </div>
       ${room === 'sales' ? '' : raw('<div class="lanes at-lanes" data-lanes hidden><button class="lanebtn on" data-room-lane="inside">Inside</button><button class="lanebtn" data-room-lane="text">Text the customer</button><span class="small" data-lane-law></span></div>')}
-      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}Post sends (Ctrl+Enter too) · Enter is a new line · 🎤 talks into the box.</div>
+      <div class="small">${meta.foot} ${room === 'sales' ? '' : 'Type <b>@</b> for a person or a customer — a name, a street, or a phone number. Hang it on a customer and it lands on their file too. '}Post sends · Enter is a new line unless "Enter sends" is on at the top · 🎤 talks into the box.</div>
     </div>`;
 
   const say = root.querySelector('[data-say]');
@@ -303,6 +304,18 @@ function wireAt(root, ctx) {
   wireAtOn(root.querySelector('[data-say]'), root.querySelector('[data-at-pop]'), (c) => { ctx.pick = c; paintPick(root, ctx); });
 }
 /* The same picker on any box: SAY IT on The Line uses it too (Kevin, 15 Sep: "how do I add more people?"). */
+/* 132: the title beside an employee's name in the picker, from the seat rows (Luis is the production watcher → Ops manager;
+   Obed and Robert → Supervisor; Mike manages Oasis → Oasis manager; Jess → Office manager; Sam, Laura, Jonathan → Office). */
+export function titleOf(p) {
+  const brand = (cc) => { const b = BRAND_BY_CC[cc]; const n = typeof b === 'string' ? b : (b?.short || b?.name || ''); return n.replace(/ (Fencing|Roofing|Landscapes)$/i, ''); };
+  if (p.role === 'owner') return 'Owner';
+  if (p.role === 'manager' && p.team === 'office') return 'Office manager';
+  if (p.role === 'manager' && p.manages_company_id) return `${brand(p.manages_company_id) || 'Brand'} manager`;
+  if (p.role === 'manager') return (state.stageSeats || []).some((s) => s.stage === 'production' && s.watcher_id === p.id) ? 'Ops manager' : 'Supervisor';
+  if (p.role === 'office' || p.role === 'admin') return 'Office';
+  if (p.role === 'sales') return 'Sales rep' + (p.cc_default_company_id && p.cc_default_company_id !== '1461' && brand(p.cc_default_company_id) ? ' · ' + brand(p.cc_default_company_id) : '');
+  return p.role || '';
+}
 export function wireAtOn(say, pop, onCustomer) {
   if (!say || !pop) return;
   let timer = null, frag = null;
@@ -325,16 +338,18 @@ export function wireAtOn(say, pop, onCustomer) {
     timer = setTimeout(async () => {
       frag = f;
       const all = searchPeople(f.text), lower = f.text.toLowerCase();
-      // "@whit" is Whitfield, not Samantha White: a first-name prefix wins, then customers, then last-name matches
-      const people = all.filter((p) => firstName(p.name).toLowerCase().startsWith(lower));
-      const others = all.filter((p) => !people.includes(p));
+      // 132 (Kevin, 18 Sep 1:30 PM: "a bunch of Luis Gonzalez's… employees first, color coded, with the title"): every employee
+      // who matches comes first (a name that starts with what you typed before one that only contains it), then the customers.
+      const starts = (p) => String(p.name || '').toLowerCase().startsWith(lower) || firstName(p.name).toLowerCase().startsWith(lower);
+      const people = [...all.filter(starts), ...all.filter((p) => !starts(p))];
       let custs = [];
       try { custs = await searchCustomers(f.text); } catch { custs = []; }
-      if (!people.length && !custs.length && !others.length) { close(); return; }
-      const personRow = (p) => `<button class="line-item" data-at-person="${esc(mentionHandle(p).slice(1))}"><span class="line-av blue">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(mentionHandle(p))}</span><span class="pv">${esc(p.name)}${p.role ? ' · ' + esc(p.role) : ''}</span></span></button>`;
-      pop.innerHTML = (people.length ? '<div class="kicker" style="padding:6px 10px 2px">People</div>' + people.map(personRow).join('') : '')
-        + (custs.length ? '<div class="kicker" style="padding:6px 10px 2px">Customers</div>' + custs.slice(0, 6).map((c) => `<button class="line-item" data-at-cust="${esc(c.id)}" data-name="${esc(c.name)}"><span class="line-av">${esc((firstName(c.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(personName(c.name))}</span><span class="pv">${esc(c.street || c.phone || '')}${c.city ? ' · ' + esc(c.city) : ''}</span></span></button>`).join('') : '')
-        + (others.length ? '<div class="kicker" style="padding:6px 10px 2px">Also</div>' + others.map(personRow).join('') : '');
+      if (!people.length && !custs.length) { close(); return; }
+      const av = (p) => p.team === 'office' ? 'blue' : p.team === 'production' ? 'orange' : p.role === 'owner' ? 'green' : 'gold';
+      const personRow = (p) => `<button class="line-item emp" data-at-person="${esc(mentionHandle(p).slice(1))}"><span class="line-av ${av(p)}">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(p.name)}</span><span class="pv">${esc(mentionHandle(p))} · ${esc(titleOf(p))}</span></span><span class="tag emp">EMPLOYEE</span></button>`;
+      const custRow = (c) => `<button class="line-item" data-at-cust="${esc(c.id)}" data-name="${esc(c.name)}"><span class="line-av">${esc((firstName(c.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(personName(c.name))}</span><span class="pv">${esc(c.street || c.phone || '')}${c.city ? ' · ' + esc(c.city) : ''}</span></span><span class="tag cust">CUSTOMER</span></button>`;
+      pop.innerHTML = (people.length ? '<div class="kicker" style="padding:6px 10px 2px">Employees</div>' + people.map(personRow).join('') : '')
+        + (custs.length ? '<div class="kicker" style="padding:6px 10px 2px">Customers</div>' + custs.slice(0, 6).map(custRow).join('') : '');
       pop.hidden = false;
       /* the old tail below is replaced */
       pop.querySelectorAll('[data-at-person]').forEach((b) => (b.onclick = () => { replaceFrag(frag, '@' + b.dataset.atPerson); close(); }));

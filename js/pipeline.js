@@ -6,9 +6,9 @@
 // on yes or no, signed, or lost. Pick a rep, see their book by stage, tap a
 // customer and the file opens beside you. Every number comes from live rows
 // the seat can read, counted once, and says its window.
-import { state, personName, firstName } from './book.js?v=131';
-import { html, raw, esc } from './ui.js?v=131';
-import { brandName } from './config.js?v=131';
+import { state, personName, firstName } from './book.js?v=132';
+import { html, raw, esc } from './ui.js?v=132';
+import { brandName } from './config.js?v=132';
 
 let rep = 'all';
 let brand = 'all';

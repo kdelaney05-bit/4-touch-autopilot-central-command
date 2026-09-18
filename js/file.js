@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=131';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=131';
-import { enterPosts, micButton } from './dictate.js?v=131';
-import { wireAtOn } from './village.js?v=131';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=131';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=131';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=132';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=132';
+import { enterPosts, micButton } from './dictate.js?v=132';
+import { wireAtOn } from './village.js?v=132';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=132';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=132';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=131';
-import { settleDialog, handDialog } from './office.js?v=131';
-import { reload } from './app.js?v=131';
-import { relTime } from './production.js?v=131';
-import { billsCards, billsNext, wireBills } from './bills.js?v=131';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=132';
+import { settleDialog, handDialog } from './office.js?v=132';
+import { reload } from './app.js?v=132';
+import { relTime } from './production.js?v=132';
+import { billsCards, billsNext, wireBills } from './bills.js?v=132';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -233,7 +233,7 @@ function draw(root, ctx, compact) {
           <div class="line-find-pop at-pop" id="note-at-pop" hidden></div>
           <button class="btn" id="note-send">Post</button>
         </div>
-        <div class="small">Type <b>@</b> and two letters in the box to add anyone, as many as you like; Enter picks a name. Post sends (Ctrl+Enter too); Enter alone is a new line. They get a push on the phone or an email with the link to this file, and it sits in their Tagged list until they open it. A task also opens an ask on them with the clock running.</div>
+        <div class="small">Type <b>@</b> and two letters in the box to add anyone, as many as you like; Enter picks a name. Post sends; Enter alone is a new line unless "Enter sends" is on at the top. They get a push on the phone or an email with the link to this file, and it sits in their Tagged list until they open it. A task also opens an ask on them with the clock running.</div>
       </div>
     </div>
 

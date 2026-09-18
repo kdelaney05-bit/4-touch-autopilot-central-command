@@ -12,9 +12,13 @@ export function enterPosts(ta, post, isPickerOpen = () => false) {
   if (!ta) return;
   ta.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing) return;
-    if (e.metaKey || e.ctrlKey) { e.preventDefault(); post(); return; }   // the old way still works
-    // 130 (Jess, 18 Sep 12:35 PM: "we have all sent several messages that arent needed bc we hit enter"): Enter alone is a
-    // new line, the same as any text box; Ctrl+Enter (⌘+Enter) or the button sends. While an @-picker is open its own handler picks.
+    if (e.metaKey || e.ctrlKey) { e.preventDefault(); post(); return; }   // Ctrl+Enter always sends
+    // 130 (Jess, 18 Sep 12:35 PM: half-typed notes went out on Enter): Enter alone is a new line, the button sends.
+    // 132 (Kevin, 1:35 PM: "I hit the enter key… it didn't send"): the "Enter sends" switch at the top puts the old way back
+    // for that person, on that browser. While an @-picker is open its own handler picks.
+    if (isPickerOpen()) return;
+    let sends = false; try { sends = localStorage.getItem('enter_sends') === '1'; } catch { sends = false; }
+    if (sends) { e.preventDefault(); post(); }
   });
 }
 

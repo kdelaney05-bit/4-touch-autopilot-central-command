@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=131';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=131';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=131';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=131';
-import { addressPicker, addressSource } from './address.js?v=131';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=131';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=131';
-import { renderHome } from './home.js?v=131';
-import { renderRoom } from './village.js?v=131';
-import { renderSales } from './sales.js?v=131';
-import { renderPipeline } from './pipeline.js?v=131';
-import { renderMarketing } from './marketing.js?v=131';
-import { renderOffice } from './office.js?v=131';
-import { renderProduction } from './production.js?v=131';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=131';
-import { stopRoomPoll } from './village.js?v=131';
-import { renderFlow, stopFlow } from './flow.js?v=131';
-import { startTour, tourWanted } from './tour.js?v=131';
-import { startAlerts } from './alerts.js?v=131';
-import { renderPhotos } from './photos.js?v=131';
+import * as api from './api.js?v=132';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=132';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=132';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=132';
+import { addressPicker, addressSource } from './address.js?v=132';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=132';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=132';
+import { renderHome } from './home.js?v=132';
+import { renderRoom } from './village.js?v=132';
+import { renderSales } from './sales.js?v=132';
+import { renderPipeline } from './pipeline.js?v=132';
+import { renderMarketing } from './marketing.js?v=132';
+import { renderOffice } from './office.js?v=132';
+import { renderProduction } from './production.js?v=132';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=132';
+import { stopRoomPoll } from './village.js?v=132';
+import { renderFlow, stopFlow } from './flow.js?v=132';
+import { startTour, tourWanted } from './tour.js?v=132';
+import { startAlerts } from './alerts.js?v=132';
+import { renderPhotos } from './photos.js?v=132';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -331,6 +331,8 @@ window.__newJob = (prefill) => newJob(prefill);   // the Ride-Along opens the do
 async function boot() {
   $('#btn-newjob').onclick = newJob;
   $('#btn-refresh').onclick = () => reload();
+  const es = $('#enter-sends');   // 132: each person's own choice, kept on this browser
+  if (es) { try { es.checked = localStorage.getItem('enter_sends') === '1'; } catch {} es.onchange = () => { try { localStorage.setItem('enter_sends', es.checked ? '1' : '0'); } catch {} toast(es.checked ? 'Enter sends · Shift+Enter is a new line' : 'Enter is a new line · the button sends'); }; }
   $('#btn-signout').onclick = async () => { await api.signOut(); state.me = null; showSignIn(); };
   $('#si-form').onsubmit = async (e) => {
     e.preventDefault();

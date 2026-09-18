@@ -320,6 +320,13 @@ nav.side .card button.findrow:hover { background: var(--goldsoft); }
 .line-av.blue { background: var(--officesoft); color: var(--office); border-color: transparent; }
 .line-av.orange { background: var(--prodsoft); color: var(--prod); border-color: transparent; }
 .line-av.green { background: var(--greensoft); color: var(--verify); border-color: transparent; }
+/* 132: employees and customers look different in the @ picker */
+.line-item.emp { background: var(--officesoft); border-color: transparent; }
+.line-item.emp:hover { background: #d3ddec; }
+.line-item .tag { font-family: var(--mono); font-size: 9px; letter-spacing: .06em; padding: 3px 6px; border-radius: 6px; white-space: nowrap; }
+.line-item .tag.emp { background: var(--office); color: #fff; }
+.line-item .tag.cust { background: var(--card-hi); color: var(--dimmer); border: 1px solid var(--line); }
+nav.side .who .enter-sends { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; white-space: nowrap; }
 .line-av.red { background: #fbf1ef; color: var(--red); border-color: transparent; }
 .line-item .nm { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .line-item .pv, .line-row .pv { display: block; font-size: 11px; color: var(--dimmer); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
