@@ -44,8 +44,12 @@ you do moves yet.
      Sam's catch): the machine writes it there the minute you press Open the
      file, moves it when you change the time, takes it off when you cancel —
      once Kevin has given the machine the calendar permission. Until then a
-     visit booked here is on the rep's phone and on the file, not on Google;
-     Copy for CC and typing it into CC puts it on Google the way it does today.
+     visit booked here is on the rep's phone and on the file, not on Google:
+     press Copy for CC, type it into CC the way you do today, and press
+     Typed into CC — CC puts it on his Google Calendar as always, and the
+     machine sees you did it (405) so it never adds a second one. Do not add
+     it to Google by hand on his calendar; the machine cannot see that, and
+     the rep would get the visit twice.
 
 ## Everything you do in Contractors Cloud today, and where it is here
 
