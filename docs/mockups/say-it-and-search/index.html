@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Mockups · quick search on every page · Tell the team inside the customer file</title>
+<style>
+  :root{--bg:#141c2b;--bg2:#1a2436;--card:#111827;--panel:#182238;--line:rgba(255,255,255,.09);--ink:#eef0ec;--dim:#8a93a3;--gold:#c9962b;--gold2:#e9c46a;--goldsoft:rgba(233,196,106,.12);--teal:#4fd1c5;--green:#4fd1a5;--orange:#f0955e;--red:#ff7a6e}
+  *{box-sizing:border-box} body{margin:0;background:#0b0f17;color:var(--ink);font:15px/1.4 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;padding:24px}
+  .row{display:flex;gap:28px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+  .shot{width:390px}
+  .cap{font:600 13px/1.35 -apple-system,"Segoe UI",sans-serif;color:#cfd6e2;margin:10px 4px 0;max-width:390px}
+  .cap b{color:#e9c46a}
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:28px;overflow:hidden;position:relative;border:1px solid #2a3547;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:700;font-size:16px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 10px}
+  .logo{display:flex;align-items:center;gap:8px;color:#7d8798;font:12px/1 "IBM Plex Mono",Consolas,monospace}
+  .logo .o{width:34px;height:34px;border-radius:50%;border:2px solid #3a4a66;display:grid;place-items:center;font-size:14px}
+  .mono{font-family:"IBM Plex Mono",Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;font-size:11px}
+  .bar{background:#3a2e12;color:#c9a35a;padding:10px 16px;display:flex;gap:18px;font-weight:700}
+  .bar .on{color:#fff}
+  .money{display:flex;justify-content:space-around;padding:12px 8px;border-bottom:1px solid var(--line)}
+  .money div{text-align:center}.money .k{color:#8a93a3;font-size:10px;letter-spacing:.14em}.money .v{font:800 22px/1.2 "IBM Plex Mono",Consolas,monospace}
+  .money .v.g{color:#7cc79a}
+  .card{margin:12px 14px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+  .card.gold{border-color:rgba(201,150,43,.55)}
+  .kick{color:var(--gold2);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:"IBM Plex Mono",Consolas,monospace;margin-bottom:8px}
+  .lead{font-size:16px;line-height:1.35;margin:0 0 8px}
+  .search{display:flex;align-items:center;gap:10px;background:#0e1420;border:1px solid rgba(233,196,106,.45);border-radius:14px;padding:11px 14px;color:#8a93a3}
+  .search .ico{font-size:18px}.search b{color:#eef0ec;font-weight:600}
+  .fab{position:absolute;right:16px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:24px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .fab.search{bottom:200px;background:#e9c46a;color:#1c1a15;border:2px solid #fff3;font-weight:800}
+  .fab.rocket{bottom:270px;background:#2f6b57;border:2px solid #4fd1a5}
+  .fab.bell{bottom:130px;background:#c9962b;border:2px solid #f4d58d}
+  .tabs{position:absolute;left:0;right:0;bottom:0;height:86px;background:#111a2a;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding-bottom:14px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#8a93a3}
+  .tab .i{font-size:20px}.tab.on{color:#fff}.tab.on .i{background:#0e1420;border-radius:10px;padding:2px 8px}
+  .chipsrow{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid rgba(233,196,106,.45);background:rgba(233,196,106,.08);border-radius:12px;padding:6px 10px;color:#f4d58d;font-weight:800;font-size:12px}
+  .chip small{display:block;color:#8a93a3;font-weight:500;font-size:9.5px}
+  .chip.on{background:#e9c46a;color:#1c1a15}.chip.on small{color:#1c1a15}
+  .chip.big{border-color:rgba(233,196,106,.7);background:rgba(233,196,106,.14)}
+  .sec{color:#f4d58d;font-size:10.5px;letter-spacing:.08em;font-weight:800;margin:8px 0 5px;display:flex;align-items:center;gap:8px}
+  .sec .grp{border:1px solid rgba(233,196,106,.7);background:rgba(233,196,106,.14);border-radius:12px;padding:5px 10px;color:#f4d58d;font-size:12px;font-weight:800;letter-spacing:0}
+  .box{background:rgba(255,255,255,.06);border-radius:10px;padding:10px;color:#8a93a3;min-height:52px;margin-top:8px}
+  .post{display:flex;align-items:center;gap:12px;margin-top:10px}
+  .btn{background:#c9962b;color:#1c1a15;font-weight:800;border-radius:10px;padding:9px 16px;letter-spacing:.04em}
+  .ok{color:#7cc79a;font-size:12px}
+  .thread{margin-top:8px}
+  .msg{max-width:84%;border-radius:14px;padding:9px 11px;font-size:13.5px;margin-top:8px}
+  .msg.in{background:#26303a}.msg.out{background:#1f5f3a;margin-left:auto}
+  .msg.note{background:#2b2410;border:1px dashed rgba(233,196,106,.6)}
+  .msg .k{color:#e9c46a;font-size:9px;letter-spacing:.1em;font-weight:800;margin-bottom:3px}
+  .msg .r{color:#e9c46a;font-size:10.5px;margin-top:4px}
+  .msg .t{color:#8a93a3;font-size:9.5px;margin-top:4px;text-align:right}
+  .lanes{display:flex;gap:8px;margin-top:10px}
+  .lane{flex:1;text-align:center;border-radius:12px;border:1px solid var(--line);padding:8px;font-weight:900;font-size:11.5px;letter-spacing:.06em;color:#8a93a3}
+  .lane.on{background:#e9c46a;color:#1c1a15;border-color:#e9c46a}
+  .hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px}
+  .hdr h1{font-size:22px;margin:0;font-weight:800}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px;color:#8a93a3}
+  .sheet{position:absolute;left:0;right:0;bottom:0;top:120px;background:#0e1420;border-radius:24px 24px 0 0;border-top:1px solid rgba(233,196,106,.4);padding:14px}
+  .sheet .search{border-color:#e9c46a;background:#131c2b}
+  .hit{padding:10px 8px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .hit b{font-weight:700}.hit small{color:#8a93a3;display:block;font-size:11px}
+  .hit .go{color:#e9c46a;font-weight:800;font-size:12px}
+  .dimline{color:#8a93a3;font-size:11px;margin-top:6px}
+  .ml{color:#e9c46a;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:"IBM Plex Mono",Consolas,monospace}
+  .ml2{font-size:16px;margin:6px 0 10px}
+  .mlcard{border:1px solid rgba(240,149,94,.45);border-radius:14px;padding:10px;margin-top:8px}
+  .mlcard b{display:block;font-size:15px}.mlcard p{margin:4px 0 6px;font-size:13.5px}
+  .mlbtn{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:11px;font-weight:800;letter-spacing:.06em;color:#eef0ec;margin-right:6px}
+  .mlbtn.go{background:#f0955e;color:#1c1a15;border-color:#f0955e}
+  h2.title{color:#fff;font-size:26px;margin:0 0 6px}
+  .sub{color:#cfd6e2;max-width:1240px;margin:0 auto 22px;font-size:15px}
+</style></head>
+<body>
+<h2 class="title" style="text-align:center">Three mockups · nothing is built yet</h2>
+<p class="sub" style="text-align:center">A. The front page without the big box: one thin <b>Find a customer</b> line, and a gold 🔍 button that rides on every tab. &nbsp; B. The search sheet the 🔍 opens, from any page. &nbsp; C. The customer file, with <b>Tell the team</b> living there: the pick lists, the note in the thread, the receipt.</p>
+<div class="row">
+
+  <!-- A · Today, no big box, quick search -->
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>8:15</span><span>▂▄▆ LTE ▮</span></div>
+      <div class="top"><div class="logo"><span class="o">◎</span> v1.0.4 · build 116</div><div style="display:flex;gap:10px;align-items:center"><span class="pill" style="border-color:#c9962b;color:#e9c46a">🏦 —</span><span style="font-size:22px">🔥</span></div></div>
+      <div class="bar mono"><span>LIVE · CC</span><span>DEMO DATA</span><span class="on">EVERYONE</span></div>
+      <div class="money"><div><div class="k">TODAY</div><div class="v g">$12,300</div></div><div><div class="k">WEEK</div><div class="v">$52,800</div></div><div><div class="k">MONTH</div><div class="v">$138,000</div></div></div>
+      <div class="card" style="padding:10px 12px"><div class="search"><span class="ico">🔍</span><span>Find a customer · last name, street, or phone</span></div></div>
+      <div class="card"><div class="ml">☀ The Morning Line · who moved overnight</div><div class="ml2">8 customers touched your stuff since last night. 3 are ready for a call.</div>
+        <div class="mlcard"><b>🔥 Reed, Dana <span style="float:right;color:#8a93a3;font-weight:500">$14,200</span></b><p>Dana came back to you 2:24 PM after opening 1 of your links. Call.</p><span class="mlbtn go">📞 CALL</span><span class="mlbtn">OPEN FILE</span></div>
+        <div class="mlcard"><b>♨ Brantley, K. <span style="float:right;color:#8a93a3;font-weight:500">$4,600</span></b><p>Opened 5 of your links since last night, last at 9:10 AM. Text first, then call.</p><span class="mlbtn go">💬 TEXT</span><span class="mlbtn">OPEN FILE</span></div>
+      </div>
+      <div class="fab rocket">🚀</div><div class="fab search">🔍</div><div class="fab bell">🔔</div>
+      <div class="tabs"><div class="tab on"><span class="i">📅</span>Today</div><div class="tab"><span class="i">$</span>Pipeline</div><div class="tab"><span class="i">💬</span>Texts</div><div class="tab"><span class="i">📊</span>Rank</div><div class="tab"><span class="i">🎁</span>Rewards</div><div class="tab"><span class="i">⋯</span>More</div></div>
+    </div>
+    <div class="cap"><b>A · The front page.</b> The big Say It box is gone. One thin <b>Find a customer</b> line sits under the money, and the gold <b>🔍</b> rides with the rocket and the bell on <b>every tab</b>. The Morning Line moves up where it belongs.</div>
+  </div>
+
+  <!-- B · the search sheet -->
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>8:15</span><span>▂▄▆ LTE ▮</span></div>
+      <div class="top"><div class="logo"><span class="o">◎</span> v1.0.4 · build 116</div><div style="display:flex;gap:10px;align-items:center"><span class="pill" style="border-color:#c9962b;color:#e9c46a">🏦 —</span><span style="font-size:22px">🔥</span></div></div>
+      <div class="bar mono"><span>LIVE · CC</span><span>DEMO DATA</span><span class="on">EVERYONE</span></div>
+      <div class="sheet">
+        <div class="kick">🔍 Find a customer · from any page</div>
+        <div class="search"><span class="ico">🔍</span><b>ree</b><span style="margin-left:auto;color:#e9c46a;font-weight:800">✕</span></div>
+        <div class="hit"><div><b>Reed, Dana</b><small>Melbourne · Aluminum + gate · Ron · $14,200 · signed</small></div><span class="go">OPEN ›</span></div>
+        <div class="hit"><div><b>Reeves, Marcus</b><small>Palm Bay · vinyl privacy · Eric · estimate out</small></div><span class="go">OPEN ›</span></div>
+        <div class="hit"><div><b>Greene, Theresa</b><small>Vero Beach · 6' aluminum · Haakon · booked Thu</small></div><span class="go">OPEN ›</span></div>
+        <div class="dimline">Type a last name, a street, or the last 4 of a phone. Tap OPEN and the file comes up, wherever you were.</div>
+        <div style="margin-top:14px" class="kick">Recent</div>
+        <div class="hit"><div><b>Brantley, K.</b><small>Palm Bay · Oasis · Mike</small></div><span class="go">OPEN ›</span></div>
+        <div class="hit"><div><b>Okonkwo, Grace</b><small>Vero Beach · roof · Travis</small></div><span class="go">OPEN ›</span></div>
+      </div>
+      <div class="tabs"><div class="tab"><span class="i">📅</span>Today</div><div class="tab on"><span class="i">$</span>Pipeline</div><div class="tab"><span class="i">💬</span>Texts</div><div class="tab"><span class="i">📊</span>Rank</div><div class="tab"><span class="i">🎁</span>Rewards</div><div class="tab"><span class="i">⋯</span>More</div></div>
+    </div>
+    <div class="cap"><b>B · The search, from anywhere.</b> Tap the 🔍 on any tab (here it was Pipeline) and this sheet slides up: type three letters, tap OPEN, the customer's file comes up on top of whatever you were doing. Recent files under it.</div>
+  </div>
+
+  <!-- C · the customer file with Tell the team -->
+  <div class="shot">
+    <div class="phone">
+      <div class="status"><span>8:15</span><span>▂▄▆ LTE ▮</span></div>
+      <div class="hdr"><h1>Reed, Dana</h1><span class="pill">✕ Close</span></div>
+      <div style="padding:0 16px;color:#8a93a3;font-size:12px">Melbourne · Aluminum + gate · $14,200 · signed Sep 14 · Ron</div>
+      <div class="card" style="padding:12px">
+        <div class="kick">💬 Texts · emails · the file</div>
+        <div class="thread">
+          <div class="msg in">Great, the side gate will be unlocked.<div class="t">Sep 14 · 6:41 PM</div></div>
+          <div class="msg out">All done, Dana. 6 photos are on your file. Laura will send the invoice today. — Obed<div class="t">Today · 5:50 PM</div></div>
+          <div class="msg note"><div class="k">INSIDE · YOU · THE CUSTOMER NEVER SEES THIS</div>@Jessica Coley @Obed Dana wants the gate moved to the left side. Can you update the drawing before Friday?<div class="r">→ Jessica ✉ 7:12 PM · Obed 👀 seen 7:20 PM</div><div class="t">Today · 7:11 PM</div></div>
+        </div>
+        <div class="lanes"><div class="lane">TEXT DANA</div><div class="lane on">TELL THE TEAM</div></div>
+        <div class="sec" style="margin-top:10px">THIS JOB</div>
+        <div class="chipsrow"><span class="chip big">Ron Seidel<small>rep · 📱</small></span><span class="chip big on">✓ Obed Santiago<small>supervisor · ✉</small></span><span class="chip big on">✓ Jessica Coley<small>office · ✉</small></span></div>
+        <div class="sec">SALES ▾ pick <span class="grp">All sales</span></div>
+        <div class="sec">SUPERVISORS ▾ pick <span class="grp">All supervisors</span></div>
+        <div class="sec">OFFICE ▾ pick <span class="grp">The office</span></div>
+        <div class="sec">OWNERS ▾ pick</div>
+        <div class="box">Say it. Tap names above, or type @Name in the words.</div>
+        <div class="post"><span class="btn">POST</span><span class="ok">to @Obed @Jessica Coley · on Dana's file</span></div>
+      </div>
+      <div class="tabs"><div class="tab on"><span class="i">📅</span>Today</div><div class="tab"><span class="i">$</span>Pipeline</div><div class="tab"><span class="i">💬</span>Texts</div><div class="tab"><span class="i">📊</span>Rank</div><div class="tab"><span class="i">🎁</span>Rewards</div><div class="tab"><span class="i">⋯</span>More</div></div>
+    </div>
+    <div class="cap"><b>C · Inside the customer file.</b> The same thread as the texts. Tap <b>TELL THE TEAM</b>: THIS JOB first, then the four groups with All and a pick list. POST puts the note in the thread with the receipt under it: who was emailed, who has seen it. No customer to pick, you are already on Dana.</div>
+  </div>
+
+</div>
+</body></html>
