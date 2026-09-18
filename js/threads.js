@@ -49,7 +49,7 @@ const agoWord = (iso) => { const m = mins(iso); return m < 1 ? 'NOW' : m < 60 ? 
 const relTime = (iso) => { const d = new Date(iso); const today = new Date().toDateString() === d.toDateString(); return (today ? '' : d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ') + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
 const lit = (s) => s.replace(/@([A-Z][A-Za-z]+(?: [A-Z][a-z]+)?|[a-z]+)/g, (m0) => '<span class="at">' + m0 + '</span>');
 const face = (p) => {
-  const ini = (p?.initials || firstName(p?.name || '') || '?').slice(0, 2).toUpperCase();
+  const ini = (p?.initials || String(p?.name || '').trim().split(/s+/).map((w) => w[0] || '').join('') || '?').slice(0, 2).toUpperCase();
   return `<span class="ini${p?.avatar ? ' face' : ''}" title="${esc(p?.name || '')}" style="${charStyle({ name: p?.name }, p)}">${esc(charFace({ initials: ini }, p))}</span>`;
 };
 const facesOf = (members, max = 5) => `<span class="vfaces">${(members || []).slice(0, max).map((m) => face(P(m.id) || m)).join('')}${(members || []).length > max ? `<span class="ini">+${members.length - max}</span>` : ''}</span>`;

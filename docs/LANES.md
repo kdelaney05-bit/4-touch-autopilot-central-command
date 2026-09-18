@@ -36,3 +36,7 @@ Rules that hold in every lane: every outbound text/email is a draft until
 Kevin says send; signing is not selling; never edit a published terms
 version in place; nothing is switched over from Contractors Cloud until
 Kevin says so.
+
+## The Village
+
+- **18 Sep, 4:15 PM — THE VILLAGE AS CONVERSATIONS (v137, migration 411).** Kevin: "split off into little threads… see all the conversations… I want to message people, I want to message sales, I want to stay in this screen." The Village tab is a board of cards (faces = the conversation, waiting longest on top, the four standing rooms always there, a dashed card to start one), By person as a switch, Reply splits off a little thread, Enter sends. Drawing: `docs/the-village-threads.html`. Was/is on top of the page. Owed: the picture on the was/is (the pane would not draw), the film.
