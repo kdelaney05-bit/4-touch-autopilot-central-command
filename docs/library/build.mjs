@@ -77,6 +77,7 @@ try {
 //     where it plays (app · cc · customer · paper), the one-line "short", and the plain questions it answers.
 const KNOWN = {
   'ride-along-the-library': { where: ['app', 'cc'], short: 'Where to find how anything works: type what you want to do, tap a question, watch two minutes.', ask: ['Where do I find how something works?'] },
+  'jermey-pro-tech-is-on-your-texts-leave-from-321-352-6955': { where: ['app'], short: 'Jermey texts from the Pro-Tech line, 321-352-6955, from the app: the same words-first sheet, SEND is his, the reply lands on the file.', ask: ['Which number do my texts go out from (Jermey, Pro-Tech)?'] },
   'ride-along-words-first': { where: ['app'], short: 'Every text button on the file shows you the words first. Read it, change it, tap SEND. You stay on the file.', ask: ['How do I text a customer from the app?', 'Why did nothing go out when I tapped a text button?'] },
   'ride-along-say-it': { where: ['app'], short: 'The gold 🔍 finds any customer in three letters from any page. TELL THE TEAM inside the file reaches anyone on the job, with a receipt.', ask: ['How do I find a customer from any page?', 'How do I tell Jess, a supervisor or the office something about a customer?'] },
   'ride-along-when-you-miss-a-call-or-a-text': { where: ['app'], short: 'A customer call or text you miss buzzes your phone once. Every call sits on the customer’s file, a missed one in red.', ask: ['What happens when I miss a call or a text?'] },
@@ -112,9 +113,11 @@ const h = fs.readFileSync(path.join(ROOT, 'docs', 'ride-alongs.html'), 'utf8');
 const boxes = [...h.matchAll(/<div class="box[^"]*">([\s\S]*?)<\/div>\s*<\/div>/g)].map((m) => m[1]);
 const dateOf = (meta) => { const m = /(\d{1,2})(?:\s*[–-]\s*(\d{1,2}))?\s*Sep/.exec(meta || ''); if (!m) return null; return `2026-09-${String(+(m[2] || m[1])).padStart(2, '0')}`; };
 const guessWhere = (text) => { const t = text.toLowerCase(); const w = new Set(); if (/phone app|4-touch app|app pr|ota|supervisor app|in the app/.test(t)) w.add('app'); if (/central command|\bv\d{2,3}\b|the office room|on the file in/.test(t)) w.add('cc'); if (/customer's phone|the customer does/.test(t)) w.add('customer'); if (/printed|a page, not a film|print/.test(t)) w.add('paper'); return [...w]; };
-const shortOf = (what) => { let s = what.replace(/^(Kevin|Kevin and Jess|The)[^:]{0,60}:\s*"[^"]*"\.?\s*/g, '').replace(/^(Then|So,)[^.]*\.\s*/, ''); const first = /^(.{20,220}?[.!?])(\s|$)/.exec(s); return (first ? first[1] : s.slice(0, 200)).trim(); };
-const seen = new Set();   // two boxes may play the same film (Jermey's Pro-Tech note reuses the words-first film): each piece keeps its own id and its own words
-const rows = boxes.map((b) => {
+const shortOf = (what) => { let s = what.replace(/^(Kevin|Jess|Sam|Mike)[^"]{0,140}"[^"]*"[.,]?\s*/, '').replace(/^(Then|So,|And)[^.]*\.\s*/, ''); const first = /^(.{20,220}?[.!?])(\s|$)/.exec(s); return (first ? first[1] : s.slice(0, 200)).trim(); };
+// two boxes may play the same film (Jermey's Pro-Tech note, 18 Sep, reuses the words-first film): the film's OWN piece is
+// the lowest box that names it (the page is newest on top; a note that reuses a film comes later, so higher), so it keeps
+// the film's id, short and questions; a reuse gets its own id from its title, and its own short and KNOWN by that slug.
+const parsed = boxes.map((b) => {
   const title = strip((/<h2>([\s\S]*?)<\/h2>/.exec(b) || [])[1] || '');
   const what = [...b.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((m) => strip(m[1])).join(' ');
   let film = (/(?:watch|film)\.html\?f=([^&"]+)/.exec(b) || [])[1] || null; if (film && !frames[film]) film = null;
@@ -127,10 +130,15 @@ const rows = boxes.map((b) => {
   const page = (links.find((l) => /^[a-z0-9-]+\.html$/.test(l.href)) || {}).href;
   const key = film || (tourKey ? 'tour:' + tourKey : page ? page.replace(/\.html$/, '') : null);
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const again = !!(key && seen.has(key)); if (key) seen.add(key);
-  const k = again ? {} : (KNOWN[key] || {});
+  return { title, what, film, go, meta, links, tour, tourKey, key, slug };
+});
+const owner = new Map(); parsed.forEach((p, i) => { if (p.key) owner.set(p.key, i); });   // the last (lowest) box owns the key
+const rows = parsed.map((p, i) => {
+  const { title, what, film, go, meta, links, tour, tourKey, key, slug } = p;
+  const owns = !!key && owner.get(key) === i;
+  const k = (owns && KNOWN[key]) || KNOWN[slug] || {};
   return {
-    id: again || !key ? slug : key,
+    id: owns ? key : slug,
     title, what, short: k.short || shortOf(what), film,
     go: go ? decodeURIComponent(go) : (tour ? tour.replace(/^\.\.\//, '').replace(/&voice=1$/, '') : null),
     tour, meta, date: dateOf(meta), where: k.where || guessWhere(meta + ' ' + what), ask: k.ask || [],
