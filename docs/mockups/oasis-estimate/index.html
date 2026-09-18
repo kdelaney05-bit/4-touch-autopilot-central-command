@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockups · the Oasis estimate · nothing built (Kevin, 17 Sep 2026: "show me examples of mockups for the oasis new est")</title>
+<style>
+  :root{--teal:#17A398;--teal2:#0f7d74;--tealsoft:#e6f5f3;--gold:#e3a51d;--goldsoft:#fdf3dc;--ink:#1d2a2a;--dim:#5f6b6a;--line:#dfe6e4;--paper:#fffdf8;--green:#1e6b3a}
+  *{box-sizing:border-box} body{margin:0;background:#0b0f17;color:#eef0ec;font:15px/1.4 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;padding:24px}
+  h1.page{font-size:18px;margin:0 0 4px;color:#e9c46a} p.page{color:#8a93a3;margin:0 0 22px;max-width:900px}
+  .row{display:flex;gap:28px;align-items:flex-start;justify-content:center;flex-wrap:wrap;margin-bottom:34px}
+  .cap{font:600 13px/1.35 -apple-system,"Segoe UI",sans-serif;color:#cfd6e2;margin:10px 4px 0;max-width:390px} .cap b{color:#e9c46a}
+  .cap.wide{max-width:820px}
+  body.one{padding:0;background:#0b0f17} body.one .row{margin:0}
+  body.one.paper{background:#fff}
+
+  /* ── THE PAD (letter page, Oasis) ───────────────────────────────────── */
+  .pad{width:816px;min-height:1056px;background:var(--paper);color:var(--ink);position:relative;padding:34px 40px 30px;font:12.5px/1.35 -apple-system,"Source Sans 3","Helvetica Neue",Arial,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .pad .top{display:grid;grid-template-columns:1fr auto;align-items:end;border-bottom:3px solid var(--teal);padding-bottom:10px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{width:46px;height:46px;border-radius:50%;background:var(--teal);display:grid;place-items:center}
+  .brand .mark svg{width:30px;height:30px}
+  .brand .nm{font-size:22px;font-weight:900;letter-spacing:.12em;color:var(--teal2);line-height:1}
+  .brand .nm small{display:block;font-size:10px;letter-spacing:.22em;color:var(--dim);font-weight:700;margin-top:3px}
+  .meta{text-align:right;font-size:11px;color:var(--dim)} .meta b{display:block;color:var(--ink);font-size:13px}
+  .meta .no{font-size:18px;font-weight:900;color:var(--teal2);letter-spacing:.06em}
+  .who{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .who .k{font-size:9.5px;letter-spacing:.16em;color:var(--dim);font-weight:800;margin-bottom:2px}
+  .who .v{font-size:14px;font-weight:700} .who .v small{display:block;font-weight:500;color:var(--dim);font-size:12px}
+  .body{display:grid;grid-template-columns:1fr 250px;gap:22px;padding-top:14px}
+  .sec{margin-bottom:12px}
+  .sec .hd{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.18em;font-weight:900;color:var(--teal2);border-bottom:1.5px solid var(--teal);padding-bottom:3px;margin-bottom:6px}
+  .sec .hd .n{width:18px;height:18px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:10px;letter-spacing:0}
+  .sec .hd .where{font-weight:600;letter-spacing:.02em;color:var(--dim);text-transform:none;font-size:11px;margin-left:auto}
+  .item{display:grid;grid-template-columns:26px 1fr auto auto;gap:8px;align-items:center;padding:4px 0;border-bottom:1px dotted var(--line)}
+  .item:last-child{border-bottom:0}
+  .item .ic{width:24px;height:24px;color:var(--teal2)} .item .ic svg{width:24px;height:24px}
+  .item .l{font-weight:700;font-size:12.5px} .item .l small{display:block;font-weight:400;color:var(--dim);font-size:10.5px}
+  .item .q{font-size:11.5px;color:var(--dim);white-space:nowrap;text-align:right} .item .q b{color:var(--ink);font-size:12.5px}
+  .item .a{font-weight:800;font-size:12.5px;min-width:64px;text-align:right}
+  .sub{display:flex;justify-content:flex-end;gap:10px;font-size:11px;color:var(--dim);padding-top:3px} .sub b{color:var(--ink)}
+  .side .plan{border:1.5px solid var(--line);border-radius:6px;background:#fff;padding:6px;margin-bottom:12px}
+  .side .plan .t{font-size:9.5px;letter-spacing:.16em;color:var(--dim);font-weight:800;margin:2px 0 4px}
+  .side .plan svg{width:100%;height:auto;display:block}
+  .panel{border:1.5px solid #3c4a63;background:#fff;margin-bottom:10px;overflow:hidden}
+  .panel .hd{background:#3c4a63;color:#fff;font-weight:800;font-size:10px;letter-spacing:.14em;padding:5px 9px}
+  .panel.pay .hd{background:var(--teal2)}
+  .opt{display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px;padding:6px 9px;border-top:1px solid #e2e2e2}
+  .opt .l{font-size:12px;font-weight:800;line-height:1.1} .opt .l small{display:block;font-size:9.5px;font-weight:400;color:#555;margin-top:1px}
+  .opt .v{font-size:24px;font-weight:800;color:var(--teal2);line-height:1;white-space:nowrap} .opt .v small{font-size:10px;font-weight:700;color:#555;margin-left:2px}
+  .opt.pick{background:var(--goldsoft)} .opt.pick .l::after{content:"MOST PICK THIS";font-size:8px;letter-spacing:.12em;color:#8a5a00;font-weight:900;margin-left:6px}
+  .opt.full{background:#f4f4f4} .opt.full .l{font-size:10.5px;font-weight:600} .opt.full .v{font-size:14px}
+  .foot{font-size:8.6px;color:#666;padding:4px 9px 6px;line-height:1.35}
+  .foot a{color:var(--teal2);font-weight:800;text-decoration:none}
+  .sched{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #e2e2e2}
+  .sched div{padding:7px 9px} .sched div+div{border-left:1px solid #e2e2e2}
+  .sched .k{font-size:8.6px;letter-spacing:.14em;color:var(--dim);font-weight:800} .sched .v{font-size:16px;font-weight:800;color:var(--ink)} .sched .s{font-size:9px;color:#666}
+  .qual{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:7px 9px}
+  .qual .chk{width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800}
+  .qual .t{font-size:12px;font-weight:800;line-height:1.1} .qual .t small{display:block;font-size:9px;font-weight:400;color:#555;margin-top:2px}
+  .qual .amt{font-size:16px;font-weight:800;color:var(--teal2)}
+  .total{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:8px;border-top:2px solid var(--ink);padding-top:6px;margin-top:4px}
+  .total .k{font-size:10px;letter-spacing:.18em;font-weight:900;color:var(--dim)} .total .k small{display:block;letter-spacing:0;font-weight:400;font-size:9.5px;text-transform:none}
+  .total .v{font-size:30px;font-weight:900;color:var(--teal2);letter-spacing:-.01em}
+  .signrow{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-top:16px;padding-top:10px;border-top:1px solid var(--line)}
+  .spot{border:1.5px solid var(--green);background:rgba(31,111,74,.10);color:var(--green);border-radius:5px;height:34px;display:grid;place-items:center;font-size:9.5px;font-weight:900;letter-spacing:.12em;white-space:nowrap}
+  .spot.date{background:#fff;border-style:dashed;color:var(--dim)}
+  .lbl{font-size:9px;letter-spacing:.16em;color:var(--dim);font-weight:800;margin-top:3px}
+  .fine{font-size:8.6px;color:#777;margin-top:12px;line-height:1.4}
+  .repline{font-size:10.5px;color:var(--dim);margin-top:6px}
+
+  /* ── THE PHONE ──────────────────────────────────────────────────────── */
+  .phone{width:390px;height:844px;background:#f4f2ec;border-radius:28px;overflow:hidden;position:relative;border:1px solid #2a3547;box-shadow:0 20px 60px rgba(0,0,0,.6);color:var(--ink);font:14px/1.4 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+  .phone .hdr{background:var(--teal2);color:#fff;padding:52px 16px 12px;display:flex;justify-content:space-between;align-items:center}
+  .phone .hdr b{font-size:13px;letter-spacing:.14em} .phone .hdr span{font-size:12px;color:#c9f3ee}
+  .scroll{padding:12px 12px 120px}
+  .hero{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(20,30,50,.14);overflow:hidden;margin-bottom:12px}
+  .hero .plan{background:#fff;padding:8px 10px 0} .hero .plan svg{width:100%;height:auto;display:block}
+  .hero .hb{padding:10px 14px 12px}
+  .hero .k{font-size:10px;letter-spacing:.16em;color:var(--dim);font-weight:800}
+  .hero .t{font-size:19px;font-weight:900;color:var(--teal2);margin:2px 0 4px}
+  .hero .s{font-size:12.5px;color:var(--dim)}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(20,30,50,.14);padding:12px 14px;margin-bottom:12px}
+  .card .hd{display:flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.16em;font-weight:900;color:var(--teal2);margin-bottom:6px}
+  .card .hd .n{width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-size:11px;letter-spacing:0}
+  .card .hd .where{margin-left:auto;font-weight:600;letter-spacing:.02em;color:var(--dim);font-size:11px}
+  .pl{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dotted var(--line)}
+  .pl:last-child{border-bottom:0}
+  .pl .ic{width:34px;height:34px;border-radius:9px;background:var(--tealsoft);display:grid;place-items:center;color:var(--teal2)} .pl .ic svg{width:24px;height:24px}
+  .pl .l{font-weight:700;font-size:14px} .pl .l small{display:block;font-weight:400;color:var(--dim);font-size:11.5px}
+  .pl .a{font-weight:800;text-align:right;font-size:14px} .pl .a small{display:block;font-weight:500;color:var(--dim);font-size:10.5px}
+  .csub{display:flex;justify-content:flex-end;gap:8px;font-size:12px;color:var(--dim);padding-top:6px} .csub b{color:var(--ink)}
+  .tot{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(20,30,50,.14);padding:14px;margin-bottom:12px}
+  .tot .r{display:flex;justify-content:space-between;font-size:13px;color:var(--dim);padding:3px 0} .tot .r b{color:var(--ink)}
+  .tot .r.big{border-top:2px solid var(--ink);margin-top:6px;padding-top:8px;font-size:12px;letter-spacing:.14em;font-weight:900;align-items:baseline} .tot .r.big b{font-size:28px;color:var(--teal2)}
+  .tot .r.disc{color:var(--green)} .tot .r.disc b{color:var(--green)}
+  .payc{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(20,30,50,.14);overflow:hidden;margin-bottom:12px}
+  .payc .hd{background:var(--teal2);color:#fff;font-weight:800;font-size:10.5px;letter-spacing:.14em;padding:8px 14px}
+  .payc .opt{padding:10px 14px} .payc .opt .l{font-size:14px} .payc .opt .l small{font-size:11px} .payc .opt .v{font-size:26px} .payc .opt.full .l{font-size:12px} .payc .opt.full .v{font-size:16px}
+  .payc .foot{font-size:11px;padding:8px 14px 10px} .payc .sched .k{font-size:9.5px} .payc .sched .v{font-size:18px} .payc .sched .s{font-size:10.5px} .payc .sched div{padding:9px 14px}
+  .chk60{display:block;margin:0 14px 12px;border:1.5px solid var(--teal2);color:var(--teal2);border-radius:10px;padding:10px;text-align:center;font-weight:800;font-size:13px;letter-spacing:.04em;text-decoration:none}
+  .chk60 small{display:block;font-weight:500;color:var(--dim);font-size:11px;letter-spacing:0;margin-top:2px}
+  .signc{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(20,30,50,.14);padding:14px;margin-bottom:12px}
+  .signc h2{margin:0 0 3px;font-size:15px;letter-spacing:.04em;color:var(--teal2)} .signc p{margin:0 0 10px;font-size:12.5px;color:var(--dim)}
+  .padw{border:1.5px dashed #c9c5b8;border-radius:10px;background:#fcfbf7;height:120px;display:grid;place-items:center;color:#a9a89c;font-size:13px;letter-spacing:.04em;position:relative}
+  .padw::after{content:"";position:absolute;left:18px;right:18px;bottom:30px;border-top:1.5px solid #e0ddd0}
+  .terms{font-size:12px;color:#3d4450;margin-top:10px} .terms u{color:var(--teal2);font-weight:700}
+  .bar{position:absolute;left:12px;right:12px;bottom:14px;background:#14213d;color:#fff;border-radius:14px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+  .bar b{display:block;font-size:13px;letter-spacing:.04em} .bar span{font-size:11px;opacity:.85;line-height:1.3;display:block}
+  .bar button{background:#fff;color:#14213d;font:800 13px/1 inherit;letter-spacing:.05em;padding:11px 14px;border-radius:8px;border:0}
+  .dep{background:#fff;border:2px solid var(--gold);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 2px 14px rgba(20,30,50,.14)}
+  .dep h2{margin:0 0 2px;font-size:14px;letter-spacing:.05em;color:var(--teal2)} .dep .amt{font-size:30px;font-weight:900;color:var(--teal2);margin:4px 0 2px} .dep p{margin:0 0 12px;font-size:12.5px;color:var(--dim)}
+  .dep .pay{display:block;width:100%;background:var(--teal2);color:#fff;border:0;border-radius:12px;padding:14px;font:800 15px/1 inherit;letter-spacing:.06em}
+  .done{background:#eef6ef;border:1.5px solid var(--green);border-radius:14px;padding:14px;margin-bottom:12px} .done h2{margin:0 0 4px;font-size:15px;color:var(--green);letter-spacing:.04em} .done p{margin:0;font-size:13px;color:#3d4450}
+  .next{background:#fff;border-radius:14px;box-shadow:0 2px 14px rgba(20,30,50,.14);padding:12px 14px;margin-bottom:12px}
+  .next .hd{font-size:10.5px;letter-spacing:.16em;font-weight:900;color:var(--teal2);margin-bottom:8px}
+  .step{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:5px 0;font-size:13px}
+  .step .n{width:22px;height:22px;border-radius:50%;background:var(--tealsoft);color:var(--teal2);display:grid;place-items:center;font-weight:900;font-size:11px}
+  .step .n.on{background:var(--green);color:#fff} .step small{display:block;color:var(--dim);font-size:11.5px}
+  .folderbtn{display:block;text-align:center;background:var(--green);color:#fff;font-weight:800;letter-spacing:.05em;border-radius:12px;padding:14px;margin:4px 0 12px;font-size:13px;text-decoration:none}
+
+  /* ── THE FINANCING DIAL (three treatments) ─────────────────────────── */
+  .dial{width:390px;background:#f4f2ec;border-radius:18px;padding:14px 12px;color:var(--ink);border:1px solid #2a3547}
+  .dial .lab{font-size:11px;letter-spacing:.16em;font-weight:900;color:#0f7d74;margin:0 0 10px;text-align:center}
+  .quiet{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0 0} .quiet a{font-size:13px;color:var(--teal2);font-weight:800;text-decoration:underline}
+  .loud{background:linear-gradient(135deg,var(--teal2),var(--teal));color:#fff;border-radius:14px;padding:16px;text-align:center;margin-top:10px}
+  .loud .big{font-size:34px;font-weight:900;letter-spacing:-.01em} .loud .big small{font-size:14px;font-weight:700} .loud .s{font-size:12.5px;opacity:.9;margin-top:2px}
+  .loud .b{display:inline-block;background:#fff;color:var(--teal2);font-weight:900;border-radius:10px;padding:10px 16px;margin-top:10px;font-size:13px;letter-spacing:.05em}
+</style>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-palm" viewBox="0 0 24 24"><path d="M12 22V10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M12 10c-4-5-9-4-10-1 3-1 6 0 8 3M12 10c4-5 9-4 10-1-3-1-6 0-8 3M12 9c-1-5 1-8 4-8-1 2-2 5-2 8M12 9c1-5-1-8-4-8 1 2 2 5 2 8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shrub" viewBox="0 0 24 24"><path d="M12 22v-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 17c-3 0-4-4-1.5-5.5C3 8 7 6 9 8c0-4 6-4 6 0 2-2 6 0 4.5 3.5C22 13 21 17 18 17z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-flower" viewBox="0 0 24 24"><circle cx="12" cy="9" r="2.4" fill="currentColor"/><path d="M12 2.5v3M12 12.5v3M5.5 9h3M15.5 9h3M7.4 4.4l2.1 2.1M14.5 11.5l2.1 2.1M16.6 4.4l-2.1 2.1M9.5 11.5l-2.1 2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 15.5V22M12 19c-2 0-3.5-1-4-3M12 20c2 0 3.5-1 4-3" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-mulch" viewBox="0 0 24 24"><path d="M2 18c3-6 7-8 10-8s7 2 10 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 15l2-2M11 13l2-2M15 15l2-2M9 17l1.5-1.5M13.5 17l1.5-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 21h20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-rock" viewBox="0 0 24 24"><ellipse cx="8" cy="15" rx="5.5" ry="4" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="16" cy="12" rx="5" ry="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="13" cy="18.5" rx="3.5" ry="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="i-paver" viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 12h18M8 5v7M14 12v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fire" viewBox="0 0 24 24"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-light" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M8.5 15a6 6 0 1 1 7 0c-.8.6-1.2 1.4-1.2 2.2h-4.6c0-.8-.4-1.6-1.2-2.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sod" viewBox="0 0 24 24"><path d="M3 20h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M5 20c0-4 1-7 2-9 0 3 1 6 1 9M9 20c0-5 1.5-8 3-10 0 4 1 7 1 10M14 20c0-4 1-6 2-8 0 3 .5 5 .5 8M18 20c0-3 .5-5 1-6 0 2 .5 4 .5 6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 14a2.5 2.5 0 0 0 2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 7h11v9H2zM13 10h4l4 3v3h-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M4 20C6 8 14 4 21 4c0 8-4 15-15 15z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M5 19c4-5 8-8 12-11" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></symbol>
+  <!-- the yard, top-down: the house, the drive, the three beds the estimate names -->
+  <symbol id="plan" viewBox="0 0 250 190">
+    <rect x="2" y="2" width="246" height="186" rx="6" fill="#f7fbfa" stroke="#9fb9b5" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <rect x="70" y="70" width="110" height="70" fill="#e9e6df" stroke="#6b7370" stroke-width="1.6"/><text x="125" y="110" font-size="10" text-anchor="middle" fill="#6b7370" font-weight="700" letter-spacing="2">HOUSE</text>
+    <rect x="182" y="110" width="52" height="70" fill="#dcdcd6" stroke="#8a8f8a" stroke-width="1.2"/><text x="208" y="150" font-size="7.5" text-anchor="middle" fill="#6b7370" font-weight="700">DRIVE</text>
+    <path d="M40 160 C60 135 100 135 125 148 C145 158 165 158 180 150 L180 178 L40 178 Z" fill="#dff3ef" stroke="#17A398" stroke-width="1.6"/><text x="110" y="171" font-size="8" text-anchor="middle" fill="#0f7d74" font-weight="800">FRONT ENTRY BED</text>
+    <path d="M186 20 L234 20 L234 106 L186 106 Z" fill="#dff3ef" stroke="#17A398" stroke-width="1.6"/><text x="210" y="60" font-size="7.5" text-anchor="middle" fill="#0f7d74" font-weight="800" transform="rotate(90 210 60)">ALONG THE DRIVE</text>
+    <rect x="80" y="24" width="90" height="42" fill="#f1e8d7" stroke="#b58a3c" stroke-width="1.6"/><path d="M80 38h90M80 52h90M110 24v42M140 24v42" stroke="#d9c6a0" stroke-width="1"/><text x="125" y="48" font-size="8" text-anchor="middle" fill="#8a5a00" font-weight="800">PAVER PATIO 400 SQ FT</text>
+    <circle cx="96" cy="56" r="4" fill="#e3a51d"/><text x="96" y="58.5" font-size="6" text-anchor="middle" fill="#fff" font-weight="900">F</text>
+    <g fill="#0f7d74"><circle cx="60" cy="158" r="5"/><circle cx="125" cy="150" r="5"/><circle cx="168" cy="160" r="5"/></g>
+    <g fill="#17A398"><circle cx="80" cy="167" r="2.4"/><circle cx="95" cy="163" r="2.4"/><circle cx="110" cy="161" r="2.4"/><circle cx="140" cy="163" r="2.4"/><circle cx="152" cy="167" r="2.4"/></g>
+    <g fill="#17A398"><circle cx="196" cy="30" r="2.4"/><circle cx="196" cy="44" r="2.4"/><circle cx="196" cy="58" r="2.4"/><circle cx="196" cy="72" r="2.4"/><circle cx="196" cy="86" r="2.4"/><circle cx="196" cy="100" r="2.4"/></g>
+    <g fill="#e3a51d" opacity=".9"><circle cx="90" cy="22" r="2"/><circle cx="125" cy="22" r="2"/><circle cx="160" cy="22" r="2"/><circle cx="78" cy="45" r="2"/><circle cx="172" cy="45" r="2"/></g>
+    <g font-size="9" font-weight="900" fill="#fff"><circle cx="30" cy="150" r="8" fill="#0f7d74"/><text x="30" y="153.5" text-anchor="middle">1</text><circle cx="222" cy="12" r="8" fill="#0f7d74"/><text x="222" y="15.5" text-anchor="middle">2</text><circle cx="62" cy="20" r="8" fill="#0f7d74"/><text x="62" y="23.5" text-anchor="middle">3</text></g>
+    <text x="8" y="184" font-size="6.5" fill="#6b7370">● palm  • shrub  · flower   ■ pavers   F fire pit</text>
+  </symbol>
+</svg>
+</head>
+<body>
+<h1 class="page">Mockups · the Oasis estimate, built like the fencing pad · nothing is built</h1>
+<p class="page">Kevin, 17 Sep 2026, late: "are we able to take the plants and shrubs and mulch etc and arrange it coolly like we did in the fencing est… the estimate paints a picture… make the financing easier and cooler and more obvious but not too. payments need to be in there." Demo customer, demo numbers. The menu is the one already in rows (palms · bushes &amp; shrubs · flowers · mulch &amp; rock · the job). What is new: each line says <b>where in the yard</b>, the yard is drawn, and the payment panel is the fencing one.</p>
+
+<!-- ═══════════════ A · THE PAD ═══════════════ -->
+<div class="row" id="a">
+<div>
+<div class="pad">
+  <div class="top">
+    <div class="brand"><div class="mark"><svg><use href="#i-leaf"/></svg></div><div class="nm">OASIS LANDSCAPES<small>DESIGN · INSTALL · PAVERS · IRRIGATION</small></div></div>
+    <div class="meta"><div class="no">ESTIMATE OAS-1027</div><b>Sep 18, 2026 · good for 30 days</b>Mike LeRoy · 321-220-9556</div>
+  </div>
+  <div class="who">
+    <div><div class="k">PREPARED FOR</div><div class="v">Dana Reed<small>1420 Palm Ct, Melbourne, FL 32901<br>321-555-0142 · dana.reed@example.com</small></div></div>
+    <div><div class="k">THE PROJECT</div><div class="v">Front entry, the drive, and a paver patio out back<small>Design, plants, mulch and rock, pavers, lighting, irrigation. Removal and haul-off included.</small></div></div>
+  </div>
+  <div class="body">
+    <div class="main">
+      <div class="sec"><div class="hd"><span class="n">1</span>FRONT ENTRY BED<span class="where">the beds either side of the front door</span></div>
+        <div class="item"><div class="ic"><svg><use href="#i-palm"/></svg></div><div class="l">Foxtail Palm<small>10 ft clear trunk, staked</small></div><div class="q"><b>3</b> ea × $650</div><div class="a">$1,950</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-shrub"/></svg></div><div class="l">Clusia<small>3 gal, 24 in on center</small></div><div class="q"><b>12</b> ea × $28</div><div class="a">$336</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-flower"/></svg></div><div class="l">Dwarf Ixora<small>1 gal, front border, red</small></div><div class="q"><b>18</b> ea × $9</div><div class="a">$162</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-mulch"/></svg></div><div class="l">Black Mulch<small>3 in deep, edged</small></div><div class="q"><b>6</b> yd × $85</div><div class="a">$510</div></div>
+        <div class="sub">bed 1 <b>$2,958</b></div>
+      </div>
+      <div class="sec"><div class="hd"><span class="n">2</span>ALONG THE DRIVE<span class="where">the strip between the drive and the fence</span></div>
+        <div class="item"><div class="ic"><svg><use href="#i-shrub"/></svg></div><div class="l">Podocarpus<small>3 gal, a hedge in a year</small></div><div class="q"><b>24</b> ea × $30</div><div class="a">$720</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-rock"/></svg></div><div class="l">1.5 Tan River Rock<small>over weed barrier</small></div><div class="q"><b>3</b> ton × $210</div><div class="a">$630</div></div>
+        <div class="sub">bed 2 <b>$1,350</b></div>
+      </div>
+      <div class="sec"><div class="hd"><span class="n">3</span>BACK PATIO<span class="where">off the sliders, the whole width of the house</span></div>
+        <div class="item"><div class="ic"><svg><use href="#i-paver"/></svg></div><div class="l">Paver patio<small>Tremron Sierra, herringbone, sealed</small></div><div class="q"><b>400</b> sq ft × $19</div><div class="a">$7,600</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-fire"/></svg></div><div class="l">Fire pit<small>36 in, matching cap</small></div><div class="q"><b>1</b> ea × $1,750</div><div class="a">$1,750</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-light"/></svg></div><div class="l">Landscape lighting<small>low voltage, transformer and timer</small></div><div class="q"><b>8</b> ea × $145</div><div class="a">$1,160</div></div>
+        <div class="sub">bed 3 <b>$10,510</b></div>
+      </div>
+      <div class="sec"><div class="hd"><span class="n">✓</span>THE JOB<span class="where">the whole yard</span></div>
+        <div class="item"><div class="ic"><svg><use href="#i-truck"/></svg></div><div class="l">Removal and haul-off<small>the old beds, the dead hedge, the gravel</small></div><div class="q"><b>1</b> job</div><div class="a">$850</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-drop"/></svg></div><div class="l">Irrigation<small>2 new zones, drip in the beds</small></div><div class="q"><b>2</b> zone × $450</div><div class="a">$900</div></div>
+        <div class="item"><div class="ic"><svg><use href="#i-sod"/></svg></div><div class="l">Sod<small>St. Augustine, the front strip</small></div><div class="q"><b>3</b> pallet × $265</div><div class="a">$795</div></div>
+        <div class="sub">the job <b>$2,545</b></div>
+      </div>
+      <div class="repline">Plants are guaranteed 1 year with our irrigation. We pull the permit for the patio. Mike walks it with you the day before we start.</div>
+    </div>
+    <div class="side">
+      <div class="plan"><div class="t">YOUR YARD · WHERE IT GOES</div><svg viewBox="0 0 250 190"><use href="#plan"/></svg></div>
+      <div class="panel pay">
+        <div class="hd">YOUR PAYMENT · PICK ONE</div>
+        <div class="opt pick"><div class="l">18 months<small>0% APR · no interest · same as cash</small></div><div class="v">$951<small>/mo</small></div></div>
+        <div class="opt"><div class="l">120 months<small>9.99% APR · the lowest payment</small></div><div class="v">$226<small>/mo</small></div></div>
+        <div class="opt full"><div class="l">Or pay as we go · no card fees, get your points</div><div class="v">$17,113</div></div>
+        <div class="sched"><div><div class="k">AT SIGNING</div><div class="v">$8,557</div><div class="s">orders your plants and pavers</div></div><div><div class="k">AT COMPLETION</div><div class="v">$8,556</div><div class="s">the day we finish</div></div></div>
+        <div class="foot">Curious about the monthly? <a href="#">Check your options first</a>, 60 seconds, no hit to your credit, separate from this estimate. With approved credit.</div>
+      </div>
+      <div class="panel"><div class="qual"><div class="chk">✓</div><div class="t">Veteran · you qualify<small>Senior, first responder, referral, realtor and BNI also honored, one per job.</small></div><div class="amt">−$250</div></div></div>
+      <div class="total"><div class="k">YOUR TOTAL<small>$17,363 before your discount</small></div><div class="v">$17,113</div></div>
+      <div class="signrow"><div><div class="spot">TAP TO SIGN</div><div class="lbl">DANA · ACCEPT</div></div><div><div class="spot date">DATE</div><div class="lbl">STAMPS ITSELF</div></div></div>
+      <div class="fine">Balance due at completion. Plant availability can change a variety for its equal. Changes to the design may cost more. Terms &amp; Conditions on the back. Oasis Landscapes of Florida, Inc.</div>
+    </div>
+  </div>
+</div>
+<div class="cap wide"><b>A · The pad.</b> The fencing pad's anatomy on an Oasis sheet: who, the work by <b>where in the yard</b> (1 · 2 · 3, and the job), the yard drawn beside it, the payment panel with the two monthlies and pay-as-you-go, the deposit and the completion payment right under it, the one discount they qualify for, the total, tap to sign. Prints as one letter page; the same sheet is the link.</div>
+</div>
+</div>
+
+<!-- ═══════════════ B · THE PHONE, top and bottom ═══════════════ -->
+<div class="row" id="b">
+<div class="shot">
+<div class="phone">
+  <div class="hdr"><b>OASIS LANDSCAPES</b><span>Estimate OAS-1027</span></div>
+  <div class="scroll">
+    <div class="hero"><div class="plan"><svg viewBox="0 0 250 190"><use href="#plan"/></svg></div><div class="hb"><div class="k">DANA · 1420 PALM CT</div><div class="t">Your yard, planned</div><div class="s">Front entry, along the drive, and a paver patio out back. Tap a bed to see what goes in it.</div></div></div>
+    <div class="card"><div class="hd"><span class="n">1</span>FRONT ENTRY BED<span class="where">either side of the door</span></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-palm"/></svg></div><div class="l">Foxtail Palm × 3<small>10 ft clear trunk, staked</small></div><div class="a">$1,950<small>$650 ea</small></div></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-shrub"/></svg></div><div class="l">Clusia × 12<small>3 gal, 24 in on center</small></div><div class="a">$336<small>$28 ea</small></div></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-flower"/></svg></div><div class="l">Dwarf Ixora × 18<small>1 gal, front border, red</small></div><div class="a">$162<small>$9 ea</small></div></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-mulch"/></svg></div><div class="l">Black Mulch · 6 yd<small>3 in deep, edged</small></div><div class="a">$510<small>$85 / yd</small></div></div>
+      <div class="csub">bed 1 <b>$2,958</b></div>
+    </div>
+    <div class="card"><div class="hd"><span class="n">2</span>ALONG THE DRIVE<span class="where">drive to fence</span></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-shrub"/></svg></div><div class="l">Podocarpus × 24<small>3 gal, a hedge in a year</small></div><div class="a">$720<small>$30 ea</small></div></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-rock"/></svg></div><div class="l">1.5 Tan River Rock · 3 ton<small>over weed barrier</small></div><div class="a">$630<small>$210 / ton</small></div></div>
+      <div class="csub">bed 2 <b>$1,350</b></div>
+    </div>
+    <div class="card"><div class="hd"><span class="n">3</span>BACK PATIO<span class="where">off the sliders</span></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-paver"/></svg></div><div class="l">Paver patio · 400 sq ft<small>Tremron Sierra, herringbone, sealed</small></div><div class="a">$7,600<small>$19 / sq ft</small></div></div>
+      <div class="pl"><div class="ic"><svg><use href="#i-fire"/></svg></div><div class="l">Fire pit<small>36 in, matching cap</small></div><div class="a">$1,750</div></div>
+    </div>
+  </div>
+  <div class="bar"><div><b>ACCEPT &amp; SIGN</b><span>No card fees, get your points. Your deposit orders your plants.</span></div><button>SIGN</button></div>
+</div>
+<div class="cap"><b>B1 · The phone, top.</b> Same estimate as the customer opens the link. The yard first, then the beds in order with a picture per line. The ACCEPT bar rides along the bottom the whole way, exactly like fencing.</div>
+</div>
+
+<div class="shot">
+<div class="phone">
+  <div class="hdr"><b>OASIS LANDSCAPES</b><span>Estimate OAS-1027</span></div>
+  <div class="scroll">
+    <div class="tot"><div class="r"><span>Bed 1 · front entry</span><b>$2,958</b></div><div class="r"><span>Bed 2 · along the drive</span><b>$1,350</b></div><div class="r"><span>Bed 3 · back patio</span><b>$10,510</b></div><div class="r"><span>The job · removal, irrigation, sod</span><b>$2,545</b></div><div class="r disc"><span>✓ Veteran · you qualify</span><b>−$250</b></div><div class="r big"><span>YOUR TOTAL</span><b>$17,113</b></div></div>
+    <div class="payc">
+      <div class="hd">YOUR PAYMENT · PICK ONE</div>
+      <div class="opt pick"><div class="l">18 months<small>0% APR · no interest · same as cash</small></div><div class="v">$951<small>/mo</small></div></div>
+      <div class="opt"><div class="l">120 months<small>9.99% APR · the lowest payment</small></div><div class="v">$226<small>/mo</small></div></div>
+      <div class="opt full"><div class="l">Or pay as we go · no card fees, get your points</div><div class="v">$17,113</div></div>
+      <div class="sched"><div><div class="k">AT SIGNING</div><div class="v">$8,557</div><div class="s">orders your plants and pavers</div></div><div><div class="k">AT COMPLETION</div><div class="v">$8,556</div><div class="s">the day we finish</div></div></div>
+      <a class="chk60" href="#">CHECK YOUR OPTIONS · 60 SECONDS<small>no hit to your credit · separate from this estimate</small></a>
+    </div>
+    <div class="signc"><h2>ACCEPT THIS ESTIMATE</h2><p>Sign with your finger. The date stamps itself.</p><div class="padw">sign here</div><div class="terms">By signing you accept this estimate and the <u>Terms &amp; Conditions</u>.</div></div>
+  </div>
+  <div class="bar"><div><b>ACCEPT &amp; SIGN</b><span>No card fees, get your points. Your deposit orders your plants.</span></div><button>SIGN</button></div>
+</div>
+<div class="cap"><b>B2 · The phone, bottom.</b> The totals by bed, the payment panel (the two monthlies, pay as you go, and what is due at signing and at completion), the 60-second check that does not touch the estimate, then the signature.</div>
+</div>
+
+<div class="shot">
+<div class="phone">
+  <div class="hdr"><b>OASIS LANDSCAPES</b><span>Estimate OAS-1027</span></div>
+  <div class="scroll">
+    <div class="done"><h2>SIGNED · THANK YOU, DANA</h2><p>Sep 18, 2026 · 4:12 PM. Mike has your yes and is already moving.</p></div>
+    <div class="dep"><h2>YOUR DEPOSIT ORDERS YOUR PLANTS</h2><div class="amt">$8,557</div><p>Half of your total. Palms and pavers are ordered for you the moment it lands. No card fees.</p><button class="pay">PAY BY CARD</button></div>
+    <div class="next"><div class="hd">WHAT HAPPENS NOW</div>
+      <div class="step"><div class="n on">✓</div><div>You signed<small>the estimate is locked at $17,113</small></div></div>
+      <div class="step"><div class="n">2</div><div>Deposit<small>orders the palms, the Clusia, the pavers</small></div></div>
+      <div class="step"><div class="n">3</div><div>Mike walks the yard with you<small>the day before we start, paint on the ground</small></div></div>
+      <div class="step"><div class="n">4</div><div>Install · about 3 days<small>removal first, then beds, then the patio</small></div></div>
+      <div class="step"><div class="n">5</div><div>Balance at completion · $8,556<small>the day we finish, card, cash or check</small></div></div>
+    </div>
+    <a class="folderbtn" href="#">BROWSE OUR DESIGN FOLDER →</a>
+  </div>
+</div>
+<div class="cap"><b>B3 · After the yes.</b> The deposit step as fencing has it, worded for a yard, and the five steps so the customer knows what happens next and when the second payment is. The folder link under it, as today.</div>
+</div>
+</div>
+
+<!-- ═══════════════ C · THE FINANCING DIAL ═══════════════ -->
+<div class="row" id="c">
+<div class="shot"><div class="dial"><div class="lab">QUIET</div>
+  <div class="tot" style="margin:0"><div class="r big" style="border:0;margin:0;padding:0"><span>YOUR TOTAL</span><b>$17,113</b></div><div class="quiet"><span style="font-size:13px;color:#5f6b6a">or from <b style="color:#1d2a2a">$226/mo</b></span><a href="#">see payment options</a></div></div>
+</div><div class="cap"><b>C1 · Quiet.</b> One line under the total. Easy to miss. This is roughly what the Billdu-shaped page does now.</div></div>
+<div class="shot"><div class="dial"><div class="lab">THE PANEL · RECOMMENDED</div>
+  <div class="payc" style="margin:0"><div class="hd">YOUR PAYMENT · PICK ONE</div>
+    <div class="opt pick"><div class="l">18 months<small>0% APR · no interest · same as cash</small></div><div class="v">$951<small>/mo</small></div></div>
+    <div class="opt"><div class="l">120 months<small>9.99% APR · the lowest payment</small></div><div class="v">$226<small>/mo</small></div></div>
+    <div class="opt full"><div class="l">Or pay as we go · no card fees, get your points</div><div class="v">$17,113</div></div>
+    <div class="sched"><div><div class="k">AT SIGNING</div><div class="v">$8,557</div><div class="s">orders your plants and pavers</div></div><div><div class="k">AT COMPLETION</div><div class="v">$8,556</div><div class="s">the day we finish</div></div></div>
+    <a class="chk60" href="#">CHECK YOUR OPTIONS · 60 SECONDS<small>no hit to your credit · separate from this estimate</small></a>
+  </div>
+</div><div class="cap"><b>C2 · The panel.</b> The fencing pad's panel, with the payment schedule inside it. Obvious, sits beside the total, still reads as part of the estimate and not as an ad. This is the one I would ship.</div></div>
+<div class="shot"><div class="dial"><div class="lab">LOUD</div>
+  <div class="tot" style="margin:0"><div class="r big" style="border:0;margin:0;padding:0"><span>YOUR TOTAL</span><b>$17,113</b></div></div>
+  <div class="loud"><div class="big">$0 <small>today</small></div><div class="s">then $951/mo for 18 months · 0% interest</div><div class="b">GET APPROVED NOW</div></div>
+</div><div class="cap"><b>C3 · Loud.</b> A banner with a $0 in it. This is what "too much" looks like: it stops reading like your estimate and starts reading like a lender's. Here so you can see the dial.</div></div>
+</div>
+
+<script>
+  // ?v=a|b1|b2|b3|c1|c2|c3 renders one view alone for a screenshot; no param shows the whole sheet of mockups
+  var v=new URLSearchParams(location.search).get('v');
+  if(v){ document.body.classList.add('one'); if(v==='a') document.body.classList.add('paper');
+    var sel={a:'#a > div',b1:'#b .shot:nth-child(1)',b2:'#b .shot:nth-child(2)',b3:'#b .shot:nth-child(3)',c1:'#c .shot:nth-child(1)',c2:'#c .shot:nth-child(2)',c3:'#c .shot:nth-child(3)'}[v];
+    var el=sel?document.querySelector(sel):null;
+    if(el){ el.querySelectorAll('.cap').forEach(function(c){c.remove();}); var defs=document.querySelector('svg[width="0"]'); Array.prototype.slice.call(document.body.children).forEach(function(ch){ if(ch!==defs) ch.remove(); }); document.body.appendChild(el); document.body.style.padding='0'; }
+  }
+</script>
+</body></html>
