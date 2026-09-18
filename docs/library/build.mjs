@@ -113,6 +113,7 @@ const boxes = [...h.matchAll(/<div class="box[^"]*">([\s\S]*?)<\/div>\s*<\/div>/
 const dateOf = (meta) => { const m = /(\d{1,2})(?:\s*[–-]\s*(\d{1,2}))?\s*Sep/.exec(meta || ''); if (!m) return null; return `2026-09-${String(+(m[2] || m[1])).padStart(2, '0')}`; };
 const guessWhere = (text) => { const t = text.toLowerCase(); const w = new Set(); if (/phone app|4-touch app|app pr|ota|supervisor app|in the app/.test(t)) w.add('app'); if (/central command|\bv\d{2,3}\b|the office room|on the file in/.test(t)) w.add('cc'); if (/customer's phone|the customer does/.test(t)) w.add('customer'); if (/printed|a page, not a film|print/.test(t)) w.add('paper'); return [...w]; };
 const shortOf = (what) => { let s = what.replace(/^(Kevin|Kevin and Jess|The)[^:]{0,60}:\s*"[^"]*"\.?\s*/g, '').replace(/^(Then|So,)[^.]*\.\s*/, ''); const first = /^(.{20,220}?[.!?])(\s|$)/.exec(s); return (first ? first[1] : s.slice(0, 200)).trim(); };
+const seen = new Set();   // two boxes may play the same film (Jermey's Pro-Tech note reuses the words-first film): each piece keeps its own id and its own words
 const rows = boxes.map((b) => {
   const title = strip((/<h2>([\s\S]*?)<\/h2>/.exec(b) || [])[1] || '');
   const what = [...b.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((m) => strip(m[1])).join(' ');
@@ -125,9 +126,11 @@ const rows = boxes.map((b) => {
   const tourKey = tour ? (/[?&]tour=([a-z0-9]+)/.exec(tour) || [])[1] : null;
   const page = (links.find((l) => /^[a-z0-9-]+\.html$/.test(l.href)) || {}).href;
   const key = film || (tourKey ? 'tour:' + tourKey : page ? page.replace(/\.html$/, '') : null);
-  const k = KNOWN[key] || {};
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const again = !!(key && seen.has(key)); if (key) seen.add(key);
+  const k = again ? {} : (KNOWN[key] || {});
   return {
-    id: key || title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    id: again || !key ? slug : key,
     title, what, short: k.short || shortOf(what), film,
     go: go ? decodeURIComponent(go) : (tour ? tour.replace(/^\.\.\//, '').replace(/&voice=1$/, '') : null),
     tour, meta, date: dateOf(meta), where: k.where || guessWhere(meta + ' ' + what), ask: k.ask || [],
