@@ -5,12 +5,12 @@
 // employees." Same rails as every other room: RLS decides who reads and who
 // writes, a post can hang itself on a customer's file, and ?demo=1 renders a
 // fictional room with every write refused.
-import * as api from './api.js?v=133';
-import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=133';
-import { DEMO } from './demo.js?v=133';
-import { html, raw, esc, toast } from './ui.js?v=133';
-import { BRAND_BY_CC } from './config.js?v=133';
-import { enterPosts, micButton } from './dictate.js?v=133';
+import * as api from './api.js?v=134';
+import { state, isDemo, personName, firstName, searchCustomers, searchPeople, loadFile, threadForJob, postMessage, textCustomer, mentionHandle } from './book.js?v=134';
+import { DEMO } from './demo.js?v=134';
+import { html, raw, esc, toast } from './ui.js?v=134';
+import { BRAND_BY_CC } from './config.js?v=134';
+import { enterPosts, micButton } from './dictate.js?v=134';
 
 const ROOMS = {
   sales: { kicker: "Sales hype · the reps' thread, live",
@@ -46,7 +46,7 @@ const relTime = (iso) => {
 const byTime = (a, b) => new Date(a.at) - new Date(b.at);
 
 const readPath = (room) => room === 'sales'
-  ? `hype_messages?select=id,author_name,author_initials,body,image_url,created_at&order=created_at.desc&limit=${LIMIT}`
+  ? `hype_messages?select=id,author_id,author_name,author_initials,body,image_url,created_at&order=created_at.desc&limit=${LIMIT}`
   : `v_team_room?select=*&room=eq.${encodeURIComponent(room)}&order=created_at.desc&limit=${LIMIT}`;
 
 /* One shape for both tables: the hype thread has no seat id and no customer. */
@@ -82,6 +82,15 @@ async function read(room) {
 
 const isMine = (m) => m.authorId ? m.authorId === state.me?.id : !!(state.me?.name && m.name === state.me.name);
 
+/* 134 (Kevin, 18 Sep 1:50 PM: "different colors for everyone, clearly… let everyone design their color or their emoji… you get to be
+   a character"): a person is their emoji (reps.avatar) and their color (reps.color, 409); with neither, a steady color from the name. */
+export function personOf(m) { const ps = state.people || []; return (m.authorId && ps.find((p) => p.id === m.authorId)) || ps.find((p) => p.name && p.name === m.name) || null; }
+export function hueOf(s) { let h = 7; for (const c of String(s || '')) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+export function charStyle(m, p = personOf(m)) {
+  if (p?.color) return `background:${p.color}33;color:${p.color};border-color:${p.color}99`;
+  const h = hueOf(p?.name || m.name || m.id); return `background:hsl(${h} 70% 88%);color:hsl(${h} 55% 28%);border-color:hsl(${h} 50% 72%)`;
+}
+export function charFace(m, p = personOf(m)) { return p?.avatar || m.initials; }
 function bubble(m, room) {
   if (m.bell) {
     const img = m.image ? `<div><a href="${esc(m.image)}" target="_blank" rel="noopener">photo</a></div>` : '';
@@ -101,7 +110,8 @@ function bubble(m, room) {
     return `<button class="react ${n ? 'on' : ''}" data-react="${esc(m.id)}" data-emoji="${e}" title="${n ? n + ' so far' : 'Say it back'}">${e}${n ? ` <span class="mono">${n}</span>` : ''}</button>`;
   }).join('')}</div>`;
   const img = m.image ? `<div><a href="${esc(m.image)}" target="_blank" rel="noopener">photo</a></div>` : '';
-  return `<div class="roomrow ${mine ? 'out' : ''}"><span class="ini" title="${esc(personName(m.name))}">${esc(m.initials)}</span>`
+  const who = personOf(m);
+  return `<div class="roomrow ${mine ? 'out' : ''}"><span class="ini${who?.avatar ? ' face' : ''}" title="${esc(personName(m.name))}" style="${charStyle(m, who)}">${esc(charFace(m, who))}</span>`
     + `<div class="msg ${mine ? 'out' : 'in'}"><div class="who">${esc(m.first)} · ${esc(relTime(m.at))}</div>`
     + `<div class="say">${lit(esc(m.body))}</div>${img}${on}${reacts}</div></div>`;
 }
@@ -387,8 +397,7 @@ export function wireAtOn(say, pop, onCustomer) {
       let custs = [];
       try { custs = await searchCustomers(f.text); } catch { custs = []; }
       if (!people.length && !custs.length) { close(); return; }
-      const av = (p) => p.team === 'office' ? 'blue' : p.team === 'production' ? 'orange' : p.role === 'owner' ? 'green' : 'gold';
-      const personRow = (p) => `<button class="line-item emp" data-at-person="${esc(mentionHandle(p).slice(1))}"><span class="line-av ${av(p)}">${esc((p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(p.name)}</span><span class="pv">${esc(mentionHandle(p))} · ${esc(titleOf(p))}</span></span><span class="tag emp">EMPLOYEE</span></button>`;
+      const personRow = (p) => `<button class="line-item emp" data-at-person="${esc(mentionHandle(p).slice(1))}"><span class="line-av${p.avatar ? ' face' : ''}" style="${charStyle({ name: p.name }, p)}">${esc(p.avatar || (p.initials || firstName(p.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(p.name)}</span><span class="pv">${esc(mentionHandle(p))} · ${esc(titleOf(p))}</span></span><span class="tag emp">EMPLOYEE</span></button>`;
       const custRow = (c) => `<button class="line-item" data-at-cust="${esc(c.id)}" data-name="${esc(c.name)}"><span class="line-av">${esc((firstName(c.name) || '?').slice(0, 2).toUpperCase())}</span><span><span class="nm">${esc(personName(c.name))}</span><span class="pv">${esc(c.street || c.phone || '')}${c.city ? ' · ' + esc(c.city) : ''}</span></span><span class="tag cust">CUSTOMER</span></button>`;
       pop.innerHTML = (people.length ? '<div class="kicker" style="padding:6px 10px 2px">Employees</div>' + people.map(personRow).join('') : '')
         + (custs.length ? '<div class="kicker" style="padding:6px 10px 2px">Customers</div>' + custs.slice(0, 6).map(custRow).join('') : '');

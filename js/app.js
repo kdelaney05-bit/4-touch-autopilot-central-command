@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=133';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=133';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=133';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=133';
-import { addressPicker, addressSource } from './address.js?v=133';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=133';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=133';
-import { renderHome } from './home.js?v=133';
-import { renderRoom } from './village.js?v=133';
-import { renderSales } from './sales.js?v=133';
-import { renderPipeline } from './pipeline.js?v=133';
-import { renderMarketing } from './marketing.js?v=133';
-import { renderOffice } from './office.js?v=133';
-import { renderProduction } from './production.js?v=133';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=133';
-import { stopRoomPoll } from './village.js?v=133';
-import { renderFlow, stopFlow } from './flow.js?v=133';
-import { startTour, tourWanted } from './tour.js?v=133';
-import { startAlerts } from './alerts.js?v=133';
-import { renderPhotos } from './photos.js?v=133';
+import * as api from './api.js?v=134';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, whoIsFree, personName, firstName } from './book.js?v=134';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=134';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=134';
+import { addressPicker, addressSource } from './address.js?v=134';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=134';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=134';
+import { renderHome } from './home.js?v=134';
+import { renderRoom } from './village.js?v=134';
+import { renderSales } from './sales.js?v=134';
+import { renderPipeline } from './pipeline.js?v=134';
+import { renderMarketing } from './marketing.js?v=134';
+import { renderOffice } from './office.js?v=134';
+import { renderProduction } from './production.js?v=134';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=134';
+import { stopRoomPoll } from './village.js?v=134';
+import { renderFlow, stopFlow } from './flow.js?v=134';
+import { startTour, tourWanted } from './tour.js?v=134';
+import { startAlerts } from './alerts.js?v=134';
+import { renderPhotos } from './photos.js?v=134';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -47,13 +47,29 @@ window.addEventListener('unhandledrejection', (e) => { try { const m = (e.reason
 /* THE VILLAGE as a room of its own (16 Sep, launch morning). The same card the rail shows, full width:
    every seat reads it, every post can hang on a customer, and a name in the words gets the buzz. */
 function renderVillageRoom(root) {
+  // 134 (Kevin, 18 Sep 1:50 PM: "a lot of dead space… make the chat thread a little longer"): one line on top, the room gets the height
   root.innerHTML = html`
-    <div class="head">
-      <div><div class="kicker">The Village · the whole company, one thread</div>
-      <h1 class="serif">Everyone in one room.</h1></div>
+    <div class="head" style="margin-bottom:6px">
+      <div class="kicker">The Village · the whole company, one thread · newest at the bottom</div>
+      <button class="btn sm" id="my-character" title="Your emoji and your color, everywhere your name shows">🎨 My character</button>
     </div>
     <div class="village-wide" id="village-room"></div>`;
-  renderRoom(root.querySelector('#village-room'), 'village', { kicker: 'The Village · everyone', note: 'all customers, all employees, one room · newest at the bottom' });
+  renderRoom(root.querySelector('#village-room'), 'village', { kicker: 'The Village · everyone', note: 'every seat reads this room · hang a post on a customer and their file is one tap away' });
+  const btn = root.querySelector('#my-character');
+  if (btn) btn.onclick = () => {
+    const me = state.me || {}; const p = (state.people || []).find((x) => x.id === me.id) || me;
+    openModal({ title: 'My character', submitLabel: 'That is me', body: `
+      <div class="field"><label>Your emoji (one)</label><input name="avatar" maxlength="4" value="${esc(p.avatar || '')}" placeholder="🧙‍♂️ ⚡ 🦁 🌴 — or leave blank for your initials"/></div>
+      <div class="field"><label>Your color</label><input name="color" type="color" value="${esc(p.color || '#1d5fa8')}"/></div>
+      <div class="note">Everywhere your name shows: the Village, the rooms, the @ list. Only you can change yours.</div>`,
+      onSubmit: async (fm) => {
+        if (isDemo()) { toast('Demo — nothing is saved'); return; }
+        const avatar = fm.avatar.value.trim() || null, color = fm.color.value;
+        await api.patch(`reps?id=eq.${me.id}`, { avatar, color });
+        Object.assign(p, { avatar, color }); if (state.me) Object.assign(state.me, { avatar, color });
+        toast('That is you now'); renderVillageRoom(root);
+      } });
+  };
 }
 window.__reloadQuiet = () => reload(true);
 

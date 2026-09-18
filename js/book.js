@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=133';
-import { DEMO } from './demo.js?v=133';
+import * as api from './api.js?v=134';
+import { DEMO } from './demo.js?v=134';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -74,7 +74,7 @@ export async function loadAll() {
     api.page(`parcel_lookups?select=customer_id,signer_match,fetched_at&fetched_at=gte.${since30}&order=fetched_at.desc`, 2000).catch(() => []),
     api.page(`paperwork_filled?select=customer_id,form_key,filled_at&filled_at=gte.${since30}&order=filled_at.desc`, 2000).catch(() => []),
     // everyone who can appear on a file's thread — reps, office, production, owners — with the line they text from (Kevin, 14 Sep: a color per person)
-    api.page('reps?select=id,name,initials,role,team,manages_company_id,cc_default_company_id,sms_from&active=eq.true&order=name.asc', 500).catch(() => []),
+    api.page('reps?select=id,name,initials,role,team,manages_company_id,cc_default_company_id,sms_from,avatar,color&active=eq.true&order=name.asc', 500).catch(() => []),
     // the Pipeline room (Kevin, 14 Sep): the selling side of every rep's book — unsigned jobs with an appointment in the last 90 days
     // (or still ahead), plus what was signed in the last 60, with the customer on the row. RLS decides whose book a seat sees.
     api.page(`jobs?select=id,customer_id,rep_id,cc_company_id,title,appt_starts_at,contract_signed_at,fin_sold_amount,created_at,customers(name,phone,city,disposition,disposition_at)&or=(and(contract_signed_at.is.null,appt_starts_at.gte.${since90}),contract_signed_at.gte.${since60})&order=appt_starts_at.desc.nullslast`, 5000).catch(() => []),

@@ -186,7 +186,7 @@ main.dimmed { filter: none; }
 /* ── the village · the team's rooms (Kevin, 13 Sep: "a shared village for all
       customers and all employees") — the hype thread's bubbles, every room ── */
 .room { gap: 8px; }
-.village-wide .room .room-list { max-height: 62vh; }
+.village-wide .room .room-list { max-height: calc(100vh - 290px); min-height: 380px; }   /* 134: the room gets the height the header gave up */
 .village-wide { max-width: 980px; }
 .room .room-list { display: flex; flex-direction: column; gap: 8px; max-height: 52vh; overflow-y: auto; padding: 6px 4px 2px 0; }
 .room .roomrow { display: flex; gap: 8px; align-items: flex-end; }
@@ -205,6 +205,7 @@ main.dimmed { filter: none; }
 /* 133: a bell in the Village */
 .room .roomrow.bell .msg.bell { background: var(--goldsoft); border: 1px solid var(--goldbtn); }
 .room .ini.bell { background: var(--goldsoft); font-size: 14px; }
+.room .ini.face, .line-av.face { font-size: 15px; font-family: inherit; }   /* 134: an emoji reads at 15px, initials stay mono */
 .room .msg.out .react { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.22); color: var(--bg); }
 .room .msg.out .react.on { background: var(--goldbtn); border-color: var(--goldbtn); color: var(--ink); }
 .room .room-on-row { position: relative; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -660,3 +661,6 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .contactline a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--dimmer); }
 .contactline a.lnk, button.lnk { color: var(--office); border: 0; background: none; padding: 0; font: inherit; font-size: 11px; text-decoration: underline; cursor: pointer; }
 .locates .r.soon { color: var(--clock); }
+
+/* 134: on a phone the Village keeps its share of the screen */
+@media (max-width: 700px) { .village-wide .room .room-list { max-height: 62vh; min-height: 0; } }
