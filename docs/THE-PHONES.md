@@ -361,3 +361,48 @@ select r.ny, r.duration_s, r.remote_e164, r.customer_id is not null as known, r.
   (select count(distinct d.ext) from desk d where d.began_at <= r.began_at + coalesce(r.duration_s,0) * interval '1 second' and d.ended_at >= r.began_at) desks_busy
 from rang r order by r.ny desc;
 ```
+
+## 18 Sep 2026, 4:45 PM ET: CORRECTION after the call with Jeff (Uvoice) — the map of the office extensions, and what the hourly export actually shows
+
+**The two sections above ("3:50 PM, the decisive cut" and "the office lines rang out with the desks idle") read the export with the wrong map. Jeff walked Kevin through Jason Morgan's calls in Uvoice's own cradle-to-grave view; this is the map, and it changes the reading.**
+
+- **Every call to 386-446-5110 and 321-215-4437 goes to the inbound route (ext 200) → the auto attendant (ext 812; 813 is its overflow).** The caller presses an option. Option 2 "Liberty Fencing current projects" = **call queue 856, whose ONLY member is ext 102, Jonathan.** The queue rings him with an **agent dispatch timeout of 20 seconds**, then hands the caller to **voicemail box 251**; messages left there go to Jonathan, Luis and Jessica. Boxes 250, 252 and 253 are the other options' mailboxes (which option → which queue → which members → which box for 250/253 is the question for Jeff on Monday; 855 appears once as a queue on 5110).
+- **The hourly export is one row per call, carrying the final disposition, not every leg.** `105*` = Laura answered; `812` = the caller hung up (or timed out at 66 s, `Disconnect`) in the attendant without choosing; `251!` = the queue rang its member, timed out, and the caller sat in box 251 for `duration_s` (20 s+ = a message, most likely); `251` inbound 3–11 s = reached the box and hung up without a message. The 20-second ring to Jonathan is NOT a separate row (his own `102 missed` rows are few). So "rang out with the desks idle · voicemail never offered" was wrong: **those callers were in the voicemail box, and most of them left a message.** Jason's 12:14 PM call: attendant → option 2 → rang Jonathan 20 s → box 251, 50 s, message left (the one Jessica typed onto the file at 12:36). His 1:32 PM and 5:02 PM calls the day before: same path, reached the box, hung up without a message. His 12:12 PM call to 5110: sat in the attendant to the 66-second timeout, never pressed anything.
+
+**The week, business hours, both fencing numbers, 244 calls (one row = one call):**
+
+| What happened | Calls |
+|---|---|
+| A person answered (Laura 68 · Sam 35 · Jonathan 12 · ext 101 5) | 120 |
+| Hung up or timed out in the attendant, never chose an option (11 customers on file; includes the 877 robodialer) | 52 |
+| Reached a voicemail box and stayed 20 s+ (a message, most likely) | 49 |
+| Reached a voicemail box and hung up under 20 s | 18 |
+
+By box: **251 (option 2, Jonathan's queue) 28 calls, 21 messages** · 250 24 calls, 18 messages · 253 13 calls, 8 messages · 252 2. **Nothing drops before the attendant**: every inbound call has a row, and only 3 attendant rows are under 3 s.
+
+**Who is not answering (Kevin, 4:30 PM: "who is not answering the calls when they're going to them? … analyze everyone's call behavior").** Business hours, Mon 14–Fri 18 Sep:
+
+| Desk | Answered | Outbound | Minutes on calls | Per day | Missed rings on the desk |
+|---|---|---|---|---|---|
+| Laura 105 | 70 | 104 | 434 | 87 | 1 |
+| Sam 104 | 88 | 49 | 304 | 61 | 2 |
+| ext 101 (who sits here?) | 59 | 10 | 84 | 17 | 0 |
+| Jonathan 102 | 15 | 81 | 168 | 34 | 9 |
+
+Jonathan is the only member of queue 856 and takes 12 of its calls a week while **31 go to its box** (Mon 11 · Tue 7 · Wed 4 · Thu 4 · Fri 5; 14:00 and 12:00 are the worst hours). Only 1 of the 31 landed while his desk was on a recorded call; he makes 81 outbound calls a week (so he is at the desk), which leaves: away from the desk, declining the ring, or the ring not reaching him — Jeff's cradle-to-grave view shows which, per call. **Kevin's calls for Monday:** (1) put Sam and Laura (or the ring group) behind option 2 with a longer dispatch, or route option 2's overflow to a person before the box; (2) get the map for boxes 250/253 from Jeff; (3) our side: a box-251/250/253 message from a customer on file opens a callback ask on the file within the hour (the voicemail-to-email that already goes to Jonathan, Luis and Jessica is the trigger), so nothing sits in a mailbox with nobody owning it.
+
+**On Uvoice's "overwhelming" remark (Jeff, 4:15 PM):** anything sent to Uvoice from now on is one line per call — number called from, number dialed, time — nothing else. The read-only cradle-to-grave view in Uvoice's portal is the same data with every leg; Kevin has it.
+
+```sql
+-- one row per call (the export's disposition), business hours, both fencing numbers, last 7 days
+select case when answered_by = 'app' then 'answered ' || ext
+            when ext in ('812','813') then 'attendant, no option'
+            when ext ~ '^25' and coalesce(duration_s,0) >= 20 then 'box ' || ext || ', message likely'
+            when ext ~ '^25' then 'box ' || ext || ', no message' else ext end as outcome, count(*)
+from uvoice_calls
+where began_at > now() - interval '7 days' and call_type in ('inbound','missed')
+  and right(dialed_e164,10) in ('3864465110','3212154437')
+  and extract(dow from (began_at at time zone 'America/New_York')) between 1 and 5
+  and extract(hour from (began_at at time zone 'America/New_York')) between 8 and 17
+group by 1 order by 2 desc;
+```
