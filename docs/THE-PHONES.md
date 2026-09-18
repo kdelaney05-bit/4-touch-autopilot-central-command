@@ -240,3 +240,55 @@ Kevin: "it seems we can do a lot with our phone system without our phone peeps�
 - **Call routing:** the auto-attendant, voicemail boxes, ring groups, hold music, the toll-free spammer hitting the attendant, and the hourly call export (it started on their side 9 Sep).
 
 **The troubleshooting a session runs, on its own, any hour:** find a text by time and number in the raw feed; trace one text or call end to end; read a failed send's reason; pull a rep's line rows and push tokens; compare the two line tables; read the edge-function logs; send a test text to a test file from a line and watch it land; count what a line carried in a day; write the Uvoice email with the proof when it is theirs. What a session never does: flip a machine switch (yours, from the Office room), text a real customer as a test, or change a line without you saying so.
+
+## 18 Sep 2026, 10:50 AM ET: Travis and Eric not getting calls, every sales line audited (Kevin: "audit every sales line and see what's happening")
+
+**Read-only; nothing changed on live.** Kevin, by voice: Travis is not getting calls or texts, Eric has had the same trouble, the phone company says there is nothing they can do. Everything below is from the tables on live at 10:48 AM ET.
+
+**Our side is clean.** The call file was ingested through 9:57 AM (277 legs in 24 h); texts were landing on both feeds at 10:47 AM (308 raw posts in 24 h, none stuck); the rail sent 44 in 24 h, every one sent (the only two failures are the known 14 Sep and 17 Sep 8:10 AM ones). Travis's and Eric's rows are right: ext 151 / 321-292-5408 and ext 150 / 321-506-1808 on `rep_channel_map`, both texting from the 386 line, one iOS push token each, refreshed this morning (Travis 10:03, Eric 9:56). **Texts to their own numbers are arriving:** Travis's line took 17 inbound on 16 Sep, 6 on 17 Sep, 5 this morning (last 8:49 AM); Eric's 45, 15, 26 (last 10:36 AM). If ConnectUC shows no texts, Uvoice has them and the app on the phone is not showing them; the carrier is not losing them.
+
+**The PBX is up; the gap is between the PBX and the ConnectUC app on the iPhone.** Share of inbound legs the app answered, Mon 14 Sep to Fri 18 Sep 10 AM, with 9–13 Sep in brackets:
+
+| Line | App answered | Known customers answered | Straight to voicemail (5 s or less, never rang) | `:8070` legs | No ACK |
+|---|---|---|---|---|---|
+| Office 101 · 104 · 105 (desk phones) | 98% · 95% · 96% (81 · 100 · 100) | 100% · 91% · 98% | 1 · 1 · 1 | 0 | 0 |
+| Eric 150 | 31% (60) | 12 of 39 (8 of 15) | **20** (2) | 0 | 2 |
+| Travis 151 | 47% (44) | 7 of 17 (6 of 11) | 4 (4) | **11** (9) | 1 |
+| Haakon 154 | 33% (65) | 15 of 31 (8 of 11) | 12 (4) | 0 | 3 |
+| Ron 152 | 22% (26), the robocalls | 6 of 17 (3 of 7) | 9 (2) | 0 | 0 |
+
+Two shapes of a lost call, both read off `uvoice_calls`:
+
+- **Straight to voicemail:** `call_type = 'inbound'`, `answered_by = 'core'`, `duration_s <= 5`. The PBX found nothing to ring and voicemail took it in the first seconds. It is typed "inbound", so **401 does not buzz the rep for it** (Travis's 8:48 AM call from a known customer today: no buzz; he called back at 8:49 on his own).
+- **Rang out:** `call_type = 'missed'`, core, 23–54 s. The PBX rang a registration and nobody picked up: the phone did not ring, or it was silenced.
+
+**Signal 3, Travis only: the `:8070` leg.** `term_ip = '70.42.44.203:8070'`, `missed`, 0 s, `Orig: Cancel`. 20 on ext 151 since 9 Sep (6 on 16 Sep alone, often two 3 s apart); Mike's 156 has 4; the 85x groups have them; **Eric, Haakon and Ron have none.** It is the shape of the second registration the 16 Sep note flagged on 151 and 154 ("on the phone on a different device"). Haakon's straight-to-voicemail count went 5 · 4 · 3 on 14–16 Sep and then 0 on 17–18; Travis's `:8070` legs ran through 17 Sep.
+
+**Mon 14 Sep is a step.** Eric's straight-to-voicemail went from at most 1 a day to 5 · 4 · 6 · 4 · 1 (14–18 Sep); Haakon's 5 · 4 · 3. That was the day Uvoice worked the batch of tickets (T20260914.0003 · .0005 · .0016 · .0017 · .0018). **The Wi-Fi rule (17 Sep noon) did not move Eric's numbers:** 4 straight-to-voicemail on 17 Sep, and this morning 5 of his 6 customer calls went to voicemail (4 rang 23–36 s, 1 straight); every one of the 4 buzzed him under 401.
+
+By day (inbound legs / answered by the app): Travis 14 Sep 10/5 · 15 Sep 16/10 · 16 Sep 9/2 · 17 Sep 13/6 · 18 Sep 1/0. Eric 12/2 · 14/5 · 19/9 · 16/4 · 6/1. The Term and Orig IPs on every leg are Uvoice's own (70.42.44.x, 207.254.81.27), so the file cannot show which network the phone was on.
+
+**Written for Uvoice (a draft in Kevin's Gmail, a reply on the Eric thread to Dwayne cc Jeff, 10:55 AM):** the table above in plain words; the registration history on 150 and 151 since 14 Sep; what the `:8070` leg is and why only 151 makes it; what changed on the domain on 14 Sep; forward-when-unregistered (or simultaneous ring) so no customer hits voicemail because an app slept; the CallIDs of 16 calls to pull SIP traces on. Kevin presses Send or says it on the phone.
+
+**Ours, not built, Kevin's call:** (1) buzz the rep for a straight-to-voicemail call from a known customer (401 buzzes `missed` only); (2) the daily count on the Office room's door; (3) before the ticket lands, the phone checklist for Travis and Eric: ConnectUC on one device only, Wi-Fi off, Notifications on, Background App Refresh on, Cellular Data on for ConnectUC, Low Power Mode off, no Driving Focus silencing it. Those are the standard checks for a VoIP app that goes to sleep, not proven causes.
+
+```sql
+-- the week table
+select ext, case when began_at < '2026-09-14 04:00+00' then '9-13' else '14-18' end as wk,
+ count(*) filter (where call_type in ('inbound','missed')) as in_all,
+ count(*) filter (where call_type='inbound' and answered_by='app') as in_app,
+ count(*) filter (where call_type='inbound' and answered_by='core' and coalesce(duration_s,0) <= 5) as straight_vm,
+ count(*) filter (where term_ip like '%:8070%') as legs_8070,
+ count(*) filter (where release_cause='No ACK Timeout') as no_ack
+from uvoice_calls where ext in ('150','151','152','154','101','104','105') and began_at >= '2026-09-09 04:00+00'
+group by 1,2 order by 1,2;
+
+-- the calls to hand Uvoice, with CallIDs
+select ext, began_at at time zone 'America/New_York' as began_et, call_type, duration_s, release_cause, term_ip, call_id
+from uvoice_calls
+where ext in ('150','151') and began_at >= '2026-09-16 04:00+00'
+ and ((call_type='inbound' and answered_by='core' and coalesce(duration_s,0) <= 5)
+      or term_ip like '%:8070%' or release_cause='No ACK Timeout'
+      or (call_type='missed' and customer_id is not null))
+order by ext, began_at;
+```
