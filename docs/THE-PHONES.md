@@ -163,6 +163,45 @@ the file names on the table; the box's folder was not read this session).
 **Not built:** a "dropped" mark on the file's call line and a daily count on
 the Office room's door. Kevin's call.
 
+## What a rep loses when they move to texting from the app (checked live 17 Sep 2026, ~10 PM ET; Kevin: "are my employees missing anything as they migrate to texting")
+
+**Flowing, nothing lost on the road:** every post Uvoice made to `uvoice-sms`
+in the last 24 h answered 200; every raw post of the last 10 days is
+processed with zero errors; every weekday working hour since 9 Sep has calls
+in `uvoice_calls`; the rail sent 412 texts in 7 days; every rep who texts has
+a phone that buzzes. The missed-call buzz (401) went live 17 Sep 6:23 PM ET.
+
+**What is missed, largest first:**
+
+| Where | 14 days, inbound | What happens to it |
+|---|---|---|
+| The reps' OWN Uvoice lines (the PBX feed, by extension) | Haakon 263 · Eric 263 · Travis 143 · Ron 60 · Mike 60 | On the file within ~15 min, **no buzz**, and `resolved_rep_id` is null (the ingest credits a rep for outbound only). The rep knows only if they still watch ConnectUC. |
+| The shared 386-276-6898 line (CloudMessage) | 119 | On the file the same second, buzzes the rep. |
+| Texts from numbers on no customer file (the PBX feed) | 421 texts from 83 real phones, plus 40 short codes | **Nowhere in either app.** Central Command draws texts by customer (`js/book.js`); the phone app loads only texts with a customer (`App.tsx`). They live in the database and in ConnectUC. Spam, personal, and new leads, mixed. |
+| The old HeyMarket road (`feed_source` zapier, inbox 90250) | 69, none duplicated on another feed | On the file if the number is known. Whoever still reads HeyMarket sees the rest. |
+| 321-806-1995 | PBX feed only | No buzz (no CloudMessage forward, the open ask to Uvoice). `sms_lines` says off, `brand_sms_lines` says campaign_ok; the rail sent 3 from it 16 Sep. The two tables must agree. |
+
+So a rep's customers hold two numbers for them, the old direct line and the
+main line, and reply to whichever they saved. Replies to the direct line reach
+the file late and silent; a stranger texting the direct line reaches nobody in
+our apps. Migration 264 said it in advance: "once the number moves, ConnectUC
+stops being his inbox and our database is the only place the reply exists."
+The rep's own line has not moved yet, so ConnectUC is still half the inbox.
+
+**Two sends failed and were never resent:** one from 321-806-1995 on 14 Sep
+and one from the Oasis line 17 Sep 8:10 AM, both "invalid from number", both
+before their line was ready on the rail. Check the two files.
+
+**Who cannot text from the app:** Jermey (Pro-Tech lines OFF until Kevin
+says), Nick Campana (active sales seat, no line, no extension, no phone that
+buzzes: retire the seat or set it up), the office seats (no rail line on
+`reps.sms_from`; the office texts from the PBX extensions 100–105).
+
+**Not built, Kevin's call:** a buzz for PBX-feed inbound on a rep's
+extension (late by the 15-minute ingest unless Uvoice puts a CloudMessage
+forward on each rep DID); an "unknown senders" list in the app; retiring or
+pointing the HeyMarket number.
+
 ## Where the code is (all in `trureview-mobile`; `git fetch` first, sibling sessions merge from the cloud)
 
 - `supabase/functions/uvoice-sms/index.ts` is the URL Uvoice posts to. Deploy with `npx supabase functions deploy uvoice-sms --no-verify-jwt`.
