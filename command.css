@@ -638,3 +638,9 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 .addrpick .sub { justify-content: flex-start; border-radius: 8px; text-align: left; gap: 8px; cursor: pointer; }
 .addrpick .sub span { color: var(--dimmer); font-weight: 400; }
 .addrpick .sub.lit, .addrpick .sub:hover { border-color: var(--goldbtn); box-shadow: 0 0 0 3px rgba(201,150,43,.18); }
+
+/* THE FIND LIST ON A PHONE (Kevin, 17 Sep night: a hundred Smiths and "it stops me"): fixed under the box, sized to what the
+   keyboard leaves of the screen (--vvh and --findtop are set by wireFind from visualViewport), scrolls on its own, never the page. */
+@media (max-width: 700px) {
+  .findpop, nav.side .card.findpop { position: fixed; left: 8px; right: 8px; top: var(--findtop, 96px); width: auto; max-height: calc(var(--vvh, 100vh) - var(--findtop, 96px) - 8px); overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+}

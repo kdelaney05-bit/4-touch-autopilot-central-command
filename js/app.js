@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=117';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=117';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=117';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=117';
-import { addressPicker, addressSource } from './address.js?v=117';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=117';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=117';
-import { renderHome } from './home.js?v=117';
-import { renderRoom } from './village.js?v=117';
-import { renderSales } from './sales.js?v=117';
-import { renderPipeline } from './pipeline.js?v=117';
-import { renderMarketing } from './marketing.js?v=117';
-import { renderOffice } from './office.js?v=117';
-import { renderProduction } from './production.js?v=117';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=117';
-import { stopRoomPoll } from './village.js?v=117';
-import { renderFlow, stopFlow } from './flow.js?v=117';
-import { startTour, tourWanted } from './tour.js?v=117';
-import { startAlerts } from './alerts.js?v=117';
-import { renderPhotos } from './photos.js?v=117';
+import * as api from './api.js?v=118';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=118';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=118';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=118';
+import { addressPicker, addressSource } from './address.js?v=118';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=118';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=118';
+import { renderHome } from './home.js?v=118';
+import { renderRoom } from './village.js?v=118';
+import { renderSales } from './sales.js?v=118';
+import { renderPipeline } from './pipeline.js?v=118';
+import { renderMarketing } from './marketing.js?v=118';
+import { renderOffice } from './office.js?v=118';
+import { renderProduction } from './production.js?v=118';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=118';
+import { stopRoomPoll } from './village.js?v=118';
+import { renderFlow, stopFlow } from './flow.js?v=118';
+import { startTour, tourWanted } from './tour.js?v=118';
+import { startAlerts } from './alerts.js?v=118';
+import { renderPhotos } from './photos.js?v=118';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -148,7 +148,8 @@ function wireFind() {
   const box = $('#find');
   let pop = null;
   let seq = 0;
-  const close = () => { document.querySelectorAll('.findpop').forEach((p) => p.remove()); pop = null; };
+  let unfit = null;
+  const close = () => { document.querySelectorAll('.findpop').forEach((p) => p.remove()); pop = null; if (unfit) { unfit(); unfit = null; } };
   box.addEventListener('input', () => {
     clearTimeout(findTimer);
     findTimer = setTimeout(async () => {
@@ -163,7 +164,7 @@ function wireFind() {
       const people = searchPeople(q);   // 346: a person opens a direct line; a customer opens the file — same box
       pop = document.createElement('div');
       pop.className = 'card findpop';
-      pop.innerHTML = '<div class="findhead"><span class="kicker">Find · ' + esc(q) + '</span><button class="btn sm" id="find-close" type="button">Close ✕</button></div>' + ((people.length || rows.length)
+      pop.innerHTML = '<div class="findhead"><span class="kicker">Find · ' + esc(q) + (rows.length > 1 ? ' · ' + rows.length + ' files, newest first' : '') + '</span><button class="btn sm" id="find-close" type="button">Close ✕</button></div>' + ((people.length || rows.length)
         ? people.map((p) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-person="${p.id}"><span><b>${p.name}</b></span><span class="mono dimmer">${p.role || ''}</span><span class="chip st-blue">OPEN A LINE ›</span></button>`).join('')
           + rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b><br><span class="small">${c.street || ''}${c.city ? ' · ' + c.city : ''}${c.updated_at ? ' · ' + new Date(c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('')
         : '<div class="empty">Nobody by that name or number</div>');
@@ -171,6 +172,13 @@ function wireFind() {
       pop.querySelectorAll('button[data-id]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__peek(b.dataset.id); }));
       pop.querySelectorAll('button[data-person]').forEach((b) => (b.onclick = () => { close(); box.value = ''; window.__line(b.dataset.person); }));
       $('nav.side').appendChild(pop);
+      // THE PHONE (Kevin, 17 Sep night: a hundred Smiths, "my phone doesn't let me slide all the way down"): the list sits
+      // right under the box and is sized to the part of the screen the keyboard leaves (visualViewport), so its end is
+      // reachable with the keyboard up; and the first drag on the list drops the keyboard so the whole screen is list.
+      const fit = () => { if (!pop) return; const vv = window.visualViewport; pop.style.setProperty('--findtop', Math.round(box.getBoundingClientRect().bottom + 6) + 'px'); pop.style.setProperty('--vvh', Math.round(vv ? vv.height + vv.offsetTop : window.innerHeight) + 'px'); };
+      fit(); window.visualViewport?.addEventListener('resize', fit); window.visualViewport?.addEventListener('scroll', fit);
+      unfit = () => { window.visualViewport?.removeEventListener('resize', fit); window.visualViewport?.removeEventListener('scroll', fit); };
+      pop.addEventListener('touchmove', () => { if (document.activeElement === box) box.blur(); }, { passive: true, once: true });
     }, 220);
   });
   box.addEventListener('keydown', (e) => {

@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=117';
-import { DEMO } from './demo.js?v=117';
+import * as api from './api.js?v=118';
+import { DEMO } from './demo.js?v=118';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -342,7 +342,7 @@ export async function searchCustomers(q) {
     ? `phone.ilike.*${digits.split('').join('*')}*`   // the phone is stored as (786) 366-1475: a star between every digit finds it however it was typed (Sam, 16 Sep)
     : words.length === 1 ? `name.ilike.*${words[0]}*,street.ilike.*${words[0]}*` : null;
   const where = filter ? `or=(${filter})` : `and=(${words.map((w) => `or(name.ilike.*${w}*,street.ilike.*${w}*)`).join(',')})`;
-  return api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=20`, 20);
+  return api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=200`, 200);   // 200, not 20: a hundred Smiths must all be there (Kevin, 17 Sep night: "it stops me and doesn't let me go far enough")
 }
 
 /* ── 351: THE PHOTOS — a photo is something you SAY on the file ────────────
