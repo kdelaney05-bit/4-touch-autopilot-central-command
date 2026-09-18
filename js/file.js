@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=129';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=129';
-import { enterPosts, micButton } from './dictate.js?v=129';
-import { wireAtOn } from './village.js?v=129';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=129';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=129';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=130';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=130';
+import { enterPosts, micButton } from './dictate.js?v=130';
+import { wireAtOn } from './village.js?v=130';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=130';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=130';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=129';
-import { settleDialog, handDialog } from './office.js?v=129';
-import { reload } from './app.js?v=129';
-import { relTime } from './production.js?v=129';
-import { billsCards, billsNext, wireBills } from './bills.js?v=129';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=130';
+import { settleDialog, handDialog } from './office.js?v=130';
+import { reload } from './app.js?v=130';
+import { relTime } from './production.js?v=130';
+import { billsCards, billsNext, wireBills } from './bills.js?v=130';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -233,7 +233,7 @@ function draw(root, ctx, compact) {
           <div class="line-find-pop at-pop" id="note-at-pop" hidden></div>
           <button class="btn" id="note-send">Post</button>
         </div>
-        <div class="small">Type <b>@</b> and two letters in the box to add anyone, as many as you like; Enter picks, Enter posts. They get a push on the phone or an email with the link to this file, and it sits in their Tagged list until they open it. A task also opens an ask on them with the clock running.</div>
+        <div class="small">Type <b>@</b> and two letters in the box to add anyone, as many as you like; Enter picks a name. Post sends (Ctrl+Enter too); Enter alone is a new line. They get a push on the phone or an email with the link to this file, and it sits in their Tagged list until they open it. A task also opens an ask on them with the clock running.</div>
       </div>
     </div>
 
@@ -252,7 +252,7 @@ function draw(root, ctx, compact) {
         ${raw(subLockCard(ctx.data.subLocks || [], job, customer, me, photos))}
         ${raw(quoteFileCard(ctx.data.quotes, photos))}
         ${estimates.length ? raw(`<div class="card"><div class="kicker">Estimates · one link, they tap ACCEPT</div><div class="rows">${estimates.map((d) => { const tk = estLinks.find((l) => l.id === d.link_id)?.token; const url = tk ? ESTIMATE_VIEW + tk : null; const acc = d.status === 'accepted'; return `<div class="r"><span><b>#${esc(d.serial_number)}</b> · ${esc(d.title || 'Estimate')} · <span class="mono">${esc(fmtMoney(d.total))}</span> · <span class="chip ${acc ? 'ok' : ''}">${acc ? 'ACCEPTED · ' + esc(new Date(d.accepted_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : esc(String(d.status).toUpperCase()) + ' · valid to ' + esc(new Date(d.valid_until + 'T12:00:00').toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span></span><span style="display:flex;gap:4px">${url ? `<button class="btn sm" data-estlink="${esc(url)}">Copy link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener" title="Counts as a view">Open</a>` : ''}</span></div>`; }).join('')}</div></div>`) : ''}
-        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : a.doc_kind === 'deed' ? deedRow(a, ctx.data.deed) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : `<span style="display:flex;gap:6px;align-items:center"><span class="mono verify">on file</span>${(a.proof?.files || []).filter((f) => f.storage_path).map((f) => `<button class="btn sm" data-open-doc="${esc(f.storage_path)}" title="${esc(f.label || '')}">Open</button>`).join('')}</span>`}</div>`).join('')}</div>`) : ''}
+        ${paperwork.length ? raw(`<div class="card" data-tour="paperwork"><div class="kicker">Paperwork · the crucial pieces</div>${paperwork.map((a) => a.doc_kind === 'noc' ? nocRow(a, ctx.data.noc, (ctx.data.filled || []).some((f) => f.kind === 'noc')) : a.doc_kind === 'deed' ? deedRow(a, ctx.data.deed) : `<div class="ask ${a.state === 'OPEN' ? '' : 'done'}" style="grid-template-columns:auto 1fr auto"><span class="check ${a.state === 'OPEN' ? '' : 'done'}"></span><span>${esc(askLabel(a))}${a.proof?.waived ? ' · <span class="dimmer">not required: ' + esc(a.proof.waived) + '</span>' : ''}</span>${a.state === 'OPEN' ? `<button class="btn sm ok" data-settle="${esc(a.id)}">Upload</button>` : a.state === 'VOID' ? `<span class="mono dimmer">off the list${a.void_reason ? ' · ' + esc(a.void_reason) : ''}</span>` : a.proof?.waived ? '' : `<span style="display:flex;gap:6px;align-items:center"><span class="mono verify">on file</span>${(a.proof?.files || []).filter((f) => f.storage_path).map((f) => `<button class="btn sm" data-open-doc="${esc(f.storage_path)}" title="${esc(f.label || '')}">Open</button>`).join('')}</span>`}</div>`).join('')}</div>`) : ''}
         <div class="card">
           <div class="kicker">On the file</div>
           <div class="rows">
@@ -421,7 +421,7 @@ function draw(root, ctx, compact) {
   if (q('#file-tag')) q('#file-tag').onclick = () => { const n = q('#note'); if (n) { n.scrollIntoView({ block: 'center', behavior: 'smooth' }); n.focus(); } };
   // THE JETSTREAM (Sam, 18 Sep 10:02 AM: "the @ doesn't work in the 'Note to Team' section… in CC we start typing part of someone's
   // name and their name gets highlighted so we can hit Enter"; 10:28: "to reply, we have to go into the corner"). The Village's own
-  // picker on this box: type @ and two letters, the people come up, Enter picks; Enter alone posts (Shift+Enter is a new line).
+  // picker on this box: type @ and two letters, the people come up, Enter picks; Ctrl+Enter posts (Enter alone is a new line, v130).
   // ↩ Reply on an inside note fills To with who wrote it and puts the cursor in the box, so the answer lands on the same file.
   enterPosts(q('#note'), () => q('#note-send')?.click(), () => { const p = q('#note-at-pop'); return !!(p && !p.hidden); });   // registered first: it sees the picker open and steps aside
   wireAtOn(q('#note'), q('#note-at-pop'), () => {});

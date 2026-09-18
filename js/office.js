@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, handAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=129';
-import * as api from './api.js?v=129';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=129';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=129';
-import { iconForAsk } from './words.js?v=129';
-import { DEMO_STEPS } from './demo-office.js?v=129';
-import { reload } from './app.js?v=129';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=129';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, handAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=130';
+import * as api from './api.js?v=130';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=130';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=130';
+import { iconForAsk } from './words.js?v=130';
+import { DEMO_STEPS } from './demo-office.js?v=130';
+import { reload } from './app.js?v=130';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=130';   // 365/369: the Bills tile and queue
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
@@ -134,7 +134,7 @@ export function settleDialog(a, after) {
   const job = { cc_company_id: a.cc_company_id, cc_project_id: a.cc_project_id };
   const label = a.proof_label || 'Tap to close';
   let body = `<div class="note" style="margin-bottom:10px"><b>${esc(personName(a.customer_name))}</b> · ${esc(askLabel(a))}${a.note ? ' · ' + esc(a.note) : ''}</div>`;
-  if (kind === 'file' || kind === 'photos') body += `<div class="field"><label>${esc(label)}</label><input type="file" name="files" ${kind === 'photos' ? 'accept="image/*" ' : ''}multiple required/></div>`;
+  if (kind === 'file' || kind === 'photos') body += `<div class="field"><label>${esc(label)}</label><input type="file" name="files" ${kind === 'photos' ? 'accept="image/*" ' : ''}multiple ${a.waivable ? '' : 'required'}/></div>`;   // 130: a waivable row settles on the words alone (the browser refused the form without a file)
   if (kind === 'number' || kind === 'text') body += `<div class="field"><label>${esc(label)}</label><input name="value" required/></div>${a.ask_type === 'INVOICE' || a.ask_type === 'PAYMENT' ? '<div class="field"><label>Payment link for the customer (optional)</label><input name="link" placeholder="https://…"/></div>' : ''}<div class="field"><label>Attach the document (optional)</label><input type="file" name="files" multiple/></div>`;
   if (kind === 'date') body += `<div class="field"><label>${esc(label)}</label><input type="date" name="value" required/></div><div class="field"><label>Crew and note</label><input name="note" placeholder="Crew Ortiz · two days"/></div>`;
   if (kind === 'tap') body += `<div class="note">This one closes on your word.</div>`;

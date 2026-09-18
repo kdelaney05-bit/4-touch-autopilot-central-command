@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=129';
-import { DEMO } from './demo.js?v=129';
+import * as api from './api.js?v=130';
+import { DEMO } from './demo.js?v=130';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -185,7 +185,7 @@ export async function loadFile(customerId) {
     if (thread) {
       [messages, asks, attachments] = await Promise.all([
         api.page(`thread_messages?select=id,lane,author_id,author_name,body,is_system,created_at&thread_id=eq.${thread.id}&order=created_at.asc`, 2000),
-        api.page(`thread_asks?select=id,lane,ask_type,doc_kind,note,state,assignee_id,assignee_name,opened_by_name,opened_at,closed_at,minutes_to_close,proof&thread_id=eq.${thread.id}&order=opened_at.asc`, 500),
+        api.page(`thread_asks?select=id,lane,ask_type,doc_kind,note,state,assignee_id,assignee_name,opened_by_name,opened_at,closed_at,closed_by,void_reason,minutes_to_close,proof&thread_id=eq.${thread.id}&order=opened_at.asc`, 500),
         api.page(`thread_attachments?select=id,ask_id,message_id,lane,label,storage_path,source,source_id,created_at,added_by&thread_id=eq.${thread.id}&order=created_at.asc`, 500),
       ]);
     }

@@ -1,7 +1,7 @@
 // TALK INTO THE BOX + ENTER POSTS (Kevin, 16 Sep, launch afternoon: "if Laura is text messaging me in
 // there I can just answer it in there too… I need voice text capability… when you hit enter it posts").
 // Two helpers every composer uses:
-//   enterPosts(textarea, post, isPickerOpen)  Enter posts; Shift+Enter (or Alt+Enter) makes a new line;
+//   enterPosts(textarea, post, isPickerOpen)  Ctrl+Enter posts; Enter makes a new line (v130);
 //                                             while an @-picker is open, Enter picks (the picker's own handler)
 //   micButton(textarea)                       a 🎤 that dictates into the box with the browser's own speech
 //                                             engine (Chrome and Edge on the desktop; Safari on the phone);
@@ -13,8 +13,8 @@ export function enterPosts(ta, post, isPickerOpen = () => false) {
   ta.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || e.shiftKey || e.altKey || e.isComposing) return;
     if (e.metaKey || e.ctrlKey) { e.preventDefault(); post(); return; }   // the old way still works
-    if (isPickerOpen()) return;                                           // Enter picks the highlighted name
-    e.preventDefault(); post();
+    // 130 (Jess, 18 Sep 12:35 PM: "we have all sent several messages that arent needed bc we hit enter"): Enter alone is a
+    // new line, the same as any text box; Ctrl+Enter (⌘+Enter) or the button sends. While an @-picker is open its own handler picks.
   });
 }
 
