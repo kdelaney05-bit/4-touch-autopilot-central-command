@@ -19,11 +19,11 @@
 // with no live source reads honestly absent. Sources are never blended;
 // nothing is projected into an actual. Costs and profit have no feed yet and
 // say so.
-import * as api from './api.js?v=144';
-import { state, isDemo, personName } from './book.js?v=144';
-import { html, raw, esc } from './ui.js?v=144';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel, ROOMS_BY_ROLE, ROOMS_BY_SEAT } from './config.js?v=144';
-import { renderRoom } from './village.js?v=144';
+import * as api from './api.js?v=145';
+import { state, isDemo, personName } from './book.js?v=145';
+import { html, raw, esc } from './ui.js?v=145';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel, ROOMS_BY_ROLE, ROOMS_BY_SEAT } from './config.js?v=145';
+import { renderRoom } from './village.js?v=145';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);

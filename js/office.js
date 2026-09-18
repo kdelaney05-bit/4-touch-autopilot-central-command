@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=144';
-import * as api from './api.js?v=144';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=144';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=144';
-import { iconForAsk } from './words.js?v=144';
-import { DEMO_STEPS } from './demo-office.js?v=144';
-import { reload } from './app.js?v=144';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=144';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=145';
+import * as api from './api.js?v=145';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=145';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=145';
+import { iconForAsk } from './words.js?v=145';
+import { DEMO_STEPS } from './demo-office.js?v=145';
+import { reload } from './app.js?v=145';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=145';   // 365/369: the Bills tile and queue
 
 let filter = 'all', laneF = 'OFFICE', oldOnly = false;   // 135: the list can show the field's asks too, and only the ones older than three days
 const canVoid = (q) => ['owner', 'admin', 'manager', 'office'].includes(state.me?.role) || (q.assignee_id && q.assignee_id === state.me?.id);

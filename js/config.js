@@ -92,10 +92,9 @@ export const CONSOLE_SECTION = { sales: 'sales', marketing: 'marketing', home: '
    So a seat's rooms can override its role's: Gio keeps every room but The
    Business (page one, the P&L, collected). View as is the keys' too. */
 // Kevin, 16 Sep: "jess and luis need a super one like me, they can be anyone and reach anyone" — the keys = View as
-export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732',                        // Kevin
-                     'c2b126ae-a182-4dca-be11-2b9bf02c1c21',                        // Jessica Coley
-                     '9cb2ccf5-15f5-4edf-975a-75fb215727be',                        // Luis Gonzalez
-                     '050dde3d-4672-4aef-9aff-921c1a26e7c0'];                       // Mike LeRoy — "runs ops and production, needs all the Luis abilities" (16 Sep)
+// 18 Sep ~7:55 PM, Kevin: "Close for them." — View as is Kevin's alone. Jess, Luis and Mike (the keys since 16 Sep) keep their
+// rooms (ROOMS_BY_SEAT below) and lose the picker; it was the side door into the rooms closed the same evening.
+export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732'];                       // Kevin — View as; nobody else
 export const ROOMS_BY_SEAT = {
   // 18 Sep evening, Kevin looking as Luis ("these guys don't need access to all that… I don't want anyone having marketing, sales,
   // pipeline except sales rep… Gio can have them"): the keys keep every room BUT the reps' three. View as stays theirs.

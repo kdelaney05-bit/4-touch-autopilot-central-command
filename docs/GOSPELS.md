@@ -111,7 +111,10 @@ wrong, not the gospel.
 28. **The keys are earned, and a seat is a job description.** Kevin, Jess and
     Luis can be anyone and reach anyone. Gio gets a selling sales manager's
     rooms and never the books. Every seat's rooms are one line in config.js,
-    and the database role is what the rows follow. (15–16 Sep)
+    and the database role is what the rows follow. (15–16 Sep) **18 Sep
+    evening:** View as and The Business are Kevin's alone ("Yes the business.
+    Just me." · "Close for them."); Jess, Luis and Mike keep every room but
+    The Business, Sales, Pipeline and Marketing, which are the reps' and Gio's.
 29. **One site, every screen.** The desktop is the cockpit and the phone on
     the home screen is the mobile command center, for Luis on the road and
     the admins at home. Nothing separate to build. (16 Sep)

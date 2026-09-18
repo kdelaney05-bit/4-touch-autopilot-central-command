@@ -5,7 +5,7 @@
 // book, with a caption per step and a Next button, so a seat learns by doing.
 // ?tour=1 starts it; the "Show me around" button on The Line starts it too.
 // 16 Sep: it is THE RIDE-ALONG now (Gospel 31) — several films (FILMS), a voice (&voice=1), one link per person.
-import { $, html, raw, esc } from './ui.js?v=144';
+import { $, html, raw, esc } from './ui.js?v=145';
 
 // Each step names the ROOM it plays in (Kevin, 15 Sep night: "the one you show is
 // mine… it's not going to be that for everyone… give them the pipeline and then the
@@ -53,7 +53,7 @@ const GIO_STEPS = [
 ];
 // THE KEYS' FILM — Jess and Luis: ?demo=1&tour=keys&auto=1&voice=1 (no &as=, so it runs in every room with View as)
 const KEYS_STEPS = [
-  { room: 'line', at: null, title: 'Jess, Luis: you hold the keys.', body: 'Every room but The Business and the reps\' three (Sales, Pipeline, Marketing), every file, and View as: be anyone and reach anyone. Two minutes for the whole place.' },
+  { room: 'line', at: null, title: 'Jess, Luis: you hold the keys.', body: 'Every room but The Business and the reps\' three (Sales, Pipeline, Marketing), and every file. Two minutes for the whole place.' },
   { room: 'line', at: '#sayit, .sayit, [data-tour="sayit"]', title: 'Say it, to anyone, about any customer.', body: 'Type who it is about, pick a person, say what you need, press Post. It reaches them, it lands on the customer\'s file, and it tells you who it reached.' },
   { room: 'line', at: '#alerts .alert', do: 'bing', title: 'The bing.', body: 'When somebody tags you: a sound and this card. It stays until you press Got it or Open the file. Your name on it, or you never hear about it.' },
   { room: 'line', at: '[data-tour="sent"]', title: 'What you sent out.', body: 'Every directive of yours: who it reached, who picked it up, who did it, how fast. Tap one and the chain opens, straight down until done. Look in without hovering. Tap Appreciate on the one that landed well.' },
