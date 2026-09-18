@@ -69,7 +69,7 @@ export const askLabel = (a) => {
 /* Which rooms a role opens. RLS decides the rows either way. */
 export const ROOMS_BY_ROLE = {
   owner:   ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
-  admin:   ['line', 'village', 'home', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],
+  admin:   ['line', 'village', 'sales', 'pipeline', 'marketing', 'office', 'production', 'flow', 'photos', 'files'],   // 18 Sep ~6:50 PM: The Business is Kevin's alone ("Yes the business. Just me.")
   manager: ['line', 'village', 'production', 'photos', 'files'],   // 16 Sep: the Production room — their board, Take the job. 18 Sep evening: no Pipeline (Kevin: "I don't want anyone having marketing, sales, pipeline except sales rep… Gio can have them")
   office:  ['line', 'village', 'office', 'photos', 'files'],   // 16 Sep: the Office room is the office's automated day (the asks, oldest first). 18 Sep evening: no Pipeline — the New lead door is the button at the top, not a room
   sales:   ['line', 'village', 'sales', 'pipeline', 'marketing', 'photos', 'files'],   // 18 Sep evening: Sales · Pipeline · Marketing are the reps' rooms (and Gio's), nobody else's
@@ -99,8 +99,9 @@ export const KEYS = ['fa314b31-dac6-4666-8920-e95d471f5732',                    
 export const ROOMS_BY_SEAT = {
   // 18 Sep evening, Kevin looking as Luis ("these guys don't need access to all that… I don't want anyone having marketing, sales,
   // pipeline except sales rep… Gio can have them"): the keys keep every room BUT the reps' three. View as stays theirs.
-  'c2b126ae-a182-4dca-be11-2b9bf02c1c21': ['line', 'village', 'home', 'office', 'production', 'flow', 'photos', 'files'],   // Jess — every room but Sales · Pipeline · Marketing (was every room like Kevin, 16 Sep)
-  '9cb2ccf5-15f5-4edf-975a-75fb215727be': ['line', 'village', 'home', 'office', 'production', 'flow', 'photos', 'files'],   // Luis — the same
-  '050dde3d-4672-4aef-9aff-921c1a26e7c0': ['line', 'village', 'home', 'office', 'production', 'flow', 'photos', 'files'],   // Mike — the same
+  // ~6:50 PM, The Business too ("Yes the business. Just me."): page one, the P&L and collected are Kevin's alone.
+  'c2b126ae-a182-4dca-be11-2b9bf02c1c21': ['line', 'village', 'office', 'production', 'flow', 'photos', 'files'],   // Jess — every room but The Business and Sales · Pipeline · Marketing (was every room like Kevin, 16 Sep)
+  '9cb2ccf5-15f5-4edf-975a-75fb215727be': ['line', 'village', 'office', 'production', 'flow', 'photos', 'files'],   // Luis — the same
+  '050dde3d-4672-4aef-9aff-921c1a26e7c0': ['line', 'village', 'office', 'production', 'flow', 'photos', 'files'],   // Mike — the same
   '940ad537-cfbd-4129-a335-9d8a9bc7a013': ['line', 'village', 'sales', 'pipeline', 'marketing', 'photos', 'files'],   // Gio — the selling sales manager: the reps' three rooms and no more (Kevin, 16 Sep: "just go sell"; 18 Sep: "Gio can have them"); never the books, never View as
 };
