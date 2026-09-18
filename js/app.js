@@ -33,7 +33,7 @@ export function rooms() {
 
 export function go(v, arg) {
   view = v;
-  stopRoomPoll();$1
+  stopRoomPoll();                 // the room you are leaving stops talking to the database
   stopVillagePoll();
   stopLinePoll();
   stopFlow();
