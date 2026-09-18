@@ -1,22 +1,54 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=119';
-import * as api from './api.js?v=119';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=119';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=119';
-import { iconForAsk } from './words.js?v=119';
-import { DEMO_STEPS } from './demo-office.js?v=119';
-import { reload } from './app.js?v=119';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=119';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=120';
+import * as api from './api.js?v=120';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=120';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=120';
+import { iconForAsk } from './words.js?v=120';
+import { DEMO_STEPS } from './demo-office.js?v=120';
+import { reload } from './app.js?v=120';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=120';   // 365/369: the Bills tile and queue
 
 let filter = 'all';
 const mins = (m) => m == null ? '' : m >= 1440 ? (m / 1440).toFixed(1) + ' d' : m >= 60 ? (m / 60).toFixed(1) + ' h' : Math.round(m) + ' min';
 const money = (n) => n == null ? '' : '$' + Math.round(Number(n)).toLocaleString();
 const LINE_MIN = { PERMIT: 5 * 1440, CONTRACT_DOC: 2 * 1440, SURVEY: 1440, SCHEDULE: 2 * 1440, MATERIAL: 2 * 1440, INVOICE: 240, PAYMENT: 30 * 1440, COLLECT_CALL: 240 };   // 381: a call card waits four hours, then it is red
 
+/* Sam, 18 Sep ("I wonder if there's a way the CRM could alert us when an 811 locate is getting close to expiring,
+   specifically if the job is still in a pre-production stage… just give us an alert or task so we can review it and
+   decide whether to reorder it"): the tickets the machine already reads (341) that expire within ten days on a job
+   with no start date. Nothing reorders itself — the card is the review, the decision is hers. */
+const DEMO_LOCATES = [
+  { ticket: '233601431', name: 'Keyeck, Tony', job: '29102', brand: '1461', exp_date: new Date(Date.now() + 2 * 864e5).toISOString().slice(0, 10), address: '1180 Pine St', city: 'Titusville' },
+  { ticket: '233606949', name: 'Reed, Dana', job: '29088', brand: '1461', exp_date: new Date(Date.now() + 6 * 864e5).toISOString().slice(0, 10), address: '2130 Sunrise Ave', city: 'Melbourne' },
+];
+async function fillLocates(root) {
+  const box = root.querySelector('#locates-expiring'); if (!box) return;
+  let rows = [];
+  try {
+    if (isDemo()) rows = DEMO_LOCATES;
+    else {
+      const iso = (d) => new Date(d).toISOString().slice(0, 10);
+      const L = await api.page(`locate_tickets?select=ticket,customer_id,exp_date,address,city&exp_date=gte.${iso(Date.now())}&exp_date=lte.${iso(Date.now() + 10 * 864e5)}&order=exp_date.asc`, 200);
+      if (L.length) {
+        const ids = [...new Set(L.map((l) => l.customer_id).filter(Boolean))];
+        const J = ids.length ? await api.page(`jobs?select=customer_id,cc_job_number,start_date,completed_at,cc_company_id,created_at,customers(name)&customer_id=in.(${ids.join(',')})&order=created_at.desc`, 500).catch(() => []) : [];
+        rows = L.map((l) => { const j = J.find((x) => x.customer_id === l.customer_id); return { ...l, name: j?.customers?.name || '', job: j?.cc_job_number || '', brand: j?.cc_company_id || '', started: !!(j && (j.start_date || j.completed_at)) }; }).filter((r) => !r.started);
+      }
+    }
+  } catch (e) { box.innerHTML = `<div class="small dimmer">Could not read the locates (${esc(e.message)}).</div>`; return; }
+  if (!rows.length) { box.innerHTML = ''; return; }
+  const days = (d) => Math.max(0, Math.round((new Date(d + 'T12:00:00') - Date.now()) / 864e5));
+  box.innerHTML = `<div class="card locates" data-tour="locates-expiring">
+    <div class="head" style="margin-bottom:4px"><div class="kicker">811 locates expiring · the job has not started · soonest first</div><span class="chip">${rows.length}</span></div>
+    <div class="rows">${rows.map((r) => { const n = days(r.exp_date); return `<div class="r ${n <= 3 ? 'soon' : ''}"><span><b>${esc(personName(r.name) || 'a customer')}</b>${r.job ? ' · ' + esc(String(r.job)) : ''}${r.brand ? ' · ' + esc(brandName(r.brand)) : ''} · <span class="mono">ticket ${esc(r.ticket)}</span>${r.address ? ' · ' + esc([r.address, r.city].filter(Boolean).join(', ')) : ''}</span><span class="mono">${n === 0 ? 'expires today' : n === 1 ? 'expires tomorrow' : 'expires in ' + n + ' days'}</span></div>`; }).join('')}</div>
+    <div class="small" style="margin-top:6px">Nothing reorders itself. If the job is on hold (HOA, the homeowner, a wait), leave it; if it is about to go, reorder it on 811 and the new ticket lands here on its own. Sam's idea, 18 Sep.</div>
+  </div>`;
+}
+
 export function renderOffice(root) {
-  setTimeout(() => fillSubLocks(root), 0);   // 397: the subs waiting to be typed into CC, after the paint
+  setTimeout(() => { fillSubLocks(root); fillLocates(root); }, 0);   // 397: the subs waiting to be typed into CC, after the paint · 18 Sep: the locates about to expire
   const Q = state.queue.filter((q) => q.lane === 'OFFICE');
   const types = ['CONTRACT_DOC', 'PERMIT', 'SURVEY', 'SCHEDULE', 'MATERIAL', 'INVOICE', 'COLLECT_CALL', 'PAYMENT'];
   const n = (t) => Q.filter((q) => q.ask_type === t).length;
@@ -48,6 +80,7 @@ export function renderOffice(root) {
     </div>
     ${raw(billsQueueCard())}
     <div id="sub-locks-waiting"></div>
+    <div id="locates-expiring"></div>
     ${canFlip ? raw(`<div class="card"><div class="kicker">The machine · switches (owner only)</div>
       <div class="switch"><span><b>Estimate-booked confirmation text</b> — the first text, from the brand's main line, the moment a new appointment lands. Fencing lines only until the other campaigns approve.</span><button class="btn sm ${sw('appt_confirm')?.is_on ? 'ok' : ''}" data-switch="appt_confirm">${sw('appt_confirm')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
       <div class="switch"><span><b>The answer clock</b> — 15 minutes, then the watcher is pinged; 60 minutes, the owners. Counts only texts that arrive after you flip it.</span><button class="btn sm ${sw('text_clock')?.is_on ? 'ok' : ''}" data-switch="text_clock">${sw('text_clock')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>

@@ -6,8 +6,8 @@
 // they come from OpenStreetMap through Photon (photon.komoot.io — free, no key, no sign-up): it knows the street, the
 // city and the zip and often not the house number, so the number the office typed stays in front of the street it picked.
 // Nothing about the customer goes anywhere: the query is the address being typed, that is all.
-import { GOOGLE_MAPS_KEY } from './config.js?v=119';
-import { esc } from './ui.js?v=119';
+import { GOOGLE_MAPS_KEY } from './config.js?v=120';
+import { esc } from './ui.js?v=120';
 
 const HOME = { lat: 28.33, lon: -80.67 };   // Merritt Island — the middle of the book; a bias, not a fence
 const key = () => (GOOGLE_MAPS_KEY || '').trim();
@@ -80,7 +80,7 @@ async function details(placeId) {
   const j = await r.json(); const c = {};
   for (const a of j.addressComponents || []) for (const t of a.types || []) c[t] ||= a.longText || a.shortText || '';
   const street = [c.street_number, c.route].filter(Boolean).join(' ') || (j.formattedAddress || '').split(',')[0];
-  return { street, city: c.locality || c.sublocality || c.postal_town || c.administrative_area_level_3 || c.neighborhood || '', zip: c.postal_code || '' };
+  return { street, city: c.locality || c.sublocality || c.postal_town || c.neighborhood || '', zip: c.postal_code || '' };   // Sam, 18 Sep: no county-level name as the city
 }
 
 // ── OpenStreetMap through Photon — free, keyless, CORS-open; fenced to Florida (every book is here) and biased to home so
@@ -96,7 +96,7 @@ async function photon(q) {
     const streetName = p.osm_key === 'highway' ? p.name : p.street;   // a street, or a house on one — not a town, not a shop
     if (!streetName) continue;
     const street = [p.housenumber, streetName].filter(Boolean).join(' ');
-    const city = p.city || p.town || p.village || p.district || p.county || '';
+    const city = p.city || p.town || p.village || '';   // Sam, 18 Sep: never the county or a district as the city ("Brevard County" on 3606 Egret Dr) — blank beats wrong; she types it
     const sub = [city, p.state === 'Florida' ? 'FL' : p.state, p.postcode].filter(Boolean).join(' · ');
     const k = (street + '|' + sub).toLowerCase(); if (seen.has(k)) continue; seen.add(k);
     out.push({ label: street, sub, street, city, zip: p.postcode || '' });

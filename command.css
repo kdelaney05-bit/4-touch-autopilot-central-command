@@ -644,3 +644,9 @@ nav.side .card { max-height: 70vh; overflow-y: auto; }
 @media (max-width: 700px) {
   .findpop, nav.side .card.findpop { position: fixed; left: 8px; right: 8px; top: var(--findtop, 96px); width: auto; max-height: calc(var(--vvh, 100vh) - var(--findtop, 96px) - 8px); overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 }
+
+/* 18 Sep — Sam's asks: the contact line under the customer's name, and small link-buttons (copy · ↗ new tab) */
+.contactline { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; margin-top: 6px; font-size: 13px; }
+.contactline a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--dimmer); }
+.contactline a.lnk, button.lnk { color: var(--office); border: 0; background: none; padding: 0; font: inherit; font-size: 11px; text-decoration: underline; cursor: pointer; }
+.locates .r.soon { color: var(--clock); }

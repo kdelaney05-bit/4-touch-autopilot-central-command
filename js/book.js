@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=119';
-import { DEMO } from './demo.js?v=119';
+import * as api from './api.js?v=120';
+import { DEMO } from './demo.js?v=120';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -136,7 +136,7 @@ export async function loadFile(customerId) {
   if (!job) {
     // not on the stage board (selling, or older than 30 days): read the job directly
     const j = await api.one(`jobs?select=id,cc_project_id,cc_company_id,customer_id,title,fin_sold_amount,contract_signed_at,completed_at,rep_id,appt_starts_at,reps!jobs_rep_id_fkey(name)&customer_id=eq.${customerId}&order=created_at.desc`);
-    const c = await api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`);
+    const c = await api.one(`customers?select=id,name,phone,email,street,city,state,zip,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`);
     job = j ? { job_id: j.id, cc_project_id: j.cc_project_id, cc_company_id: j.cc_company_id, customer_id: customerId, customer_name: c?.name, customer_phone: c?.phone,
                 title: j.title, fin_sold_amount: j.fin_sold_amount, contract_signed_at: j.contract_signed_at, completed_at: j.completed_at, rep_id: j.rep_id, rep_name: j.reps?.name || null,
                 appt_starts_at: j.appt_starts_at,   // 381: a lead born here — the booking is the file's first fact
@@ -147,7 +147,7 @@ export async function loadFile(customerId) {
   const [texts, emails, cust, handoffs, outbox, estimates, estLinks, parcel, filled, fence, packet, noc, bills, deposit, invoiceQueue, invoiceState, calls] = await Promise.all([
     api.page(`text_messages?select=id,direction,body,occurred_at,uvoice_ext,from_number,to_number,has_media,media_url,feed_source,resolved_rep_id&resolved_customer_id=eq.${customerId}&order=occurred_at.asc`, 2000),
     api.rpc('file_email_thread', { p_customer: customerId }).catch(() => []),
-    api.one(`customers?select=id,name,phone,email,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
+    api.one(`customers?select=id,name,phone,email,street,city,state,zip,sms_opt_out_at,disposition,disposition_at&id=eq.${customerId}`),
     job.job_id ? api.page(`job_handoffs?select=*&job_id=eq.${job.job_id}&order=at.asc`) : [],
     api.page(`sms_outbox?select=id,body,status,queued_at,sent_at,from_number,rep_id,play&customer_id=eq.${customerId}&order=queued_at.asc`, 500).catch(() => []),
     // 322: the itemized estimates on this file (the rep's own, or all of them for a manager), and their links

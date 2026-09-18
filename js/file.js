@@ -2,17 +2,17 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=119';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=119';
-import { enterPosts, micButton } from './dictate.js?v=119';
-import { quoteFileCard, wireQuotes } from './quotes.js?v=119';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=119';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet } from './book.js?v=120';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=120';
+import { enterPosts, micButton } from './dictate.js?v=120';
+import { quoteFileCard, wireQuotes } from './quotes.js?v=120';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=120';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=119';
-import { settleDialog } from './office.js?v=119';
-import { reload } from './app.js?v=119';
-import { relTime } from './production.js?v=119';
-import { billsCards, billsNext, wireBills } from './bills.js?v=119';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=120';
+import { settleDialog } from './office.js?v=120';
+import { reload } from './app.js?v=120';
+import { relTime } from './production.js?v=120';
+import { billsCards, billsNext, wireBills } from './bills.js?v=120';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -142,7 +142,7 @@ function draw(root, ctx, compact) {
     items.push({ at: o.sent_at || o.queued_at, kind: 'out', pid: o.rep_id, who: (p?.name || 'you') + (o.status === 'sent' ? '' : ' · ' + o.status), line: lineLabel(o.from_number, job, p), body: o.body });
   });
   emails.forEach((e) => items.push({ at: e.occurred_at, kind: 'env', pid: e.source === 'machine' ? 'machine' : job.rep_id, body: `${e.subject || 'Email'} · ${e.source === 'machine' ? 'the machine' : (personOf(job.rep_id)?.name || 'the rep')} · ${e.status}${e.opened ? ' · opened' : ''}` }));
-  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · team note', body: m.is_system ? say(m.body) : m.body, lane: m.lane, photo: photoByMsg.get(m.id), rcpt: rcByMsg.get(m.id) }));
+  messages.forEach((m) => items.push({ at: m.created_at, kind: m.is_system ? 'sys' : 'chat', pid: m.is_system ? null : m.author_id, who: m.is_system ? '' : (m.author_name || '') + ' · inside note · never sent to the customer', body: m.is_system ? say(m.body) : m.body, lane: m.lane, photo: photoByMsg.get(m.id), rcpt: rcByMsg.get(m.id) }));
   // the steps and the paper, as one line each, where they happened
   const ev = (at, cls, pid, body) => { if (at) items.push({ at, kind: 'ev', cls, pid, body }); };
   attachments.forEach((f) => ev(f.created_at, 'file', f.added_by, `${f.label || f.storage_path || f.source} · on the file`));
@@ -172,6 +172,7 @@ function draw(root, ctx, compact) {
       <div style="flex-grow:1;min-width:0">
         <div class="kicker">The customer file · one file, every room writes on it</div>
         <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:4px"><h1 class="serif" style="margin:0">${name}</h1><span class="dim">${raw(esc(job.title || '') + (job.fin_sold_amount ? ' · <span class="mono">' + esc(money(job.fin_sold_amount)) + '</span>' : ''))}${job.contract_signed_at ? ' signed ' + esc(new Date(job.contract_signed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })) : ''}${job.rep_name ? ' by ' + esc(firstName(job.rep_name)) : ''} · ${esc(brandName(job.cc_company_id))}</span></div>
+        ${raw(contactLine(customer, ctx))}
         ${raw(leadLine(job, ctx.data.appt, ctx.data.mirror))}
         <div class="stagebar" style="margin-top:8px">${raw(steps.join(chev))}</div>
         ${journey.length ? raw(`<div class="journey" title="Who moved through this file, in order">${journey.map((j) => { const p = j.pid === 'machine' ? { name: 'The machine' } : personOf(j.pid); const c = colorFor(j.pid); return `<span style="--c:${c.c};flex-grow:${j.n}" title="${esc((p?.name || 'someone') + ' · ' + new Date(j.from).toLocaleDateString([], { month: 'short', day: 'numeric' }) + (j.n > 1 ? ' · ' + j.n : ''))}"></span>`; }).join('')}</div><div class="journey-who">${[...new Set(journey.map((j) => j.pid))].map((pid) => { const p = pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(pid); const c = colorFor(pid); return `<span class="pill" style="--c:${c.c};--cs:${c.cs}"><i class="av">${esc(initialsOf(p))}</i>${esc(pid === 'machine' ? 'The machine' : firstName(p?.name || 'someone'))}</span>`; }).join('')}</div>`) : ''}
@@ -219,7 +220,8 @@ function draw(root, ctx, compact) {
         <div class="lines" id="lines"><div class="small">Loading the lines…</div></div>
         <div class="kicker" style="margin-top:14px">Note to the team · the customer never sees this · tag the next person</div>
         <div class="subs" style="margin:4px 0 6px">
-          <select id="note-to" style="width:auto;padding:5px 8px;font-size:12px"><option value="">To: nobody in particular</option><option value="@office">@office · the office seat</option><option value="@sales">@sales · every rep</option><option value="@supers">@supers · every supervisor</option><option value="@schedule">@schedule · scheduling</option><option value="@production">@production · the supervisor</option><option value="@rep">@rep · who sold it</option><option value="@invoice">@invoice · billing</option><option value="@crew">@crew · the crew on this job, on their link</option>${raw(state.seats.map((s) => `<option value="${esc(mentionHandle(s))}">${esc(mentionHandle(s))} · ${esc(s.name)}</option>`).join(''))}</select>
+          <input id="note-to" list="note-to-list" autocomplete="off" placeholder="To: type a name — Eric, Sam, Obed… or @office, @sales" title="Type the first letters of a name and pick, the way Jetstreams work in CC. Leave it blank for nobody in particular." style="width:230px;padding:5px 8px;font-size:12px"/>
+          <datalist id="note-to-list"><option value="@rep">the rep on this file (sold it, or is quoting it)</option><option value="@office">the office seat</option><option value="@sales">every rep</option><option value="@supers">every supervisor, every brand</option><option value="@production">the supervisor on this job</option><option value="@schedule">scheduling</option><option value="@invoice">billing</option><option value="@crew">the crew on this job, on their link</option>${raw(state.seats.map((s) => `<option value="${esc(mentionHandle(s))}">${esc(s.name)}</option>`).join(''))}</datalist>
           <select id="note-what" style="width:auto;padding:5px 8px;font-size:12px"><option value="">What: a note</option>${raw(Object.keys(ASK_LABEL).map((t) => `<option value="${t}">Task: ${esc(ASK_LABEL[t])}</option>`).join(''))}</select>
         </div>
         <div class="composer" style="background:var(--officesoft)">
@@ -297,6 +299,7 @@ function draw(root, ctx, compact) {
   const again = () => (compact ? openFileDrawer(ctx.customerId) : openFile(ctx.customerId));
   wireBills(root, { bills: ctx.data.bills || [], ctx, after: async () => { await reload(true); again(); } });   // 365/369: the money cards' taps
   // 380 (Kevin, 17 Sep, on Mike's "delete these three"): a no after the yes clears the board; nothing is deleted, the office is tagged to mark it in CC
+  root.querySelectorAll('[data-copy]').forEach((b) => (b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast('Copied'); } catch { prompt('Copy this', b.dataset.copy); } }));
   if (q('#file-lost')) q('#file-lost').onclick = () => openModal({ title: `${name} is not going with us`, submitLabel: 'Take it off the board', body: `
       <div class="field"><label>Why</label><select name="reason"><option value="price">Price</option><option value="financing">Financing</option><option value="competitor">Went with a competitor</option><option value="no_response">No response</option><option value="other" selected>Other · backed out after the fact</option></select></div>
       <div class="field"><label>A word for the office (optional)</label><input name="note" placeholder="backed out after signing · moving · wants to wait until spring"/></div>
@@ -465,8 +468,17 @@ function draw(root, ctx, compact) {
         again();
       } });
   };
+  // Sam, 18 Sep: "Eric" typed is Eric — a first name, a handle or a role resolves to the seat; nobody has to scroll a list
+  const resolveTo = (typed) => {
+    const t = String(typed || '').trim(); if (!t) return '';
+    const roles = ['@office', '@sales', '@supers', '@schedule', '@production', '@rep', '@invoice', '@crew'];
+    if (roles.includes(t.toLowerCase())) return t.toLowerCase();
+    const k = t.replace(/^@/, '').toLowerCase();
+    const seat = state.seats.find((s) => mentionHandle(s).toLowerCase() === '@' + k) || state.seats.find((s) => firstName(s.name).toLowerCase() === k) || state.seats.find((s) => String(s.name || '').toLowerCase().startsWith(k));
+    return seat ? mentionHandle(seat) : (t.startsWith('@') ? t : '@' + t);
+  };
   q('#note-send').onclick = async () => {
-    const to = q('#note-to').value, what = q('#note-what').value;
+    const to = resolveTo(q('#note-to').value), what = q('#note-what').value;
     let body = q('#note').value.trim(); if (!body && !what) return;
     // @crew (16 Sep, Kevin: "anyone from the company can communicate in this chat thread"): the note goes to the crew's lane, whoever writes it,
     // and shows on the crew's link (crew_link_view reads the SUPER lane). No "@crew" in the words the crew reads.
@@ -859,6 +871,23 @@ function senderOf(t, job) {
   if (!p && ext >= 100 && ext <= 102) return { id: 'office-' + ext, name: 'The office', line: lineLabel(t.from_number, job) + ' · ext ' + ext };
   if (!p) return { id: ext ? 'ext-' + ext : 'liberty', name: ext ? 'A rep' : 'Liberty', line: lineLabel(t.from_number, job) + (ext ? ' · ext ' + ext : '') };
   return { id: p.id, name: p.name, line: lineLabel(t.from_number, job, p) };
+}
+
+/* Sam, 18 Sep ("I am struggling to easily find their email and phone number… I also can't easily figure out the address"):
+   the number, the email and the address sit under the name, each a tap to call / write / map and a word to copy.
+   "↗ new tab" opens this same file in its own browser tab, so two back-to-back calls are two tabs, the way she works in CC. */
+const fmtPhone = (p) => { const d = String(p || '').replace(/\D/g, ''); return d.length === 11 && d[0] === '1' ? `(${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7)}` : d.length === 10 ? `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}` : String(p || ''); };
+function contactLine(customer, ctx) {
+  if (!customer) return '';
+  const addr = [customer.street, [customer.city, customer.state].filter(Boolean).join(' '), customer.zip].filter(Boolean).join(', ');
+  const u = new URL(location.href); u.searchParams.set('file', ctx.customerId); u.hash = '';
+  const copy = (v, t) => `<button type="button" class="lnk" data-copy="${esc(v)}" title="Copy ${esc(t)}">copy</button>`;
+  return `<div class="contactline">
+    ${customer.phone ? `<span>📞 <a class="mono" href="tel:${esc(customer.phone)}">${esc(fmtPhone(customer.phone))}</a> ${copy(customer.phone, 'the number')}</span>` : '<span class="dimmer">no phone on the file</span>'}
+    ${customer.email ? `<span>✉ <a href="mailto:${esc(customer.email)}">${esc(customer.email)}</a> ${copy(customer.email, 'the email')}</span>` : '<span class="dimmer">no email on the file</span>'}
+    ${addr ? `<span>🏠 <a href="https://www.google.com/maps/search/${encodeURIComponent(addr)}" target="_blank" rel="noopener">${esc(addr)}</a> ${copy(addr, 'the address')}</span>` : '<span class="dimmer">no address on the file</span>'}
+    <a class="lnk" href="${esc(u.pathname + u.search)}" target="_blank" rel="noopener" title="This file in its own browser tab — keep as many open as you like">↗ new tab</a>
+  </div>`;
 }
 
 function bubble(i) {

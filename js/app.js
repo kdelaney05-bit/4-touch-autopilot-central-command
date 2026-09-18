@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=119';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=119';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=119';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=119';
-import { addressPicker, addressSource } from './address.js?v=119';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=119';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=119';
-import { renderHome } from './home.js?v=119';
-import { renderRoom } from './village.js?v=119';
-import { renderSales } from './sales.js?v=119';
-import { renderPipeline } from './pipeline.js?v=119';
-import { renderMarketing } from './marketing.js?v=119';
-import { renderOffice } from './office.js?v=119';
-import { renderProduction } from './production.js?v=119';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=119';
-import { stopRoomPoll } from './village.js?v=119';
-import { renderFlow, stopFlow } from './flow.js?v=119';
-import { startTour, tourWanted } from './tour.js?v=119';
-import { startAlerts } from './alerts.js?v=119';
-import { renderPhotos } from './photos.js?v=119';
+import * as api from './api.js?v=120';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=120';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=120';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=120';
+import { addressPicker, addressSource } from './address.js?v=120';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=120';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=120';
+import { renderHome } from './home.js?v=120';
+import { renderRoom } from './village.js?v=120';
+import { renderSales } from './sales.js?v=120';
+import { renderPipeline } from './pipeline.js?v=120';
+import { renderMarketing } from './marketing.js?v=120';
+import { renderOffice } from './office.js?v=120';
+import { renderProduction } from './production.js?v=120';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=120';
+import { stopRoomPoll } from './village.js?v=120';
+import { renderFlow, stopFlow } from './flow.js?v=120';
+import { startTour, tourWanted } from './tour.js?v=120';
+import { startAlerts } from './alerts.js?v=120';
+import { renderPhotos } from './photos.js?v=120';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -237,7 +237,7 @@ function newJob(prefill) {
       <div class="field"><label>How they found us · the same list as Contractors Cloud</label><select name="src">${srcOpts(cc0)}</select></div>
     </div>
     <div class="two">
-      <div class="field"><label>Customer name</label><input name="name" required placeholder="Last, First — or the household"/></div>
+      <div class="field"><label>First name · Last name <span class="dimmer">(the file reads Last, First on its own)</span></label><div style="display:flex;gap:6px"><input name="first" placeholder="Grace" autocomplete="off" style="flex:1"/><input name="last" required placeholder="Okonkwo — or the household" autocomplete="off" style="flex:1.3"/></div></div>
       <div class="field"><label>Mobile</label><input name="phone" placeholder="(321) 555-0100"/></div>
     </div>
     <div class="two">
@@ -268,6 +268,7 @@ function newJob(prefill) {
       addressPicker(f.street, f.querySelector('#nj-addr-pick'), (a) => { if (a.street) f.street.value = a.street; if (a.city) f.city.value = a.city; if (a.zip) f.zip.value = a.zip; (a.zip ? (f.rep || f.day) : f.city).focus(); });
       if (prefill) {   // the Ride-Along opens it typed; nothing is saved in the demo
         for (const [k, v] of Object.entries(prefill)) { const el = f.elements[k]; if (el && k !== 'cc') el.value = v; }
+        if (prefill.name) { const [l, fi] = String(prefill.name).split(/,\s*/); f.last.value = l || ''; f.first.value = fi || ''; }   // "Okonkwo, Grace" → the two boxes
         if (prefill.src) f.src.value = prefill.src;
         if (prefill.rep && f.rep) f.rep.value = prefill.rep;
         if (prefill.appt) { f.day.value = String(prefill.appt).slice(0, 10); const t = String(prefill.appt).slice(11, 16); if (t && ![...f.time.options].some((o) => o.value === t)) f.time.add(new Option(clock12(t), t)); f.time.value = t; }
@@ -276,7 +277,9 @@ function newJob(prefill) {
     },
     onSubmit: async (f) => {
       const amount = f.amount.value ? Number(f.amount.value) : null;
-      const r = await createJob({ p_cc_company: f.cc.value, p_name: f.name.value.trim(), p_phone: f.phone.value.trim() || null, p_email: f.email.value.trim() || null,
+      // Sam, 18 Sep: two boxes, First and Last, the way CC has them; the file keeps reading "Last, First" so nothing downstream changes
+      const last = f.last.value.trim().replace(/,\s*$/, ''), first = f.first.value.trim();
+      const r = await createJob({ p_cc_company: f.cc.value, p_name: first ? `${last}, ${first}` : last, p_phone: f.phone.value.trim() || null, p_email: f.email.value.trim() || null,
         p_street: f.street.value.trim() || null, p_city: f.city.value.trim() || null, p_zip: f.zip.value.trim() || null,
         p_rep: canPickRep ? (f.rep.value || null) : null, p_title: f.title.value.trim() || null,
         p_appt_at: f.appt.value ? new Date(f.appt.value).toISOString() : null,
