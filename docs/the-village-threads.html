@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>The village as conversations</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f6f3ec; --card: #ffffff; --card-hi: #fbf9f4; --line: #e3ddd0; --line-soft: rgba(28,26,21,0.07);
+    --ink: #1c1a15; --dim: #5a544a; --dimmer: #8a8377; --faint: #a29b8e;
+    --gold: #b8860b; --goldbtn: #c9962b; --goldsoft: #fbf0d0; --office: #1d5fa8; --officesoft: #e1e8f3; --prod: #b45309; --prodsoft: #f6e3d6;
+    --verify: #2f8f5b; --greensoft: #e6f2e9; --clock: #b45309; --red: #b4574a; --redsoft: #f5e0dc;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --sans: 'Source Sans 3', -apple-system, "Segoe UI", system-ui, sans-serif;
+    --serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1a15; --card: #25221c; --card-hi: #2c2922; --line: #3b372f; --line-soft: rgba(243,239,230,0.08);
+      --ink: #f3efe6; --dim: #c9c2b4; --dimmer: #9a9385; --faint: #7a7367;
+      --gold: #d9a441; --goldbtn: #d9a441; --goldsoft: #3a3018; --office: #8db6ea; --officesoft: #1f2c3f; --prod: #e6934d; --prodsoft: #3d2a1c;
+      --verify: #6dbb8d; --greensoft: #1f3328; --clock: #e6934d; --red: #d98577; --redsoft: #3d2622;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1c1a15; --card: #25221c; --card-hi: #2c2922; --line: #3b372f; --line-soft: rgba(243,239,230,0.08);
+    --ink: #f3efe6; --dim: #c9c2b4; --dimmer: #9a9385; --faint: #7a7367;
+    --gold: #d9a441; --goldbtn: #d9a441; --goldsoft: #3a3018; --office: #8db6ea; --officesoft: #1f2c3f; --prod: #e6934d; --prodsoft: #3d2a1c;
+    --verify: #6dbb8d; --greensoft: #1f3328; --clock: #e6934d; --red: #d98577; --redsoft: #3d2622;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font-family: var(--sans); font-size: 17px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  main { max-width: 980px; margin: 0 auto; padding: 28px 16px 90px; }
+  .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dimmer); font-weight: 500; }
+  h1 { font-family: var(--serif); font-weight: 500; font-size: 34px; line-height: 1.1; margin: 8px 0 10px; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: 26px; line-height: 1.15; margin: 44px 0 6px; }
+  h3 { font-size: 15px; margin: 18px 0 6px; }
+  p { margin: 0 0 12px; } .lead { font-size: 19px; color: var(--dim); }
+  .quote { border-left: 3px solid var(--gold); padding: 6px 14px; color: var(--dim); font-style: italic; margin: 14px 0 18px; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0 6px; }
+  .three > div { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 15px; }
+  .three b { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dimmer); margin-bottom: 4px; font-weight: 500; }
+  .pick { background: var(--card); border: 2px solid var(--verify); border-radius: 16px; padding: 16px 18px; margin: 18px 0; }
+  .pick b.t { display: block; color: var(--verify); font-size: 18px; margin-bottom: 6px; }
+  ul { padding-left: 20px; margin: 6px 0 12px; } li { margin: 4px 0; }
+
+  /* ── the mocks ───────────────────────────────────────────────── */
+  .mock { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 14px 40px rgba(28,26,21,.12); overflow: hidden; margin: 14px 0 10px; font-size: 13.5px; line-height: 1.35; }
+  .mock .bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--card-hi); }
+  .mock .bar .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .mock .bar .t { margin-left: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--dimmer); }
+  .grid2 { display: grid; grid-template-columns: 300px 1fr; min-height: 420px; }
+  .grid3 { display: grid; grid-template-columns: 250px 1fr 250px; min-height: 420px; }
+  .col { padding: 12px; } .col + .col { border-left: 1px solid var(--line); }
+  .col .kicker { margin: 4px 2px 8px; }
+  .face { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid; font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0; flex: 0 0 auto; }
+  .face.sm { width: 22px; height: 22px; font-size: 9px; }
+  .faces { display: inline-flex; } .faces .face { margin-left: -7px; box-shadow: 0 0 0 2px var(--card); } .faces .face:first-child { margin-left: 0; }
+  .sw { background: #dbe7f7; color: #1d5fa8; border-color: #9dbbe6; }
+  .jc { background: #fbf0d0; color: #8a6508; border-color: #e3c56a; }
+  .ls { background: #e6f2e9; color: #2f8f5b; border-color: #9fd2b3; }
+  .lg { background: #f6e3d6; color: #b45309; border-color: #e8b28a; }
+  .ep { background: #ece3f5; color: #6b3fa0; border-color: #c4a9e0; }
+  .gc { background: #f5e0dc; color: #b4574a; border-color: #e6a99f; }
+  .kd { background: #e3e3e0; color: #1c1a15; border-color: #b9b6ae; }
+  .ob { background: #dff1f1; color: #1f7a78; border-color: #9ad0cf; }
+  .grp { background: var(--goldsoft); color: var(--gold); border-color: var(--gold); }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 10px 11px; margin-bottom: 8px; background: var(--card); }
+  .card.on { border-color: var(--goldbtn); box-shadow: 0 0 0 3px rgba(201,150,43,.18); }
+  .card.new { border-style: dashed; color: var(--dim); }
+  .card .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .card .nm { font-weight: 700; margin-top: 4px; }
+  .card .last { color: var(--dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .who { color: var(--dimmer); font-size: 12px; margin-top: 3px; }
+  .wait { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--clock); }
+  .wait.red { color: var(--red); } .wait.ok { color: var(--verify); }
+  .unread { width: 8px; height: 8px; border-radius: 50%; background: var(--goldbtn); display: inline-block; }
+  .msg { display: flex; gap: 9px; margin: 10px 0; align-items: flex-start; }
+  .msg .b { background: var(--card-hi); border: 1px solid var(--line); border-radius: 12px; padding: 7px 10px; max-width: 520px; }
+  .msg .b .n { font-weight: 700; font-size: 12px; } .msg .b .n span { color: var(--dimmer); font-weight: 400; margin-left: 6px; font-family: var(--mono); font-size: 10px; }
+  .msg .b .at { color: var(--office); font-weight: 600; }
+  .msg .b .rep { display: inline-block; margin-top: 5px; font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--dimmer); }
+  .split { margin: 2px 0 6px 38px; padding-left: 12px; border-left: 3px solid var(--goldsoft); }
+  .split .msg { margin: 6px 0; } .split .msg .b { background: var(--goldsoft); border-color: transparent; }
+  .split .lab { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+  .tobar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card-hi); margin-bottom: 8px; }
+  .tobar .lab { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dimmer); margin-right: 4px; }
+  .tobar .pill { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px 2px 2px; font-size: 12px; font-weight: 600; }
+  .tobar .pill.add { border-style: dashed; color: var(--dimmer); padding: 4px 9px; font-weight: 400; }
+  .box { display: flex; gap: 8px; align-items: flex-end; }
+  .box .ta { flex: 1; border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; min-height: 44px; color: var(--dimmer); background: var(--card); }
+  .box .send { background: var(--goldbtn); color: #1c1a15; font-weight: 700; border-radius: 10px; padding: 10px 14px; }
+  .hint { color: var(--dimmer); font-size: 12px; margin-top: 6px; }
+  .about { display: flex; align-items: center; gap: 8px; margin-top: 8px; color: var(--dimmer); font-size: 12px; }
+  .about .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; font-size: 11px; color: var(--dim); }
+  .list .item { display: flex; gap: 9px; align-items: center; padding: 8px 8px; border-radius: 10px; }
+  .list .item.on { background: var(--goldsoft); }
+  .list .item .nm { font-weight: 700; } .list .item .last { color: var(--dimmer); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+  .list .item .r { margin-left: auto; text-align: right; }
+  .list .sec { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--dimmer); margin: 10px 8px 4px; }
+  .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 12px; min-height: 380px; }
+  .pcol { border: 1px solid var(--line); border-radius: 14px; padding: 10px; background: var(--card-hi); }
+  .pcol .head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-weight: 700; }
+  .pcol .head .k { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--dimmer); }
+  .pcol .card { padding: 8px 9px; }
+  .cap { font-size: 14px; color: var(--dim); margin: 6px 2px 0; }
+
+  @media (max-width: 720px) {
+    body { font-size: 16px; }
+    h1 { font-size: 28px; } h2 { font-size: 23px; }
+    .three { grid-template-columns: 1fr; }
+    .grid2, .grid3 { grid-template-columns: 1fr; min-height: 0; }
+    .col + .col { border-left: 0; border-top: 1px solid var(--line); }
+    .cols { grid-template-columns: 1fr 1fr; }
+    .list .item .last { max-width: 60vw; }
+    .msg .b { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Central Command · a design to look at · nothing is built yet · 18 September 2026</div>
+  <h1>The village, as conversations.</h1>
+  <p class="lead">Three ways to lay it out, drawn with the real people and real kinds of notes. Pick one, or point at the parts you like in each.</p>
+  <div class="quote">"Split off into little threads… see all the conversations, what's being done in each… each employee kind of has their own… it's going to be the same people… I want to message people, I want to message sales, I want to stay in this screen."</div>
+
+  <div class="three">
+    <div><b>Today</b>One room for everyone. A box at the bottom that only finds customers. People are tagged by typing @ in the words. Enter makes a new line.</div>
+    <div><b>What every option changes</b>A conversation is a set of faces. Tap faces to start one. Enter sends. A reply can split off into its own little thread. You see every conversation; each employee sees theirs.</div>
+    <div><b>What stays</b>Sales hype stays the reps' own thread. A note can still hang on a customer's file. Everyone named still gets the buzz on their phone.</div>
+  </div>
+
+  <!-- ───────────────────────── OPTION A ───────────────────────── -->
+  <h2>A · The board. Every conversation is a card.</h2>
+  <p>One screen. Left: every conversation you are in, as cards with the faces on them, the one that has waited longest on top. Right: the one you tapped, with the faces along the top and the box at the bottom. The dashed card starts a new one: tap faces, type, Enter.</p>
+  <div class="mock">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="t">Central Command · The Village</span></div>
+    <div class="grid2">
+      <div class="col">
+        <div class="kicker">Your conversations · waiting longest first</div>
+        <div class="card new"><div class="row"><span class="faces"><span class="face grp">+</span></span><span class="wait ok">Start one</span></div><div class="nm">New conversation</div><div class="last">Tap faces, type, Enter</div></div>
+        <div class="card on"><div class="row"><span class="faces"><span class="face sw">SW</span><span class="face jc">JC</span><span class="face lg">LG</span><span class="face kd">KD</span></span><span class="wait">Sam · 14 min</span></div><div class="nm">Sam · Jess · Luis · you</div><div class="last">Luis: Crew is there at 8. Who calls the customer?</div><div class="who">about Delaney, Oasis walk</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face grp">S</span><span class="face ep">EP</span><span class="face gc">GC</span></span><span class="unread"></span></div><div class="nm">Sales · all the reps</div><div class="last">You: Pre-written texts fixed. Close the app and reopen twice.</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face ep">EP</span><span class="face kd">KD</span></span><span class="wait red">Eric · 2 h</span></div><div class="nm">Eric</div><div class="last">Eric: Theiss wants the fence moved 2 ft. Reprice?</div><div class="who">about Theiss, Sue</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face grp">O</span><span class="face sw">SW</span><span class="face ls">LS</span></span></div><div class="nm">Office · Sam, Laura, Jess</div><div class="last">Laura: Permit in on Constellation. Scheduling it.</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face ob">OS</span><span class="face lg">LG</span><span class="face kd">KD</span></span></div><div class="nm">Obed · Luis · you</div><div class="last">Obed: Both trucks out Friday.</div></div>
+      </div>
+      <div class="col">
+        <div class="tobar"><span class="lab">To</span><span class="pill"><span class="face sm sw">SW</span>Sam</span><span class="pill"><span class="face sm jc">JC</span>Jess</span><span class="pill"><span class="face sm lg">LG</span>Luis</span><span class="pill add">+ add a face</span></div>
+        <div class="msg"><span class="face sw">SW</span><div class="b"><div class="n">Sam <span>10:12 AM</span></div>Delaney, Oasis walk: permit is in. <span class="at">@Luis</span> when can the crew start?<span class="rep">Reply · splits off ↓</span></div></div>
+        <div class="split">
+          <div class="lab">a little thread · Sam, Luis, Jess</div>
+          <div class="msg"><span class="face sm lg">LG</span><div class="b"><div class="n">Luis <span>10:31</span></div>Friday 8 AM. Two guys.</div></div>
+          <div class="msg"><span class="face sm jc">JC</span><div class="b"><div class="n">Jess <span>10:40</span></div>I'll text the customer the day before.</div></div>
+        </div>
+        <div class="msg"><span class="face lg">LG</span><div class="b"><div class="n">Luis <span>1:02 PM</span></div>Crew is there at 8. Who calls the customer?</div></div>
+        <div class="box"><div class="ta">Type it like a text…</div><div class="send">Send</div></div>
+        <div class="about"><span>About a customer</span><span class="chip">Delaney, Oasis walk ×</span><span>optional · then it lands on their file too</span></div>
+        <div class="hint">Enter sends · Shift+Enter for a new line · everyone on the To row gets the buzz</div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>You see:</b> every card in the company. <b>Sam sees:</b> only the cards with her face on them. <b>Message sales:</b> the Sales card is always there, one tap. <b>Split off:</b> Reply under any line opens a little thread with just the people who need it.</p>
+
+  <!-- ───────────────────────── OPTION B ───────────────────────── -->
+  <h2>B · The texting shape. It works like the phone's Messages.</h2>
+  <p>The list on the left looks like your text messages: the standing groups pinned at the top (Sales, Office, Production, Everyone), then the people and small groups you actually talk to, the one waiting on you first. Open one, type, Enter. A reply opens the little thread on the right instead of in the middle.</p>
+  <div class="mock">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="t">Central Command · Messages</span></div>
+    <div class="grid3">
+      <div class="col list">
+        <div class="sec">Always there</div>
+        <div class="item"><span class="face grp">S</span><div><div class="nm">Sales</div><div class="last">Pre-written texts fixed…</div></div><div class="r"><span class="unread"></span></div></div>
+        <div class="item"><span class="face grp">O</span><div><div class="nm">Office</div><div class="last">Permit in on Constellation.</div></div></div>
+        <div class="item"><span class="face grp">P</span><div><div class="nm">Production</div><div class="last">Both trucks out Friday.</div></div></div>
+        <div class="item"><span class="face grp">E</span><div><div class="nm">Everyone</div><div class="last">The Library is live.</div></div></div>
+        <div class="sec">Your people</div>
+        <div class="item on"><span class="faces"><span class="face sw">SW</span><span class="face jc">JC</span><span class="face lg">LG</span></span><div><div class="nm">Sam, Jess, Luis</div><div class="last">Who calls the customer?</div></div><div class="r"><span class="wait">14 min</span></div></div>
+        <div class="item"><span class="face ep">EP</span><div><div class="nm">Eric</div><div class="last">Reprice?</div></div><div class="r"><span class="wait red">2 h</span></div></div>
+        <div class="item"><span class="face gc">GC</span><div><div class="nm">Gio</div><div class="last">Property box is off, thanks.</div></div></div>
+        <div class="item"><span class="faces"><span class="face ob">OS</span><span class="face lg">LG</span></span><div><div class="nm">Obed, Luis</div><div class="last">Both trucks out Friday.</div></div></div>
+        <div class="item"><span class="face grp">+</span><div><div class="nm">New message</div><div class="last">tap faces</div></div></div>
+      </div>
+      <div class="col">
+        <div class="tobar"><span class="lab">To</span><span class="pill"><span class="face sm sw">SW</span>Sam</span><span class="pill"><span class="face sm jc">JC</span>Jess</span><span class="pill"><span class="face sm lg">LG</span>Luis</span><span class="pill add">+</span></div>
+        <div class="msg"><span class="face sw">SW</span><div class="b"><div class="n">Sam <span>10:12 AM</span></div>Delaney, Oasis walk: permit is in. <span class="at">@Luis</span> when can the crew start?<span class="rep">2 replies →</span></div></div>
+        <div class="msg"><span class="face lg">LG</span><div class="b"><div class="n">Luis <span>1:02 PM</span></div>Crew is there at 8. Who calls the customer?</div></div>
+        <div class="msg"><span class="face kd">KD</span><div class="b"><div class="n">You <span>1:05 PM</span></div>Jess calls. Sam, put it on the file.</div></div>
+        <div class="box"><div class="ta">Type it like a text…</div><div class="send">Send</div></div>
+        <div class="hint">Enter sends · Shift+Enter for a new line</div>
+      </div>
+      <div class="col">
+        <div class="kicker">The little thread · under Sam's 10:12</div>
+        <div class="msg"><span class="face sm lg">LG</span><div class="b"><div class="n">Luis <span>10:31</span></div>Friday 8 AM. Two guys.</div></div>
+        <div class="msg"><span class="face sm jc">JC</span><div class="b"><div class="n">Jess <span>10:40</span></div>I'll text the customer the day before.</div></div>
+        <div class="box"><div class="ta">Reply in the thread…</div><div class="send">Send</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>Familiar:</b> everybody already knows this shape from their phone. <b>Costs:</b> three columns wants a laptop; on a phone the thread opens as a sheet. <b>Same people every time:</b> the group "Sam, Jess, Luis" is saved after the first message, so next time it is one tap.</p>
+
+  <!-- ───────────────────────── OPTION C ───────────────────────── -->
+  <h2>C · By person. A column for each employee.</h2>
+  <p>The owner's view. One column per person, their conversations stacked in it, newest on top, so you read across the room and see what Sam is on, what Luis is on, who is waiting on whom. Tap any card and it opens like option A. An employee sees their own column and the groups they are in.</p>
+  <div class="mock">
+    <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="t">Central Command · The Village · by person</span></div>
+    <div class="cols">
+      <div class="pcol"><div class="head"><span class="face sw">SW</span>Sam<span class="k">Office</span></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm jc">JC</span><span class="face sm lg">LG</span></span><span class="wait">14 min</span></div><div class="last">Who calls the customer?</div><div class="who">Delaney, Oasis walk</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm ls">LS</span></span></div><div class="last">Permit in on Constellation.</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm gc">GC</span></span><span class="wait ok">answered</span></div><div class="last">NOC is notarized, filed.</div></div>
+      </div>
+      <div class="pcol"><div class="head"><span class="face jc">JC</span>Jess<span class="k">Office manager</span></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm sw">SW</span><span class="face sm lg">LG</span></span></div><div class="last">I'll text the customer the day before.</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm ep">EP</span></span><span class="wait red">2 h</span></div><div class="last">Reprice Theiss?</div></div>
+      </div>
+      <div class="pcol"><div class="head"><span class="face lg">LG</span>Luis<span class="k">Ops manager</span></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm sw">SW</span><span class="face sm jc">JC</span></span></div><div class="last">Crew is there at 8.</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm ob">OS</span></span></div><div class="last">Both trucks out Friday.</div></div>
+      </div>
+      <div class="pcol"><div class="head"><span class="face ep">EP</span>Eric<span class="k">Sales</span></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm kd">KD</span></span><span class="wait red">2 h</span></div><div class="last">Theiss wants the fence moved 2 ft. Reprice?</div><div class="who">Theiss, Sue</div></div>
+        <div class="card"><div class="row"><span class="faces"><span class="face sm grp">S</span></span></div><div class="last">Sales: Pre-written texts fixed.</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="cap"><b>Best for:</b> you, reading the whole company in one look. <b>Not for:</b> writing. Nobody types into a column; a tap opens the conversation. <b>Same data</b> as A, turned sideways, so it can be a switch on A's screen: "by conversation · by person".</p>
+
+  <!-- ───────────────────────── THE PICK ───────────────────────── -->
+  <div class="pick"><b class="t">My pick: A, with C as a switch on it, and B's habits.</b>
+    <p>The board is the one screen that answers everything you said: all the conversations at once, what is being done in each, faces instead of typing @, Sales one tap away, a reply that splits off into its own little thread, and you never leave Central Command. C is the same cards turned by person, one switch at the top, for the owner's read of the room. From B we take the two habits people already have: Enter sends, and the group you talked to last time is saved with the faces as its name.</p>
+    <ul>
+      <li><b>Start one:</b> tap the dashed card, tap faces, type, Enter. The faces are the name. The Sales, Office, Production and Everyone cards are always there.</li>
+      <li><b>Jump in one:</b> tap the card. Waiting longest is on top, same law as The Line.</li>
+      <li><b>Split off:</b> Reply under a line. The little thread carries only the people who need it; the main conversation stays clean.</li>
+      <li><b>About a customer</b> is a small optional chip under the box, not the first thing you see. When it is set, the note lands on their file too.</li>
+      <li><b>Who sees what:</b> you see every card. An employee sees the cards with their face on them. Nobody can be left out of a conversation about them: tagging a name adds their face.</li>
+    </ul>
+    <p style="margin:0"><b>What it takes:</b> one table for conversations and who is in them, a thread column on the messages, and the new screen in Central Command. A day, plus its note and film. Nothing on the phones changes; the reps' sales thread and the pushes stay exactly as they are.</p>
+  </div>
+
+  <p class="cap">Point at the pieces you want and I build that one.</p>
+</main>
+</body>
+</html>
