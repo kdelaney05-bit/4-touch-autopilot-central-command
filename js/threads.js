@@ -14,12 +14,12 @@
 //   a conversation   → v_team_room?thread_id=  (team_messages with room = 'thread')
 //   start · say · seen · add a face → thread_start · thread_post · thread_seen · thread_add
 //   the rooms        → village.js renderRoom, mounted inside the board as before
-import * as api from './api.js?v=138';
-import { state, isDemo, personName, firstName, searchCustomers, loadFile, threadForJob, postMessage } from './book.js?v=138';
-import { esc, toast } from './ui.js?v=138';
-import { renderRoom, personOf, charStyle, charFace, titleOf, wireAtOn } from './village.js?v=138';
-import { micButton } from './dictate.js?v=138';
-import { DEMO } from './demo.js?v=138';
+import * as api from './api.js?v=139';
+import { state, isDemo, personName, firstName, searchCustomers, loadFile, threadForJob, postMessage } from './book.js?v=139';
+import { esc, toast } from './ui.js?v=139';
+import { renderRoom, personOf, charStyle, charFace, titleOf, wireAtOn } from './village.js?v=139';
+import { micButton } from './dictate.js?v=139';
+import { DEMO } from './demo.js?v=139';
 
 const ROOM_ORDER = ['sales', 'office', 'production', 'village'];
 const ROOM_WHO = {   // who has the standing room on the board (316's push rules; sales = the reps' thread)
@@ -49,7 +49,7 @@ const agoWord = (iso) => { const m = mins(iso); return m < 1 ? 'NOW' : m < 60 ? 
 const relTime = (iso) => { const d = new Date(iso); const today = new Date().toDateString() === d.toDateString(); return (today ? '' : d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ') + d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); };
 const lit = (s) => s.replace(/@([A-Z][A-Za-z]+(?: [A-Z][a-z]+)?|[a-z]+)/g, (m0) => '<span class="at">' + m0 + '</span>');
 const face = (p) => {
-  const ini = (p?.initials || String(p?.name || '').trim().split(/s+/).map((w) => w[0] || '').join('') || '?').slice(0, 2).toUpperCase();
+  const ini = (p?.initials || String(p?.name || '').trim().split(/\s+/).map((w) => w[0] || '').join('') || '?').slice(0, 2).toUpperCase();
   return `<span class="ini${p?.avatar ? ' face' : ''}" title="${esc(p?.name || '')}" style="${charStyle({ name: p?.name }, p)}">${esc(charFace({ initials: ini }, p))}</span>`;
 };
 const facesOf = (members, max = 5) => `<span class="vfaces">${(members || []).slice(0, max).map((m) => face(P(m.id) || m)).join('')}${(members || []).length > max ? `<span class="ini">+${members.length - max}</span>` : ''}</span>`;
