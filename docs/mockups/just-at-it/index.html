@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Just @ it · every screen of the phone app, and the @ mockups</title>
+<style>
+  :root{--bg:#141c2b;--card:#111827;--line:rgba(255,255,255,.09);--ink:#eef0ec;--dim:#8a93a3;--gold:#c9962b;--gold2:#e9c46a;--teal:#4fd1c5;--green:#4fd1a5;--red:#f07070}
+  *{box-sizing:border-box} body{margin:0;background:#0b0f17;color:var(--ink);font:15px/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;padding:24px}
+  h1{font-size:26px;margin:0 0 6px} h2{font-size:19px;margin:36px 0 6px;color:var(--gold2)} p.lead{color:#cfd6e2;max-width:900px;margin:0 0 14px}
+  a{color:#e9c46a}
+  .kevin{border-left:3px solid var(--gold2);padding:6px 12px;color:#f4d58d;margin:8px 0 18px;max-width:900px;font-style:italic}
+  .row{display:flex;gap:26px;align-items:flex-start;justify-content:flex-start;flex-wrap:wrap}
+  .shot{width:390px}
+  .shot>img{width:390px;border-radius:22px;border:1px solid #2a3547;display:block}
+  .cap{font:600 13px/1.35 -apple-system,"Segoe UI",sans-serif;color:#cfd6e2;margin:10px 4px 0;max-width:390px}
+  .cap b{color:#e9c46a} .cap .x{color:var(--red)} .cap .ok{color:var(--green)}
+  .grid{display:flex;gap:18px;flex-wrap:wrap}
+  .grid .shot{width:300px} .grid .shot>img{width:300px;border-radius:18px}
+  .grid .cap{font-size:12.5px;max-width:300px}
+  .tagline{display:inline-block;background:rgba(233,196,106,.12);border:1px solid rgba(233,196,106,.5);border-radius:8px;padding:3px 8px;color:#f4d58d;font-size:12px;font-weight:800;margin-right:6px}
+  .phone{width:390px;height:844px;background:var(--bg);border-radius:28px;overflow:hidden;position:relative;border:1px solid #2a3547;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+  .status{height:44px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-weight:700;font-size:16px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 8px}
+  .logo{display:flex;align-items:center;gap:8px;color:#7d8798;font:12px/1 "IBM Plex Mono",Consolas,monospace}
+  .logo .o{width:34px;height:34px;border-radius:50%;border:2px solid #3a4a66;display:grid;place-items:center;font-size:14px}
+  .mono{font-family:"IBM Plex Mono",Consolas,monospace;letter-spacing:.12em;text-transform:uppercase;font-size:11px}
+  .money{display:flex;justify-content:space-around;padding:10px 8px;border-bottom:1px solid var(--line)}
+  .money div{text-align:center}.money .k{color:#8a93a3;font-size:10px;letter-spacing:.14em}.money .v{font:800 21px/1.2 "IBM Plex Mono",Consolas,monospace}
+  .money .v.g{color:#7cc79a}
+  .card{margin:12px 14px 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}
+  .kick{color:var(--gold2);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-family:"IBM Plex Mono",Consolas,monospace;margin-bottom:8px}
+  .search{display:flex;align-items:center;gap:10px;background:#0e1420;border:1px solid rgba(233,196,106,.45);border-radius:14px;padding:11px 14px;color:#8a93a3;margin:12px 14px 0}
+  .search .ico{font-size:18px}
+  .atbtn{margin-left:auto;background:#e9c46a;color:#1c1a15;font-weight:900;border-radius:10px;padding:4px 10px;font-size:16px}
+  .fab{position:absolute;right:16px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:24px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  .fab.search{bottom:200px;background:#e9c46a;color:#1c1a15;border:2px solid #fff3;font-weight:800;margin:0;padding:0}
+  .fab.at{bottom:270px;background:#0e1420;color:#e9c46a;border:2px solid #e9c46a;font-weight:900;font-size:28px}
+  .fab.bell{bottom:130px;background:#c9962b;border:2px solid #f4d58d}
+  .tabs{position:absolute;left:0;right:0;bottom:0;height:86px;background:#111a2a;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding-bottom:14px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#8a93a3}
+  .tab .i{font-size:20px}.tab.on{color:#fff}.tab.on .i{background:#0e1420;border-radius:10px;padding:2px 8px}
+  .hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px}
+  .hdr h1{font-size:22px;margin:0;font-weight:800}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px;color:#8a93a3}
+  .sheet{position:absolute;left:0;right:0;bottom:0;top:96px;background:#0e1420;border-radius:24px 24px 0 0;border-top:1px solid rgba(233,196,106,.4);padding:14px}
+  .words{background:#131c2b;border:1px solid rgba(233,196,106,.6);border-radius:14px;padding:11px 13px;font-size:15px;line-height:1.55;min-height:70px}
+  .at{background:rgba(233,196,106,.18);border:1px solid rgba(233,196,106,.6);border-radius:8px;padding:1px 6px;color:#f4d58d;font-weight:800;white-space:nowrap}
+  .at.c{background:rgba(79,209,197,.14);border-color:rgba(79,209,197,.6);color:#9fe8df}
+  .caret{display:inline-block;width:2px;height:16px;background:#e9c46a;vertical-align:-3px;margin-left:1px}
+  .drop{margin-top:8px;background:#0e1420;border:1px solid rgba(233,196,106,.45);border-radius:14px;overflow:hidden}
+  .drop .h{padding:7px 12px;color:#8a93a3;font-size:10.5px;letter-spacing:.1em;border-bottom:1px solid var(--line)}
+  .drow{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line)}
+  .drow:last-child{border-bottom:0}
+  .drow .n{font-weight:800;font-size:15px}.drow .s{color:#8a93a3;font-size:11.5px}
+  .drow .who{margin-left:auto;font-size:10px;letter-spacing:.1em;font-weight:800;padding:3px 7px;border-radius:8px;white-space:nowrap}
+  .who.emp{color:#f4d58d;border:1px solid rgba(233,196,106,.5)} .who.cust{color:#9fe8df;border:1px solid rgba(79,209,197,.5)}
+  .drow.hi{background:rgba(233,196,106,.1)}
+  .lands{margin-top:10px;color:#8a93a3;font-size:12px;line-height:1.5}
+  .lands b{color:#eef0ec}
+  .post{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:10px}
+  .btn{background:#e9c46a;color:#1c1a15;font-weight:900;border-radius:12px;padding:10px 18px;letter-spacing:.04em}
+  .thread{margin-top:8px}
+  .msg{max-width:88%;border-radius:14px;padding:9px 11px;font-size:13.5px;margin-top:8px}
+  .msg.in{background:#26303a}.msg.out{background:#1f5f3a;margin-left:auto}
+  .msg.note{background:#2b2410;border:1px dashed rgba(233,196,106,.6);max-width:96%}
+  .msg .k{color:#e9c46a;font-size:9px;letter-spacing:.1em;font-weight:800;margin-bottom:3px}
+  .msg .r{color:#e9c46a;font-size:10.5px;margin-top:5px}
+  .msg .t{color:#8a93a3;font-size:9.5px;margin-top:4px;text-align:right}
+  .chain{margin-top:8px;border-top:1px solid rgba(233,196,106,.25);padding-top:6px}
+  .step{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px}
+  .step .box{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(233,196,106,.7);display:grid;place-items:center;font-size:12px;color:#1c1a15;flex:none}
+  .step .box.done{background:#4fd1a5;border-color:#4fd1a5}
+  .step .w{color:#f4d58d;font-weight:800;margin-right:2px}
+  .step .st{margin-left:auto;color:#8a93a3;font-size:10.5px;white-space:nowrap}
+  .step .st.now{color:#f0955e;font-weight:800}
+  .lanes{display:flex;gap:8px;margin-top:10px}
+  .lane{flex:1;text-align:center;border-radius:12px;border:1px solid var(--line);padding:8px;font-weight:900;font-size:11.5px;letter-spacing:.06em;color:#8a93a3}
+  .lane.on{background:#e9c46a;color:#1c1a15;border-color:#e9c46a}
+  .list{margin:0 14px;padding:0;list-style:none}
+  .list li{display:flex;justify-content:space-between;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line)}
+  .list .n{font-weight:800;font-size:15px}.list .s{color:#8a93a3;font-size:11.5px}.list .a{color:#7cc79a;font:800 13px "IBM Plex Mono",Consolas,monospace}
+  .chips{display:flex;gap:8px;padding:10px 14px 0;overflow:hidden}
+  .ch{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:#8a93a3;font-weight:700;white-space:nowrap}
+  .ch.on{background:#f0955e;color:#1c1a15;border-color:#f0955e}
+  .x{color:#f07070;font-weight:800}
+  .note{color:#8a93a3;font-size:13px;max-width:900px}
+  table{border-collapse:collapse;margin:10px 0 16px;font-size:13.5px;max-width:1000px}
+  td,th{border:1px solid #2a3547;padding:6px 10px;text-align:left;vertical-align:top} th{color:#f4d58d;background:#111827}
+</style></head><body>
+
+<h1>Just @ it</h1>
+<p class="lead"><span class="tagline">MOCKUPS · NOTHING BUILT</span> Kevin, 17 Sep 2026, 9:40 PM: <i>"@ is to anyone, about anyone, anytime. All customers and all employees, all the time, and they can just keep @'ing. It populates based on letters. Show me all the UI."</i> This page is three things: where the tag went tonight, every screen of the phone app as it is right now with the search bars marked, and the @ drawn the way he said it. Demo book only, no real customer.</p>
+
+<h2>1 · Where the Tag anyone went (not gone, just deep)</h2>
+<p class="lead">At 8:15 PM Kevin said the Say It box on Today was "way too big… it needs to be in the customer file." So at 8:50 PM the box left Today and became the gold <b>TELL THE TEAM</b> button inside every customer file, beside TEXT. It sits <b>under the text thread</b>, which is far down the file (header, WON/LOST, the four touches, pre-written texts, photos, then the thread). One tap opens the same pick lists: THIS JOB first, then Sales · Supervisors · Office · Managers with All and a drop-down, tap as many as you like, POST, receipt under the note. The film: <a href="../../../films/watch.html?f=ride-along-say-it&t=Tell%20the%20team%2C%20and%20find%20anyone">Tell the team, and find anyone</a>.</p>
+<div class="row">
+  <div class="shot"><img src="img/now-file-thread.png"><div class="cap"><b>Tonight, in the file.</b> Scroll to the thread; TEXT DANA · <b>TELL THE TEAM</b>. The tag lane is the gold button.</div></div>
+  <div class="shot"><img src="img/now-file-picker.png"><div class="cap"><b>Tapped.</b> THIS JOB, then the sections. Four picked. POST sends it and the note lands in the thread with who got it.</div></div>
+</div>
+
+<h2>2 · Every screen of the phone app right now, and where the search bars are</h2>
+<p class="lead">Shot tonight from the current build (v1.0.4, OTA 733ae705), the demo book, a 390-px phone. <span class="x">Red</span> in a caption = a search bar that does the same job as the Find line. The rocket and the bell only show when signed in, so they are described, not shown.</p>
+<div class="grid">
+  <div class="shot"><img src="img/01-today-top.jpg"><div class="cap"><b>Today, top.</b> The thin <b>Find a customer</b> line under the money (Kevin: "amazing") and the gold 🔍 riding above the rocket. Both open the same sheet.</div></div>
+  <div class="shot"><img src="img/02-today-mid.jpg"><div class="cap"><b>Today, scrolled.</b> The standard, the appointments. The 🔍 stays put while you scroll.</div></div>
+  <div class="shot"><img src="img/03-today-lower.jpg"><div class="cap"><b>Today, lower.</b> The rest of the day's cards.</div></div>
+  <div class="shot"><img src="img/04-find-sheet.jpg"><div class="cap"><b>The Find sheet.</b> Last name, street, or the last four of a phone. Your book's top of the list before you type.</div></div>
+  <div class="shot"><img src="img/05-find-sheet-typed.jpg"><div class="cap"><b>Three letters typed.</b> (The demo book is empty here; on a live phone it lists the matches with OPEN ›, as in the film.)</div></div>
+  <div class="shot"><img src="img/07-pipeline-top.jpg"><div class="cap"><b>Pipeline.</b> <span class="x">Its own "Name, street or phone…" box</span>, with the gold 🔍 sitting right on top of it. Two search doors on one screen: this is the redundancy.</div></div>
+  <div class="shot"><img src="img/08-pipeline-list.jpg"><div class="cap"><b>Pipeline, the list.</b> The window chips (ALL · 30D · 30–60…) stay; they are filters, not search.</div></div>
+  <div class="shot"><img src="img/20-customer-file-top.jpg"><div class="cap"><b>A customer file, top.</b> WON / LOST, then the four touches with call · text · email. (Demo file: no live thread, so no TELL THE TEAM here; section 1 shows it on a live file.)</div></div>
+  <div class="shot"><img src="img/21-customer-file-mid.jpg"><div class="cap"><b>The file, scrolled.</b> The pre-written texts and the estimate.</div></div>
+  <div class="shot"><img src="img/22-customer-file-lower.jpg"><div class="cap"><b>The file, lower.</b></div></div>
+  <div class="shot"><img src="img/23-customer-file-bottom.jpg"><div class="cap"><b>The file, bottom.</b></div></div>
+  <div class="shot"><img src="img/10-rank-top.jpg"><div class="cap"><b>Rank.</b> The board. No search bar.</div></div>
+  <div class="shot"><img src="img/11-rank-mid.jpg"><div class="cap"><b>Rank, scrolled.</b></div></div>
+  <div class="shot"><img src="img/12-rewards.jpg"><div class="cap"><b>Rewards.</b> No search bar; the 🔍 does not ride here on purpose (the membership screen has its own bottom).</div></div>
+  <div class="shot"><img src="img/13-more-top.jpg"><div class="cap"><b>More.</b> The doors: Closed business, The lost file, Job milestones, Company Documents, Crew Mode, Supervisor Mode, the Library, Account.</div></div>
+  <div class="shot"><img src="img/14-more-mid.jpg"><div class="cap"><b>More, scrolled.</b> Account and SIGN OUT.</div></div>
+  <div class="shot"><img src="img/16-closed-business.jpg"><div class="cap"><b>Closed business.</b> <span class="x">Its own "Name, street or phone…" box</span> under the month strip.</div></div>
+  <div class="shot"><img src="img/17-lost-file.jpg"><div class="cap"><b>The lost file.</b> <span class="x">Its own "Name, street or phone…" box</span> too.</div></div>
+  <div class="shot"><img src="img/18-jobs.jpg"><div class="cap"><b>Job milestones.</b> No search bar.</div></div>
+  <div class="shot"><img src="img/19-documents.jpg"><div class="cap"><b>Company Documents.</b> No search bar.</div></div>
+</div>
+<p class="note" style="margin-top:14px"><b>Not pictured (signed-in only):</b> the 🚀 rocket opens Quick Touch, which has <span class="x">its own "Name, street or phone…" box</span> and then the same four touches the file has; the 🛎️ bell has <span class="x">"Customer name — type to search your book"</span> to pick who the sale is for. The Texts tab appears only when the rep has a texting line.</p>
+<table>
+<tr><th>Search bar</th><th>Where</th><th>What it does</th><th>Same job as the Find line?</th></tr>
+<tr><td>Find a customer (the line + the gold 🔍)</td><td>Today; the 🔍 on every tab</td><td>Type 2+ letters, tap OPEN, the file comes up over whatever you were doing</td><td>—</td></tr>
+<tr><td>Name, street or phone…</td><td>Pipeline</td><td>Narrows the pipeline list under it</td><td class="x">Yes: the line finds the same file faster</td></tr>
+<tr><td>Name, street or phone…</td><td>Closed business</td><td>Narrows the closed list</td><td class="x">Yes</td></tr>
+<tr><td>Name, street or phone…</td><td>The lost file</td><td>Narrows the lost list</td><td class="x">Yes</td></tr>
+<tr><td>Name, street or phone…</td><td>🚀 Quick Touch</td><td>Picks who to touch</td><td class="x">Yes: the Find line opens the file and the touches are right there</td></tr>
+<tr><td>Customer name — type to search your book</td><td>🛎️ the bell</td><td>Picks who the sale is for</td><td>Keep: it is inside the bell's form, not a way to find a file</td></tr>
+</table>
+<p class="note">Kevin's rule as read tonight: the line goes on every page, the boxes that do the same job come out, and <b>how it searches does not change</b>: last name, street, or the last four of the phone, the way the guys like it.</p>
+
+<h2>3 · The @ · "to anyone, about anyone, anytime"</h2>
+<div class="kevin">"Hey @kevin call the customer @smithcust and send @obed to tighten the gate and then have @jess send the invoice and he confirms complete. Like that is insanely easy to track." · "Why can't it just be anyone when they click the @ thing… @ is to all for all." · "It populates based on letters… all customers and all employees all the time, and they can just keep @'ing." · "Just @ it."</div>
+<p class="lead">Three drawings. <b>A</b> is the same Find line on every page with the @ beside it. <b>B</b> is the @ box: type @ and letters, the list fills with customers and employees together, keep @'ing. <b>C</b> is what the note becomes on the customer's file: the receipt, and each @ turned into a step someone checks off. A and B are pieces we already have, rearranged. C's checklist is new.</p>
+
+<div class="row">
+<div class="shot">
+ <div class="phone">
+  <div class="status"><span>9:41</span><span>▂▄▆ LTE ▮</span></div>
+  <div class="top"><div class="logo"><div class="o">◎</div>v1.0.4</div><div style="font-size:22px">🔥</div></div>
+  <div class="money"><div><div class="k">TODAY</div><div class="v g">$12,300</div></div><div><div class="k">WEEK</div><div class="v">$52,800</div></div><div><div class="k">MONTH</div><div class="v">$138,000</div></div></div>
+  <div class="search"><span class="ico">🔍</span><span>Find a customer · last name, street, or phone</span><span class="atbtn">@</span></div>
+  <div class="hdr"><h1>Leads &amp; contacts</h1><span class="pill">60 open · $423,750</span></div>
+  <div class="chips"><span class="ch on">ALL</span><span class="ch">30D</span><span class="ch">30–60</span><span class="ch">60–90</span><span class="ch">MONTH</span></div>
+  <div class="chips"><span class="ch on">MOST RECENT</span><span class="ch">$ HIGH</span><span class="ch">MOST TOUCHED</span></div>
+  <div class="kick" style="margin:12px 14px 0">Full pipeline · most recent first</div>
+  <ul class="list">
+   <li><div><div class="n">Reed, Dana</div><div class="s">Melbourne · Fencing · signed Sep 14</div></div><div class="a">$14,200</div></li>
+   <li><div><div class="n">Reeves, Marcus</div><div class="s">Palm Bay · Fencing · estimate out</div></div><div class="a">$6,800</div></li>
+   <li><div><div class="n">Greene, Theresa</div><div class="s">Vero Beach · Fencing · appointment on file</div></div><div class="a">$9,100</div></li>
+   <li><div><div class="n">Nguyen, Tam</div><div class="s">Cocoa Beach · Roofing · 2:30 today</div></div><div class="a">$21,400</div></li>
+   <li><div><div class="n">Ortiz, Maria</div><div class="s">Rockledge · Oasis · in touches</div></div><div class="a">$4,950</div></li>
+  </ul>
+  <div class="fab at">@</div><div class="fab search">🔍</div><div class="fab bell">🛎️</div>
+  <div class="tabs"><div class="tab"><span class="i">📅</span>Today</div><div class="tab on"><span class="i">$</span>Pipeline</div><div class="tab"><span class="i">📊</span>Rank</div><div class="tab"><span class="i">🎁</span>Rewards</div><div class="tab"><span class="i">···</span>More</div></div>
+ </div>
+ <div class="cap"><b>A · Every page, the same line.</b> The Find line moves up under the money on Pipeline (and Closed, Lost, Jobs), the page's own search box is gone, and the <b>@</b> sits on the line and above the 🔍. Same search, same three ways in: last name, street, phone.</div>
+</div>
+
+<div class="shot">
+ <div class="phone">
+  <div class="status"><span>9:41</span><span>▂▄▆ LTE ▮</span></div>
+  <div class="top"><div class="logo"><div class="o">◎</div>v1.0.4</div><div style="font-size:22px">🔥</div></div>
+  <div class="sheet">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="mono" style="color:#e9c46a;font-weight:800">@ · to anyone · about anyone · anytime</span><span style="color:#e9c46a;font-weight:800">✕</span></div>
+   <div class="words"><span class="at">@Kevin</span> call <span class="at c">@Reed, Dana</span> about the gate · <span class="at">@Obed</span> tighten the gate Friday · <span class="at">@Jess</span> send the invoice when Obed says done · @je<span class="caret"></span></div>
+   <div class="drop">
+    <div class="h">TYPE LETTERS · CUSTOMERS AND THE TEAM, TOGETHER</div>
+    <div class="drow hi"><div><div class="n">Jessica Coley</div><div class="s">office · runs the office · ✉</div></div><span class="who emp">TEAM</span></div>
+    <div class="drow"><div><div class="n">Jermey Cook</div><div class="s">sales · 📱</div></div><span class="who emp">TEAM</span></div>
+    <div class="drow"><div><div class="n">Jenkins, Robert</div><div class="s">Titusville · Roofing · $18,900 · estimate out</div></div><span class="who cust">CUSTOMER</span></div>
+    <div class="drow"><div><div class="n">Jefferson, Alma</div><div class="s">Melbourne · Fencing · signed Sep 2</div></div><span class="who cust">CUSTOMER</span></div>
+   </div>
+   <div class="lands"><b>Lands on:</b> Reed, Dana's file (the customer you @'d) · <b>Buzzes:</b> Kevin 📱 · Obed ✉ · Jess ✉ · <b>Steps:</b> 3, one each.<br>Keep @'ing. Type the words in between. Nobody else hears about it.</div>
+   <div class="post"><span style="color:#8a93a3;font-size:12px">from any page · the 7:30 PM–8 AM rule applies</span><span class="btn">POST</span></div>
+  </div>
+ </div>
+ <div class="cap"><b>B · The @ box.</b> Tap @ anywhere. Type @ and letters and the list fills as you go: every customer and every employee in one list, marked which is which. A customer @ says whose file the note lands on. A person @ says who gets buzzed. Keep @'ing.</div>
+</div>
+
+<div class="shot">
+ <div class="phone">
+  <div class="status"><span>9:41</span><span>▂▄▆ LTE ▮</span></div>
+  <div class="hdr"><h1>Reed, Dana</h1><span class="pill">✕ Close</span></div>
+  <div style="color:#8a93a3;padding:0 16px 6px;font-size:13px">Melbourne · Aluminum + gate · $14,200 · signed Sep 14 · Ron</div>
+  <div class="card">
+   <div class="kick">💬 texts · emails · the file</div>
+   <div class="thread">
+    <div class="msg in">Great, the side gate will be unlocked.<div class="t">Sep 14 · 6:41 PM</div></div>
+    <div class="msg out">All done, Dana. 6 photos are on your file. Laura will send the invoice today. — Obed<div class="t">Today · 5:50 PM</div></div>
+    <div class="msg note"><div class="k">INSIDE · KEVIN · THE CUSTOMER NEVER SEES THIS</div><span class="at">@Kevin</span> call <span class="at c">@Reed, Dana</span> about the gate · <span class="at">@Obed</span> tighten the gate Friday · <span class="at">@Jess</span> send the invoice when Obed says done
+     <div class="r">→ Kevin 📱 9:41 PM · Obed ✉ 9:41 PM · Jess ✉ 👀 seen 9:44 PM</div>
+     <div class="chain">
+      <div class="step"><span class="box done">✓</span><span class="w">Kevin</span> call Dana about the gate<span class="st">done 9:52 PM</span></div>
+      <div class="step"><span class="box"></span><span class="w">Obed</span> tighten the gate<span class="st now">NEXT · Friday</span></div>
+      <div class="step"><span class="box"></span><span class="w">Jess</span> send the invoice<span class="st">after Obed</span></div>
+     </div>
+     <div class="t">Today · 9:41 PM</div>
+    </div>
+   </div>
+   <div class="lanes"><div class="lane">TEXT DANA</div><div class="lane on">@ TELL THE TEAM</div></div>
+   <div class="words" style="margin-top:10px;min-height:44px;color:#8a93a3">Just @ it.</div>
+  </div>
+  <div class="tabs"><div class="tab on"><span class="i">📅</span>Today</div><div class="tab"><span class="i">$</span>Pipeline</div><div class="tab"><span class="i">📊</span>Rank</div><div class="tab"><span class="i">🎁</span>Rewards</div><div class="tab"><span class="i">···</span>More</div></div>
+ </div>
+ <div class="cap"><b>C · On the file, and easy to track.</b> The note lands on Dana's thread with the receipt (who got it, who has seen it). Under it, <b>each @ became a step</b>: Kevin checked his off, Obed's is NEXT, Jess's waits for Obed. The next person is buzzed when the one before checks off. <span class="ok">This checklist is the new part.</span></div>
+</div>
+</div>
+
+<h2>What is real today, what is drawn</h2>
+<table>
+<tr><th>Piece</th><th>Today</th><th>In the drawing</th></tr>
+<tr><td>Find line on every page, one search</td><td>Line on Today; the 🔍 on every tab; Pipeline · Closed · Lost · Quick Touch each keep their own box</td><td>Line on every page, the four boxes gone, the 🔍 stays for when you have scrolled</td></tr>
+<tr><td>@ people</td><td>Inside the customer file: TELL THE TEAM, pick lists by section, or type @Name in the words; receipt under the note</td><td>Same people, same receipt, from an @ button on any page, filled in by letters</td></tr>
+<tr><td>@ a customer</td><td>Not today: you open the file first, then tell the team</td><td>@ the customer inside the words and the note lands on that file</td></tr>
+<tr><td>One list, customers and team together</td><td>Not today: Find is customers, TELL THE TEAM is the team</td><td>One @ list, marked CUSTOMER or TEAM</td></tr>
+<tr><td>Each @ becomes a step to check off, the next one buzzed</td><td>Not today: a note is one message to everyone named; the asks and the chain are separate rails</td><td>The checklist under the note, ✓ per person, NEXT on the one who is up</td></tr>
+</table>
+<p class="note">Nothing here is built. Kevin's rule from 8:15 PM tonight stands: show the example first, then he says which.</p>
+</body></html>
