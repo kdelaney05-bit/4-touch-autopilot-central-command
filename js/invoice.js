@@ -24,9 +24,9 @@
 // deposit as a minus — because "we got to make sure it's right" (gospel 2).
 // Every move sits in the diary with who and when (gospel 5). Nothing to learn;
 // the card says what is happening and what, if anything, to press (gospel 33).
-import { state, isDemo, firstName, personName, seatName, mentionHandle, invoiceApprove, invoiceHold, invoicePaidByHand, invoiceNudgesSet, textCustomer, openBillPdf } from './book.js?v=137';
-import { esc, toast, openModal } from './ui.js?v=137';
-import { brandName } from './config.js?v=137';
+import { state, isDemo, firstName, personName, seatName, mentionHandle, invoiceApprove, invoiceHold, invoicePaidByHand, invoiceNudgesSet, textCustomer, openBillPdf } from './book.js?v=138';
+import { esc, toast, openModal } from './ui.js?v=138';
+import { brandName } from './config.js?v=138';
 
 const ESTIMATE_VIEW = 'https://lzegjjbkfuecrhdvlvay.supabase.co/functions/v1/estimate-view/';
 const fmt = (n) => (n == null || n === '' ? '—' : (Number(n) < 0 ? '−' : '') + '$' + Math.abs(Number(n)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
