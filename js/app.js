@@ -166,7 +166,7 @@ function wireFind() {
       const people = searchPeople(q);   // 346: a person opens a direct line; a customer opens the file — same box
       pop = document.createElement('div');
       pop.className = 'card findpop';
-      pop.innerHTML = '<div class="findhead"><span class="kicker">Find · ' + esc(q) + (rows.length > 1 ? ' · ' + rows.length + ' files, newest first' : '') + '</span><button class="btn sm" id="find-close" type="button">Close ✕</button></div>' + ((people.length || rows.length)
+      pop.innerHTML = '<div class="findhead"><span class="kicker">Find · ' + esc(q) + (rows.length > 1 ? ' · ' + rows.length + ' files, best match first' : '') + '</span><button class="btn sm" id="find-close" type="button">Close ✕</button></div>' + ((people.length || rows.length)
         ? people.map((p) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-person="${p.id}"><span><b>${p.name}</b></span><span class="mono dimmer">${p.role || ''}</span><span class="chip st-blue">OPEN A LINE ›</span></button>`).join('')
           + rows.map((c) => html`<button class="inv findrow" style="text-align:left;grid-template-columns:1fr auto auto;cursor:pointer" data-id="${c.id}"><span><b>${c.name}</b><br><span class="small">${c.street || ''}${c.city ? ' · ' + c.city : ''}${c.updated_at ? ' · ' + new Date(c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span></span><span class="mono dimmer">${c.phone || ''}</span><span class="chip">OPEN THE FILE ›</span></button>`).join('')
         : '<div class="empty">Nobody by that name or number</div>');

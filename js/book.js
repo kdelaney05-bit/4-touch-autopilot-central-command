@@ -345,7 +345,20 @@ export async function searchCustomers(q) {
     ? `phone.ilike.*${digits.split('').join('*')}*`   // the phone is stored as (786) 366-1475: a star between every digit finds it however it was typed (Sam, 16 Sep)
     : words.length === 1 ? `name.ilike.*${words[0]}*,street.ilike.*${words[0]}*` : null;
   const where = filter ? `or=(${filter})` : `and=(${words.map((w) => `or(name.ilike.*${w}*,street.ilike.*${w}*)`).join(',')})`;
-  return api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=200`, 200);   // 200, not 20: a hundred Smiths must all be there (Kevin, 17 Sep night: "it stops me and doesn't let me go far enough")
+  const rows = await api.page(`customers?select=id,name,phone,street,city,updated_at,created_at&${where}&order=updated_at.desc.nullslast&limit=200`, 200);   // 200, not 20: a hundred Smiths must all be there (Kevin, 17 Sep night: "it stops me and doesn't let me go far enough")
+  // Sam, 18 Sep 11:00 AM: "Brian Morgan 3231 Arch Ave — nothing is popping up": Morgan, Brian was on the list, at the bottom, under every newer
+  // Brian whose street had a "mo" in it. The best match goes first now: every typed word starting a word of the NAME, then the name holding
+  // every word, then the street starting with them; newest first only among equals.
+  const ws = term.toLowerCase().split(/\s+/).filter(Boolean).map((w) => w.replace(/[,()]/g, ''));
+  const score = (c) => {
+    const nameWords = String(c.name || '').toLowerCase().replace(/[,()]/g, ' ').split(/\s+/).filter(Boolean);
+    const streetWords = String(c.street || '').toLowerCase().split(/\s+/).filter(Boolean);
+    if (ws.every((w) => nameWords.some((n) => n.startsWith(w)))) return 3;
+    if (ws.every((w) => nameWords.some((n) => n.includes(w)))) return 2;
+    if (ws.every((w) => streetWords.some((s) => s.startsWith(w)))) return 1;
+    return 0;
+  };
+  return rows.map((c) => ({ ...c, _rank: score(c) })).sort((a, b) => b._rank - a._rank || (new Date(b.updated_at || 0) - new Date(a.updated_at || 0)));
 }
 
 /* ── 351: THE PHOTOS — a photo is something you SAY on the file ────────────
