@@ -1,4 +1,14 @@
 {
+ "ride-along-hand-it-back": {
+  "seconds": 195,
+  "frames": [
+   "ride-along-hand-it-back-1.jpg",
+   "ride-along-hand-it-back-2.jpg",
+   "ride-along-hand-it-back-3.jpg",
+   "ride-along-hand-it-back-4.jpg"
+  ],
+  "bytes": 7685431
+ },
  "ride-along-put-it-to-bed": {
   "seconds": 115,
   "frames": [
@@ -6,7 +16,8 @@
    "ride-along-put-it-to-bed-2.jpg",
    "ride-along-put-it-to-bed-3.jpg",
    "ride-along-put-it-to-bed-4.jpg"
-  ]
+  ],
+  "bytes": 9381983
  },
  "ride-along-say-it": {
   "seconds": 126,
@@ -15,7 +26,8 @@
    "ride-along-say-it-2.jpg",
    "ride-along-say-it-3.jpg",
    "ride-along-say-it-4.jpg"
-  ]
+  ],
+  "bytes": 4941131
  },
  "ride-along-tell-the-team": {
   "seconds": 98,
@@ -24,7 +36,8 @@
    "ride-along-tell-the-team-2.jpg",
    "ride-along-tell-the-team-3.jpg",
    "ride-along-tell-the-team-4.jpg"
-  ]
+  ],
+  "bytes": 8218498
  },
  "ride-along-the-bills": {
   "seconds": 197,
@@ -33,7 +46,8 @@
    "ride-along-the-bills-2.jpg",
    "ride-along-the-bills-3.jpg",
    "ride-along-the-bills-4.jpg"
-  ]
+  ],
+  "bytes": 18910216
  },
  "ride-along-the-estimate-in-the-4-touch-app": {
   "seconds": 122,
@@ -42,7 +56,8 @@
    "ride-along-the-estimate-in-the-4-touch-app-2.jpg",
    "ride-along-the-estimate-in-the-4-touch-app-3.jpg",
    "ride-along-the-estimate-in-the-4-touch-app-4.jpg"
-  ]
+  ],
+  "bytes": 5168575
  },
  "ride-along-the-estimate-on-the-file-jess": {
   "seconds": 94,
@@ -51,7 +66,8 @@
    "ride-along-the-estimate-on-the-file-jess-2.jpg",
    "ride-along-the-estimate-on-the-file-jess-3.jpg",
    "ride-along-the-estimate-on-the-file-jess-4.jpg"
-  ]
+  ],
+  "bytes": 3481833
  },
  "ride-along-the-estimate-on-your-phone": {
   "seconds": 96,
@@ -60,7 +76,8 @@
    "ride-along-the-estimate-on-your-phone-2.jpg",
    "ride-along-the-estimate-on-your-phone-3.jpg",
    "ride-along-the-estimate-on-your-phone-4.jpg"
-  ]
+  ],
+  "bytes": 3466757
  },
  "ride-along-the-invoice": {
   "seconds": 175,
@@ -69,7 +86,18 @@
    "ride-along-the-invoice-2.jpg",
    "ride-along-the-invoice-3.jpg",
    "ride-along-the-invoice-4.jpg"
-  ]
+  ],
+  "bytes": 16986543
+ },
+ "ride-along-the-library": {
+  "seconds": 104,
+  "frames": [
+   "ride-along-the-library-1.jpg",
+   "ride-along-the-library-2.jpg",
+   "ride-along-the-library-3.jpg",
+   "ride-along-the-library-4.jpg"
+  ],
+  "bytes": 4535917
  },
  "ride-along-the-paperwork": {
   "seconds": 145,
@@ -78,7 +106,8 @@
    "ride-along-the-paperwork-2.jpg",
    "ride-along-the-paperwork-3.jpg",
    "ride-along-the-paperwork-4.jpg"
-  ]
+  ],
+  "bytes": 12433460
  },
  "ride-along-what-youre-getting": {
   "seconds": 267,
@@ -87,7 +116,8 @@
    "ride-along-what-youre-getting-2.jpg",
    "ride-along-what-youre-getting-3.jpg",
    "ride-along-what-youre-getting-4.jpg"
-  ]
+  ],
+  "bytes": 25727472
  },
  "ride-along-when-you-miss-a-call-or-a-text": {
   "seconds": 100,
@@ -96,7 +126,18 @@
    "ride-along-when-you-miss-a-call-or-a-text-2.jpg",
    "ride-along-when-you-miss-a-call-or-a-text-3.jpg",
    "ride-along-when-you-miss-a-call-or-a-text-4.jpg"
-  ]
+  ],
+  "bytes": 8327552
+ },
+ "ride-along-words-first": {
+  "seconds": 101,
+  "frames": [
+   "ride-along-words-first-1.jpg",
+   "ride-along-words-first-2.jpg",
+   "ride-along-words-first-3.jpg",
+   "ride-along-words-first-4.jpg"
+  ],
+  "bytes": 4038167
  },
  "sign-on-the-phone-small": {
   "seconds": 22,
@@ -105,7 +146,8 @@
    "sign-on-the-phone-small-2.jpg",
    "sign-on-the-phone-small-3.jpg",
    "sign-on-the-phone-small-4.jpg"
-  ]
+  ],
+  "bytes": 780444
  },
  "sign-on-the-phone": {
   "seconds": 22,
@@ -114,7 +156,8 @@
    "sign-on-the-phone-2.jpg",
    "sign-on-the-phone-3.jpg",
    "sign-on-the-phone-4.jpg"
-  ]
+  ],
+  "bytes": 2521751
  },
  "supervisor-app": {
   "seconds": 173,
@@ -123,7 +166,8 @@
    "supervisor-app-2.jpg",
    "supervisor-app-3.jpg",
    "supervisor-app-4.jpg"
-  ]
+  ],
+  "bytes": 6498535
  },
  "the-babysitter": {
   "seconds": 151,
@@ -132,7 +176,8 @@
    "the-babysitter-2.jpg",
    "the-babysitter-3.jpg",
    "the-babysitter-4.jpg"
-  ]
+  ],
+  "bytes": 9489943
  },
  "the-blindfold-off": {
   "seconds": 175,
@@ -141,7 +186,8 @@
    "the-blindfold-off-2.jpg",
    "the-blindfold-off-3.jpg",
    "the-blindfold-off-4.jpg"
-  ]
+  ],
+  "bytes": 9908259
  },
  "the-full-show": {
   "seconds": 660,
@@ -150,7 +196,8 @@
    "the-full-show-2.jpg",
    "the-full-show-3.jpg",
    "the-full-show-4.jpg"
-  ]
+  ],
+  "bytes": 34410713
  },
  "the-hunt": {
   "seconds": 173,
@@ -159,7 +206,8 @@
    "the-hunt-2.jpg",
    "the-hunt-3.jpg",
    "the-hunt-4.jpg"
-  ]
+  ],
+  "bytes": 8491364
  },
  "the-record": {
   "seconds": 143,
@@ -168,6 +216,7 @@
    "the-record-2.jpg",
    "the-record-3.jpg",
    "the-record-4.jpg"
-  ]
+  ],
+  "bytes": 6343930
  }
 }

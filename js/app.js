@@ -1,24 +1,24 @@
 // Liberty Command — bootstrap: sign-in, the rooms a role opens, load, render.
-import * as api from './api.js?v=118';
-import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=118';
-import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=118';
-import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=118';
-import { addressPicker, addressSource } from './address.js?v=118';
-import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=118';
-import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=118';
-import { renderHome } from './home.js?v=118';
-import { renderRoom } from './village.js?v=118';
-import { renderSales } from './sales.js?v=118';
-import { renderPipeline } from './pipeline.js?v=118';
-import { renderMarketing } from './marketing.js?v=118';
-import { renderOffice } from './office.js?v=118';
-import { renderProduction } from './production.js?v=118';
-import { renderFiles, openFile, closeDrawer } from './file.js?v=118';
-import { stopRoomPoll } from './village.js?v=118';
-import { renderFlow, stopFlow } from './flow.js?v=118';
-import { startTour, tourWanted } from './tour.js?v=118';
-import { startAlerts } from './alerts.js?v=118';
-import { renderPhotos } from './photos.js?v=118';
+import * as api from './api.js?v=119';
+import { state, loadAll, isDemo, searchCustomers, searchPeople, createJob, repDay, personName, firstName } from './book.js?v=119';
+import { $, $$, html, raw, toast, esc, openModal } from './ui.js?v=119';
+import { BRAND_BY_CC, LEAD_REP_NOTE } from './config.js?v=119';
+import { addressPicker, addressSource } from './address.js?v=119';
+import { ROOMS_BY_ROLE, ROOM_LABEL, ROOMS_BY_SEAT, KEYS } from './config.js?v=119';
+import { renderSwitchboard, stopLinePoll } from './switchboard.js?v=119';
+import { renderHome } from './home.js?v=119';
+import { renderRoom } from './village.js?v=119';
+import { renderSales } from './sales.js?v=119';
+import { renderPipeline } from './pipeline.js?v=119';
+import { renderMarketing } from './marketing.js?v=119';
+import { renderOffice } from './office.js?v=119';
+import { renderProduction } from './production.js?v=119';
+import { renderFiles, openFile, closeDrawer } from './file.js?v=119';
+import { stopRoomPoll } from './village.js?v=119';
+import { renderFlow, stopFlow } from './flow.js?v=119';
+import { startTour, tourWanted } from './tour.js?v=119';
+import { startAlerts } from './alerts.js?v=119';
+import { renderPhotos } from './photos.js?v=119';
 
 let view = 'line';   // the playground first (Kevin, 15 Sep): every seat signs in on The Line
 let loading = false;
@@ -98,6 +98,8 @@ export function render() {
   const r = rooms();
   if (!r.includes(view) && view !== 'file') view = r[0] || 'files';
   $('#nav-who').textContent = me ? `${me.name.split(' ')[0]} · ${me.role}` : '';
+  // 🎬 THE LIBRARY (18 Sep): the header's door opens on Central Command's pieces, and on the seat's own team
+  const lib = $('#btn-new'); if (lib) lib.href = 'docs/library/?where=cc' + (me && me.role === 'office' ? '&for=Office' : me && me.role === 'sales' ? '&for=Sales' : '');
   renderViewAs();
   $('#who-sub').textContent = isDemo() ? 'DEMO — nothing is saved' : (state.loadedAt ? 'loaded ' + state.loadedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '');
   const tagged = (state.mentions || []).filter((m) => !m.seen_at).length;

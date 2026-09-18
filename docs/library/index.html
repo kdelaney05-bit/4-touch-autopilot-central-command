@@ -10,111 +10,251 @@
 <style>
   :root { color-scheme: dark; --bg: #0f1520; --panel: #161e2b; --panel2: #1c2634; --line: rgba(255,255,255,0.09); --ink: #eef0ec; --dim: #9aa3ad; --gold: #e9c46a; --gold2: #c9962b; --green: #4fd1a5; --teal: #4fd1c5; --red: #ff7a6e; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 "IBM Plex Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; overflow-x: hidden; }
   a { color: inherit; }
-  .hero { padding: 26px 16px 14px; max-width: 1100px; margin: 0 auto; }
+  button { font: inherit; }
+  .hero { padding: 22px 16px 10px; max-width: 1100px; margin: 0 auto; }
   .brand { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }
-  h1 { font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: clamp(38px, 8vw, 64px); line-height: .95; margin: 8px 0 8px; letter-spacing: .01em; }
-  .lead { color: var(--dim); max-width: 620px; margin: 0 0 14px; font-size: 16.5px; }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0 6px; }
-  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--dim); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; }
+  h1 { font-family: "Barlow Condensed", sans-serif; font-weight: 800; font-size: clamp(40px, 8vw, 64px); line-height: .95; margin: 6px 0 6px; letter-spacing: .01em; }
+  .lead { color: var(--dim); max-width: 640px; margin: 0 0 14px; font-size: 16px; }
+  /* the search: the first thing on the page, and the biggest */
+  .find { display: flex; align-items: center; gap: 8px; width: 100%; max-width: 640px; padding: 4px 6px 4px 14px; border-radius: 16px; border: 2px solid var(--gold); background: var(--panel); box-shadow: 0 0 0 4px rgba(233,196,106,.10); }
+  .find .mag { font-size: 20px; }
+  .find input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 17px; padding: 10px 0; outline: none; }
+  .find input::placeholder { color: var(--dim); }
+  .find .x { border: 0; background: var(--panel2); color: var(--dim); border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+  .try { color: var(--dim); font-size: 13px; margin: 8px 0 0; }
+  .try b { color: var(--teal); font-weight: 600; cursor: pointer; }
+  /* HOW DO I… */
+  .askhead { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin: 18px 0 6px; display: flex; align-items: center; gap: 10px; }
+  .askhead button { background: none; border: 0; color: var(--teal); font-size: 12px; cursor: pointer; padding: 0; letter-spacing: 0; text-transform: none; font-family: "IBM Plex Sans", sans-serif; }
+  .ask { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+  .ask button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 12px; padding: 8px 12px; font-size: 14px; text-align: left; cursor: pointer; line-height: 1.3; }
+  .ask button:hover, .ask button.on { border-color: var(--gold); }
+  .ask button.on { background: var(--gold); color: #1c1a15; }
+  /* where · who */
+  .seg { display: inline-flex; margin: 16px 0 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; max-width: 100%; }
+  .seg button { border: 0; background: var(--panel); color: var(--dim); padding: 9px 14px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button.on { background: var(--gold); color: #1c1a15; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 0 4px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--dim); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; }
   .chip.on { background: var(--gold); border-color: var(--gold); color: #1c1a15; }
-  .search { width: 100%; max-width: 420px; margin: 8px 0 2px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; font-size: 15px; }
-  main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 90px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; }
-  .card.hide { display: none; }
+  .mine { color: var(--dim); font-size: 13px; margin: 4px 0 0; }
+  .mine b { color: var(--teal); cursor: pointer; font-weight: 600; }
+  .count { color: var(--dim); font-family: "IBM Plex Mono", monospace; font-size: 12px; margin: 12px 0 0; }
+  /* the cards */
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+  .card.pin { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(233,196,106,.18); }
+  .new { position: absolute; left: 10px; top: 10px; z-index: 1; background: var(--green); color: #0f1520; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .12em; font-weight: 700; padding: 3px 8px; border-radius: 8px; }
   .cover { position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden; display: block; }
   .cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .cover .play { position: absolute; inset: 0; display: grid; place-items: center; }
   .cover .play span { width: 62px; height: 62px; border-radius: 50%; background: rgba(233,196,106,0.95); color: #1c1a15; display: grid; place-items: center; font-size: 26px; padding-left: 5px; box-shadow: 0 8px 30px rgba(0,0,0,.5); }
   .cover .len { position: absolute; right: 10px; bottom: 10px; font-family: "IBM Plex Mono", monospace; font-size: 12px; background: rgba(0,0,0,.65); padding: 3px 8px; border-radius: 8px; }
-  .cover.none { aspect-ratio: 16/5; display: grid; place-items: center; background: var(--panel2); color: var(--dim); font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .1em; }
+  .cover.none { aspect-ratio: 16/5; display: grid; place-items: center; background: var(--panel2); color: var(--dim); font-family: "IBM Plex Mono", monospace; font-size: 12px; letter-spacing: .1em; text-align: center; padding: 0 16px; }
   .body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .who { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
   h2 { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 26px; line-height: 1.02; margin: 0; }
+  .short { margin: 0; font-size: 15px; line-height: 1.4; }
   .what { color: var(--dim); font-size: 14px; line-height: 1.45; margin: 0; }
-  .what.short { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .what[hidden] { display: none; }
   .more { color: var(--teal); font-size: 13px; cursor: pointer; background: none; border: 0; padding: 0; text-align: left; font-weight: 600; }
+  .hit { font-size: 13px; color: var(--dim); background: var(--panel2); border-left: 3px solid var(--teal); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+  .hit mark { background: rgba(79,209,197,.25); color: var(--ink); border-radius: 3px; padding: 0 2px; }
   .frames { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
   .frames img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); cursor: zoom-in; display: block; }
   .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
-  .btn { text-decoration: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13.5px; border: 1px solid var(--line); color: var(--ink); background: var(--panel2); }
+  .btn { text-decoration: none; border-radius: 12px; padding: 10px 14px; font-weight: 800; font-size: 13.5px; border: 1px solid var(--line); color: var(--ink); background: var(--panel2); cursor: pointer; }
   .btn.fill { background: var(--gold); border-color: var(--gold); color: #1c1a15; }
-  .meta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--dim); }
-  .rule { max-width: 1100px; margin: 0 auto; padding: 0 16px 40px; color: var(--dim); font-size: 14px; }
+  .meta { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--dim); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .meta .w { border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; color: var(--teal); }
+  .older { max-width: 1100px; margin: 0 auto; padding: 0 16px 24px; }
+  .older button { width: 100%; border: 1px dashed var(--line); background: transparent; color: var(--dim); border-radius: 14px; padding: 14px; font-size: 14px; cursor: pointer; }
+  .rule { max-width: 1100px; margin: 0 auto; padding: 0 16px 50px; color: var(--dim); font-size: 14px; }
   .rule b { color: var(--ink); }
+  .rule p { margin: 0 0 10px; }
   #lb { position: fixed; inset: 0; background: rgba(0,0,0,.92); display: none; place-items: center; z-index: 9; padding: 16px; }
   #lb.on { display: grid; }
   #lb img { max-width: 100%; max-height: 92vh; border-radius: 12px; }
   .empty { color: var(--dim); padding: 30px 0; grid-column: 1 / -1; text-align: center; }
-  @media (max-width: 420px) { main { grid-template-columns: 1fr; } }
+  .empty b { color: var(--teal); cursor: pointer; font-weight: 600; }
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #0f1520; padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 10; }
+  @media (max-width: 420px) { main { grid-template-columns: 1fr; } .seg button { padding: 9px 10px; font-size: 13px; } }
 </style>
 </head>
 <body>
 <section class="hero">
   <div class="brand">Liberty Fencing · Liberty Roofing · Pro-Tech · Oasis</div>
   <h1>The Library.</h1>
-  <p class="lead">Everything that changed, in about two minutes each. Every piece has three or four pictures of what it is, a few lines on what it does, and a film that shows exactly how it works. Tap a person to see only your pieces.</p>
-  <input class="search" id="q" type="search" placeholder="Search: estimate, call, invoice, crew…" autocomplete="off">
+  <p class="lead">How everything works, two minutes at a time. Type what you want to do, or tap a question. Every piece is a short film with the words on the screen, and the real screen to try it on with pretend customers.</p>
+  <form class="find" id="find" role="search" onsubmit="return false">
+    <span class="mag">🔍</span>
+    <input id="q" type="search" placeholder="What do you want to do? estimate · missed call · new lead · sub…" autocomplete="off" enterkeyhint="search" aria-label="Search the library">
+    <button class="x" id="clear" type="button" hidden>✕</button>
+  </form>
+  <p class="try">Try one word: <b>estimate</b> · <b>text</b> · <b>call</b> · <b>lead</b> · <b>sub</b> · <b>invoice</b> · <b>sign</b> · <b>crew</b> · <b>permit</b></p>
+  <div class="askhead">How do I… <button type="button" id="askmore">more questions ▾</button></div>
+  <div class="ask" id="ask"></div>
+  <div class="seg" id="seg"></div>
   <div class="filters" id="filters"></div>
+  <div class="mine" id="mine" hidden></div>
+  <div class="count" id="count"></div>
 </section>
 <main id="grid"></main>
+<div class="older" id="older"></div>
 <div class="rule">
-  <b>How to watch.</b> Tap <b>▶ Play</b>. Sound on. A film opens on the real screen with the words read out loud and written under the picture. <b>Open the real screen</b> takes you to the same spot with pretend customers, so you can try it without touching anything real. New pieces go on top.
+  <p><b>How to watch.</b> Tap <b>▶ Play the film</b>. Sound on. The film opens by itself, no sign-in, and everything the voice says is written under the picture. <b>Open the real screen</b> takes you to the same spot with pretend customers, so you can try it without touching anything real. <b>Send it</b> copies the film's link so you can text it to anyone.</p>
+  <p><b>Where this lives.</b> In Central Command, the <b>🎬 The Library</b> button at the top. In the 4-Touch app, the line under <b>Find a customer</b> on Today, and in More. The front page shows the last two weeks; the search looks through everything, including every word said in every film.</p>
 </div>
 <div id="lb" onclick="this.classList.remove('on')"><img id="lbimg" alt=""></div>
+<div id="toast"></div>
 <script>
 (async () => {
-  const [rows, frames] = await Promise.all([fetch('library.json').then((r) => r.json()), fetch('frames.json').then((r) => r.json()).catch(() => ({}))]);
+  const raw = await fetch('library.json', { cache: 'no-store' }).then((r) => r.json());
+  const rows = Array.isArray(raw) ? raw : raw.pieces;
+  const frames = await fetch('frames.json', { cache: 'no-store' }).then((r) => r.json()).catch(() => ({}));
   const esc = (s) => String(s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const site = new URL('../../', location.href).href;   // the Central Command root
   const mmss = (s) => s ? Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0') : '';
-  // who a piece is for, from the title's "Name · Name · What" shape
   const whoOf = (t) => { const parts = t.split(' · '); return parts.length > 1 ? parts.slice(0, -1).join(' · ') : 'Everyone'; };
   const nameOf = (t) => { const parts = t.split(' · '); return parts.length > 1 ? parts[parts.length - 1] : t; };
-  const PEOPLE = ['Everyone', 'Every rep', 'The sales team', 'Mike', 'Jess', 'Sam', 'Laura', 'Jonathan', 'Gio', 'Luis', 'Obed', 'Robert', 'Kevin', 'The office', 'The supervisor app'];
-  const tags = (r) => { const w = whoOf(r.title); const out = new Set(); PEOPLE.forEach((p) => { if (w.toLowerCase().includes(p.toLowerCase())) out.add(p); }); if (/every rep|sales team|everyone/i.test(w)) out.add('Sales'); if (/jess|sam|laura|jonathan|office/i.test(w)) out.add('Office'); if (/luis|obed|robert|supervisor/i.test(w)) out.add('Supervisors'); if (/mike|gustavo|oasis/i.test(w + r.what)) out.add('Oasis'); return [...out]; };
-  const FILTERS = ['All', 'Sales', 'Office', 'Supervisors', 'Oasis', 'Mike', 'Jess', 'Sam', 'Gio', 'Luis'];
-  let filter = 'All', q = '';
-  const grid = document.getElementById('grid');
-  const draw = () => {
-    grid.innerHTML = '';
-    let n = 0;
-    rows.forEach((r) => {
-      const t = tags(r);
-      const hay = (r.title + ' ' + r.what + ' ' + t.join(' ')).toLowerCase();
-      if (filter !== 'All' && !t.includes(filter)) return;
-      if (q && !hay.includes(q)) return;
-      n++;
-      const fr = r.film && frames[r.film] ? frames[r.film] : null;
-      const watch = r.film ? `${site}films/watch.html?f=${encodeURIComponent(r.film)}&t=${encodeURIComponent(nameOf(r.title))}${r.go ? '&go=' + encodeURIComponent(r.go) : ''}` : null;
-      const reads = (r.links || []).filter((l) => !/watch\.html|\.mp4$/.test(l.href)).slice(0, 3);
-      const card = document.createElement('article'); card.className = 'card';
-      card.innerHTML = `
-        ${fr ? `<a class="cover" href="${esc(watch)}"><img src="frames/${esc(fr.frames[0])}" alt="" loading="lazy"><div class="play"><span>▶</span></div><div class="len">${mmss(fr.seconds)}</div></a>` : `<div class="cover none">${r.tour ? 'PLAYS ON THE REAL SCREEN · SOUND ON' : 'A PAGE TO READ'}</div>`}
-        <div class="body">
-          <div class="who">${esc(whoOf(r.title))}</div>
-          <h2>${esc(nameOf(r.title))}</h2>
-          <p class="what short">${esc(r.what)}</p>
-          <button class="more" type="button">read the whole thing ›</button>
-          ${fr ? `<div class="frames">${fr.frames.slice(1).concat(fr.frames.slice(0, 1)).map((f) => `<img src="frames/${esc(f)}" alt="" loading="lazy" data-full="frames/${esc(f)}">`).join('')}</div>` : ''}
-          <div class="btns">
-            ${watch ? `<a class="btn fill" href="${esc(watch)}">▶ Play the film</a>` : r.tour ? `<a class="btn fill" href="${esc(new URL(r.tour, site + 'docs/ride-alongs.html').href)}">▶ Play it on the real screen</a>` : ''}
-            ${r.go ? `<a class="btn" href="${esc(site + r.go.replace(/^\//, ''))}" target="_blank" rel="noopener">Open the real screen</a>` : ''}
-            ${reads.map((l) => `<a class="btn" href="${esc(new URL(l.href, site + 'docs/ride-alongs.html').href)}" target="_blank" rel="noopener">${esc(l.text.length > 28 ? l.text.slice(0, 27) + '…' : l.text || 'Read it')}</a>`).join('')}
-          </div>
-          <div class="meta">${esc(r.meta)}</div>
-        </div>`;
-      card.querySelector('.more').onclick = (e) => { const p = card.querySelector('.what'); p.classList.toggle('short'); e.target.textContent = p.classList.contains('short') ? 'read the whole thing ›' : 'less ▴'; };
-      card.querySelectorAll('.frames img').forEach((im) => { im.onclick = () => { document.getElementById('lbimg').src = im.dataset.full; document.getElementById('lb').classList.add('on'); }; });
-      grid.appendChild(card);
-    });
-    if (!n) grid.innerHTML = '<div class="empty">Nothing here for that. Try All.</div>';
+  const PEOPLE = ['Everyone', 'Every rep', 'The sales team', 'Mike', 'Jess', 'Sam', 'Laura', 'Jonathan', 'Gio', 'Luis', 'Obed', 'Robert', 'Kevin', 'The office', 'The supervisor app', 'The crews'];
+  const tags = (r) => { const w = whoOf(r.title); const out = new Set(); PEOPLE.forEach((p) => { if (w.toLowerCase().includes(p.toLowerCase())) out.add(p); }); if (/every rep|sales team|everyone|texting from the app/i.test(w)) out.add('Sales'); if (/jess|sam|laura|jonathan|office|everyone/i.test(w)) out.add('Office'); if (/luis|obed|robert|supervisor|everyone/i.test(w)) out.add('Supervisors'); if (/mike|gustavo|oasis/i.test(w + ' ' + r.what)) out.add('Oasis'); return [...out]; };
+  const FILTERS = ['Everyone', 'Sales', 'Office', 'Supervisors', 'Oasis', 'Mike', 'Jess', 'Sam', 'Gio', 'Luis'];
+  const WHERE = { app: 'The phone app', cc: 'Central Command', customer: "The customer's phone", paper: 'A page to print' };
+  const SYN = { text: ['sms', 'texting', 'send'], texting: ['text'], call: ['calls', 'phone', 'rang', 'missed'], sub: ['subcontractor', 'lock'], lead: ['leads', 'new customer', 'appointment', 'book'], sign: ['signs', 'signed', 'signature', 'accept', 'signing'], estimate: ['quote', 'price', 'line by line'], invoice: ['invoices', 'pay', 'paid'], bill: ['bills', 'supplier'], crew: ['crews', 'recibido', 'ramón', 'ramon'], permit: ['noc', 'paperwork', 'county', 'notary'], find: ['search', 'magnifier', 'magnifying'], tag: ['tell the team', 'say it', '@'], photo: ['picture', 'photos'], office: ['sam', 'laura', 'jess', 'jonathan'] };
+  const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+  const daysAgo = (iso) => iso ? Math.round((TODAY - new Date(iso + 'T00:00:00')) / 86400000) : 999;
+  const FRESH = 14, NEW = 7;
+  const params = new URLSearchParams(location.search);
+  const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+
+  // state
+  let q = (params.get('q') || '').trim(), where = ['app', 'cc'].includes(params.get('where')) ? params.get('where') : 'all', pinned = null, older = false, askAll = false;
+  let filter = 'Everyone';
+  const wanted = params.get('for'); const remembered = store.get('lib.for');
+  if (wanted && FILTERS.some((f) => f.toLowerCase() === wanted.toLowerCase())) filter = FILTERS.find((f) => f.toLowerCase() === wanted.toLowerCase());
+  else if (remembered && FILTERS.includes(remembered)) filter = remembered;
+
+  // search: every word must land somewhere; the title, the one-liner and the questions count most, then the story, then the film's words
+  const norm = (s) => String(s || '').toLowerCase().replace(/[’']/g, "'");
+  const expand = (t) => [t].concat(SYN[t] || []);
+  const scoreOf = (r) => {
+    const toks = norm(q).split(/\s+/).filter((t) => t.length >= 2); if (!toks.length) return { s: 1, hit: null };
+    const head = norm(r.title + ' ' + r.short + ' ' + (r.ask || []).join(' ')), story = norm(r.what + ' ' + r.meta), words = norm(r.words);
+    let s = 0, hit = null;
+    for (const t of toks) {
+      let best = 0;
+      for (const v of expand(t)) {
+        if (head.includes(v)) best = Math.max(best, 3);
+        else if (story.includes(v)) best = Math.max(best, 2);
+        else if (words.includes(v)) { best = Math.max(best, 1); if (!hit) hit = v; }
+      }
+      if (!best) return { s: 0, hit: null };
+      s += best;
+    }
+    return { s, hit };
   };
-  const f = document.getElementById('filters');
-  FILTERS.forEach((k) => { const b = document.createElement('span'); b.className = 'chip' + (k === 'All' ? ' on' : ''); b.textContent = k; b.onclick = () => { filter = k; [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === k)); draw(); }; f.appendChild(b); });
-  document.getElementById('q').oninput = (e) => { q = e.target.value.trim().toLowerCase(); draw(); };
+  const snippet = (r, v) => { const w = r.words || ''; const i = norm(w).indexOf(v); if (i < 0) return ''; const a = Math.max(0, i - 70), b = Math.min(w.length, i + v.length + 90); return (a ? '…' : '') + esc(w.slice(a, i)) + '<mark>' + esc(w.slice(i, i + v.length)) + '</mark>' + esc(w.slice(i + v.length, b)) + (b < w.length ? '…' : ''); };
+
+  const grid = document.getElementById('grid'), olderEl = document.getElementById('older'), countEl = document.getElementById('count');
+  const watchOf = (r) => r.film ? `${site}films/watch.html?f=${encodeURIComponent(r.film)}&t=${encodeURIComponent(nameOf(r.title))}${r.go ? '&go=' + encodeURIComponent(r.go) : ''}` : null;
+  const tourOf = (r) => r.tour ? new URL(r.tour, site + 'docs/ride-alongs.html').href : null;
+  const toast = (m) => { const t = document.getElementById('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(() => { t.style.display = 'none'; }, 1800); };
+  const send = async (r) => {
+    const link = watchOf(r) || tourOf(r) || location.href; const title = nameOf(r.title);
+    if (navigator.share) { try { await navigator.share({ title, text: title + ' · about two minutes', url: link }); return; } catch {} }
+    try { await navigator.clipboard.writeText(link); toast('Link copied. Paste it in a text.'); } catch { prompt('Copy this link:', link); }
+  };
+  const card = (r, hit) => {
+    const fr = r.film && frames[r.film] ? frames[r.film] : null;
+    const watch = watchOf(r), tour = tourOf(r);
+    const reads = (r.links || []).filter((l) => !/watch\.html|\.mp4$/.test(l.href)).slice(0, 2);
+    const el = document.createElement('article'); el.className = 'card' + (pinned === r.id ? ' pin' : ''); el.id = 'p-' + r.id.replace(/[^a-z0-9]/gi, '-');
+    el.innerHTML = `
+      ${daysAgo(r.date) <= NEW ? '<div class="new">NEW</div>' : ''}
+      ${fr ? `<a class="cover" href="${esc(watch)}"><img src="frames/${esc(fr.frames[0])}" alt="" loading="lazy"><div class="play"><span>▶</span></div><div class="len">${mmss(fr.seconds)}</div></a>` : `<div class="cover none">${tour ? 'PLAYS ON THE REAL SCREEN · SOUND ON' : 'A PAGE TO READ'}</div>`}
+      <div class="body">
+        <div class="who">${esc(whoOf(r.title))}</div>
+        <h2>${esc(nameOf(r.title))}</h2>
+        <p class="short">${esc(r.short)}</p>
+        ${hit ? `<div class="hit">In the film: “${snippet(r, hit)}”</div>` : ''}
+        <button class="more" type="button">the whole story ›</button>
+        <p class="what" hidden>${esc(r.what)}</p>
+        ${fr ? `<div class="frames">${fr.frames.slice(1).concat(fr.frames.slice(0, 1)).map((f) => `<img src="frames/${esc(f)}" alt="" loading="lazy" data-full="frames/${esc(f)}">`).join('')}</div>` : ''}
+        <div class="btns">
+          ${watch ? `<a class="btn fill" href="${esc(watch)}">▶ Play the film</a>` : tour ? `<a class="btn fill" href="${esc(tour)}">▶ Play it on the real screen</a>` : ''}
+          ${r.go ? `<a class="btn" href="${esc(site + r.go.replace(/^\//, ''))}" target="_blank" rel="noopener">Open the real screen</a>` : ''}
+          ${reads.map((l) => `<a class="btn" href="${esc(new URL(l.href, site + 'docs/ride-alongs.html').href)}" target="_blank" rel="noopener">${esc(l.text.length > 26 ? l.text.slice(0, 25) + '…' : l.text || 'Read it')}</a>`).join('')}
+          ${(watch || tour) ? `<button class="btn send" type="button" title="Copy the link to text it">Send it</button>` : ''}
+        </div>
+        <div class="meta">${r.date ? `<span>${esc(new Date(r.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }))}</span>` : ''}${(r.where || []).map((w) => `<span class="w">${esc(WHERE[w] || w)}</span>`).join('')}<span>${esc(r.meta)}</span></div>
+      </div>`;
+    el.querySelector('.more').onclick = (e) => { const p = el.querySelector('.what'); p.hidden = !p.hidden; e.target.textContent = p.hidden ? 'the whole story ›' : 'less ▴'; };
+    el.querySelectorAll('.frames img').forEach((im) => { im.onclick = () => { document.getElementById('lbimg').src = im.dataset.full; document.getElementById('lb').classList.add('on'); }; });
+    const s = el.querySelector('.send'); if (s) s.onclick = () => send(r);
+    return el;
+  };
+
+  const draw = () => {
+    grid.innerHTML = ''; olderEl.innerHTML = '';
+    const searching = !!norm(q).trim() || !!pinned;
+    const seen = rows.map((r) => ({ r, t: tags(r), ...scoreOf(r) }))
+      .filter((x) => (pinned ? x.r.id === pinned : true))
+      .filter((x) => where === 'all' || (x.r.where || []).includes(where))
+      .filter((x) => filter === 'Everyone' || x.t.includes(filter))
+      .filter((x) => x.s > 0);
+    const fresh = searching ? seen : seen.filter((x) => daysAgo(x.r.date) <= FRESH);
+    const old = searching ? [] : seen.filter((x) => daysAgo(x.r.date) > FRESH);
+    const list = fresh.slice().sort((a, b) => (searching ? b.s - a.s : 0) || (b.r.date || '').localeCompare(a.r.date || ''));
+    list.forEach((x) => grid.appendChild(card(x.r, searching ? x.hit : null)));
+    if (older && old.length) old.forEach((x) => grid.appendChild(card(x.r, null)));
+    // nothing under this tab or team, but the word is in a piece elsewhere: say so, one tap to Everything
+    const elsewhere = searching && !list.length && (where !== 'all' || filter !== 'Everyone') ? rows.filter((r) => (pinned ? r.id === pinned : true) && scoreOf(r).s > 0).length : 0;
+    if (!list.length && !(older && old.length)) grid.innerHTML = `<div class="empty">Nothing for “${esc(q || filter)}”${where !== 'all' || filter !== 'Everyone' ? ` under ${esc(where !== 'all' ? WHERE[where] : filter)}` : ''}.${elsewhere ? ` <b data-all>${elsewhere} piece${elsewhere === 1 ? '' : 's'} under Everything ›</b>` : ` Try one word: <b>estimate</b>, <b>call</b>, <b>lead</b>, <b>sub</b>, <b>invoice</b>, <b>sign</b>, <b>crew</b>.`}${old.length ? ` Or look at the <b data-older>older pieces (${old.length})</b>.` : ''}</div>`;
+    grid.querySelectorAll('.empty b').forEach((b) => { b.onclick = () => {
+      if (b.dataset.older !== undefined) { older = true; draw(); }
+      else if (b.dataset.all !== undefined) { where = 'all'; filter = 'Everyone'; store.set('lib.for', null); [...seg.children].forEach((c) => c.classList.toggle('on', c.textContent === 'Everything')); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === 'Everyone')); drawMine(); draw(); }
+      else setQ(b.textContent); }; });
+    if (!searching && old.length) { const b = document.createElement('button'); b.type = 'button'; b.textContent = older ? `Hide the older pieces ▴` : `Older than two weeks · ${old.length} piece${old.length === 1 ? '' : 's'} ▾`; b.onclick = () => { older = !older; draw(); }; olderEl.appendChild(b); }
+    countEl.textContent = searching ? `${list.length} piece${list.length === 1 ? '' : 's'} for “${q}”` : `${list.length} piece${list.length === 1 ? '' : 's'} from the last two weeks${filter !== 'Everyone' ? ' · ' + filter : ''}${where !== 'all' ? ' · ' + WHERE[where] : ''}`;
+    document.getElementById('clear').hidden = !q && !pinned;
+    document.querySelectorAll('#ask button').forEach((b) => b.classList.toggle('on', b.dataset.id === pinned && b.dataset.q === q));
+    if (pinned) { const el = document.getElementById('p-' + pinned.replace(/[^a-z0-9]/gi, '-')); if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }
+  };
+  const input = document.getElementById('q');
+  const setQ = (v) => { q = v; pinned = null; input.value = v; draw(); };
+  input.value = q;
+  input.oninput = (e) => { q = e.target.value; pinned = null; draw(); };
+  input.onkeydown = (e) => { if (e.key === 'Enter') input.blur(); };
+  document.getElementById('clear').onclick = () => setQ('');
+  document.querySelectorAll('.try b').forEach((b) => { b.onclick = () => setQ(b.textContent); });
+
+  // HOW DO I… — the questions each piece answers, newest piece first
+  const askEl = document.getElementById('ask');
+  const QS = []; rows.slice().sort((a, b) => (b.date || '').localeCompare(a.date || '')).forEach((r) => (r.ask || []).forEach((a) => QS.push({ q: a, id: r.id })));
+  const drawAsk = () => {
+    askEl.innerHTML = '';
+    QS.slice(0, askAll ? QS.length : 8).forEach((x) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = x.q; b.dataset.id = x.id; b.dataset.q = x.q; b.onclick = () => { if (pinned === x.id && q === x.q) { setQ(''); return; } q = x.q; pinned = x.id; input.value = x.q; draw(); }; askEl.appendChild(b); });
+    document.getElementById('askmore').textContent = askAll ? 'fewer ▴' : `more questions (${QS.length}) ▾`;
+    document.getElementById('askmore').hidden = QS.length <= 8;
+  };
+  document.getElementById('askmore').onclick = () => { askAll = !askAll; drawAsk(); draw(); };
+  drawAsk();
+
+  // where it plays
+  const seg = document.getElementById('seg');
+  [['all', 'Everything'], ['app', 'The phone app'], ['cc', 'Central Command']].forEach(([k, label]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.className = k === where ? 'on' : ''; b.onclick = () => { where = k; [...seg.children].forEach((c) => c.classList.toggle('on', c === b)); draw(); }; seg.appendChild(b); });
+
+  // who it is for; a pick is remembered on this phone
+  const f = document.getElementById('filters'), mine = document.getElementById('mine');
+  const drawMine = () => { const r = store.get('lib.for'); mine.hidden = !(r && r !== 'Everyone' && filter === r); mine.innerHTML = r ? `Showing yours: <b>${esc(r)}</b> · <b data-all>show everyone</b>` : ''; mine.querySelectorAll('b').forEach((b) => { b.onclick = () => { if (b.dataset.all !== undefined) { filter = 'Everyone'; store.set('lib.for', null); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === filter)); drawMine(); draw(); } }; }); };
+  FILTERS.forEach((k) => { const b = document.createElement('span'); b.className = 'chip' + (k === filter ? ' on' : ''); b.textContent = k; b.onclick = () => { filter = k; store.set('lib.for', k === 'Everyone' ? null : k); [...f.children].forEach((c) => c.classList.toggle('on', c.textContent === k)); drawMine(); draw(); }; f.appendChild(b); });
+  drawMine();
   draw();
+  if (matchMedia('(pointer: fine)').matches && !q) input.focus();
 })();
 </script>
 </body>

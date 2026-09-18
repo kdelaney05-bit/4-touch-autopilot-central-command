@@ -1,393 +1,625 @@
-[
- {
-  "title": "Every rep · Tell the team from the file, and find anyone from any page",
-  "what": "Kevin, 17 Sep, 6:40 PM: \"make a video showing how to use this little contact-other-people thing… I don't even know how to use it.\" Then he tried it, three times, and each time said what was wrong: a teammate typed in the customer line matched nothing; @Jessica gave no receipt; the groups were all-or-nothing; then, at 8:15 PM, \"it's way too big… it needs to be in the customer file… a quick search button… on any page. Show me examples before we make the changes.\" Three mockups, then \"I love it… yes to all three.\" So, the same night: the Today box is gone. A thin Find a customer line sits under the money and a gold 🔍 rides with the rocket and the bell on every tab: three letters (last name, street, or phone), tap OPEN, the file comes up wherever you were. Inside the file, under the thread, TELL THE TEAM: THIS JOB first (the rep, the supervisor, the office seat), then SALES · SUPERVISORS · OFFICE with All and a pick list, then MANAGERS (Jess, Mike, Gio; Kevin only for sales, owners and the brand/office managers). Tap as many as you like. POST puts the note in the thread with the receipt under it: → Jessica ✉ · Obed 👀 seen · Eric 📱. The customer never sees it.",
-  "film": "ride-along-say-it",
-  "go": null,
-  "tour": null,
-  "meta": "7 scenes · ~2 minutes · 17 Sep, shot four times as the night went (402 · 402d) · the phone app, every tab + the customer file · no switch",
-  "links": []
- },
- {
-  "title": "Every rep · When you miss a call or a text",
-  "what": "Kevin, 17 Sep, 4:20 PM: \"I have the strangest suspicion that we're missing calls and text.\" We were. The 15-minute \"not answered\" notice went only to the watcher and to Kevin, never to the rep; a text on a rep's own number never buzzed the app and landed 15 minutes late; and nobody read the phone company's call list, so 50 calls a day rang out with no one the wiser. Tonight: a customer text on your own number buzzes you when it lands (399); the 15-minute clock buzzes you first and skips ratings, STOP, thank-yous and test files (400); every call sits on the customer's file, and a missed call from a customer buzzes you once (401). Robocalls never buzz. Nothing buzzes 7:30 PM–8 AM. A missed call can show up to an hour late: the list comes once an hour.",
-  "film": "ride-along-when-you-miss-a-call-or-a-text",
-  "go": "?demo=1&as=manager&file=cj3",
-  "tour": null,
-  "meta": "5 scenes · ~2 minutes · 17 Sep · migrations 399 + 400 + 401 · Central Command v113 · no switch",
-  "links": []
- },
- {
-  "title": "Mike · The estimate, line by line, in the 4-Touch app",
-  "what": "Kevin, 17 Sep, 5 PM: \"Mike is only on the MVP mobile app… put that same thing inside.\" The ESTIMATE ON FILE sheet in the app now has A PICTURE / LINE BY LINE: what it is, qty, unit, price each, + ITEM, the total is the project value, SAVE makes the customer's link (the same Billdu-shaped page, one ACCEPT), and Text it now sends it from the Oasis line. And 6 PM: \"he can type whatever he wants or he can get the pop-ups\" — under WHAT IT IS sits the whole Oasis menu (palms · bushes & shrubs · mulch & rock · flowers · the job, 48 items from the design folder), typing finds matches, a tap fills the name, the unit and the last price used. Published over the air 17 Sep ~6:10 PM (runtime 1.0.4).",
-  "film": "ride-along-the-estimate-in-the-4-touch-app",
-  "go": null,
-  "tour": null,
-  "meta": "10 scenes · ~2 minutes · 17 Sep · app PR #429 · migrations 322 + 400 · OTA 01a0b173 · no switch",
-  "links": []
- },
- {
-  "title": "Jess · The estimate, line by line, on the file in Central Command",
-  "what": "The same estimate from the office's chair: Files, the customer, the Estimate button, one row per thing, Create, Text it. Every estimate sits on the file with its status and its link; when the customer taps ACCEPT the file says so with the date and Mike's phone buzzes. Oasis numbers keep counting from Billdu's 2040.",
-  "film": "ride-along-the-estimate-on-the-file-jess",
-  "go": "?demo=1&as=office&file=cp10",
-  "tour": null,
-  "meta": "8 scenes · ~1½ minutes · 17 Sep · v111 · migration 322 · no switch",
-  "links": [
-   {
-    "href": "../?demo=1&as=office&file=cp10",
-    "text": "Try it on the demo file"
-   }
-  ]
- },
- {
-  "title": "Mike · The estimate, line by line, on your phone",
-  "what": "Kevin, 17 Sep: \"Mike wants to go line by line and put the price in… send a digital copy.\" The Estimate button on the customer's file is that, and from v111 it fits on a phone: one row per thing (what it is, the scope, how many, the unit, the price for one), the total adds itself, one link, the customer taps ACCEPT, Mike's phone buzzes. Oasis numbers keep counting from Billdu's 2040.",
-  "film": "ride-along-the-estimate-on-your-phone",
-  "go": "?demo=1&as=manager&file=cp10",
-  "tour": null,
-  "meta": "9 scenes · ~1½ minutes · 17 Sep · v111 · migration 322 · no switch",
-  "links": [
-   {
-    "href": "../?demo=1&as=manager&file=cp10",
-    "text": "Try it on the demo file"
-   }
-  ]
- },
- {
-  "title": "Mike · Jess · The sub locked in, on the contract picture",
-  "what": "Kevin and Jess, 17 Sep, the Billdu handoff: Mike gets the sub's number before he prices the job, kept it in a CompanyCam picture, and once it signed emailed Jess the Billdu link, the sub and the amount. Now it is one question on the contract picture (＋ Photo → This picture is the signed contract) or the 🔒 Lock the sub button on the file: who is doing the work, their price, their cell once. The sub is texted the picture and the price from the Oasis line and taps RECIBIDO; Jess is tagged with the sub and the price (her phone, her email, her text); she presses Copy for CC, then Typed into CC, and the Office room lists what is still waiting. Nobody remembers anything. Billdu is untouched today. Narrated (Guy).",
-  "film": null,
-  "go": "?demo=1&as=manager&tour=sub&auto=1",
-  "tour": "../?demo=1&as=manager&tour=sub&auto=1&voice=1",
-  "meta": "7 steps · ~2 minutes · 17 Sep · migration 397 · no switch",
-  "links": [
-   {
-    "href": "was-and-is.html",
-    "text": "Was and is · Mike, Jess"
-   }
-  ]
- },
- {
-  "title": "Jess · Laura · Sam · Monday: every new lead starts here",
-  "what": "From Mon 21 Sep a new customer comes in through + New lead, not through Contractors Cloud: type it once, pick the rep and the time (the form shows the rep's day), press Open the file. The rep's phone buzzes, the booking is the file's first line, the customer gets the confirmation text when its switch is on, and the machine carries the lead into CC when its switch is on — until then, Copy for CC. Nothing else moves. Later the same day, Samantha's first idea: the Street box suggests the address as you type, and a pick fills street, city and zip; the rep list carries Gio and Jessica beside the sellers. Narrated (Guy).",
-  "film": null,
-  "go": "?demo=1&as=office&tour=leads&auto=1",
-  "tour": "../?demo=1&as=office&tour=leads&auto=1&voice=1",
-  "meta": "9 steps · ~3 minutes · 17 Sep · migrations 381 · 396 · switch cc_mirror OFF",
-  "links": [
-   {
-    "href": "JESS-MONDAY.md",
-    "text": "Everything you did in CC, and where it is here"
-   }
-  ]
- },
- {
-  "title": "Kevin · Luis · The crew thread, in pictures",
-  "what": "One text, one link, one room on the customer's file: the room drawn as a chat for one Thursday, then the same room on the three screens that see it (the crew's phone, Luis's phone, the office desk), who is in it, the day step by step, and where the switch stands.",
-  "film": null,
-  "go": null,
-  "tour": null,
-  "meta": "one page, five pictures · 16 Sep night · 342 · 347 · 379",
-  "links": [
-   {
-    "href": "the-crew-thread.html",
-    "text": "▶ Open the picture"
-   }
-  ]
- },
- {
-  "title": "Luis · How everything works, from your seat",
-  "what": "The ops manager's handbook on paper: the notification is the instruction and nobody has to think; the two doors; the eleven rooms; the file as the hub; the chain and where Luis comes in; his crews today and next; tags, the bing, photos; the supervisor app; who does what; what to do when something goes wrong. Reprinted as things change; keep the newest.",
-  "film": null,
-  "go": null,
-  "tour": null,
-  "meta": "10 sections · a page, printed · 16 Sep night · v97",
-  "links": [
-   {
-    "href": "how-it-works-luis.html",
-    "text": "▶ Open the page"
-   },
-   {
-    "href": "how-it-works-luis.pdf",
-    "text": "Print · PDF"
-   }
-  ]
- },
- {
-  "title": "Luis · The crews · Tu día con Liberty",
-  "what": "The page Luis hands around on Wed 17 Sep: one login per crew, six taps in a day, the real button words (AQUÍ · RECIBIDO · FOTOS · LISTO), who does what, and what a crew never has to do. Spanish first, English one tap. The model behind it: docs/THE-CREWS.md. The Spanish film with its own narrator comes with the build.",
-  "film": null,
-  "go": null,
-  "tour": null,
-  "meta": "6 steps · a page, not a film yet · 16 Sep night",
-  "links": [
-   {
-    "href": "the-crew-day.html",
-    "text": "▶ Abrir · Open the page"
-   },
-   {
-    "href": "tu-dia-con-liberty-ES.pdf",
-    "text": "Imprimir · ES"
-   },
-   {
-    "href": "your-day-with-liberty-EN.pdf",
-    "text": "Print · EN"
-   },
-   {
-    "href": "https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1",
-    "text": "What Ramón's phone shows today"
-   }
-  ]
- },
- {
-  "title": "The sales team · Contract signing and the auto workflow",
-  "what": "The customer accepts now and signs everything once — the proposal, our contract sheet, the disclosures, the hold harmless, the permit application. Oasis signs the contract alone. The Notice of Commencement is the one form not on the link: it goes to the customer by email to sign in front of a notary, the machine texts them until the picture lands, and the rep never goes back. Narrated (Guy).",
-  "film": null,
-  "go": "?demo=1&tour=noc&auto=1",
-  "tour": "../?demo=1&tour=noc&auto=1&voice=1",
-  "meta": "7 steps · ~2 minutes · 16 Sep evening",
-  "links": [
-   {
-    "href": "sign-everything.html",
-    "text": "The customer's phone"
-   }
-  ]
- },
- {
-  "title": "Gio · The paperwork, signature to permit",
-  "what": "One link signs the job: the proposal and our contract sheet, seven green spots. The disclosures can ride the same link with one switch. The NOC, the Hold Harmless and the permit applications need a notary, so the file fills them in from the county's owner of record and Sam prints, notarizes and pulls the permit. Narrated (Guy), 2:18. Superseded 16 Sep evening: the Hold Harmless and the permit application sign on the link; the NOC goes to the customer to notarize (the film above).",
-  "film": "ride-along-the-paperwork",
-  "go": null,
-  "tour": null,
-  "meta": "7 scenes · 2:18 · 16 Sep · made with tools/ride-along",
-  "links": []
- },
- {
-  "title": "Laura · Jess · The Invoice",
-  "what": "The moment Luis signs off with the finished photos, the file builds the customer's invoice by itself: the signed estimate, the deposit taken, any signed change order, the photos, the sign-off and the text with the pay link, on one INVOICE card. The office checks it and taps Approve, or Hold and says why. Nothing to learn; it comes to you. Narrated (Guy), 2:55.",
-  "film": "ride-along-the-invoice",
-  "go": null,
-  "tour": null,
-  "meta": "the picture: 17 Sep · 381 · switches OFF · the film: 9 scenes · 2:55 · 16 Sep",
-  "links": [
-   {
-    "href": "the-invoice.html",
-    "text": "▶ Open the picture · old way, new way"
-   },
-   {
-    "href": "the-bills-before-after.html",
-    "text": "Before and after"
-   }
-  ]
- },
- {
-  "title": "Jess · Sam · Jonathan · Hand It Back",
-  "what": "Kevin's rule: nobody asks \"what do I do?\". Whatever reaches you — a sub's email, a crew's paper, a fee receipt — the machine types it and hands it back as one card: SUB INVOICE · CREW INVOICE · FEE RECEIPT LANDED, the amount, the job, the paper. Approve, Wrong job, or Hold. Migration 376 on live, every switch OFF. Narrated (Guy), 3:15.",
-  "film": null,
-  "go": null,
-  "tour": null,
-  "meta": "9 scenes · 3:15 · 16 Sep · made with tools/ride-along · switches OFF",
-  "links": [
-   {
-    "href": "HAND-IT-BACK.md",
-    "text": "The lane"
-   }
-  ]
- },
- {
-  "title": "Jonathan · The Bills",
-  "what": "The supplier's email lands on the customer's file by itself; a BILL LANDED card with the invoice number, the PO, the amount next to what we ordered at, the due date and the PDF; red if it is over. Jonathan verifies and taps Approve. You were the one typing it; now you are the one who says yes. Nothing to learn; it comes to you. Narrated (Guy), 3:16.",
-  "film": "ride-along-the-bills",
-  "go": null,
-  "tour": null,
-  "meta": "10 scenes · 3:16 · 16 Sep · made with tools/ride-along · switches OFF",
-  "links": [
-   {
-    "href": "the-bills-before-after.html",
-    "text": "One invoice, before and after"
-   }
-  ]
- },
- {
-  "title": "The sales team · Where you were, what you're getting",
-  "what": "Six weeks ago, the greatest hits of the thread, the numbers, today's app, then the three new things: Photos on the file, the help desk both ways, Send quote to Gio. Narrated (Guy), 4:27.",
-  "film": "ride-along-what-youre-getting",
-  "go": null,
-  "tour": null,
-  "meta": "15 scenes · 4:27 · 16 Sep · made with tools/ride-along",
-  "links": []
- },
- {
-  "title": "Everyone · Put it to bed",
-  "what": "A customer asks about the permit. Sam tags Jonathan. He is busy; his phone buzzes; the file already knows and the answer is written; one tap sends it from the brand line. Narrated (Guy), 1:55.",
-  "film": "ride-along-put-it-to-bed",
-  "go": null,
-  "tour": null,
-  "meta": "8 scenes · 1:55 · 16 Sep · made with tools/ride-along",
-  "links": []
- },
- {
-  "title": "Everyone · Tell the Team",
-  "what": "The new button under the texts card on any customer: type @ and a name, say what you need, they get the buzz and the file. Narrated (Guy), the words on screen, 1:38.",
-  "film": "ride-along-tell-the-team",
-  "go": null,
-  "tour": null,
-  "meta": "7 scenes · 1:38 · 16 Sep · made with tools/ride-along",
-  "links": []
- },
- {
-  "title": "Everyone · one job, signature to close-out",
-  "what": "The customer signs on the link; the rep is done. Sam's tile lights, then Jonathan's, then Luis takes the job, the Job Board moves by itself, Laura invoices, and Kevin sees the chain. Nobody assigns anything.",
-  "film": null,
-  "go": "?demo=1&tour=chain&auto=1",
-  "tour": "../?demo=1&tour=chain&auto=1&voice=1",
-  "meta": "11 steps · ~3 minutes · 16 Sep",
-  "links": [
-   {
-    "href": "who-does-what.html",
-    "text": "Who does what"
-   }
-  ]
- },
- {
-  "title": "The office · from Contractors Cloud to here",
-  "what": "Sam, Laura, Jonathan, Jess. Ten hand-made tasks became four inputs: the Office room's four tiles, oldest ask on top, Done asks for the input, every CC step and what became of it, the paperwork checklist that opens itself, the note that keeps you on the file, the text from the file, the Answer button.",
-  "film": null,
-  "go": "?demo=1&as=office&tour=office&auto=1",
-  "tour": "../?demo=1&as=office&tour=office&auto=1&voice=1",
-  "meta": "9 steps · ~2½ minutes · 16 Sep",
-  "links": [
-   {
-    "href": "who-does-what.html",
-    "text": "Who does what, before and now"
-   },
-   {
-    "href": "workflows.html",
-    "text": "Every step"
-   }
-  ]
- },
- {
-  "title": "The supervisor app · the real screens",
-  "what": "Today and the LIVE FILES door, the job files, a file's four lanes, OFFICE with @names and the + ask and the paperclip, PHOTOS with TAKE, the crew pilot. A film, not a walkthrough: press play.",
-  "film": null,
-  "go": null,
-  "tour": null,
-  "meta": "10 scenes · ~2½ minutes · Guy · 16 Sep",
-  "links": []
- },
- {
-  "title": "Luis, Obed, Robert · the supervisor's day",
-  "what": "Your board and Take the job, the customer's text line on the file, the inside note that the customer never sees, photos, your crews and the nugget, what they are asking, the Village. On a phone it is the phone layout.",
-  "film": null,
-  "go": "?demo=1&as=manager&tour=super&auto=1",
-  "tour": "../?demo=1&as=manager&tour=super&auto=1&voice=1",
-  "meta": "9 steps · ~2½ minutes · 16 Sep",
-  "links": []
- },
- {
-  "title": "Mike · the picture, the price, the crew",
-  "what": "The crews card, adding a crew, the photo with scope and price on the customer's file, tap it → Send to a crew, the nugget already filled, the receipt (texted · opened · RECIBIDO · brought back), and what Ramón sees.",
-  "film": null,
-  "go": "?demo=1&as=manager&tour=crews&auto=1",
-  "tour": "../?demo=1&as=manager&tour=crews&auto=1&voice=1",
-  "meta": "7 steps · ~90 seconds · 16 Sep",
-  "links": [
-   {
-    "href": "https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1",
-    "text": "Ramón's screen"
-   }
-  ]
- },
- {
-  "title": "Gio · quotes to price",
-  "what": "The Line, his card, the clock, type the price and a word, Send the price, PRICED on the customer's file, the Pipeline.",
-  "film": null,
-  "go": "?demo=1&as=manager&tour=gio&auto=1",
-  "tour": "../?demo=1&as=manager&tour=gio&auto=1&voice=1",
-  "meta": "7 steps · ~90 seconds · 16 Sep",
-  "links": []
- },
- {
-  "title": "Jess and Luis · the keys",
-  "what": "Every room. Say it, the bing, what you sent out and the chain, where it is stuck, View as, the crews, the rail, My book, the file and ＋ Photo, the receipt, and the phone on the road.",
-  "film": null,
-  "go": "?demo=1&tour=keys&auto=1",
-  "tour": "../?demo=1&tour=keys&auto=1&voice=1",
-  "meta": "12 steps · ~2½ minutes · 16 Sep",
-  "links": []
- },
- {
-  "title": "Sam · The Line, on her screen",
-  "what": "The bing, ✓ Got it, the file and the thread, the receipt under a note, ＋ Photo, the Photos room, the Answer button, Quotes to price, My book, the next word, what you sent out.",
-  "film": null,
-  "go": "?demo=1&as=office&tour=1&auto=1",
-  "tour": "../?demo=1&as=office&tour=1&auto=1&voice=1",
-  "meta": "16 steps · ~2 minutes · 15–16 Sep",
-  "links": []
- },
- {
-  "title": "Everyone · The Full Show — The 4-Touch Autopilot",
-  "what": "Everything, start to finish: the lead, the estimate, the signature, the paperwork, the crew, the invoice, the review. Eleven minutes. Watch it once and you know the whole machine.",
-  "film": "the-full-show",
-  "meta": "11 min · everyone",
-  "go": null,
-  "tour": null,
-  "links": []
- },
- {
-  "title": "The sales team · The Hunt — the sales app",
-  "what": "A rep's day in the 4-Touch app: Today, the Morning Line, the customer file, the four touches, the estimate on the phone.",
-  "film": "the-hunt",
-  "meta": "2:52 · sales",
-  "go": null,
-  "tour": null,
-  "links": []
- },
- {
-  "title": "Luis · the crews · The Record — the crew cut",
-  "what": "The crew's day: the work order on the phone, Spanish first, the photos, RECIBIDO, done.",
-  "film": "the-record",
-  "meta": "2:22 · Luis, the crews",
-  "go": null,
-  "tour": null,
-  "links": []
- },
- {
-  "title": "Luis · Obed · Robert · The Babysitter — the supervisor cut",
-  "what": "The supervisor's day: take the job, the crew, the site, the sign-off, hand it back to the office.",
-  "film": "the-babysitter",
-  "meta": "2:31 · Luis, Obed, Robert",
-  "go": null,
-  "tour": null,
-  "links": []
- },
- {
-  "title": "Kevin · Jess · The Blindfold Off — the owner's cut",
-  "what": "What Kevin sees: the boards, the clocks, the money, who moved and who did not.",
-  "film": "the-blindfold-off",
-  "meta": "2:54 · Kevin, Jess, the managers",
-  "go": null,
-  "tour": null,
-  "links": []
- },
- {
-  "title": "Every rep · Sign on the phone",
-  "what": "The whole thing the customer does on their phone: open the link, read it, sign once, done. Twenty-two seconds, no words.",
-  "film": "sign-on-the-phone-small",
-  "meta": "0:22 · no words · every rep",
-  "go": null,
-  "tour": null,
-  "links": []
- },
- {
-  "title": "Luis · Obed · Robert · The supervisor app — the real screens",
-  "what": "The supervisor app, screen by screen: the board, the job, the crew, the photos, the sign-off, hand it back.",
-  "film": "supervisor-app",
-  "meta": "2:53 · Luis, Obed, Robert",
-  "go": null,
-  "tour": null,
-  "links": []
- }
-]
+{
+ "built": "2026-09-18T12:09:57.698Z",
+ "pieces": [
+  {
+   "id": "ride-along-words-first",
+   "title": "Everyone texting from the app · The words first, on every button",
+   "what": "Kevin, 17 Sep, ~10:20 PM, from the four-touch card Mike is \"addicted to\": \"it should always preview for the rep before they send… guys still need to know what’s being sent and be able to edit… the prewritten thing populates before sending and sometimes it doesn’t… Mike hits this and it’s in the thread, he hits this and it goes to his iPhone… dial in his stuff.\" Before tonight only Thank You showed anything (a list to pick from), and every other text button on the file went straight out from the line. Now every text button, the four touches, the pre-written texts, the estimate and the promo, opens the same sheet with the words already in the box; SEND is the rep’s and goes from his line into the thread, undo for 15 seconds. Off the line nothing changed. And a send stays on the file (Kevin, 11:40 PM: \"it should never kick anyone out of the app when they’re doing an action\"): the full-screen text view no longer opens by itself after a send; the thread card scrolls up and the file stays where you were.",
+   "short": "Every text button on the file shows you the words first. Read it, change it, tap SEND. You stay on the file.",
+   "film": "ride-along-words-first",
+   "go": null,
+   "tour": null,
+   "meta": "6 scenes · ~1 minute · 17 Sep, late, re-cut at midnight · the phone app, the customer file · app updates c0bb282e + 405, restart the app twice · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "How do I text a customer from the app?",
+    "Why did nothing go out when I tapped a text button?"
+   ],
+   "links": [],
+   "words": "New tonight, for everyone texting from the app. Every text button on a customer's file now shows you the words first. You read it, change it if you want, and tap send. And nothing throws you out of the file any more. About a minute. Step one. The four touches, the card you already use. Thank you, the digital estimate, the reference sheet, the promo, until yes or no. Tap any text button. Nothing goes out on that tap any more. Step two. The sheet slides up with the words already in the box: the approved line for where this customer is, with their name and yours. Change a word, or don't. The back arrow shows you the other lines. Step three. Send is yours. Tap it and it goes out from your line into the customer's thread. You stay right on the file: the thread scrolls up so you watch it land, and you have fifteen seconds to undo on the bar. The pre-written texts work the same way: ready to send, read it, edit it, send. So. Before, only thank you showed you anything, every other text button went straight out, and a send that went through jumped you into the full-screen text view. Now every button shows the words first, send is yours, and you stay on the file. If your texting is still on your own phone, nothing changed for you: Messages opens with the words already written. Nothing to learn. Tap the button, read the words, tap send. You're still on the file."
+  },
+  {
+   "id": "ride-along-say-it",
+   "title": "Every rep · Tell the team from the file, and find anyone from any page",
+   "what": "Kevin, 17 Sep, 6:40 PM: \"make a video showing how to use this little contact-other-people thing… I don't even know how to use it.\" Then he tried it, three times, and each time said what was wrong: a teammate typed in the customer line matched nothing; @Jessica gave no receipt; the groups were all-or-nothing; then, at 8:15 PM, \"it's way too big… it needs to be in the customer file… a quick search button… on any page. Show me examples before we make the changes.\" Three mockups, then \"I love it… yes to all three.\" So, the same night: the Today box is gone. A thin Find a customer line sits under the money and a gold 🔍 rides with the rocket and the bell on every tab: three letters (last name, street, or phone), tap OPEN, the file comes up wherever you were. Inside the file, under the thread, TELL THE TEAM: THIS JOB first (the rep, the supervisor, the office seat), then SALES · SUPERVISORS · OFFICE with All and a pick list, then MANAGERS (Jess, Mike, Gio; Kevin only for sales, owners and the brand/office managers). Tap as many as you like. POST puts the note in the thread with the receipt under it: → Jessica ✉ · Obed 👀 seen · Eric 📱. The customer never sees it.",
+   "short": "The gold 🔍 finds any customer in three letters from any page. TELL THE TEAM inside the file reaches anyone on the job, with a receipt.",
+   "film": "ride-along-say-it",
+   "go": null,
+   "tour": null,
+   "meta": "7 scenes · ~2 minutes · 17 Sep, shot four times as the night went (402 · 402d) · the phone app, every tab + the customer file · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "How do I find a customer from any page?",
+    "How do I tell Jess, a supervisor or the office something about a customer?"
+   ],
+   "links": [],
+   "words": "New tonight, two things. A gold magnifying glass on every page that finds any customer in three letters. And inside every customer's file, the people on that job, one tap each. About a minute and a half. Step one. Under the money there's a thin line: find a customer. And the gold magnifying glass sits with the rocket and the bell on every tab, wherever you are. Tap either one. Step two. Type three letters. A last name, a street, or the last four of a phone. Tap open, and the customer's file comes up on top of whatever you were doing. Close it and you're right back where you were. Step three. In the file, the customer's texts, your texts, and the team's notes all sit in one thread. Under it, two buttons: text Dana, or tell the team. Tap tell the team, and the people on this job come up first: the rep, the supervisor, the office seat. Step four. This job first. Then Sales, Supervisors, Office, and Managers, each with an All chip and a pick list. Tap as many as you like from any of them. A little phone means their phone buzzes. An envelope means they get it by email and text. Say it, and post. Step five, the receipt. Your note lands in Dana's thread as a gold inside note, and under it, who got it: Jessica, emailed. Obed, seen. Eric, buzzed. When they answer, your phone buzzes and their answer sits in the same thread, on the same customer. The customer never sees any of it. You always see who got it. Try it once today. Tap the magnifying glass, three letters, open. Tell the team, tap one person, say one thing, post. Nothing to learn. It comes to you."
+  },
+  {
+   "id": "ride-along-when-you-miss-a-call-or-a-text",
+   "title": "Every rep · When you miss a call or a text",
+   "what": "Kevin, 17 Sep, 4:20 PM: \"I have the strangest suspicion that we're missing calls and text.\" We were. The 15-minute \"not answered\" notice went only to the watcher and to Kevin, never to the rep; a text on a rep's own number never buzzed the app and landed 15 minutes late; and nobody read the phone company's call list, so 50 calls a day rang out with no one the wiser. Tonight: a customer text on your own number buzzes you when it lands (399); the 15-minute clock buzzes you first and skips ratings, STOP, thank-yous and test files (400); every call sits on the customer's file, and a missed call from a customer buzzes you once (401). Robocalls never buzz. Nothing buzzes 7:30 PM–8 AM. A missed call can show up to an hour late: the list comes once an hour.",
+   "short": "A customer call or text you miss buzzes your phone once. Every call sits on the customer’s file, a missed one in red.",
+   "film": "ride-along-when-you-miss-a-call-or-a-text",
+   "go": "?demo=1&as=manager&file=cj3",
+   "tour": null,
+   "meta": "5 scenes · ~2 minutes · 17 Sep · migrations 399 + 400 + 401 · Central Command v113 · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "What happens when I miss a call or a text?"
+   ],
+   "links": [],
+   "words": "New tonight. When a customer calls or texts you and you miss it, your phone buzzes. Not Kevin's. Yours. Three things changed. Here they are. One. A customer text on your own number buzzes you the minute it lands. Before tonight it only went on the file, and it got there fifteen minutes late. Two. If a customer text sits fifteen minutes with no answer, the buzz comes to you first. Dana texted, you haven't answered. Kevin only hears about it at sixty. Three. A missed call from a customer buzzes you. Dana called, nobody answered, rang forty seconds on your line at two sixteen. Tap it, the file opens, call back. Every call is on the customer's file now, in the thread with the texts. Answered, placed by you, or missed, in red, with how long it rang. One story, in order. What doesn't buzz. A number that isn't a customer never buzzes you, so the spam stays quiet. A rating, a STOP, a thank-you doesn't start a clock. Nothing buzzes between seven thirty at night and eight in the morning. And one honest note: a missed call can show up to an hour late, because the phone company sends us the list once an hour. That's it. When it buzzes, tap it. The file opens. Text back or call back from there. Nothing to learn. It comes to you."
+  },
+  {
+   "id": "ride-along-the-estimate-in-the-4-touch-app",
+   "title": "Mike · The estimate, line by line, in the 4-Touch app",
+   "what": "Kevin, 17 Sep, 5 PM: \"Mike is only on the MVP mobile app… put that same thing inside.\" The ESTIMATE ON FILE sheet in the app now has A PICTURE / LINE BY LINE: what it is, qty, unit, price each, + ITEM, the total is the project value, SAVE makes the customer's link (the same Billdu-shaped page, one ACCEPT), and Text it now sends it from the Oasis line. And 6 PM: \"he can type whatever he wants or he can get the pop-ups\" — under WHAT IT IS sits the whole Oasis menu (palms · bushes & shrubs · mulch & rock · flowers · the job, 48 items from the design folder), typing finds matches, a tap fills the name, the unit and the last price used. Published over the air 17 Sep ~6:10 PM (runtime 1.0.4).",
+   "short": "The estimate line by line in the app: pick from the Oasis menu or type, SAVE makes the customer’s link, Text it sends it.",
+   "film": "ride-along-the-estimate-in-the-4-touch-app",
+   "go": null,
+   "tour": null,
+   "meta": "10 scenes · ~2 minutes · 17 Sep · app PR #429 · migrations 322 + 400 · OTA 01a0b173 · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "How do I build an estimate line by line in the app?"
+   ],
+   "links": [],
+   "words": "Mike. This is your estimate, line by line, in the app you already use. The same shape as Billdu, on the customer's file. A minute and a half. Open the customer, like always. Press Add estimate to file. Two ways now. A picture of the paper, like before. Or line by line. Press Line by line. Type whatever you want, or tap. Under the box sits our whole menu. Palms, bushes and shrubs, mulch and rock, flowers, the job. Tap Palms. Tap Foxtail Palm. The name and the unit fill themselves in. You type how many, and the price for one. Six at eighty-five. The line does the math. Five hundred and ten. Next time, the price you used last fills in too. Or just start typing. Type M-U-L and every mulch pops up. Tap one, or keep typing your own words. Your way, every time. Plus Item for the next line. Mulch, three yards at sixty-five. The total adds itself, seven hundred and five, and that is the project value. Press Save, make the link. Press Text it now. The text is written for you, from the Oasis line, with the link. Done. The customer opens it on their phone. It looks like Billdu. The number, the amount, the lines, and one button: Accept. When they tap it, your phone buzzes, and it is on the file. Your estimate numbers keep counting where Billdu left off. The picture still works, any time. Nothing to learn. It comes to you."
+  },
+  {
+   "id": "ride-along-the-estimate-on-the-file-jess",
+   "title": "Jess · The estimate, line by line, on the file in Central Command",
+   "what": "The same estimate from the office's chair: Files, the customer, the Estimate button, one row per thing, Create, Text it. Every estimate sits on the file with its status and its link; when the customer taps ACCEPT the file says so with the date and Mike's phone buzzes. Oasis numbers keep counting from Billdu's 2040.",
+   "short": "The same estimate from the office chair: Files, the customer, Estimate, one row per thing, Create, Text it.",
+   "film": "ride-along-the-estimate-on-the-file-jess",
+   "go": "?demo=1&as=office&file=cp10",
+   "tour": null,
+   "meta": "8 scenes · ~1½ minutes · 17 Sep · v111 · migration 322 · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "How does the office make an estimate on the file?"
+   ],
+   "links": [
+    {
+     "href": "../?demo=1&as=office&file=cp10",
+     "text": "Try it on the demo file"
+    }
+   ],
+   "words": "Jess. This is the estimate, line by line, on the customer's file in Central Command. The same shape as Billdu. A minute and a half. Open the customer's file. Under their name, press Estimate. One row per thing. What it is. The scope, if you want it. How many. The unit. And the price for one. Foxtail palm, ten gallon, six at eighty-five. Plus Item for the next line. Mulch, three yards at sixty-five. The total adds itself. Seven hundred and five. A note under the lines if you want one. Valid fourteen days, like always. Press Create the estimate. The text is written for you, from the Oasis line, with the link. Press Text it. The link stays on the file. Copy it any time. The customer opens it on their phone. It looks like Billdu: the number, the amount, the lines, one button, Accept. When they tap it, the file says accepted with the date, and Mike's phone buzzes. Oasis estimate numbers keep counting where Billdu left off. Every estimate sits on the file, with its status and its link. Nothing to learn. It comes to you."
+  },
+  {
+   "id": "ride-along-the-estimate-on-your-phone",
+   "title": "Mike · The estimate, line by line, on your phone",
+   "what": "Kevin, 17 Sep: \"Mike wants to go line by line and put the price in… send a digital copy.\" The Estimate button on the customer's file is that, and from v111 it fits on a phone: one row per thing (what it is, the scope, how many, the unit, the price for one), the total adds itself, one link, the customer taps ACCEPT, Mike's phone buzzes. Oasis numbers keep counting from Billdu's 2040.",
+   "short": "The Estimate button on the customer’s file, on a phone: one row per thing, one link, the customer taps ACCEPT and you buzz.",
+   "film": "ride-along-the-estimate-on-your-phone",
+   "go": "?demo=1&as=manager&file=cp10",
+   "tour": null,
+   "meta": "9 scenes · ~1½ minutes · 17 Sep · v111 · migration 322 · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "cc"
+   ],
+   "ask": [],
+   "links": [
+    {
+     "href": "../?demo=1&as=manager&file=cp10",
+     "text": "Try it on the demo file"
+    }
+   ],
+   "words": "Mike. This is your estimate, line by line, on your phone. The same shape as Billdu, on the customer's file. A minute and a half. Open the customer's file. Under their name, press Estimate. One row per thing. What it is. The scope, if you want it. How many. The unit. And the price for one. Foxtail palm, ten gallon. Six. Each. Eighty-five. The row does the math. Five hundred and ten dollars. Press Plus Item for the next line. Mulch, three yards at sixty-five. The total adds itself. Seven hundred and five. A note under the lines if you want one. Valid fourteen days, like always. Press Create the estimate. The text is written for you, from the Oasis line, with the link. Press Text it. Done. The customer opens it on their phone. It looks like Billdu. The number, the amount, the lines, and one button: Accept. When they tap it, your phone buzzes, and it is on the file. Your estimate numbers keep counting where Billdu left off. Nothing to learn. It comes to you."
+  },
+  {
+   "id": "tour:sub",
+   "title": "Mike · Jess · The sub locked in, on the contract picture",
+   "what": "Kevin and Jess, 17 Sep, the Billdu handoff: Mike gets the sub's number before he prices the job, kept it in a CompanyCam picture, and once it signed emailed Jess the Billdu link, the sub and the amount. Now it is one question on the contract picture (＋ Photo → This picture is the signed contract) or the 🔒 Lock the sub button on the file: who is doing the work, their price, their cell once. The sub is texted the picture and the price from the Oasis line and taps RECIBIDO; Jess is tagged with the sub and the price (her phone, her email, her text); she presses Copy for CC, then Typed into CC, and the Office room lists what is still waiting. Nobody remembers anything. Billdu is untouched today. Narrated (Guy).",
+   "short": "One question on the contract picture locks the sub in: who is doing the work, their price, their cell. Jess is tagged; nobody remembers anything.",
+   "film": null,
+   "go": "?demo=1&as=manager&tour=sub&auto=1",
+   "tour": "../?demo=1&as=manager&tour=sub&auto=1&voice=1",
+   "meta": "7 steps · ~2 minutes · 17 Sep · migration 397 · no switch",
+   "date": "2026-09-17",
+   "where": [
+    "cc",
+    "app"
+   ],
+   "ask": [
+    "How do I lock in the sub on a job?"
+   ],
+   "links": [
+    {
+     "href": "was-and-is.html",
+     "text": "Was and is · Mike, Jess"
+    }
+   ],
+   "words": "Mike. The contract you just signed. Same as always: the customer signs the sheet, you take the picture. Open the customer, press Plus Photo. One new question sits under the picture now. This picture is the signed contract. Tick it. Two boxes appear: who is doing the work, and their price. The number the sub gave you on the phone, the one you used to keep in the CompanyCam picture. Type it here instead. Nick's Lawn. Three thousand four hundred. The first time, their cell too. After that the name is in the list and it says texts them. Post it. Three things happen. You do none of them. The picture is on the file. Nick gets a text from the Oasis line with the contract picture, the price, and one question: do you take it at this price, yes or no. And Jess is tagged: her phone buzzes, the email goes, with the sub and the price. That is the email you used to write. The receipt. Nothing to remember, nothing to argue. Texted at 7:23. Opened. RECIBIDO, Nick, 7:32. Said yes. If it says not opened, call before a truck rolls. The price is locked to the sub on the file, for good. Jess: the same card, on the same file. Copy for CC puts the sub and the price in your clipboard, in the order you type it. Typed into CC turns the chip green with your name on it. The Office room lists every lock that is still waiting, oldest first. Billdu can wait. Nothing else changes today. When you are ready, the Estimate button on the file is your Billdu shape: the customer taps ACCEPT on the link, the SIGNED email goes to Jess by itself, and you lock the sub the same way. Until then, the paper and the picture are fine. Nothing to learn. It comes to you."
+  },
+  {
+   "id": "tour:leads",
+   "title": "Jess · Laura · Sam · Monday: every new lead starts here",
+   "what": "From Mon 21 Sep a new customer comes in through + New lead, not through Contractors Cloud: type it once, pick the rep and the time (the form shows the rep's day), press Open the file. The rep's phone buzzes, the booking is the file's first line, the customer gets the confirmation text when its switch is on, and the machine carries the lead into CC when its switch is on — until then, Copy for CC. Nothing else moves. Later the same day, Samantha's first idea: the Street box suggests the address as you type, and a pick fills street, city and zip; the rep list carries Gio and Jessica beside the sellers. Narrated (Guy).",
+   "short": "+ New lead: type it once, pick the rep and the time, Open the file. The rep’s phone buzzes and the booking is the file’s first line.",
+   "film": null,
+   "go": "?demo=1&as=office&tour=leads&auto=1",
+   "tour": "../?demo=1&as=office&tour=leads&auto=1&voice=1",
+   "meta": "9 steps · ~3 minutes · 17 Sep · migrations 381 · 396 · switch cc_mirror OFF",
+   "date": "2026-09-17",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "How do I book a new lead?"
+   ],
+   "links": [
+    {
+     "href": "JESS-MONDAY.md",
+     "text": "Everything you did in CC, and where it is here"
+    }
+   ],
+   "words": "Monday: every new lead starts here. Jess, Laura, Sam: from Monday a new customer comes in through this button, not through Contractors Cloud. One form, two minutes, and everything after it happens by itself. Here is the whole thing. Plus New lead. Type it once. The brand, and how they found us: the same lead-source list as Contractors Cloud, so the reports keep counting. Name, mobile, email, the address. What they want, in your words: chain link quote needed. Same phone number means the same customer, so their history stays in one file. The address fills itself in. Samantha's idea, her first day in the app. Start typing the street and the map offers the match. Pick it, and the street, the city and the zip are typed for you. And the rep list now has every seller, plus Gio when he sells one himself, and Jessica as the placeholder until a rep is picked. Pick the rep and the day. It shows you their day. Choose the rep and the appointment time, and the form reads what that rep already has booked that day, so nobody is double-booked. An hour is the default; change it if you need to. Then press Open the file. The file is open. The rep already knows. The moment you press it, Eric's phone buzzes: new estimate booked, Monday at nine, the address, chain link quote, booked by Laura. The booking is the first line on the file. The customer gets the confirmation text from the main line when Kevin turns that switch on. Nobody calls anybody. NEXT says what happens next. Estimate booked Monday at nine with Eric. Eric shows up early. If a lead comes in with no time yet, NEXT says so in red: call them and book it. Nothing to remember. And Contractors Cloud? Nothing else moves. Invoicing, bills, work orders and commissions stay in Contractors Cloud for now. The machine carries the lead across, the account, the project and the sales appointment on the rep, so his Google Calendar fills in the way it does today. Until Kevin flips that switch, the chip says not in Contractors Cloud yet, Copy for CC gives you the fields in CC's order, and Typed into CC records that you did. The Pipeline sees it too. Every rep's book by stage: new leads with no appointment, upcoming appointments, priced and waiting, signed. Tap a name for his book alone; tap a customer and you are on the file. Nothing to learn. It comes to you. Monday: a lead comes in, you press plus New lead, you type it once, you press Open the file. The rep is told, the file is written, the customer is texted, Contractors Cloud is filled. Everything you did in there is either already here or being done for you, one piece at a time, and Kevin says when each piece moves."
+  },
+  {
+   "id": "the-crew-thread",
+   "title": "Kevin · Luis · The crew thread, in pictures",
+   "what": "One text, one link, one room on the customer's file: the room drawn as a chat for one Thursday, then the same room on the three screens that see it (the crew's phone, Luis's phone, the office desk), who is in it, the day step by step, and where the switch stands.",
+   "short": "The crew’s room on the customer’s file, drawn as a chat: one text, one link, the day step by step.",
+   "film": null,
+   "go": null,
+   "tour": null,
+   "meta": "one page, five pictures · 16 Sep night · 342 · 347 · 379",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [],
+   "links": [
+    {
+     "href": "the-crew-thread.html",
+     "text": "▶ Open the picture"
+    }
+   ],
+   "words": ""
+  },
+  {
+   "id": "how-it-works-luis",
+   "title": "Luis · How everything works, from your seat",
+   "what": "The ops manager's handbook on paper: the notification is the instruction and nobody has to think; the two doors; the eleven rooms; the file as the hub; the chain and where Luis comes in; his crews today and next; tags, the bing, photos; the supervisor app; who does what; what to do when something goes wrong. Reprinted as things change; keep the newest.",
+   "short": "The ops manager’s handbook: the two doors, the rooms, the file, the chain, the crews, what to do when something goes wrong.",
+   "film": null,
+   "go": null,
+   "tour": null,
+   "meta": "10 sections · a page, printed · 16 Sep night · v97",
+   "date": "2026-09-16",
+   "where": [
+    "paper"
+   ],
+   "ask": [],
+   "links": [
+    {
+     "href": "how-it-works-luis.html",
+     "text": "▶ Open the page"
+    },
+    {
+     "href": "how-it-works-luis.pdf",
+     "text": "Print · PDF"
+    }
+   ],
+   "words": ""
+  },
+  {
+   "id": "the-crew-day",
+   "title": "Luis · The crews · Tu día con Liberty",
+   "what": "The page Luis hands around on Wed 17 Sep: one login per crew, six taps in a day, the real button words (AQUÍ · RECIBIDO · FOTOS · LISTO), who does what, and what a crew never has to do. Spanish first, English one tap. The model behind it: docs/THE-CREWS.md. The Spanish film with its own narrator comes with the build.",
+   "short": "The page a crew gets: six taps in a day, AQUÍ · RECIBIDO · FOTOS · LISTO, Spanish first.",
+   "film": null,
+   "go": null,
+   "tour": null,
+   "meta": "6 steps · a page, not a film yet · 16 Sep night",
+   "date": "2026-09-16",
+   "where": [
+    "paper"
+   ],
+   "ask": [
+    "What does a crew do on the phone?"
+   ],
+   "links": [
+    {
+     "href": "the-crew-day.html",
+     "text": "▶ Abrir · Open the page"
+    },
+    {
+     "href": "tu-dia-con-liberty-ES.pdf",
+     "text": "Imprimir · ES"
+    },
+    {
+     "href": "your-day-with-liberty-EN.pdf",
+     "text": "Print · EN"
+    },
+    {
+     "href": "https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1",
+     "text": "What Ramón's phone shows today"
+    }
+   ],
+   "words": ""
+  },
+  {
+   "id": "tour:noc",
+   "title": "The sales team · Contract signing and the auto workflow",
+   "what": "The customer accepts now and signs everything once — the proposal, our contract sheet, the disclosures, the hold harmless, the permit application. Oasis signs the contract alone. The Notice of Commencement is the one form not on the link: it goes to the customer by email to sign in front of a notary, the machine texts them until the picture lands, and the rep never goes back. Narrated (Guy).",
+   "short": "The customer accepts and signs everything once on one link. The NOC is the one form that goes to them to notarize.",
+   "film": null,
+   "go": "?demo=1&tour=noc&auto=1",
+   "tour": "../?demo=1&tour=noc&auto=1&voice=1",
+   "meta": "7 steps · ~2 minutes · 16 Sep evening",
+   "date": "2026-09-16",
+   "where": [
+    "customer",
+    "cc"
+   ],
+   "ask": [
+    "How does the customer sign?",
+    "What is the NOC and who handles it?"
+   ],
+   "links": [
+    {
+     "href": "sign-everything.html",
+     "text": "The customer's phone"
+    }
+   ],
+   "words": "The customer signs everything, once. One link. The proposal, our contract sheet, the disclosures, the hold harmless and the building permit application, every form the address needs, filled in on the lines, all under one signature. That acceptance is the contract: they are locked in. Oasis signs the contract and initials the terms. The close is one line: great, I can get you started now, go ahead and accept here, and we get everything moving on our end. Nothing waits. The second they sign, the permit opens on Sam and the material opens on Jonathan. Custom and aluminum the moment the deposit is in. The town's forms are on the file signed and stamped, so Sam pulls the permit off them. Luis knows a job is coming. Nobody waits on a notary. The one form off the link: the NOC. It is the rep's. Florida wants the owner to sign the Notice of Commencement in front of a notary, so it is not on the link and it is not the customer's errand. The file fills it in the moment they sign, it rides on the SIGNED email, and it is yours: you are the notary, or any bank, or your own DocuSign. Get it stamped and put the picture on the file. Sam records it. It holds nothing. Not the permit, not the material, not the contract. The county wants it before the first inspection on jobs over $5,000, so it has to be on the file before the crew's first inspection. Under $5,000 there is no NOC at all. The file reminds you. Not Sam. Day two, day five, day nine, two weeks, three weeks, a month: a buzz on your phone with the customer's name, and an email with the filled form attached, until the stamped copy is on the file. Kevin edits those reminders as rows. The customer note stays off. There is a switch that would email the customer the NOC with a photo link and text them until it is back. Kevin turned it off: the NOC is the rep's, not the customer's. Nothing about paperwork goes to the customer after they sign. Nothing to learn. It comes to you. The customer signs once. The office gets the permit and the material the same minute. You get the SIGNED email with the NOC in it and a reminder until it is done. Still easier. Just compliant."
+  },
+  {
+   "id": "ride-along-the-paperwork",
+   "title": "Gio · The paperwork, signature to permit",
+   "what": "One link signs the job: the proposal and our contract sheet, seven green spots. The disclosures can ride the same link with one switch. The NOC, the Hold Harmless and the permit applications need a notary, so the file fills them in from the county's owner of record and Sam prints, notarizes and pulls the permit. Narrated (Guy), 2:18. Superseded 16 Sep evening: the Hold Harmless and the permit application sign on the link; the NOC goes to the customer to notarize (the film above).",
+   "short": "One link signs the job; the county forms fill themselves from the file; Sam prints, notarizes and pulls the permit.",
+   "film": "ride-along-the-paperwork",
+   "go": null,
+   "tour": null,
+   "meta": "7 scenes · 2:18 · 16 Sep · made with tools/ride-along",
+   "date": "2026-09-16",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "How does the paperwork get from signature to permit?"
+   ],
+   "links": [],
+   "words": "This is the paperwork Ride-Along, for Gio. What signs on the link, what can ride with it, and what has to go to Sam. About two minutes. Step one. You save the proposal from the calculator and tap SEND TO SIGN on its row. The customer gets one link. It opens on their phone: the proposal with the drawing, the scope, the price and the payment options. Step two. Under the proposal is our contract sheet, the same carbon we sign now, typed. Seven green spots: grade, payment, consent, balance, revisions, signature, date. They type their name once and tap each spot in order. The file keeps every stamp with the clock. That is the contract, and it already works on every link you send. Step three. The disclosures. Wood fence, warranty, survey, core drill and paver, removal and reinstall. They are already built and hosted. Today they sit on the permit run, after the signing. One switch moves them onto the same link, listed right under the contract: one tap each, same name, same signature. One send. Step four. What cannot ride the link. The Notice of Commencement needs a notary in every county we work, and Volusia wants wet ink. Same for the Hold Harmless and the homeowner permit applications. So the file fills them in instead: the owner of record straight from the county appraiser, the address, our contractor block, the description of work. A finished PDF lands on the file. Nobody types it. Step five. Who does what. You: one tap. The customer: opens, initials, signs. The machine: the signature opens the paperwork checklist for that address, fills the NOC, files the PDFs, and lights Sam's tile with a clock. Sam: prints, notarizes, pulls the permit. You never chase a form. The signature starts the chain. Send one link. The rest is on the file. Practice on Practice one through four: open the link as the customer, tap through the sheet, and watch what the file does next."
+  },
+  {
+   "id": "ride-along-the-invoice",
+   "title": "Laura · Jess · The Invoice",
+   "what": "The moment Luis signs off with the finished photos, the file builds the customer's invoice by itself: the signed estimate, the deposit taken, any signed change order, the photos, the sign-off and the text with the pay link, on one INVOICE card. The office checks it and taps Approve, or Hold and says why. Nothing to learn; it comes to you. Narrated (Guy), 2:55. 17 Sep: the card grew up (381). With the switches on, nobody taps Approve: the machine builds it, QuickBooks makes it, the customer gets it by email and text with the pay link, the reminders run on a plan, a call card lands on the office at 4 hours, and paid closes it. The film still shows the Approve path, which stays for a red card. The picture page is the one to send Jess and Laura until the new film is cut.",
+   "short": "When Luis signs off, the file builds the invoice by itself: one INVOICE card, Approve or Hold.",
+   "film": "ride-along-the-invoice",
+   "go": null,
+   "tour": null,
+   "meta": "the picture: 17 Sep · 381 · switches OFF · the film: 9 scenes · 2:55 · 16 Sep",
+   "date": "2026-09-17",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "How does the invoice get made?"
+   ],
+   "links": [
+    {
+     "href": "the-invoice.html",
+     "text": "▶ Open the picture · old way, new way"
+    },
+    {
+     "href": "the-bills-before-after.html",
+     "text": "Before and after"
+    }
+   ],
+   "words": "This is the invoice Ride-Along, for Laura and Jess. Nothing to learn here, and nothing changes today. This is what's going to happen, so you've seen it before it lands. Today, when Luis signs a job off, the office builds the invoice by hand. Open the job for the contract price and the deposit. Open Billdu or QuickBooks. Find the customer. Type the invoice. Send it. Type the text. Then watch for the payment and type that in too. Eight touches, for money we already know the amount of. Here's what happens instead. The moment Luis's sign-off lands with the finished photos, the customer's file builds the invoice by itself and puts this card in front of the office. Invoice ready. It's already typed. The signed estimate. The deposit we took. Any signed change order. The invoice amount, which is just the math. The crew's finished photos, right there. Luis's sign-off. And the text that goes to the customer, from the company line, with the pay link, already written. When something is off, the card is red before anyone opens it. Photos short of the rule. A change order nobody signed. It says exactly what's missing, so you're never guessing. Laura, Jess, this is your move. Right amount, the work is done: tap Approve, and the invoice is sent. Something's off: tap Hold and say why, and Luis or the rep gets tagged on the file. You were the ones building it. Now you're the ones who say send. When Kevin turns the switch on, your Approve creates the invoice in QuickBooks, sends the customer the text with the pay link from the company line, and starts the thirty-day clock. The reminder, the pay link and the close-out run themselves. Eight touches become one. Nobody types an amount. How it rolls out. Today, nothing changes. Keep doing it the way you do it. Then one day the card shows up on your screen. It says what it is and what to press. That's the whole instruction. Then the switches go on, one at a time, and Kevin tells you when. Last thing, and it's the most important one. This is not something to learn. There's nothing to memorize and there's no test. It's just what's going to happen. Today you hunt and figure it out. This is the opposite: it comes to you, and the card tells you what to do. If a card is ever confusing, the card is wrong, not you. Tell Kevin, and he'll fix the card."
+  },
+  {
+   "id": "ride-along-hand-it-back",
+   "title": "Jess · Sam · Jonathan · Hand It Back",
+   "what": "Kevin's rule: nobody asks \"what do I do?\". Whatever reaches you — a sub's email, a crew's paper, a fee receipt — the machine types it and hands it back as one card: SUB INVOICE · CREW INVOICE · FEE RECEIPT LANDED, the amount, the job, the paper. Approve, Wrong job, or Hold. Migration 376 on live, every switch OFF. Narrated (Guy), 3:15.",
+   "short": "A sub’s email, a crew’s paper, a fee receipt: the machine types it and hands it back as one card. Approve, Wrong job, or Hold.",
+   "film": "ride-along-hand-it-back",
+   "go": null,
+   "tour": null,
+   "meta": "9 scenes · 3:15 · 16 Sep · made with tools/ride-along · switches OFF",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "What do I do when a sub or crew invoice comes in?"
+   ],
+   "links": [
+    {
+     "href": "HAND-IT-BACK.md",
+     "text": "The lane"
+    }
+   ],
+   "words": "This is the hand-it-back Ride-Along. Two minutes. Kevin's rule, in one line: nobody in this office should ever have to ask, what do I do. Whatever reaches you, the machine takes it, does the typing, finds the file it belongs to, and hands it back to you with one decision on it. Today it looks like this. Jess gets a sub's invoice by email: open it, find the job, type it into Contractors Cloud, pay it, type it into QuickBooks. A crew hands Obed a piece of paper: it goes into a spreadsheet, somebody types it into Contractors Cloud, Jess cuts the check. Sam pays a permit fee and types it in as paid. Jonathan does the supplier invoices. About twenty a day, and the invoice number is blank on every one of them. Here's the change. Obed takes the crew's paper invoice, snaps it on the job in his app, types the amount once, and it's a card on the customer's file before he's back in the truck. Crew invoice landed. MK Fencing. The amount. The job it's on. The photo. Jess sees it, and it's one tap. Every kind of thing that bills us gets the same card. A supplier's bill. A sub's invoice. A crew's invoice. A fee receipt. The card says which one it is before the name, who landed it and how, the amount, the job, and the paper. Nothing to look up. Sam, yours works the same way. When Simplifile records the N-O-C, its receipt email lands on the file the permit is on. Fee receipt landed. You approve it. Nothing gets typed into Contractors Cloud. Your move, every time, is one of three. Right job, right amount: tap Approve. Wrong job: say so, pick the right file, and it moves there. Something's off: hold it and say why. You were the one typing it. Now you're the one who says yes. What you know about the job is the decision. The typing was never the job. What changes. Twenty bills a day typed by hand becomes zero. One card for every kind. One tap, and when Kevin turns the switch on, that tap is what puts it into Contractors Cloud with the invoice number filled in, and into QuickBooks the same second. How it rolls out. Today, nothing changes. Keep doing it the way you do it. Then one day a card shows up on your screen. It says what it is and what to press. That's the whole instruction. Then the switches go on, one at a time, and Kevin tells you when. Last thing. Nothing to learn, nothing to memorize, no test. Nobody in this office should ever have to ask, what do I do. It comes to you, and the card says what to press. If a card ever leaves you asking that question, the card is wrong, not you. Tell Kevin, and he'll fix the card."
+  },
+  {
+   "id": "ride-along-the-bills",
+   "title": "Jonathan · The Bills",
+   "what": "The supplier's email lands on the customer's file by itself; a BILL LANDED card with the invoice number, the PO, the amount next to what we ordered at, the due date and the PDF; red if it is over. Jonathan verifies and taps Approve. You were the one typing it; now you are the one who says yes. Nothing to learn; it comes to you. Narrated (Guy), 3:16.",
+   "short": "A supplier bill lands on the customer’s file by itself: the number, the PO, the amount next to the order. Jonathan taps Approve.",
+   "film": "ride-along-the-bills",
+   "go": null,
+   "tour": null,
+   "meta": "10 scenes · 3:16 · 16 Sep · made with tools/ride-along · switches OFF",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "What happens when a supplier bill lands?"
+   ],
+   "links": [
+    {
+     "href": "the-bills-before-after.html",
+     "text": "One invoice, before and after"
+    }
+   ],
+   "words": "This is the bills Ride-Along. Two minutes. Nothing about your job changes today. This is what's coming, so you've seen it before it lands. Today it starts with an email like this one. The supplier sends it to Jess. Jess forwards it to Jonathan. Jonathan opens the PDF, finds the job in Contractors Cloud, opens the material order, and types the bill. Then Claudette pulls the same invoice off the supplier's portal and types it into QuickBooks. Same invoice, typed twice, by two people, from two different copies. Count the touches. Jess, three. Jonathan, seven. Claudette, eight. Eighteen human touches for one invoice, and about twenty invoices come in every day. Here's what changes. The same email now lands on the customer's file by itself. The machine reads it, finds the job by the PO on the material order, saves the PDF on the file, and puts this card in front of Jonathan. Bill landed. Everything you need to verify is on the card. The supplier. The invoice number. The PO, and the material order it found. The invoice amount, right next to what we ordered at. The due date. The PDF, one tap away. And a credit comes in as a credit. When the invoice is more than we ordered at, the card is red before anyone opens it, and it says by how much. That's the one you look at. Jonathan, this is your new role. Right job, right amount: tap Approve. One tap, done. Wrong job: say so on the card. Over the estimate: open the order and decide. You were the one typing it. Now you're the one who says yes. Nobody knows the orders like you do. That's the part that stays. When Kevin turns the switch on, your Approve is what puts the bill into Contractors Cloud with the invoice number filled in, and into QuickBooks the same second. Eighteen touches become two. One copy of the invoice, on the file, linked to both books. Claudette pays it. Nothing gets typed twice. How it rolls out. Today, nothing changes. Keep doing it the way you do it. Then one day the card shows up on your screen. It says what it is and what to press. That's the whole instruction. Then the switches go on, one at a time, and Kevin tells you when. Last thing, and it's the most important one. This is not something to learn. There's nothing to memorize and there's no test. It's just what's going to happen. Today you hunt and figure it out. This is the opposite: it comes to you, and the card tells you what to do. If a card is ever confusing, the card is wrong, not you. Tell Kevin, and he'll fix the card."
+  },
+  {
+   "id": "ride-along-what-youre-getting",
+   "title": "The sales team · Where you were, what you're getting",
+   "what": "Six weeks ago, the greatest hits of the thread, the numbers, today's app, then the three new things: Photos on the file, the help desk both ways, Send quote to Gio. Narrated (Guy), 4:27.",
+   "short": "Six weeks ago, today’s app, and the three new things: Photos on the file, the help desk both ways, Send quote to Gio.",
+   "film": "ride-along-what-youre-getting",
+   "go": null,
+   "tour": null,
+   "meta": "15 scenes · 4:27 · 16 Sep · made with tools/ride-along",
+   "date": "2026-09-16",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "What changed in the app for the reps?"
+   ],
+   "links": [],
+   "words": "Guys. Three minutes. Where you were six weeks ago, where you are today, and the three new things landing on your phone this week. Six weeks ago, this was the app. A debugging banner across the top, screens that took half a minute, numbers that didn't always save. And you used it anyway. Every day. And the thread. Haakon just hung one, nineteen forty. Ron on a Sunday morning, fifty-six twenty-six. Sunday funday. Weekend stacks. Eight hundred sixty-three posts and eight hundred ninety-five reactions in forty-six days, most of them the flame. You told us what was wrong, and you kept going while we fixed it. Ron: really enjoying this program. Haakon: two flips is quicker than four. Gio: next level stuff. And on the day the whole internet's database went down, you freaked out. Which means it's working. Two hundred forty bells. One point two one million dollars announced through the bell. The thank-you text went from three percent of visits to fifty-five. Mike sent three hundred forty-six thank-yous in one afternoon. Seven PM is your second busiest hour. And you do it all in about eleven minutes a day. Today it's a video game. The streak and the daily standard. Your whole pie in dollars and what's gone cold. The board. And the plays: pre-written texts for the moment the file is in, one tap, you press send. The customer answers back, and your number moves. Now the new stuff. Three things, all of them on the customer file, all of them landing on your phone this week. New thing one. Photos, right on the customer file. Tap plus photo, the camera opens. Then the words, tag anybody who needs to see it and they get the push, the crew, and the dollar amount. The old CompanyCam pictures sit in the same strip. Mike: crew and dollars on every picture. That's your Oasis board. The office sees the same picture the same second, in the Photos room. Every picture on every file, newest first, with the day's dollars added up at the top. New thing two. The help desk, both ways. From any customer file, tag anybody inside the company. Jonathan for the permit, Obed for the gate, Jess for the paperwork. They get the buzz, the file opens on that customer, and they answer in the same thread. And it works the other way: Sam needs a survey photo, she tags you, your phone buzzes, one tap and you're on the file. You put it to bed from the truck. It's not a chat room. Nobody is pushed unless they're named, and there's no feed to babysit. Your name on it, or you never hear about it. The customer never sees any of it. New thing three. Send quote to Gio. Hard fence job, racked, sloped, HOA, roots? Open the Armory and tap Ask Gio. Answer the checklist with chips, snap the pictures, send. It lands at the top of Gio's Line. He types a price and a word, and your phone buzzes with it. Forty minutes becomes ten. One more. When your customer texts the office about the permit or the start date, the file already knows and writes the reply. Sam reads it, one tap, it goes out from the brand line. You'll see it on the file. Put to bed without anybody calling you. And the rewards. The wallet, the races, the crowns, the catalog. The engine that pays them landed September tenth. Don't worry about it. It's coming, and it will be spectacular. That's it. Everything lives on the customer now, and the whole company is on the file with you. Try one today: one photo, one tag, or one ask to Gio. Go find the heartbeat."
+  },
+  {
+   "id": "ride-along-put-it-to-bed",
+   "title": "Everyone · Put it to bed",
+   "what": "A customer asks about the permit. Sam tags Jonathan. He is busy; his phone buzzes; the file already knows and the answer is written; one tap sends it from the brand line. Narrated (Guy), 1:55.",
+   "short": "A customer asks about the permit. Sam tags Jonathan, his phone buzzes, the answer is written, one tap sends it.",
+   "film": "ride-along-put-it-to-bed",
+   "go": null,
+   "tour": null,
+   "meta": "8 scenes · 1:55 · 16 Sep · made with tools/ride-along",
+   "date": "2026-09-16",
+   "where": [
+    "cc",
+    "app"
+   ],
+   "ask": [
+    "A customer asked something I cannot answer. What do I do?"
+   ],
+   "links": [],
+   "words": "This is the coolest part. A customer asks a question. The person who owns it is busy. And it gets put to bed in ten seconds, without a phone call. Watch. Step one. Linh texts the office: any update on the permit? It doesn't sit in somebody's phone. It lands on The Line, under What they are asking, with a clock on it. Step two. Sam tags Jonathan. He holds the permit. She doesn't call him, she doesn't walk over. One line, on Linh's file. Step three. Jonathan is in the middle of something. His phone buzzes and the card sits in the corner until he deals with it. Nobody else is pinged. Just him. Step four. He opens it. The file already knows: with the county since September tenth, day six of about five. And the answer is already written, in the office's words. He doesn't have time to call Linh. He doesn't have to. Step five. Read it, fix a word if you want, one tap: send it from the brand line. It goes out as a text from Liberty Fencing, with six seconds to undo. Linh never sees the file. And it's put to bed. Sam sees who it reached, that he opened it, and that it's done. Forty-two minutes, start to finish, on the customer's file forever. Not four people and forty minutes. That's the whole move. The ask lands on the file. You tag the one who holds it. The file writes the answer, and they send it. Try it once today."
+  },
+  {
+   "id": "ride-along-tell-the-team",
+   "title": "Everyone · Tell the Team",
+   "what": "The new button under the texts card on any customer: type @ and a name, say what you need, they get the buzz and the file. Narrated (Guy), the words on screen, 1:38.",
+   "short": "Under the texts card: type @ and a name, say what you need, they get the buzz and the file.",
+   "film": "ride-along-tell-the-team",
+   "go": null,
+   "tour": null,
+   "meta": "7 scenes · 1:38 · 16 Sep · made with tools/ride-along",
+   "date": "2026-09-16",
+   "where": [
+    "app"
+   ],
+   "ask": [],
+   "links": [],
+   "words": "New in the app tonight. It's called Tell the Team. One button, anybody inside the company, on any customer, in about ten seconds. Here's how it works. Step one. Open any customer and look at the texts card. Under the thread there's a second button now: Tell the Team. Step two. Tap it, type the at sign and a name, and say what you need. At Sam, customer wants to move the start to Monday. At Obed, the gate latch didn't catch. At Jess, they're asking for the paperwork again. That is the whole move. Step three. That person's phone buzzes and the file opens right on the customer. They answer in the same thread, and you get the buzz back. Nobody has to hunt for which customer it was. The office sees the same note on The Line, in gold, marked inside. The customer never sees any of it. The gold bubbles stay inside the company. Two rules. It's not a chat room. Nobody has to watch it, and you only hear about the ones with your name on them. And if it's about a customer, it lives on the customer. No text chains, no which-customer-was-that, no post-its. Try it once today. Say one thing about one customer to one person. Then answer one when it comes back. That's it. Go find the heartbeat."
+  },
+  {
+   "id": "tour:chain",
+   "title": "Everyone · one job, signature to close-out",
+   "what": "The customer signs on the link; the rep is done. Sam's tile lights, then Jonathan's, then Luis takes the job, the Job Board moves by itself, Laura invoices, and Kevin sees the chain. Nobody assigns anything.",
+   "short": "The customer signs on the link and the job walks itself: Sam, Jonathan, Luis, Laura, in order. Nobody assigns anything.",
+   "film": null,
+   "go": "?demo=1&tour=chain&auto=1",
+   "tour": "../?demo=1&tour=chain&auto=1&voice=1",
+   "meta": "11 steps · ~3 minutes · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "What happens after the customer signs?"
+   ],
+   "links": [
+    {
+     "href": "who-does-what.html",
+     "text": "Who does what"
+    }
+   ],
+   "words": "One job, signature to close-out. Nobody assigns anything. This is how a job moves now. Watch each person's part light up in turn. The rep does one thing. The office does four. The machine does the rest. The customer signs on the link. On their phone. The rep sent the estimate link from the app. The customer signs it in the driveway or that night. That signature is the trigger: the file opens the paperwork checklist by itself, the contract settles itself, and the rep is finished. He turned in nothing. The link did it. Sam's tile lights: Paperwork. The same second, the paperwork ask lands on the office seat with a clock. Sam's desk bings, her phone buzzes, her email has the link. Nobody told her. Nobody made a task. Sam presses Done. It asks for the real thing. Not a checkbox: the county forms for that address, filled from the file, one upload. That input closes Paperwork and opens the next ask on its own: Permit, on Sam, with a five-day clock. The permit number in. Then one paste. Sam types the permit number. The machine texts the customer \"your permit is in\" from the main line, the moment you flip that switch. The Locate ask opens with the whole 811 ticket already written from the file. Sam pastes it once. Jonathan's turn. Material releases, and MATERIAL opens on Jonathan's seat: the PO number, then the start date. The schedule text goes to the customer. He never adds a name to a project team. Luis's turn: Take the job. The start date pushes production. Luis, Obed or Robert gets the buzz and taps Take the job. On a roof that supervisor then gives seven taps as the job goes: a photo, a result, a day. On a fence: sign off. The Job Board moves by itself. Every sold job, by stage, sliding right as each input lands. Nobody drags a card. If you want to know where a job is, it is here, and it is on the file. Laura's turn: Ready to invoice. The supervisor signs off and Ready to invoice lights on Laura. Invoice from the file; the number closes it; the customer gets the invoice text. Payment lands, close-out is one tap, and the review prompt goes to the customer. And you see the whole chain. Who got it, who did it, how fast: this led to this led to this, down to done. Appreciate on the one that landed well. That is the job, start to finish. The rep: one link. The office: four inputs. The supervisor: a tap and, on a roof, seven more. The customer: texted at every turn. The machine: everything between. Nobody's job is taken; the hunting is."
+  },
+  {
+   "id": "tour:office",
+   "title": "The office · from Contractors Cloud to here",
+   "what": "Sam, Laura, Jonathan, Jess. Ten hand-made tasks became four inputs: the Office room's four tiles, oldest ask on top, Done asks for the input, every CC step and what became of it, the paperwork checklist that opens itself, the note that keeps you on the file, the text from the file, the Answer button.",
+   "short": "The Office room: four tiles, oldest ask on top, Done asks for the input, the checklist opens itself.",
+   "film": null,
+   "go": "?demo=1&as=office&tour=office&auto=1",
+   "tour": "../?demo=1&as=office&tour=office&auto=1&voice=1",
+   "meta": "9 steps · ~2½ minutes · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "Where do my tasks come from now (the office)?"
+   ],
+   "links": [
+    {
+     "href": "who-does-what.html",
+     "text": "Who does what, before and now"
+    },
+    {
+     "href": "workflows.html",
+     "text": "Every step"
+    }
+   ],
+   "words": "Sam, Laura, Jonathan: your day, the new way. In Contractors Cloud a job was ten tasks, assigned by hand, closed with a checkbox. Here it is four inputs from you, and the machine opens every next step by itself. Two minutes. The Office room. Four tiles, four inputs. Paperwork, permit, ready to invoice, payment. The number is how many are waiting on the office; the clock on each is how long. Nothing here was created by hand. When a customer signs, the paperwork ask opens itself. When the paperwork finishes, the permit ask opens itself. Oldest on top. Done asks for the input. No task list to filter. The one that has waited longest is first. Press Done and it asks for the real thing: the permit number, the PO number, the start date, the invoice number. That input goes on the file and opens the next step. There is no checkbox to tick. Every CC step, and what became of it. This card is the whole map. Fence and Oasis: ten tasks became four inputs. Roofing: twenty-one became four for the office and seven for the supervisor. Follow up with the homeowner is gone: their texts land on the file and a fifteen-minute clock watches them. Make a PM folder is gone: the file is the folder. On the file: the paperwork checklist. It opened the moment the customer signed on the link. The contract settled itself. What is left is the county forms for that address: the NOC, the hold harmless, filled from the file. Upload the recorded one and the permit ask opens. A note to the team, on the file. Tag, then type. Tag @Jessica Coley and she gets the bing and the email with a link here. Once you have written on a file you stay on it: every later note reaches you. The customer never sees a word of this. Text the customer from the file. The box at the top goes to the customer, from the company line, signed with the company name, and stays on the file. Permit is in, you are on the schedule, the invoice is out: the lines are already written. Later those go out by themselves; today you press Send. What they are asking, and the file answers. Every customer waiting right now, sorted by what they asked. Where the file already knows the answer, Answer shows it in our words. Read it, fix a word, Send. That is the whole day. Four inputs. Everything else opens itself, and the documents from Contractors Cloud are landing on the files tonight: contracts, surveys, NOCs, permits. CC stays open beside this until Kevin says otherwise. This is where we talk, and where the job moves."
+  },
+  {
+   "id": "supervisor-app",
+   "title": "The supervisor app · the real screens",
+   "what": "Today and the LIVE FILES door, the job files, a file's four lanes, OFFICE with @names and the + ask and the paperclip, PHOTOS with TAKE, the crew pilot. A film, not a walkthrough: press play.",
+   "short": "The supervisor app, screen by screen: LIVE FILES, a file’s four lanes, OFFICE with @names, PHOTOS with TAKE.",
+   "film": "supervisor-app",
+   "go": null,
+   "tour": null,
+   "meta": "10 scenes · ~2½ minutes · Guy · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "app"
+   ],
+   "ask": [
+    "How do I take a job and run it (supervisors)?"
+   ],
+   "links": [],
+   "words": "This is the supervisor app on your phone. Luis, Obed, Robert, Mike. Every job file, four lanes, photos, in the truck. These are the real screens, not drawings. About two minutes. Step one. Open the app and you land on Today. The gold button at the top, LIVE FILES, is the door to every customer. The board under it is the crew pilot: it fills as the office puts crews on fenced sites. Step two. Job files. Every open sold job the database lets your login see, newest signed on top, with the CC number and the dollars. Tap the customer. Step three. The file. Four lanes across the top. CHAT is the homeowner's lane for when their door opens, so write there like they are reading it. Everything posted on this file is on the record: no edits, no deletes. Step four. SUPER. Crew and supervisor. Type it in the box at the bottom, send. The response clock is on the record, so a question that waited an hour says so. Step five. OFFICE. Staff only; the homeowner can never reach this lane, and the database enforces it. Type at Samantha, or at office, and say what you need. They get the bing on the desk, the buzz on the phone, and the email with a link to this file. The plus button opens an ask: a material request, a site issue, a sign-off, with an owner and a clock. The paperclip attaches a document. Step six. PHOTOS. Tap TAKE, shoot the job, say it with the picture, at Luis. It lands here, on the file's thread, and in the office's Photos room, next to the CompanyCam pictures. Nothing gets lost in a text thread again. Sites, Crews, Pay. The crew pilot: the sites the office has fenced, the crews on them today, arrival and departure stamped by the phone itself. Real crews, real fences, real stamps, or nothing. Straight talk. Today the app carries the notes, the asks and the photos. Texting the customer, and their texts coming back, are on the same file on the site, which runs on your phone from the home screen. The app catches up on that next. Same file, same words, either door. Open one job today. Tap LIVE FILES, open a customer, write one line in OFFICE with someone's name, and take one photo. That is the whole move. The office sees it without a phone call."
+  },
+  {
+   "id": "tour:super",
+   "title": "Luis, Obed, Robert · the supervisor's day",
+   "what": "Your board and Take the job, the customer's text line on the file, the inside note that the customer never sees, photos, your crews and the nugget, what they are asking, the Village. On a phone it is the phone layout.",
+   "short": "The supervisor’s day in Central Command: the board, Take the job, the customer’s text line, the inside note, photos, your crews.",
+   "film": null,
+   "go": "?demo=1&as=manager&tour=super&auto=1",
+   "tour": "../?demo=1&as=manager&tour=super&auto=1&voice=1",
+   "meta": "9 steps · ~2½ minutes · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [],
+   "links": [],
+   "words": "Luis, Obed, Robert: this is your phone. Open the site on your phone and add it to the home screen. Every room, every customer, in the truck. The supervisor app opens the same file with the same three lanes; this is where the words live. Production: your board, and Take the job. Who has the customer right now, and for how long. When the office sets the start date, the job pushes to you. Tap Take the job and it is yours; the office sees it the same second. The customer: text them from the file. The box at the top goes to the customer, from the company line, signed with the company name. We are running a day early, is Thursday morning good. It stays on the file. The customer answers and it lands right here, with a clock nobody has to watch. The inside note: the wall. The tan box is us. Tag @office or @Jessica Coley and they get the bing and the email with a link to this file. The customer never sees this lane. Green is the customer. Tan is the team. You cannot mix them up. Photos: the job, in pictures. Plus Photo is the camera. The words, tag a person, the crew, the dollars. It lands on the file and in the Photos room, and everyone named gets the buzz. No more pictures lost in a text thread. Your crews and the nugget. A crew is a name and a phone, no login. Send one instruction with the picture and the price. They tap RECIBIDO by name, bring back the photo, and you hold the receipt: texted, opened, received, done. Sod on the wrong yard never happens twice. What they are asking. Your customers waiting right now, sorted by what they asked. Where the file knows the answer, Answer puts the words in the box. Read it, fix a word, Send. The Village: the whole company. Say it, press Enter. Tag @office, @sales, or a name. The 🎤 talks for you when your hands are busy. Answer here, not by text, so it is on the record. That is the supervisor's day. Take the job. Text the customer from the file. Note the team on the file. Photo the work. Nugget the crew. The office sees all of it without a phone call, and so does Kevin."
+  },
+  {
+   "id": "tour:crews",
+   "title": "Mike · the picture, the price, the crew",
+   "what": "The crews card, adding a crew, the photo with scope and price on the customer's file, tap it → Send to a crew, the nugget already filled, the receipt (texted · opened · RECIBIDO · brought back), and what Ramón sees.",
+   "short": "The crews card, the photo with scope and price, tap it, Send to a crew, the receipt: texted · opened · RECIBIDO.",
+   "film": null,
+   "go": "?demo=1&as=manager&tour=crews&auto=1",
+   "tour": "../?demo=1&as=manager&tour=crews&auto=1&voice=1",
+   "meta": "7 steps · ~90 seconds · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "How do I send a job to a crew?"
+   ],
+   "links": [
+    {
+     "href": "https://kdelaney05-bit.github.io/liberty-command/c.html?demo=1",
+     "text": "Ramón's screen"
+    }
+   ],
+   "words": "Mike, this is your crews card. It sits on The Line. Your crews are people with a phone, not logins. Every nugget you send them lands here with a receipt. Add a crew once. + Crew: a name, a phone, their language. That is it. Each crew gets one link for good; they never install anything. On the job: take the picture. Open the customer. ＋ Photo. The scope on the yard, then the words, the crew, and the price for that piece. Post it. Scope and price, locked in the pic. Tap the photo. Send to a crew. Any photo on the file has the button. It carries the picture, your words, the customer and the price with it. The nugget, already filled. Pick who. Say what to bring back: a photo, a number, yes or no, or just done. A by-when if you want. Send it. Their court, your receipt. Ramón gets a text with the link. Here you see: texted at 7:23, opened at 7:31, RECIBIDO Ramón at 7:32, brought back with the photo. Nothing to argue about. If it says not opened, call before a pallet moves. What Ramón sees. The customer and the address in gold. Your picture, big. Your words. The price. One button: RECIBIDO · ENTENDIDO. Then the one thing to bring back."
+  },
+  {
+   "id": "tour:gio",
+   "title": "Gio · quotes to price",
+   "what": "The Line, his card, the clock, type the price and a word, Send the price, PRICED on the customer's file, the Pipeline.",
+   "short": "Quotes to price: the card, the clock, type the price and a word, Send the price, PRICED on the file.",
+   "film": null,
+   "go": "?demo=1&as=manager&tour=gio&auto=1",
+   "tour": "../?demo=1&as=manager&tour=gio&auto=1&voice=1",
+   "meta": "7 steps · ~90 seconds · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "How do I price a quote (Gio)?"
+   ],
+   "links": [],
+   "words": "Gio, this is The Line. One screen: every customer and every one of us waiting on the other end. Your part is one card. Two minutes and you have it. Quotes to price. Your card. A rep on a hard fence job taps ASK GIO on his phone. His checklist lands here: type, height, feet, gates, tear-out, grade, ground, HOA, survey, access, need-by. His pictures and his note with it. No phone call to get the facts. The clock is the number. Each ask shows how long it has waited and who asked. Gold past an hour, red past four. Get it under an hour and the guys sell on the spot. Type the price and a word. Send the price. The price, and one line the rep should know: add a day for the tear-out, racked panels. Press Send the price. His phone buzzes with it, and it lands on the customer's file. On the file: PRICED · 38 min. Mark Whitfield. Ron asked, you priced it in thirty-eight minutes, your note is right there. Anyone who opens the file sees it. Nothing to repeat. The Pipeline. Every rep's pie: priced and waiting, by when he last worked it. Tap a name for his book. Yours is in there too. You are selling again. That's your part. Sit on The Line. When a quote lands, price it, send it, and go sell. The rest of the room runs itself."
+  },
+  {
+   "id": "tour:keys",
+   "title": "Jess and Luis · the keys",
+   "what": "Every room. Say it, the bing, what you sent out and the chain, where it is stuck, View as, the crews, the rail, My book, the file and ＋ Photo, the receipt, and the phone on the road.",
+   "short": "Every room, for Jess and Luis: Say it, the bing, what you sent out, View as, the crews, My book, the phone on the road.",
+   "film": null,
+   "go": "?demo=1&tour=keys&auto=1",
+   "tour": "../?demo=1&tour=keys&auto=1&voice=1",
+   "meta": "12 steps · ~2½ minutes · 16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [],
+   "links": [],
+   "words": "Jess, Luis: you hold the keys. Every room, every file, and View as: be anyone and reach anyone. Two minutes for the whole place. Say it, to anyone, about any customer. Type who it is about, pick a person, say what you need, press Post. It reaches them, it lands on the customer's file, and it tells you who it reached. The bing. When somebody tags you: a sound and this card. It stays until you press Got it or Open the file. Your name on it, or you never hear about it. What you sent out. Every directive of yours: who it reached, who picked it up, who did it, how fast. Tap one and the chain opens, straight down until done. Look in without hovering. Tap Appreciate on the one that landed well. Where it is stuck. Every open ask, grouped by what it waits on. The number is the oldest one. That one is the one that is actually stuck. View as. Pick a name at the top and the site becomes their rooms with their name on it. See exactly what Sam sees, then back to you. Only the keys have this. My crews and the nugget. Luis: a crew is a name and a phone, no login. A nugget is one instruction, the address, the picture, the price, and the one thing to bring back. They tap RECIBIDO by name and you hold the receipt. Your rail. You're up is the short list with your name on it. Nothing goes unanswered is the company board. People is the direct lines: just the two of you and Kevin. Files opens on My book. Your customers, one card each: the wait in gold or red, the open tasks with who has them and how long. Everyone is the whole list. The file, and Photo. The photos sit first. Plus Photo is the camera on a phone: the words, tag people, the crew, the dollars. It lands on the thread and everyone named gets the buzz. The customer never sees it. The receipt. Under every note: who it reached, buzzed on the phone or waiting in their You're up, and a check the moment they open it. There when you look. On the road: the same site. Open it on your phone and add it to the home screen. Same rooms, same files, in your pocket. Luis, that is your mobile command center."
+  },
+  {
+   "id": "tour:1",
+   "title": "Sam · The Line, on her screen",
+   "what": "The bing, ✓ Got it, the file and the thread, the receipt under a note, ＋ Photo, the Photos room, the Answer button, Quotes to price, My book, the next word, what you sent out.",
+   "short": "The Line on Sam’s screen: the bing, ✓ Got it, the file and the thread, the receipt, ＋ Photo, the Answer button.",
+   "film": null,
+   "go": "?demo=1&as=office&tour=1&auto=1",
+   "tour": "../?demo=1&as=office&tour=1&auto=1&voice=1",
+   "meta": "16 steps · ~2 minutes · 15–16 Sep",
+   "date": "2026-09-16",
+   "where": [
+    "cc"
+   ],
+   "ask": [
+    "What is The Line?"
+   ],
+   "links": [],
+   "words": "This is The Line. Everything with a human waiting on the other end, on one screen. Nobody has to hunt, and nothing gets to sit. Two minutes, and you will have seen all of it. Say it — to anyone, about any customer. Type who it is about (last name, street or phone), pick a person or the customer, say what you need, press Post. It reaches them and it lands on that customer’s file, so it is never lost. And it tells you who it reached. The bing. When somebody tags you: a sound, and this card. It stays until you press ✓ Got it or Open the file. No feed to babysit — your name on it, or you never hear about it. What you sent out. Every directive of yours, who it reached, who picked it up, who did it and how fast. Tap one and the chain opens: this led to this led to this, straight down, until done. Look in without hovering. Nobody is beaten here; they look good. Where it is stuck. Every open ask, grouped by what it waits on. The bar is how many; the number is the oldest one. That one is the one that is actually stuck. What they are asking — and the file answers. The customers waiting right now, sorted by what they asked. When the file already knows the answer, the Answer button shows what the file says and the reply in our own words. You read it, fix a word, press Send. It never sends by itself. The hard quote goes to Gio. A rep on a hard fence job taps ASK GIO on his phone: the checklist and the pictures land here. Gio types the price and a word, presses Send the price, and the rep’s phone buzzes. The clock on each one is the number we watch. My crews — and the nugget. A crew is a name and a phone, no login. A nugget is one instruction, the customer and the address, and the one thing to bring back: a photo, a number, yes or no, done. They tap RECIBIDO by name. The court shows the receipt on every one: texted, opened, received, brought back. Nothing to argue about. Your rail. You’re up is the short list with your name on it. Nothing goes unanswered is the company board. Rooms, People (direct lines, just the two of you and Kevin), and who spoke last. The Pipeline. Every rep’s pie: what he has priced and is waiting to hear on, by when he last worked it. Tap a name for his book alone. Tap a customer and you are on their file. Photos. Every picture on every file, newest first, with the customer’s name, who shot it, the crew and the dollars. One search box. Crews, sales and supervisors talk in pictures here. Files opens on My book. Your customers, one card each: the wait in gold or red, the open tasks as a checklist with who has them and how long, Open the file. Everyone is the whole list. Same job list and tasks you know from CC, with the hunting cut out. The file — and ＋ Photo. The photos sit first. ＋ Photo is the camera on a phone: the words, tag people, the crew, the dollar amount. It lands on the thread and everyone named gets the buzz. The customer never sees it. The next word. The twelve approved lines, already filled in for this customer. Close the permit ask and the permit line is in the box. Set the schedule and the schedule line is in the box with the date. A customer asks about paying and Reply puts the pay-link line in the box. One tap left: Send. The receipt. Under every note: who it reached — 📱 buzzed on the phone, 🖥 waiting in their You’re up — and a ✓ the moment they open it. Never a notification. There when you look. That’s the whole thing. Two things to try this week: say something to one person about one customer, and answer when someone says something to you. The customer never sees our notes. Only the texts we send them."
+  },
+  {
+   "id": "sign-on-the-phone-small",
+   "title": "Every rep · Sign on the phone",
+   "what": "The whole thing the customer does on their phone: open the link, read it, sign once, done. Twenty-two seconds, no words.",
+   "film": "sign-on-the-phone-small",
+   "meta": "0:22 · no words · 17 Sep",
+   "date": "2026-09-17",
+   "short": "What the customer does: open the link, read it, sign once, done. Twenty-two seconds.",
+   "go": null,
+   "tour": null,
+   "where": [
+    "customer"
+   ],
+   "ask": [
+    "What does the customer see when they sign?"
+   ],
+   "links": [],
+   "words": ""
+  }
+ ]
+}
