@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=140';
-import * as api from './api.js?v=140';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=140';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=140';
-import { iconForAsk } from './words.js?v=140';
-import { DEMO_STEPS } from './demo-office.js?v=140';
-import { reload } from './app.js?v=140';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=140';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=141';
+import * as api from './api.js?v=141';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=141';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=141';
+import { iconForAsk } from './words.js?v=141';
+import { DEMO_STEPS } from './demo-office.js?v=141';
+import { reload } from './app.js?v=141';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=141';   // 365/369: the Bills tile and queue
 
 let filter = 'all', laneF = 'OFFICE', oldOnly = false;   // 135: the list can show the field's asks too, and only the ones older than three days
 const canVoid = (q) => ['owner', 'admin', 'manager', 'office'].includes(state.me?.role) || (q.assignee_id && q.assignee_id === state.me?.id);
@@ -109,7 +109,7 @@ export function renderOffice(root) {
       <div class="switch"><span><b>The packet on the estimate page</b> — the disclosures and the county or city forms for the address appear under the customer's signature, one tap each, the same signature covers them — the permit application and the hold harmless included, nothing notarized on the link. Oasis signs the contract alone. The Notice of Commencement is the one form not on it (the switch below). Off = the estimate page is exactly as it was.</span><button class="btn sm ${sw('esign_packet')?.is_on ? 'ok' : ''}" data-switch="esign_packet">${sw('esign_packet')?.is_on ? 'ON' : 'off'}</button></div>
       <div class="switch" data-tour="noc-switch"><span><b>The NOC note to the customer — OFF: the NOC is the rep's</b> (Kevin, 17 Sep). The Notice of Commencement is out of the customer's process: nothing on the link, no email, no texts. The rep gets it signed by the owner before a notary and uploads it; the file reminds the rep on days 2, 5, 9, 14, 21 and 30 (rows in noc_rep_nag_steps). It holds nothing — the permit and the material open the minute they sign. ON would email the customer the filled NOC with a photo link and text them until it is back. Leave it off.</span><button class="btn sm ${sw('noc_notarize')?.is_on ? 'ok' : ''}" data-switch="noc_notarize">${sw('noc_notarize')?.is_on ? 'ON — turn off' : 'OFF'}</button></div>
       <div class="switch"><span><b>The order to the supplier</b> — the moment a calculator job's material releases (paperwork official, deposit in), the order goes by email to the supplier the products point at (FIS, Merchants, Ideal, Iron World, Statewide, Home Depot), from Jonathan's seat, the calculator's material order attached, the bill of materials in the body, Gio and the watchers copied. Wood waits for the permit. Gio's approval or a product not in the guide keeps it a human send. The supplier's order number still closes the ask. Off = the ask says "Send to supplier"; Jonathan presses it on the file.</span><button class="btn sm ${sw('material_to_supplier')?.is_on ? 'ok' : ''}" data-switch="material_to_supplier">${sw('material_to_supplier')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
-      <div class="switch"><span><b>The warranty deed</b> — when the county lists a different owner than the person who signed (or a company or trust), the customer is emailed for a picture of the deed with a photo link (the rep, Sam and the watchers copied) and texted from the rep's seat until it lands (day 1, 3, 6, 10, 15, 21; the rep and the office pushed along the way; rows in noc_nudge_plans under "deed"). The deed ask on the office holds nothing. Off = the ask still opens; a seat presses Request the deed on the Property card.</span><button class="btn sm ${sw('deed_request')?.is_on ? 'ok' : ''}" data-switch="deed_request">${sw('deed_request')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
+      <div class="switch"><span><b>The warranty deed</b> — when the county lists a different person than the one who signed, the customer is emailed for a picture of the deed with a photo link (the rep, Sam and the watchers copied) and texted from the rep's seat until it lands (day 1, 3, 6, 10, 15, 21; the rep and the office pushed along the way; rows in noc_nudge_plans under "deed"). The deed ask on the office holds nothing. A company, a trust or an HOA as the owner: the office checks Sunbiz first and nobody is emailed unless a seat presses Request the deed (413, Sam). Off = the ask still opens; a seat presses Request the deed on the Property card.</span><button class="btn sm ${sw('deed_request')?.is_on ? 'ok' : ''}" data-switch="deed_request">${sw('deed_request')?.is_on ? 'ON — turn off' : 'OFF — turn on'}</button></div>
     <div class="card" id="cc-workflow"></div>`;
 
   workflowCard(root);

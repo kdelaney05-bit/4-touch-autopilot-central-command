@@ -1,10 +1,10 @@
 // Production — the stage board (every sold customer, by who holds them), My
 // board (the supervisor's jobs), and Take the job.
-import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=140';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=140';
-import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=140';
-import { reload } from './app.js?v=140';
-import { renderRoom } from './village.js?v=140';
+import { state, isDemo, personName, firstName, takeJob, assignJob, handBack, seatName } from './book.js?v=141';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=141';
+import { STAGES, STAGE_LINE_DAYS, brandName, stageLabel } from './config.js?v=141';
+import { reload } from './app.js?v=141';
+import { renderRoom } from './village.js?v=141';
 
 let sub = 'stage';      // stage | mine
 let brand = 'all';
