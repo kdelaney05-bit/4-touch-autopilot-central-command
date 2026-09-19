@@ -14,12 +14,12 @@
 //   a conversation   → v_team_room?thread_id=  (team_messages with room = 'thread')
 //   start · say · seen · add a face → thread_start · thread_post · thread_seen · thread_add
 //   the rooms        → village.js renderRoom, mounted inside the board as before
-import * as api from './api.js?v=145';
-import { state, isDemo, personName, firstName, searchCustomers, loadFile, threadForJob, postMessage } from './book.js?v=145';
-import { esc, toast } from './ui.js?v=145';
-import { renderRoom, personOf, charStyle, charFace, titleOf, wireAtOn } from './village.js?v=145';
-import { micButton } from './dictate.js?v=145';
-import { DEMO } from './demo.js?v=145';
+import * as api from './api.js?v=146';
+import { state, isDemo, personName, firstName, searchCustomers, loadFile, threadForJob, postMessage } from './book.js?v=146';
+import { esc, toast } from './ui.js?v=146';
+import { renderRoom, personOf, charStyle, charFace, titleOf, wireAtOn } from './village.js?v=146';
+import { micButton } from './dictate.js?v=146';
+import { DEMO } from './demo.js?v=146';
 
 const ROOM_ORDER = ['sales', 'office', 'production', 'village'];
 const ROOM_WHO = {   // who has the standing room on the board (316's push rules; sales = the reps' thread)
