@@ -1,14 +1,14 @@
 // Office — the asks, oldest first, each closed by its proof (migration 306).
 // Done here is ask_settle(): the input lands on the file, the chain opens the
 // next ask and pushes its owner. No checkbox anywhere.
-import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting } from './book.js?v=146';
-import * as api from './api.js?v=146';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=146';
-import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=146';
-import { iconForAsk } from './words.js?v=146';
-import { DEMO_STEPS } from './demo-office.js?v=146';
-import { reload } from './app.js?v=146';
-import { billsTile, billsQueueCard, wireBills } from './bills.js?v=146';   // 365/369: the Bills tile and queue
+import { state, isDemo, personName, settleAsk, handAsk, voidAsk, uploadDoc, setSwitch, offerNextWord, nextWordFor, loadSubLocksWaiting, loadHandoffsWaiting, handoffTake } from './book.js?v=147';
+import * as api from './api.js?v=147';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=147';
+import { brandName, askLabel, stageLabel, STAGES, BRAND_BY_CC } from './config.js?v=147';
+import { iconForAsk } from './words.js?v=147';
+import { DEMO_STEPS } from './demo-office.js?v=147';
+import { reload } from './app.js?v=147';
+import { billsTile, billsQueueCard, wireBills } from './bills.js?v=147';   // 365/369: the Bills tile and queue
 
 let filter = 'all', laneF = 'OFFICE', oldOnly = false;   // 135: the list can show the field's asks too, and only the ones older than three days
 const canVoid = (q) => ['owner', 'admin', 'manager', 'office'].includes(state.me?.role) || (q.assignee_id && q.assignee_id === state.me?.id);
@@ -49,7 +49,7 @@ async function fillLocates(root) {
 }
 
 export function renderOffice(root) {
-  setTimeout(() => { fillSubLocks(root); fillLocates(root); }, 0);   // 397: the subs waiting to be typed into CC, after the paint · 18 Sep: the locates about to expire
+  setTimeout(() => { fillHandoffs(root); fillSubLocks(root); fillLocates(root); }, 0);   // 417: the handoffs first — a customer is waiting on us   // 397: the subs waiting to be typed into CC, after the paint · 18 Sep: the locates about to expire
   const ALL = state.queue;
   const QO = ALL.filter((q) => q.lane === 'OFFICE');
   // 135 (Jess, 18 Sep 1:51 PM: "Is there a way I can see all open tasks?… overdue… so we dont forget any final inspections"): Office, Field or Everything, and only the old ones
@@ -92,6 +92,7 @@ export function renderOffice(root) {
       ${rows.length ? raw(rows.map(row).join('')) : raw('<div class="empty">Nothing open. When a job signs, its paperwork checklist lands here.</div>')}
     </div>
     ${raw(billsQueueCard())}
+    <div id="handoffs-waiting"></div>
     <div id="sub-locks-waiting"></div>
     <div id="locates-expiring"></div>
     ${canFlip ? raw(`<div class="card"><div class="kicker">The machine · switches (owner only)</div>
@@ -285,6 +286,19 @@ function stepRow(s, canEdit) {
     <td class="small">${esc(s.owner_rule || '—')}</td>
     <td style="min-width:220px">${note}</td>
   </tr>`;
+}
+
+/* 417: THE HANDOFF — every customer a seat walked to the next department and who has them now, oldest first (gospel 37:
+   nobody says "call the office"). GOT IT is the seat saying so to the faces on the conversation; Done on the ask settles it. */
+const DEPT_WORD = { office: 'the office', schedule: 'scheduling', production: 'the supervisor', billing: 'billing', sales: 'the rep' };
+async function fillHandoffs(root) {
+  const box = root.querySelector('#handoffs-waiting'); if (!box) return;
+  const rows = await loadHandoffsWaiting().catch(() => []);
+  if (!rows.length) { box.innerHTML = ''; return; }
+  const me = state.me;
+  box.innerHTML = `<div class="card" data-tour="handoffs"><div class="kicker" style="color:var(--gold)">Handoffs · a customer was walked to the next department · who has them now · ${rows.length}</div><div class="rows">${rows.map((h) => `<div class="r"><span><b>${esc(h.customer_name)}</b>${h.city ? ' · ' + esc(h.city) : ''} · ${esc(brandName(String(h.cc_company_id)))} → <b>${esc(DEPT_WORD[h.to_dept] || h.to_dept)}</b> · <b>${esc((h.to_name || '').split(' ')[0])}</b> has them · ${esc((h.manager_name || '').split(' ')[0])} on it · from ${esc((h.from_name || '').split(' ')[0])}${h.what ? ' · ' + esc(h.what) : ''}${h.sms_id ? ' · <span class="verify">texted</span>' : h.text_error ? ' · <span class="red">no text: ' + esc(h.text_error) + '</span>' : ''}${h.status === 'taken' ? ' · <span class="chip ok">GOT IT</span>' : ''}</span><span style="display:flex;gap:6px;align-items:center"><span class="mono ${h.open_min > 60 ? 'red' : ''}">${esc(mins(h.open_min))}</span>${h.status === 'open' && me?.id && (h.to_id === me.id || (h.members || []).includes(me.id) || ['owner', 'admin', 'manager'].includes(me.role)) ? `<button class="btn sm ok" data-take="${esc(h.id)}" title="Tell the faces on the conversation you have this customer">Got it</button>` : ''}<button class="btn sm" data-open="${esc(h.customer_id)}">Open the file</button></span></div>`).join('')}</div><div class="small dimmer" style="margin-top:6px">The clock started when the customer was handed over. Answer them from the file — never "call the office". Done on the HANDOFF ask settles it.</div></div>`;
+  box.querySelectorAll('[data-open]').forEach((a) => a.onclick = (e) => { e.preventDefault(); if (window.__peek) window.__peek(a.dataset.open); });
+  box.querySelectorAll('[data-take]').forEach((b) => b.onclick = async () => { b.disabled = true; try { await handoffTake(b.dataset.take); toast('Got it — the conversation knows'); fillHandoffs(root); } catch (e) { toast(e.message, 'err'); b.disabled = false; } });
 }
 
 /* 397: the subs locked on a contract that nobody has typed into Contractors Cloud yet, oldest first (gospel 2: it shows on the room's door) */

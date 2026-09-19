@@ -18,11 +18,11 @@
 // now (that pane open, this tab in front) does not bing — it is already on the
 // screen. "Every message" at the top of the rail turns it down to tags only,
 // per person, on this browser; a filter by room comes when Kevin asks for it.
-import * as api from './api.js?v=146';
-import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=146';
-import { $, esc, toast } from './ui.js?v=146';
-import { openKey } from './threads.js?v=146';
-import { mountedRooms } from './village.js?v=146';
+import * as api from './api.js?v=147';
+import { state, isDemo, mentionSeen, directSeen, personName, firstName } from './book.js?v=147';
+import { $, esc, toast } from './ui.js?v=147';
+import { openKey } from './threads.js?v=147';
+import { mountedRooms } from './village.js?v=147';
 
 let timer = null, since = null, postsSince = null, unseen = 0;
 const seen = new Set();

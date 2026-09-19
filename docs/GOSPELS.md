@@ -225,10 +225,56 @@ wrong, not the gospel.
     prepares; it is already working the day they read it. Keep the change
     small so the note fits one screen. (17 Sep, after the signing rollout)
 
+37. **Nobody at this company says "call the office." You walk them over.** When
+    a customer brings you the next step — the HOA approved, the check is ready,
+    the day works — you hand them to the next department yourself, in front of
+    them, in one press: the ask opens on the next seat with the clock running,
+    a conversation opens with at least three of us on it (you, the seat that
+    has them now, a manager), and the customer gets one text on the company
+    line saying who has them from here and to reply right there. An official
+    welcome to the new neighborhood. The customer never dials, never repeats
+    the story, never waits on a voicemail; the department that handed off is
+    free to go do its real job. "95% of customer problems are self-inflicted:
+    missed expectations. The customer has every reason to be mad; we made them
+    mad. Instant communication from the company equals zero frustration." (19
+    Sep 2026, 2 AM — the Jason Morgan case: he texted Eric that the HOA
+    approved, was told to call the office, called two numbers four times over
+    two days, the attendant took every one, and he was ready to walk.)
+
+38. **Text first. No formalities. Cut the words by 91%.** Any customer
+    interaction that can happen in a text or a chat happens there: the
+    handoff, the schedule, the invoice, the question. They will see how much
+    easier and faster it is to type on a keypad than to sit on hold. "Texting
+    is the most efficient form of communication since Roman numerals." So the
+    company's words are short, plain and first-name — no "Dear," no "please
+    do not hesitate," no signature block; a text opens "Jason, it's Eric with
+    Liberty Fencing" and ends "Reply here — no need to call." A call is for
+    what a text cannot carry. This is the self-improvement cadence, not a
+    one-time edit: every week the machine reads which interactions still
+    went by phone or email and which outbound words were long, and proposes
+    the next one to move to text with shorter words, for a yes. (19 Sep 2026,
+    2:30 AM, the night the handoff shipped: "First day on, we caught a
+    mouse.")
+
+39. **Familiar wins over best or cheapest.** From the minute the appointment
+    is set we are connected to the customer, and every touch from then on is
+    one nurture journey: before the visit, during the job, after the last
+    invoice. Don't bug. Inform, drive, and build their curiosity about what
+    comes next — the confirmation, the "on my way," the thank-you, the
+    estimate they can tap, the handoff that names who has them, the day, the
+    crew, the photos, the review. Nobody buys the best fence or the cheapest
+    roof; they buy the company they already feel they know. That is basic
+    human behavior and Marketing 101, and the whole machine exists to make
+    us the familiar one on every file. (19 Sep 2026, 3 AM: "the more I think
+    about this the more I'm mind blown… write that down.")
+
 ## Where each one shows up
 
 | Gospel | Where it lives today |
 |---|---|
+| Nobody says "call the office" — you walk them over | **Hand off ▸** on the customer's file (Central Command v147; the phone app's chip on the next update): the HANDOFF ask on the next seat, the three-face conversation in the Village, the one text on the brand line, the Office room's "who has them now" card (migrations 416 + 417, 19 Sep) |
+| Familiar wins over best or cheapest | the 4-Touch (14), the machine's four-touch emails (229/243), the handoff text (37), the schedule and supervisor texts, the photos and the review ladder: one journey from the appointment on; the Report Card measures whether we stayed familiar (speed to first reply, text share) |
+| Text first, no formalities | the five handoff texts as rows (`office_lines` `handoff_*`, ~30 words each); the Monday report's cadence line: channel mix, long words, the next interaction to move to text (19 Sep) |
 | Every change ships with its own note | docs/was-and-is.html, department by department, with the film and the pictures (17 Sep); the rollout email and the hype-thread post the same hour |
 | Next step shouts | The NEXT line on the Property card (13 Sep); the ask clocks; the adopt buttons on an unfiled job |
 | Visually obvious | Red mismatch chip, green accepted pill, the Office door's permit lines on the home room |

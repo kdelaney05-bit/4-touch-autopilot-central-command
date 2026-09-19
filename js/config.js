@@ -47,6 +47,7 @@ export const ASK_LABEL = {
   INVOICE: 'Invoice', PAYMENT: 'Payment', CHANGE_ORDER: 'Change order', COMPLETION_SIGNOFF: 'Sign-off', COLLECT_CALL: 'Call · invoice',
   MATERIAL_REQUEST: 'Material run', SITE_ISSUE: 'Site issue', SUPERVISOR_PING: 'Supervisor', SAFETY_JHA: 'Safety',
   CUSTOMER_REQUEST: 'Customer request', SCHEDULE_QUESTION: 'Schedule question',
+  HANDOFF: 'Handoff',   // 417: the customer walked to the next department (gospel 37)
   /* Contractors Cloud's own steps, become asks here (cc_workflow_steps). */
   SOLD_CHECK: 'Sold check', INTRO_CALL: 'Intro call · colors & payment', MILESTONE: 'Milestone',
   INSPECTION: 'Final inspection', CLOSEOUT: 'Close-out',
