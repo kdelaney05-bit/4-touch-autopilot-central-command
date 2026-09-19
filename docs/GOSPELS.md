@@ -256,11 +256,24 @@ wrong, not the gospel.
     2:30 AM, the night the handoff shipped: "First day on, we caught a
     mouse.")
 
+39. **Familiar wins over best or cheapest.** From the minute the appointment
+    is set we are connected to the customer, and every touch from then on is
+    one nurture journey: before the visit, during the job, after the last
+    invoice. Don't bug. Inform, drive, and build their curiosity about what
+    comes next — the confirmation, the "on my way," the thank-you, the
+    estimate they can tap, the handoff that names who has them, the day, the
+    crew, the photos, the review. Nobody buys the best fence or the cheapest
+    roof; they buy the company they already feel they know. That is basic
+    human behavior and Marketing 101, and the whole machine exists to make
+    us the familiar one on every file. (19 Sep 2026, 3 AM: "the more I think
+    about this the more I'm mind blown… write that down.")
+
 ## Where each one shows up
 
 | Gospel | Where it lives today |
 |---|---|
 | Nobody says "call the office" — you walk them over | **Hand off ▸** on the customer's file (Central Command v147; the phone app's chip on the next update): the HANDOFF ask on the next seat, the three-face conversation in the Village, the one text on the brand line, the Office room's "who has them now" card (migrations 416 + 417, 19 Sep) |
+| Familiar wins over best or cheapest | the 4-Touch (14), the machine's four-touch emails (229/243), the handoff text (37), the schedule and supervisor texts, the photos and the review ladder: one journey from the appointment on; the Report Card measures whether we stayed familiar (speed to first reply, text share) |
 | Text first, no formalities | the five handoff texts as rows (`office_lines` `handoff_*`, ~30 words each); the Monday report's cadence line: channel mix, long words, the next interaction to move to text (19 Sep) |
 | Every change ships with its own note | docs/was-and-is.html, department by department, with the film and the pictures (17 Sep); the rollout email and the hype-thread post the same hour |
 | Next step shouts | The NEXT line on the Property card (13 Sep); the ask clocks; the adopt buttons on an unfiled job |
