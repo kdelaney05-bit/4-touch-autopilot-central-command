@@ -8,6 +8,8 @@ the file's header does.
 
 ## Read first, every session
 
+**Account switch, 19 Sep 2026 (Kevin: "I'm moving accounts. This one is out of Fable"):** `docs/HANDOFF-2026-09-19.md` is the transfer — what died with the old account (the six routines, the three artifacts, the blocked routines session), the open PRs checked against live, and what is owed. Read it after GOSPELS and LANES.
+
 **`docs/GOSPELS.md`** is Kevin's rulebook for every screen and every decision here: twenty rules in his words, 13 Sep 2026. **`docs/LANES.md`** is where each thread of work stands. Read both before touching anything. If Kevin is not around, they are how he would answer.
 
 ## The rule over everything
@@ -38,6 +40,8 @@ in CC.**
   checked 17 Sep noon; two 381s are applied on live, 381_the_invoice and 381_the_first_piece_leads, like the two 369s), but
   check `schema_migrations` on live before writing one: sibling sessions
   number in parallel.
+
+  **19 Sep 2026 (8:30 AM ET, checked live by the account-switch session):** top is **417** — `416_handoff_ask_type` + `417_the_handoff` (THE HANDOFF, applied ~3 AM; this app v147). **Next free = 418.** `415_the_hunter` is written on trureview-mobile PR #433 and NOT applied (tables missing on live); 406 is live and still unregistered. Every "next free" below this line is history.
 
   **17 Sep 2026 (evening):** live top is **397** — `397_the_sub_locked_in` (Kevin + Jess, the Billdu handoff meeting; APPLIED LIVE by the Billdu-handoff session, dry-run rolled back first on "Delaney Oasis walk, Kevin"; file on trureview-mobile main): `job_sub_locks` · `sub_options` · `sub_lock` · `sub_lock_mark` · `v_job_sub_locks`. This app v109: the checkbox on ＋ Photo, the Sub locked in card, NEXT, the Office room's waiting list, the film `?tour=sub`. **Next free = 398** — read `schema_migrations` first.
   **18 Sep 2026 (morning):** live top is **404** — `404_the_visit_on_the_reps_google_calendar` (Sam: a visit booked at the New lead door reached Gio's phone and the file, never his Google Calendar; Kevin: "we don't need the calendars but it should sync for sure"; APPLIED LIVE by the cloud session, dry-run rolled back first on Sam's own test visit; file on trureview-mobile branch `claude/google-calendar-appt-sync-6rtbkd`): `gcal_events` · `gcal_sync_due` · `gcal_sync_mark`; worker `backend/worker/gcal-sync.mjs` on the box as `liberty-gcal.service` — **ON since 18 Sep 11:32 AM ET**: the Calendar scope is on the liberty-nurture delegation in the Liberty Workspace (which holds Pro-Tech too), the Calendar API is enabled in the liberty-nurture project, `liberty-gcal` is enabled on the box and the first pass put Gio's, Jessica's, Ron's and Eric's visits on their calendars; the Oasis Workspace took it at 11:42 AM and Mike's practice visit landed on the retry at 11:43 (five rows live, nothing due); **405** `typed_into_cc_is_ccs_calendar` the same morning (a visit the office typed into CC — `cc_mirror_queue` by_hand or sent — is CC's on the calendar: no insert, handoff if ours is there). Nothing in this app changed. PR #430 (trureview-mobile) merged 18 Sep.
