@@ -19,11 +19,11 @@
 // with no live source reads honestly absent. Sources are never blended;
 // nothing is projected into an actual. Costs and profit have no feed yet and
 // say so.
-import * as api from './api.js?v=145';
-import { state, isDemo, personName } from './book.js?v=145';
-import { html, raw, esc } from './ui.js?v=145';
-import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel, ROOMS_BY_ROLE, ROOMS_BY_SEAT } from './config.js?v=145';
-import { renderRoom } from './village.js?v=145';
+import * as api from './api.js?v=146';
+import { state, isDemo, personName } from './book.js?v=146';
+import { html, raw, esc } from './ui.js?v=146';
+import { STAGES, STAGE_LINE_DAYS, BRAND_BY_CC, brandName, stageLabel, ROOMS_BY_ROLE, ROOMS_BY_SEAT } from './config.js?v=146';
+import { renderRoom } from './village.js?v=146';
 
 const money = (n) => n == null ? '—' : '$' + Math.round(Number(n)).toLocaleString();
 const moneyK = (n) => n == null ? '—' : Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : Math.abs(n) >= 1000 ? '$' + Math.round(n / 1000) + 'K' : '$' + Math.round(n);
@@ -108,6 +108,10 @@ export function renderHome(root) {
       <div class="right">${isDemo() ? raw('<span class="chip demo">DEMO · FICTIONAL BOOK</span>') : raw('<span class="chip">LIVE · DB</span>')}</div>
     </div>
     <div id="ledgers"><div class="card"><div class="note">Reading the ledgers…</div></div></div>
+    <div class="card" id="reports">
+      <div class="kicker">Reports · yours alone</div>
+      <div class="inv"><span class="mono dimmer">MON</span><span><b>The 60-Day Catch-Up</b> <span class="small">three companies, week by week, every figure with its source</span><div class="small">First edition 19 Sep 2026. Refreshed every Monday 8 AM ET from Contractors Cloud, QuickBooks, Google and HubSpot. Opens in a new tab under your Claude sign-in; the numbers never sit on this public site.</div></span><span class="src">CLAUDE · WEEKLY</span><a class="btn" href="https://claude.ai/artifact/K4ZFf4uCDrE3jHT8DgKeDA" target="_blank" rel="noopener">Open</a></div>
+    </div>
 
     ${tagged.length ? raw('<div class="card" style="border-color:var(--goldbtn)"><div class="kicker" style="color:var(--gold)">Tagged for you · ' + tagged.length + '</div>' + tagged.slice(0, 5).map((m) => `<div class="inv" style="cursor:pointer" onclick="__peek('${m.customer_id}')"><span class="mono dimmer">${esc(new Date(m.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }))}</span><span><b>${esc(m.author_name || '')}</b> · ${esc(m.customer_name || '')}<div class="small">${esc((m.body || '').slice(0, 120))}</div></span><span></span><span></span></div>`).join('') + '</div>') : ''}
     <div class="two">
