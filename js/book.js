@@ -1,8 +1,8 @@
 // The book — everything the rooms read, loaded once, refreshed on demand.
 // Every row comes through RLS with the seat's own token. ?demo=1 swaps in a
 // fictional book and refuses every write.
-import * as api from './api.js?v=146';
-import { DEMO } from './demo.js?v=146';
+import * as api from './api.js?v=147';
+import { DEMO } from './demo.js?v=147';
 
 export const state = {
   me: null,            // reps row for the signed-in seat
@@ -204,8 +204,10 @@ export async function loadFile(customerId) {
     // 397: the subs locked on this job — who is doing the work, for how much, the receipt on the text, the office's mark
     api.page(`v_job_sub_locks?select=*&customer_id=eq.${customerId}&order=locked_at.desc`, 50).catch(() => []),
   ]);
+  // 417: THE HANDOFF — every time a seat walked this customer to the next department (gospel 37)
+  const custHandoffs = await api.page(`v_handoffs?select=*&customer_id=eq.${customerId}&order=created_at.asc`, 50).catch(() => []);
   if (!job.appt_starts_at && appt?.appt_starts_at) job.appt_starts_at = appt.appt_starts_at;
-  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
+  return { job, customer: cust, texts, emails: Array.isArray(emails) ? emails : [], thread, messages, asks, attachments, handoffs, custHandoffs: Array.isArray(custHandoffs) ? custHandoffs : [], outbox, estimates, estLinks, parcel, filled: Array.isArray(filled) ? filled : [],
            appt: appt || null, mirror: mirror || null,
            fence: fence && fence.found ? fence : null, packet: Array.isArray(packet) ? packet : [], noc: noc || null, counter: counter && counter.found ? counter : null, deed: deed || null, permitRule: Array.isArray(permitRule) ? permitRule[0] || null : permitRule || null,
            bills: Array.isArray(bills) ? bills : [], deposit: deposit || null, invoiceQueue: Array.isArray(invoiceQueue) ? invoiceQueue : [], invoiceState: invoiceState && typeof invoiceState === 'object' ? invoiceState : null, photos: Array.isArray(photos) ? photos : [], quotes: Array.isArray(quotes) ? quotes : [], receipts: Array.isArray(receipts) ? receipts : [], subLocks: Array.isArray(subLocks) ? subLocks : [],
@@ -233,6 +235,11 @@ export async function voidAsk(askId, reason) { guard(); return api.rpc('ask_void
 const guard = () => { if (isDemo()) throw new Error('Demo — nothing is saved'); };
 export async function takeJob(jobId, note) { guard(); return api.rpc('job_take', { p_job: jobId, p_note: note ?? null }); }
 export async function assignJob(jobId, to, note) { guard(); return api.rpc('job_assign', { p_job: jobId, p_to: to, p_note: note ?? null }); }
+/* 417: THE HANDOFF (gospel 37). preview = who takes it, who is on it, the text; start = the ask + the conversation + the text; take = "got it". */
+export async function handoffPreview(customerId, to, what) { return api.rpc('handoff_preview', { p_customer: customerId, p_to: to, p_what: what ?? null }); }
+export async function handoffStart(customerId, to, what, note, text, sendText = true) { guard(); return api.rpc('handoff_start', { p_customer: customerId, p_to: to, p_what: what ?? null, p_note: note ?? null, p_text: text ?? null, p_send_text: !!sendText }); }
+export async function handoffTake(id) { guard(); return api.rpc('handoff_take', { p_handoff: id }); }
+export async function loadHandoffsWaiting() { return api.page('v_handoffs?select=*&status=in.(open,taken)&order=created_at.asc', 200); }
 export async function handBack(jobId, note) { guard(); return api.rpc('job_handback', { p_job: jobId, p_note: note ?? null }); }
 export async function settleAsk(askId, proof) { guard(); return api.rpc('ask_settle', { p_ask: askId, p_proof: proof }); }
 export async function openAsk(threadId, lane, askType, note, assigneeId, docKind) {

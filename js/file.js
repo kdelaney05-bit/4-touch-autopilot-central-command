@@ -2,18 +2,18 @@
 // the final invoice, the asks with their clocks, the proof on the file, who
 // touched it. Every seat writes on the same file; the database decides the
 // lanes (090/091) and the line the text goes out on (306).
-import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl } from './book.js?v=146';
-import { $, html, raw, esc, toast, openModal } from './ui.js?v=146';
-import { enterPosts, micButton } from './dictate.js?v=146';
-import { wireAtOn } from './village.js?v=146';   // Sam, 18 Sep: the Village's @ picker, on the note box too
-import { quoteFileCard, wireQuotes } from './quotes.js?v=146';
-import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=146';
+import { subOptions, subLock, subLockMark, state, isDemo, personName, firstName, mentionHandle, loadFile, textCustomer, cancelText, takeJob, handBack, assignJob, addDoc, adoptJob, postMessage, openAsk, ensureThread, seatName, linePreview, threadForJob, mentionSeen, invoiceRequest, markLost, reviveCustomer, createEstimate, estimateCatalog, parcelLookup, fillPaperwork, openPaperwork, openPacketFile, nocSend, nocStatus, materialSend, deedSend, filePermitSet, postPhoto, photoSrc, loadCrews, threadReceipts, receiptWords, nextWordFor, renderLine, mirrorMark, apptSet, docUrl, handoffPreview, handoffStart } from './book.js?v=147';
+import { $, html, raw, esc, toast, openModal } from './ui.js?v=147';
+import { enterPosts, micButton } from './dictate.js?v=147';
+import { wireAtOn } from './village.js?v=147';   // Sam, 18 Sep: the Village's @ picker, on the note box too
+import { quoteFileCard, wireQuotes } from './quotes.js?v=147';
+import { STAGES, stageLabel, brandName, askLabel, ASK_LABEL } from './config.js?v=147';
 const STAGE_CLS = Object.fromEntries(Object.entries(STAGES).map(([k, v]) => [k, v.cls]));   // the stage chip's color
-import { say, thing, iconForAsk } from './words.js?v=146';
-import { settleDialog, handDialog, voidDialog } from './office.js?v=146';
-import { reload } from './app.js?v=146';
-import { relTime } from './production.js?v=146';
-import { billsCards, billsNext, wireBills } from './bills.js?v=146';   // 365/369: the Bill landed and Invoice ready cards
+import { say, thing, iconForAsk } from './words.js?v=147';
+import { settleDialog, handDialog, voidDialog } from './office.js?v=147';
+import { reload } from './app.js?v=147';
+import { relTime } from './production.js?v=147';
+import { billsCards, billsNext, wireBills } from './bills.js?v=147';   // 365/369: the Bill landed and Invoice ready cards
 
 let current = null;    // { customerId, data }
 let peek = null;       // the drawer's own { customerId, data }
@@ -160,6 +160,8 @@ function draw(root, ctx, compact) {
   // 408: the calls the rep made from his iPhone (the app's Call button, 18 Sep) or logged by hand — the tap is the record, the answer to the app's one question is the outcome; a cancelled dial is not drawn
   (ctx.data.appCalls || []).filter((c) => c.outcome !== 'cancelled').forEach((c) => { const p = personOf(c.rep_id); const who = p ? firstName(p.name) : 'the rep'; const what = c.outcome === 'talked' ? 'talked to them' : c.outcome === 'voicemail' ? 'voicemail' : 'not logged yet'; const how = c.via === 'manual' ? ' · logged by hand' : ' · from the iPhone';
     ev(c.tapped_at, 'step', c.rep_id, c.direction === 'in' ? `📞 ${name} called ${who} · ${what}${how}` : `📞 ${who} called them · ${what}${how}`); });
+  // 417: THE HANDOFF — the customer walked to the next department; the line says who has them now (gospel 37, Kevin 19 Sep: "an official welcome to the new neighborhood")
+  (ctx.data.custHandoffs || []).forEach((h) => ev(h.created_at, 'hand', h.from_id, `HANDOFF → ${DEPT_WORD[h.to_dept] || h.to_dept} · ${firstName(h.to_name || '') || 'the next seat'} has ${firstName(name)} from here · ${firstName(h.manager_name || '') || 'a manager'} on it${h.what ? ' · ' + h.what : ''}${h.sms_id ? ' · texted on the line' : h.text_error ? ' · no text: ' + h.text_error : ''}${h.status === 'taken' ? ' · GOT IT' : h.status === 'done' ? ' · settled' : ''}`));
   handoffs.forEach((h) => ev(h.at, 'step', h.to_seat, `${seatName(h.to_seat) || 'nobody'} ${h.kind === 'handback' ? 'handed it back' : h.kind === 'assign' ? 'was assigned by ' + (seatName(h.by_id) || '') : 'took the job'}${h.note ? ' · ' + h.note : ''}`));
   asks.filter((a) => a.state !== 'OPEN' && a.closed_at).forEach((a) => ev(a.closed_at, 'step', a.assignee_id, a.state === 'VOID' ? `${(seatName(a.closed_by) || a.assignee_name || 'someone').split(' ')[0]} took ${thing(a)} off the list${a.void_reason ? ' — ' + a.void_reason : ''}` : a.proof?.waived ? `${(seatName(a.closed_by) || a.assignee_name || 'someone').split(' ')[0]} skipped ${thing(a)}: ${a.proof.waived}` : `${(seatName(a.closed_by) || a.assignee_name || 'someone').split(' ')[0]} turned in ${thing(a)}${a.proof?.value ? ': ' + a.proof.value : ''}`));   // 127: the seat that pressed Done, not the holder (Jess uploaded, the line said Samantha)
   if (job.contract_signed_at) ev(job.contract_signed_at, 'money', job.rep_id, `SOLD · ${money(job.fin_sold_amount)} · ${job.rep_name || ''}`);
@@ -190,6 +192,7 @@ function draw(root, ctx, compact) {
         ${customer?.phone ? raw(`<a class="btn" href="tel:${esc(customer.phone)}">Call</a>`) : ''}
         ${customer?.email ? raw(`<a class="btn" href="mailto:${esc(customer.email)}">Email</a>`) : ''}
         <button class="btn" id="file-text" title="Text the customer from the main line">Text</button>
+        ${customer && job.job_id ? raw('<button class="btn hand" id="file-handoff" title="Walk the customer to the next department: the ask opens on the next seat, a conversation opens with three of us on it, and the customer gets one text saying who has them now. Nobody says call the office.">Hand off ▸</button>') : ''}
         <button class="btn" id="file-tag" title="Note to the team · tag the next person">Tag</button>
         ${customer ? raw('<button class="btn" id="file-estimate" title="Build the itemized estimate · one link · they tap ACCEPT">Estimate</button>') : ''}
         ${customer && job.job_id && job.contract_signed_at && (staff || (job.rep_id && job.rep_id === me?.id)) ? raw('<button class="btn" id="file-change-order" title="381: a change order is an estimate the customer signs on the same link. Signed, it is a line on the invoice; unsigned, the invoice waits.">Change order</button>') : ''}
@@ -430,6 +433,7 @@ function draw(root, ctx, compact) {
   }));
   if (q('#file-text')) q('#file-text').onclick = () => { const c = q('#compose'); if (c) { c.scrollIntoView({ block: 'center', behavior: 'smooth' }); c.focus(); } };
   if (q('#file-tag')) q('#file-tag').onclick = () => { const n = q('#note'); if (n) { n.scrollIntoView({ block: 'center', behavior: 'smooth' }); n.focus(); } };
+  if (q('#file-handoff')) q('#file-handoff').onclick = () => handoffDialog(ctx, name, async () => { await reload(true); again(); });
   // THE JETSTREAM (Sam, 18 Sep 10:02 AM: "the @ doesn't work in the 'Note to Team' section… in CC we start typing part of someone's
   // name and their name gets highlighted so we can hit Enter"; 10:28: "to reply, we have to go into the corner"). The Village's own
   // picker on this box: type @ and two letters, the people come up, Enter picks; Ctrl+Enter posts (Enter alone is a new line, v130).
@@ -928,6 +932,42 @@ function bubble(i) {
   const p = i.pid === 'machine' ? { name: 'The machine', initials: 'AI' } : personOf(i.pid);
   const cls = i.kind === 'machine' ? 'machine' : i.kind === 'chat' ? 'chat' : 'out';
   return `<div class="msg ${cls}" ${sty}><div class="who"><i class="av">${esc(i.pid === 'machine' ? 'AI' : initialsOf(p || { name: i.who }))}</i>${esc(i.who)}${i.line ? ' · ' + esc(i.line) : ''} · ${esc(when(i.at))}${i.kind === 'chat' && i.pid && i.pid !== 'machine' && i.pid !== state.me?.id ? ` <button class="btn sm" data-reply-to="${esc(i.pid)}" title="Answer on this file: To fills in with their name" style="margin-left:6px;padding:0 7px;font-size:11px;line-height:18px">↩ Reply</button>` : ''}</div>${esc(i.body)}${i.photo ? photoThumb(i.photo) : ''}${i.rcpt ? receiptLine(i.rcpt) : ''}${i.media ? `<div><img class="pthumb" src="${esc(i.media)}" data-full="${esc(i.media)}" alt="photo"></div>` : ''}</div>`;
+}
+
+/* 417: THE HANDOFF (Kevin, 19 Sep 2026, 2 AM, on Jason Morgan — told "call the office", two days of voicemail, ready to walk:
+   "Eric throws customer and next up employee and manager in the thread. Hands it to the next department… an official welcome
+   to the new neighborhood… make sure the handoffs are obvious and that a manager or at least 3 people handle the text thread
+   handoff"). One door: pick the department, say what they brought you, read the text they get, press. The server opens the
+   HANDOFF ask on the next seat, opens the Village conversation with at least three faces, and texts the customer on the
+   brand's line as you. The seats door picks the people; you cannot pick the wrong one. Gospel 37. */
+const DEPT_WORD = { office: 'the office', schedule: 'scheduling', production: 'the supervisor', billing: 'billing', sales: 'the rep' };
+const DEPTS = [['office', 'The office · paperwork, HOA, permits, anything'], ['schedule', 'Scheduling · the install day'], ['production', 'Production · the supervisor and the crew'], ['billing', 'Billing · the invoice, the payment'], ['sales', 'Sales · back to the rep']];
+function handoffDialog(ctx, name, after) {
+  let preview = null;
+  const refresh = async (fm) => {
+    const to = fm.to.value; const what = fm.what.value.trim(); const who = fm.querySelector('#ho-who'); const txt = fm.text;
+    if (!to) { who.textContent = 'Pick the department.'; return; }
+    who.textContent = 'Reading the seats…';
+    try {
+      preview = await handoffPreview(ctx.customerId, to, what || null);
+      who.innerHTML = `<b>${esc(firstName(preview.to_name || '') || 'the next seat')}</b> has ${esc(firstName(name))} from here · <b>${esc(firstName(preview.manager_name || '') || 'a manager')}</b> on it · on the conversation: ${esc((preview.members || []).map((m) => firstName(m.name || '')).join(', '))}${preview.can_text ? ` · the text goes from ${esc(preview.line || 'the main line')}` : ` · <span class="red">no text will go: ${esc(preview.why_no_text || '')}</span>`}`;
+      if (!txt.dataset.edited) txt.value = preview.text || '';
+    } catch (e) { who.textContent = e.message; }
+  };
+  openModal({ title: `Hand ${firstName(name)} to the next department`, submitLabel: 'Hand off', wide: true, body: `
+      <div class="field"><label>To · who has them from here</label><select name="to" required><option value="">— pick the department —</option>${DEPTS.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join('')}</select></div>
+      <div class="field"><label>What they brought you · one line · the customer reads it</label><input name="what" placeholder="HOA approved, ready to schedule · wants the invoice · a question about the crew's day"/></div>
+      <div class="field"><label>Note to the team · the customer never sees this</label><input name="note" placeholder="called the office twice already · promised a call today"/></div>
+      <div class="field"><label>The text they get · from the ${esc(brandName(ctx.data.job?.cc_company_id))} line, as you · edit it, then press</label><textarea name="text" rows="4" placeholder="Pick the department and the words fill in…"></textarea></div>
+      <div class="small" id="ho-who" style="margin-top:-4px">Pick the department.</div>
+      <div class="note">One press, three things: the ask opens on the next seat with the clock running, a Village conversation opens with at least three of us on it, and the customer gets this one text — reply right here, no need to call anyone. Nobody at this company says "call the office".</div>`,
+    onOpen: (fm) => { fm.to.onchange = () => refresh(fm); fm.what.onchange = () => refresh(fm); fm.text.oninput = () => { fm.text.dataset.edited = '1'; }; },
+    onSubmit: async (fm) => {
+      if (!fm.to.value) throw new Error('Pick the department');
+      const r = await handoffStart(ctx.customerId, fm.to.value, fm.what.value.trim() || null, fm.note.value.trim() || null, fm.text.value.trim() || null, preview ? !!preview.can_text : true);
+      toast(`${firstName(r?.to_name || '') || 'The next seat'} has ${firstName(name)} · ${firstName(r?.manager_name || '') || 'a manager'} on it${r?.text ? ' · they were texted' : r?.text_error ? ' · no text: ' + r.text_error : ''}`);
+      if (after) await after();
+    } });
 }
 
 function askRow(a, me) {
